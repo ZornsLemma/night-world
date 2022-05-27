@@ -1343,6 +1343,10 @@ l3565 = loop_c3564+1
     sta l0443,x                                                       ; 54a8: 9d 43 04    .C.
     dex                                                               ; 54ab: ca          .
     bne loop_c54a5                                                    ; 54ac: d0 f7       ..
+; TODO: This code probably initialises some game state; if this is
+; one-off initialisation I think it could just have been done at build
+; time, but if it changes during gameplay it makes sense to have code
+; to reset things when a new game starts.
     ldx #0                                                            ; 54ae: a2 00       ..
     clc                                                               ; 54b0: 18          .
     ldy #&30 ; '0'                                                    ; 54b1: a0 30       .0
@@ -1350,15 +1354,15 @@ l3565 = loop_c3564+1
     ldy #0                                                            ; 54b5: a0 00       ..
 ; &54b7 referenced 1 time by &54d9
 .c54b7
-    lda l5700,x                                                       ; 54b7: bd 00 57    ..W
-    sta l5602,y                                                       ; 54ba: 99 02 56    ..V
-    lda l5701,x                                                       ; 54bd: bd 01 57    ..W
-    sta l5603,y                                                       ; 54c0: 99 03 56    ..V
+    lda packed_data+0,x                                               ; 54b7: bd 00 57    ..W
+    sta unpacked_data+2,y                                             ; 54ba: 99 02 56    ..V
+    lda packed_data+1,x                                               ; 54bd: bd 01 57    ..W
+    sta unpacked_data+3,y                                             ; 54c0: 99 03 56    ..V
     lda #0                                                            ; 54c3: a9 00       ..
-    sta l5760,x                                                       ; 54c5: 9d 60 57    .`W
-    sta l5761,x                                                       ; 54c8: 9d 61 57    .aW
-    sta l5600,y                                                       ; 54cb: 99 00 56    ..V
-    sta l5601,y                                                       ; 54ce: 99 01 56    ..V
+    sta zero_data+0,x                                                 ; 54c5: 9d 60 57    .`W
+    sta zero_data+1,x                                                 ; 54c8: 9d 61 57    .aW
+    sta unpacked_data,y                                               ; 54cb: 99 00 56    ..V
+    sta unpacked_data+1,y                                             ; 54ce: 99 01 56    ..V
     tya                                                               ; 54d1: 98          .
     adc #4                                                            ; 54d2: 69 04       i.
     tay                                                               ; 54d4: a8          .
@@ -1372,6 +1376,7 @@ l3565 = loop_c3564+1
 .initial_qrstuv_values
     equb   0, &4f,   0,   0, &9f, &4f,   0,   0, &33, &50,   0,   0   ; 54dc: 00 4f 00... .O.
     equb &e3, &52,   0,   0, &fb, &53,   0,   0, &99, &54,   0,   0   ; 54e8: e3 52 00... .R.
+.initial_qrstuv_values_end
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 54f4: 00 00 00... ...
     equb &ff,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 5500: ff 00 00... ...
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 550c: 00 00 00... ...
@@ -1396,16 +1401,13 @@ l3565 = loop_c3564+1
     equb   0,   0,   0,   0,   0,   0,   0,   0,   2, &96, &10, &fe   ; 55f0: 00 00 00... ...
     equb   0,   0,   0,   0                                           ; 55fc: 00 00 00... ...
 ; &5600 referenced 1 time by &54cb
-.l5600
+.unpacked_data
     equb 0                                                            ; 5600: 00          .
 ; &5601 referenced 1 time by &54ce
-.l5601
     equb 0                                                            ; 5601: 00          .
 ; &5602 referenced 1 time by &54ba
-.l5602
     equb &40                                                          ; 5602: 40          @
 ; &5603 referenced 1 time by &54c0
-.l5603
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 5603: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 560f: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40, &c0,   0,   0, &41   ; 561b: 00 00 00... ...
@@ -1421,7 +1423,9 @@ l3565 = loop_c3564+1
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 5693: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 569f: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 56ab: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0, &c0, &7e, &80   ; 56b7: 00 00 00... ...
+    equb   0,   0,   0, &40,   0,   0,   0, &40,   0                  ; 56b7: 00 00 00... ...
+.unpacked_data_end
+    equb &c0, &7e, &80                                                ; 56c0: c0 7e 80    .~.
     equs "}@|"                                                        ; 56c3: 7d 40 7c    }@|
     equb   0, &7b, &c0, &79, &80                                      ; 56c6: 00 7b c0... .{.
     equs "x@w"                                                        ; 56cb: 78 40 77    x@w
@@ -1439,10 +1443,9 @@ l3565 = loop_c3564+1
     equs "Z@Y"                                                        ; 56fb: 5a 40 59    Z@Y
     equb   0, &58                                                     ; 56fe: 00 58       .X
 ; &5700 referenced 1 time by &54b7
-.l5700
+.packed_data
     equb &40                                                          ; 5700: 40          @
 ; &5701 referenced 1 time by &54bd
-.l5701
     equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5701: 00 40 00... .@.
     equb   0, &40,   0, &40, &c0, &41, &80                            ; 570d: 00 40 00... .@.
     equs "B@C"                                                        ; 5714: 42 40 43    B@C
@@ -1458,52 +1461,50 @@ l3565 = loop_c3564+1
     equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5753: 00 40 00... .@.
     equb   0                                                          ; 575f: 00          .
 ; &5760 referenced 1 time by &54c5
-.l5760
+.packed_data_end
+.zero_data
     equb 0                                                            ; 5760: 00          .
 ; &5761 referenced 1 time by &54c8
-.l5761
-    equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 5761: 00 00 00... ...
-    equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 576d: 00 00 00... ...
-    equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 5779: 00 00 00... ...
-    equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 5785: 00 00 00... ...
-    equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 5791: 00 00 00... ...
-    equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 579d: 00 00 00... ...
-    equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 57a9: 00 00 00... ...
-    equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1   ; 57b5: 00 00 00... ...
-    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57c1: 01 01 01... ...
-    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57cd: 01 01 01... ...
-    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57d9: 01 01 01... ...
-    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1, &bd   ; 57e5: 01 01 01... ...
-    equb &9e, &b7, &97,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 57f1: 9e b7 97... ...
-    equb   0,   0,   0                                                ; 57fd: 00 00 00    ...
+    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5761: 00 00 00... ...
+    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5775: 00 00 00... ...
+    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5789: 00 00 00... ...
+    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 579d: 00 00 00... ...
+    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                  ; 57b1: 00 00 00... ...
+.zero_data_end
+    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57c0: 01 01 01... ...
+    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57cc: 01 01 01... ...
+    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57d8: 01 01 01... ...
+    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57e4: 01 01 01... ...
+    equb &bd, &9e, &b7, &97,   0,   0,   0,   0,   0,   0,   0,   0   ; 57f0: bd 9e b7... ...
+    equb   0,   0,   0,   0                                           ; 57fc: 00 00 00... ...
 .pydis_end
 
 ; Label references by decreasing frequency:
-;     l0070:            4
-;     l0071:            2
-;     l0072:            2
-;     l0073:            2
-;     l3565:            2
-;     c35a0:            2
-;     basic_page_msb:   1
-;     l0403:            1
-;     l0443:            1
-;     loop_c3564:       1
-;     old_run:          1
-;     c5499:            1
-;     loop_c549d:       1
-;     loop_c54a5:       1
-;     c54b7:            1
-;     c54db:            1
-;     l5600:            1
-;     l5601:            1
-;     l5602:            1
-;     l5603:            1
-;     l5700:            1
-;     l5701:            1
-;     l5760:            1
-;     l5761:            1
-;     osbyte:           1
+;     l0070:             4
+;     l0071:             2
+;     l0072:             2
+;     l0073:             2
+;     l3565:             2
+;     c35a0:             2
+;     basic_page_msb:    1
+;     l0403:             1
+;     l0443:             1
+;     loop_c3564:        1
+;     old_run:           1
+;     c5499:             1
+;     loop_c549d:        1
+;     loop_c54a5:        1
+;     c54b7:             1
+;     c54db:             1
+;     unpacked_data:     1
+;     l5601:             1
+;     l5602:             1
+;     l5603:             1
+;     packed_data:       1
+;     l5701:             1
+;     packed_data_end:   1
+;     l5761:             1
+;     osbyte:            1
 
 ; Automatically generated labels:
 ;     c35a0
@@ -1517,13 +1518,10 @@ l3565 = loop_c3564+1
 ;     l0403
 ;     l0443
 ;     l3565
-;     l5600
 ;     l5601
 ;     l5602
 ;     l5603
-;     l5700
 ;     l5701
-;     l5760
 ;     l5761
 ;     loop_c3564
 ;     loop_c549d
@@ -1534,5 +1532,12 @@ l3565 = loop_c3564+1
     assert >screen_data == &1f
     assert initial_qrstuv_values-1 == &54db
     assert osbyte_insert_buffer == &8a
+    assert packed_data+0 == &5700
+    assert packed_data+1 == &5701
+    assert unpacked_data+1 == &5601
+    assert unpacked_data+2 == &5602
+    assert unpacked_data+3 == &5603
+    assert zero_data+0 == &5760
+    assert zero_data+1 == &5761
 
 save pydis_start, pydis_end
