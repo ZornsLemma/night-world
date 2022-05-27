@@ -5,4 +5,4 @@ set -e
 # handle the two parts separately, but let's not worry about that for now.
 python world-1.py > asm/world-1.asm
 beebasm -v -o world-1.new -i asm/world-1.asm > world-1.lst
-cmp orig/World-1 world-1.new || (echo world-1 not rebuilt correctly > /dev/stderr; exit 1)
+cmp orig/world-1 world-1.new || (echo world-1 not rebuilt correctly > /dev/stderr; exit 1)
