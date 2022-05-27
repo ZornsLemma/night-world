@@ -2,6 +2,8 @@ from commands import *
 from trace6502 import *
 import acorn
 
+acorn.bbc()
+
 load(0x1f00, "orig/world-1", "630948d4685cb15e7485103744ff95f7")
 entry(0x3560, "start")
 # The embedded BASIC code CALLs this address.
@@ -48,7 +50,5 @@ expr(0x54c6, "zero_data+0")
 expr(0x54c9, "zero_data+1")
 expr(0x54cb, "unpacked_data+0")
 expr(0x54cf, "unpacked_data+1")
-
-acorn.bbc()
 
 go()
