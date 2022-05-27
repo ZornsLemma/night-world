@@ -25,6 +25,12 @@ label(0x1f00+0xa00, "screen_data_end")
 expr(0x3591, ">screen_data")
 expr(0x3593, ">(screen_data_end-screen_data)")
 
+comment(0x5499, "Zero resident integer variables A%-Z%")
+comment(0x54a3, "Initialise resident integer variables Q%-V%")
+label(0x54dc, "initial_qrstuv_values")
+expr(0x54a6, "initial_qrstuv_values-1")
+byte(0x54dc, 0x18)
+
 acorn.bbc()
 
 go()

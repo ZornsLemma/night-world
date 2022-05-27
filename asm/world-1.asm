@@ -1325,6 +1325,7 @@ l3565 = loop_c3564+1
     equb &26, &70, &0a, &26, &70, &0a, &26, &70, &99,   4,   4, &a5   ; 5477: 26 70 0a... &p.
     equb &70, &99,   5,   4, &bd, &61, &57, &0a, &26, &71, &0a, &26   ; 5483: 70 99 05... p..
     equb &71, &99,   8,   4, &a5, &71, &99,   9,   4, &60             ; 548f: 71 99 08... q..
+; Zero resident integer variables A%-Z%
 ; &5499 referenced 1 time by &35ae
 .c5499
     ldx #&68 ; 'h'                                                    ; 5499: a2 68       .h
@@ -1334,10 +1335,11 @@ l3565 = loop_c3564+1
     sta l0403,x                                                       ; 549d: 9d 03 04    ...
     dex                                                               ; 54a0: ca          .
     bne loop_c549d                                                    ; 54a1: d0 fa       ..
+; Initialise resident integer variables Q%-V%
     ldx #&18                                                          ; 54a3: a2 18       ..
 ; &54a5 referenced 1 time by &54ac
 .loop_c54a5
-    lda c54db,x                                                       ; 54a5: bd db 54    ..T
+    lda initial_qrstuv_values-1,x                                     ; 54a5: bd db 54    ..T
     sta l0443,x                                                       ; 54a8: 9d 43 04    .C.
     dex                                                               ; 54ab: ca          .
     bne loop_c54a5                                                    ; 54ac: d0 f7       ..
@@ -1365,9 +1367,9 @@ l3565 = loop_c3564+1
     dec l0070                                                         ; 54d7: c6 70       .p
     bne c54b7                                                         ; 54d9: d0 dc       ..
 ; &54db referenced 1 time by &54a5
-.c54db
     rts                                                               ; 54db: 60          `
 
+.initial_qrstuv_values
     equb   0, &4f,   0,   0, &9f, &4f,   0,   0, &33, &50,   0,   0   ; 54dc: 00 4f 00... .O.
     equb &e3, &52,   0,   0, &fb, &53,   0,   0, &99, &54,   0,   0   ; 54e8: e3 52 00... .R.
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 54f4: 00 00 00... ...
@@ -1530,6 +1532,7 @@ l3565 = loop_c3564+1
     assert >basic == &29
     assert >mode_5_himem == &58
     assert >screen_data == &1f
+    assert initial_qrstuv_values-1 == &54db
     assert osbyte_insert_buffer == &8a
 
 save pydis_start, pydis_end
