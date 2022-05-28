@@ -1263,6 +1263,10 @@ l3565 = loop_c3564+1
     equs "```"                                                        ; 4eeb: 60 60 60    ```
     equb &e0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 4eee: e0 00 00... ...
     equb   0,   0,   0,   0,   0,   0                                 ; 4efa: 00 00 00... ...
+; Based on how this is called by world-2.bas, I infer that it is a
+; collision detection subroutine which returns with X% indicating what
+; was collided with, or 0 if nothing. The code here appears to return
+; values in Y% and Z% but I don't think they are used by the game.
 .q_subroutine
     lda ri_w                                                          ; 4f00: ad 5c 04    .\.
     beq zero_ri_x_y_and_rts                                           ; 4f03: f0 61       .a
