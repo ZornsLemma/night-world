@@ -29,6 +29,7 @@ expr(0x3593, ">(screen_data_end-screen_data)")
 
 comment(0x5499, "Zero resident integer variables A%-Z%")
 comment(0x54a3, "Initialise resident integer variables Q%-V%")
+# TODO: If these are all permanently set, can get rid of the "initial_" in the labels
 comment(0x54a3, "TODO: S% at least is effectively a way for this machine code to communicate its internal addresses to the BASIC - quite a neat trick. Other variables here may well work the same way")
 label(0x54dc, "initial_qrstuv_values") 
 label(0x54dc+0x18, "initial_qrstuv_values_end")
@@ -36,9 +37,17 @@ expr(0x54a6, "initial_qrstuv_values-1")
 for i in range(6):
     label(0x54dc+i*4, "initial_%s_value" % chr(ord("q")+i))
     word(0x54dc+i*4, 2)
-label(0x54dc+2*4, "initial_s_value")
+entry(0x4f00, "q_subroutine") # TODO: rename
+expr(0x54dc+0*4, "q_subroutine")
+comment(0x54dc+1*4, "TODO: never used?")
 entry(0x5033, "s_subroutine") # TODO: rename
 expr(0x54dc+2*4, "s_subroutine")
+entry(0x52e3, "t_subroutine") # TODO: rename
+expr(0x54dc+3*4, "t_subroutine")
+entry(0x53fb, "u_subroutine") # TODO: rename
+expr(0x54dc+4*4, "u_subroutine")
+entry(0x5499, "v_subroutine") # TODO: rename
+expr(0x54dc+5*4, "v_subroutine")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")

@@ -25,6 +25,7 @@ l0408 = &0408
 l0409 = &0409
 l0443 = &0443
 l045c = &045c
+l0460 = &0460
 l0464 = &0464
 l0468 = &0468
 osbyte = &fff4
@@ -557,7 +558,7 @@ l3565 = loop_c3564+1
     inc l0073                                                         ; 35a9: e6 73       .s
     dex                                                               ; 35ab: ca          .
     bne c35a0                                                         ; 35ac: d0 f2       ..
-    jmp c5499                                                         ; 35ae: 4c 99 54    L.T
+    jmp v_subroutine                                                  ; 35ae: 4c 99 54    L.T
 
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   3   ; 35b1: 00 00 00... ...
     equb   3,   3,   3,   3,   3,   3,   3,   3,   3,   2,   0,   0   ; 35bd: 03 03 03... ...
@@ -1179,36 +1180,121 @@ l3565 = loop_c3564+1
     equb   0, &60, &60, &e0                                           ; 4ee7: 00 60 60... .``
     equs "```"                                                        ; 4eeb: 60 60 60    ```
     equb &e0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 4eee: e0 00 00... ...
-    equb   0,   0,   0,   0,   0,   0, &ad, &5c,   4, &f0, &61, &c9   ; 4efa: 00 00 00... ...
-    equb &31, &b0, &5d, &38, &e9,   1, &0a, &aa, &0a, &a8, &b9,   1   ; 4f06: 31 b0 5d... 1.]
-    equb &56, &f0, &51, &86, &71, &ad, &64,   4, &f0, &4a, &c9, &31   ; 4f12: 56 f0 51... V.Q
-    equb &b0, &46, &38, &e9,   1, &0a, &85, &70, &a9,   0, &c5, &71   ; 4f1e: b0 46 38... .F8
-    equb &f0, &31, &a8, &a9,   5, &85, &74, &bd                       ; 4f2a: f0 31 a8... .1.
-    equs "`W8"                                                        ; 4f32: 60 57 38    `W8
-    equb &f9                                                          ; 4f35: f9          .
-    equs "`W05"                                                       ; 4f36: 60 57 30... `W0
-    equb &f0,   2, &c6, &74, &c9,   9, &b0, &1b, &85, &72, &bd        ; 4f3a: f0 02 c6... ...
-    equs "aW8"                                                        ; 4f45: 61 57 38    aW8
-    equb &f9                                                          ; 4f48: f9          .
-    equs "aW0*"                                                       ; 4f49: 61 57 30... aW0
-    equb &f0,   6, &e6, &74, &e6, &74, &e6, &74, &c9, &10, &b0,   4   ; 4f4d: f0 06 e6... ...
-    equb &85, &73, &90, &26, &c4, &70, &f0,   5, &98, &69,   2, &d0   ; 4f59: 85 73 90... .s.
-    equb &c2, &a9,   0, &8d, &60,   4, &8d, &64,   4, &60, &49, &ff   ; 4f65: c2 a9 00... ...
-    equb &69,   1, &e6, &74, &d0, &c7, &49, &ff, &69,   1, &c6, &74   ; 4f71: 69 01 e6... i..
-    equb &c6, &74, &c6, &74, &d0, &d2, &a5, &72, &0a, &65, &73, &85   ; 4f7d: c6 74 c6... .t.
-    equb &73, &a9, &23, &38, &e5, &73, &8d, &64,   4, &a5, &74, &8d   ; 4f89: 73 a9 23... s.#
-    equb &68,   4, &c8, &c8, &98, &4a, &8d, &60,   4, &60, &ad, &60   ; 4f95: 68 04 c8... h..
-    equb   4, &c9,   4, &b0, &f8, &a2,   5, &86, &75, &a0, &ff, &ae   ; 4fa1: 04 c9 04... ...
-    equb &f0, &57, &a9, &81, &20, &f4, &ff, &c0, &1b, &f0, &4a, &e8   ; 4fad: f0 57 a9... .W.
-    equb &d0,   2, &e6, &75, &a9, &81, &ae, &f1, &57, &a0, &ff, &20   ; 4fb9: d0 02 e6... ...
-    equb &f4, &ff, &c0, &1b, &f0, &37, &e8, &d0,   2, &c6, &75, &ad   ; 4fc5: f4 ff c0... ...
-    equb &60,   4, &4a, &f0,   6, &a5, &75, &c9,   5, &d0, &43, &a9   ; 4fd1: 60 04 4a... `.J
-    equb &81, &ae, &f2, &57, &a0, &ff, &20, &f4, &ff, &c0, &1b, &f0   ; 4fdd: 81 ae f2... ...
-    equb &18, &e8, &d0,   7, &a5, &75, &38, &e9,   3, &85, &75, &a9   ; 4fe9: 18 e8 d0... ...
-    equb &81, &ae, &f3, &57, &a0, &ff, &20, &f4, &ff, &c0, &1b, &d0   ; 4ff5: 81 ae f3... ...
-    equb   6, &a9, &7c, &20, &f4, &ff, &60, &e8, &d0,   7, &a5, &75   ; 5001: 06 a9 7c... ..|
-    equb &18, &69,   3, &85, &75, &ad, &60,   4, &29,   1, &d0, &12   ; 500d: 18 69 03... .i.
-    equb &a5, &75, &c9,   5, &f0,   7, &8d, &f4, &57, &8d, &68,   4   ; 5019: a5 75 c9... .u.
+    equb   0,   0,   0,   0,   0,   0                                 ; 4efa: 00 00 00... ...
+.q_subroutine
+    lda l045c                                                         ; 4f00: ad 5c 04    .\.
+    beq c4f66                                                         ; 4f03: f0 61       .a
+    cmp #&31 ; '1'                                                    ; 4f05: c9 31       .1
+    bcs c4f66                                                         ; 4f07: b0 5d       .]
+    sec                                                               ; 4f09: 38          8
+    sbc #1                                                            ; 4f0a: e9 01       ..
+    asl a                                                             ; 4f0c: 0a          .
+    tax                                                               ; 4f0d: aa          .
+    asl a                                                             ; 4f0e: 0a          .
+    tay                                                               ; 4f0f: a8          .
+    lda l5601,y                                                       ; 4f10: b9 01 56    ..V
+    beq c4f66                                                         ; 4f13: f0 51       .Q
+    stx l0071                                                         ; 4f15: 86 71       .q
+    lda l0464                                                         ; 4f17: ad 64 04    .d.
+    beq c4f66                                                         ; 4f1a: f0 4a       .J
+    cmp #&31 ; '1'                                                    ; 4f1c: c9 31       .1
+    bcs c4f66                                                         ; 4f1e: b0 46       .F
+    sec                                                               ; 4f20: 38          8
+    sbc #1                                                            ; 4f21: e9 01       ..
+    asl a                                                             ; 4f23: 0a          .
+    sta l0070                                                         ; 4f24: 85 70       .p
+    lda #0                                                            ; 4f26: a9 00       ..
+; &4f28 referenced 1 time by &4f64
+.c4f28
+    cmp l0071                                                         ; 4f28: c5 71       .q
+    beq c4f5d                                                         ; 4f2a: f0 31       .1
+    tay                                                               ; 4f2c: a8          .
+    lda #5                                                            ; 4f2d: a9 05       ..
+    sta l0074                                                         ; 4f2f: 85 74       .t
+    lda packed_data_end,x                                             ; 4f31: bd 60 57    .`W
+    sec                                                               ; 4f34: 38          8
+    sbc packed_data_end,y                                             ; 4f35: f9 60 57    .`W
+    bmi c4f6f                                                         ; 4f38: 30 35       05
+    beq c4f3e                                                         ; 4f3a: f0 02       ..
+    dec l0074                                                         ; 4f3c: c6 74       .t
+; &4f3e referenced 2 times by &4f3a, &4f75
+.c4f3e
+    cmp #9                                                            ; 4f3e: c9 09       ..
+    bcs c4f5d                                                         ; 4f40: b0 1b       ..
+    sta l0072                                                         ; 4f42: 85 72       .r
+    lda l5761,x                                                       ; 4f44: bd 61 57    .aW
+    sec                                                               ; 4f47: 38          8
+    sbc l5761,y                                                       ; 4f48: f9 61 57    .aW
+    bmi c4f77                                                         ; 4f4b: 30 2a       0*
+    beq c4f55                                                         ; 4f4d: f0 06       ..
+    inc l0074                                                         ; 4f4f: e6 74       .t
+    inc l0074                                                         ; 4f51: e6 74       .t
+    inc l0074                                                         ; 4f53: e6 74       .t
+; &4f55 referenced 2 times by &4f4d, &4f81
+.c4f55
+    cmp #&10                                                          ; 4f55: c9 10       ..
+    bcs c4f5d                                                         ; 4f57: b0 04       ..
+    sta l0073                                                         ; 4f59: 85 73       .s
+    bcc c4f83                                                         ; 4f5b: 90 26       .&
+; &4f5d referenced 3 times by &4f2a, &4f40, &4f57
+.c4f5d
+    cpy l0070                                                         ; 4f5d: c4 70       .p
+    beq c4f66                                                         ; 4f5f: f0 05       ..
+    tya                                                               ; 4f61: 98          .
+    adc #2                                                            ; 4f62: 69 02       i.
+    bne c4f28                                                         ; 4f64: d0 c2       ..
+; &4f66 referenced 6 times by &4f03, &4f07, &4f13, &4f1a, &4f1e, &4f5f
+.c4f66
+    lda #0                                                            ; 4f66: a9 00       ..
+    sta l0460                                                         ; 4f68: 8d 60 04    .`.
+    sta l0464                                                         ; 4f6b: 8d 64 04    .d.
+    rts                                                               ; 4f6e: 60          `
+
+; &4f6f referenced 1 time by &4f38
+.c4f6f
+    eor #&ff                                                          ; 4f6f: 49 ff       I.
+    adc #1                                                            ; 4f71: 69 01       i.
+    inc l0074                                                         ; 4f73: e6 74       .t
+    bne c4f3e                                                         ; 4f75: d0 c7       ..
+; &4f77 referenced 1 time by &4f4b
+.c4f77
+    eor #&ff                                                          ; 4f77: 49 ff       I.
+    adc #1                                                            ; 4f79: 69 01       i.
+    dec l0074                                                         ; 4f7b: c6 74       .t
+    dec l0074                                                         ; 4f7d: c6 74       .t
+    dec l0074                                                         ; 4f7f: c6 74       .t
+    bne c4f55                                                         ; 4f81: d0 d2       ..
+; &4f83 referenced 1 time by &4f5b
+.c4f83
+    lda l0072                                                         ; 4f83: a5 72       .r
+    asl a                                                             ; 4f85: 0a          .
+    adc l0073                                                         ; 4f86: 65 73       es
+    sta l0073                                                         ; 4f88: 85 73       .s
+    lda #&23 ; '#'                                                    ; 4f8a: a9 23       .#
+    sec                                                               ; 4f8c: 38          8
+    sbc l0073                                                         ; 4f8d: e5 73       .s
+    sta l0464                                                         ; 4f8f: 8d 64 04    .d.
+    lda l0074                                                         ; 4f92: a5 74       .t
+    sta l0468                                                         ; 4f94: 8d 68 04    .h.
+    iny                                                               ; 4f97: c8          .
+    iny                                                               ; 4f98: c8          .
+    tya                                                               ; 4f99: 98          .
+    lsr a                                                             ; 4f9a: 4a          J
+    sta l0460                                                         ; 4f9b: 8d 60 04    .`.
+    rts                                                               ; 4f9e: 60          `
+
+    equb &ad, &60,   4, &c9,   4, &b0, &f8, &a2,   5, &86, &75, &a0   ; 4f9f: ad 60 04... .`.
+    equb &ff, &ae, &f0, &57, &a9, &81, &20, &f4, &ff, &c0, &1b, &f0   ; 4fab: ff ae f0... ...
+    equb &4a, &e8, &d0,   2, &e6, &75, &a9, &81, &ae, &f1, &57, &a0   ; 4fb7: 4a e8 d0... J..
+    equb &ff, &20, &f4, &ff, &c0, &1b, &f0, &37, &e8, &d0,   2, &c6   ; 4fc3: ff 20 f4... . .
+    equb &75, &ad, &60,   4, &4a, &f0,   6, &a5, &75, &c9,   5, &d0   ; 4fcf: 75 ad 60... u.`
+    equb &43, &a9, &81, &ae, &f2, &57, &a0, &ff, &20, &f4, &ff, &c0   ; 4fdb: 43 a9 81... C..
+    equb &1b, &f0, &18, &e8, &d0,   7, &a5, &75, &38, &e9,   3, &85   ; 4fe7: 1b f0 18... ...
+    equb &75, &a9, &81, &ae, &f3, &57, &a0, &ff, &20, &f4, &ff, &c0   ; 4ff3: 75 a9 81... u..
+    equb &1b, &d0,   6, &a9, &7c, &20, &f4, &ff, &60, &e8, &d0,   7   ; 4fff: 1b d0 06... ...
+    equb &a5, &75, &18, &69,   3, &85, &75, &ad, &60,   4, &29,   1   ; 500b: a5 75 18... .u.
+    equb &d0, &12, &a5, &75, &c9,   5, &f0,   7, &8d, &f4, &57, &8d   ; 5017: d0 12 a5... ...
+    equb &68,   4                                                     ; 5023: 68 04       h.
 ; &5025 referenced 2 times by &5036, &503a
 .c5025
     rts                                                               ; 5025: 60          `
@@ -1554,7 +1640,7 @@ l3565 = loop_c3564+1
     inc l0071                                                         ; 524c: e6 71       .q
     clc                                                               ; 524e: 18          .
     bne c522b                                                         ; 524f: d0 da       ..
-; &5251 referenced 1 time by &50de
+; &5251 referenced 2 times by &50de, &545c
 .c5251
     lda #1                                                            ; 5251: a9 01       ..
     sta l0075                                                         ; 5253: 85 75       .u
@@ -1660,6 +1746,7 @@ l3565 = loop_c3564+1
     inc l007f                                                         ; 52de: e6 7f       ..
     clc                                                               ; 52e0: 18          .
     bne c529e                                                         ; 52e1: d0 bb       ..
+.t_subroutine
     lda l045c                                                         ; 52e3: ad 5c 04    .\.
     beq c52bb                                                         ; 52e6: f0 d3       ..
     cmp #&31 ; '1'                                                    ; 52e8: c9 31       .1
@@ -1829,7 +1916,7 @@ l3565 = loop_c3564+1
     tax                                                               ; 53e6: aa          .
     lda l0073                                                         ; 53e7: a5 73       .s
     bne c53f8                                                         ; 53e9: d0 0d       ..
-; &53eb referenced 3 times by &53d1, &53d5, &53f1
+; &53eb referenced 7 times by &53d1, &53d5, &53f1, &53fe, &5402, &540e, &541e
 .c53eb
     rts                                                               ; 53eb: 60          `
 
@@ -1844,25 +1931,98 @@ l3565 = loop_c3564+1
 .c53f8
     jmp c535f                                                         ; 53f8: 4c 5f 53    L_S
 
-    equb &ad, &5c,   4, &f0, &eb, &c9, &31, &b0, &e7, &38, &e9,   1   ; 53fb: ad 5c 04... .\.
-    equb &ae, &60,   4, &f0, &53, &e0, &31, &b0, &db, &0a, &a8, &0a   ; 5407: ae 60 04... .`.
-    equb &aa, &bd,   0, &56, &85, &7c, &85, &7a, &bd,   1, &56, &f0   ; 5413: aa bd 00... ...
-    equb &cb, &85, &7d, &85, &7b, &b9                                 ; 541f: cb 85 7d... ..}
-    equs "`W)"                                                        ; 5425: 60 57 29    `W)
-    equb   3, &0a, &0a, &0a, &0a, &85, &73, &0a, &65, &73, &85, &72   ; 5428: 03 0a 0a... ...
-    equb &7d,   3, &56, &85, &7e, &bd,   2, &56, &69,   0, &85, &7f   ; 5434: 7d 03 56... }.V
-    equb &ad, &60,   4, &38, &e9,   1, &0a, &a8, &a5, &72, &79,   1   ; 5440: ad 60 04... .`.
-    equb &57, &9d,   3, &56, &85, &70, &b9,   0, &57, &69,   0, &9d   ; 544c: 57 9d 03... W..
-    equb   2, &56, &85                                                ; 5458: 02 56 85    .V.
-    equs "qLQR"                                                       ; 545b: 71 4c 51... qLQ
-    equb &0a, &aa, &0a, &a8, &b9,   1, &56, &f0, &30, &98, &0a, &29   ; 545f: 0a aa 0a... ...
-    equb &3f, &a8, &a9,   0, &85, &70, &85, &71, &bd, &60, &57, &0a   ; 546b: 3f a8 a9... ?..
-    equb &26, &70, &0a, &26, &70, &0a, &26, &70, &99,   4,   4, &a5   ; 5477: 26 70 0a... &p.
-    equb &70, &99,   5,   4, &bd, &61, &57, &0a, &26, &71, &0a, &26   ; 5483: 70 99 05... p..
-    equb &71, &99,   8,   4, &a5, &71, &99,   9,   4, &60             ; 548f: 71 99 08... q..
+.u_subroutine
+    lda l045c                                                         ; 53fb: ad 5c 04    .\.
+    beq c53eb                                                         ; 53fe: f0 eb       ..
+    cmp #&31 ; '1'                                                    ; 5400: c9 31       .1
+    bcs c53eb                                                         ; 5402: b0 e7       ..
+    sec                                                               ; 5404: 38          8
+    sbc #1                                                            ; 5405: e9 01       ..
+    ldx l0460                                                         ; 5407: ae 60 04    .`.
+    beq c545f                                                         ; 540a: f0 53       .S
+    cpx #&31 ; '1'                                                    ; 540c: e0 31       .1
+    bcs c53eb                                                         ; 540e: b0 db       ..
+    asl a                                                             ; 5410: 0a          .
+    tay                                                               ; 5411: a8          .
+    asl a                                                             ; 5412: 0a          .
+    tax                                                               ; 5413: aa          .
+    lda unpacked_data,x                                               ; 5414: bd 00 56    ..V
+    sta l007c                                                         ; 5417: 85 7c       .|
+    sta l007a                                                         ; 5419: 85 7a       .z
+    lda l5601,x                                                       ; 541b: bd 01 56    ..V
+    beq c53eb                                                         ; 541e: f0 cb       ..
+    sta l007d                                                         ; 5420: 85 7d       .}
+    sta l007b                                                         ; 5422: 85 7b       .{
+    lda packed_data_end,y                                             ; 5424: b9 60 57    .`W
+    and #3                                                            ; 5427: 29 03       ).
+    asl a                                                             ; 5429: 0a          .
+    asl a                                                             ; 542a: 0a          .
+    asl a                                                             ; 542b: 0a          .
+    asl a                                                             ; 542c: 0a          .
+    sta l0073                                                         ; 542d: 85 73       .s
+    asl a                                                             ; 542f: 0a          .
+    adc l0073                                                         ; 5430: 65 73       es
+    sta l0072                                                         ; 5432: 85 72       .r
+    adc l5603,x                                                       ; 5434: 7d 03 56    }.V
+    sta l007e                                                         ; 5437: 85 7e       .~
+    lda l5602,x                                                       ; 5439: bd 02 56    ..V
+    adc #0                                                            ; 543c: 69 00       i.
+    sta l007f                                                         ; 543e: 85 7f       ..
+    lda l0460                                                         ; 5440: ad 60 04    .`.
+    sec                                                               ; 5443: 38          8
+    sbc #1                                                            ; 5444: e9 01       ..
+    asl a                                                             ; 5446: 0a          .
+    tay                                                               ; 5447: a8          .
+    lda l0072                                                         ; 5448: a5 72       .r
+    adc l5701,y                                                       ; 544a: 79 01 57    y.W
+    sta l5603,x                                                       ; 544d: 9d 03 56    ..V
+    sta l0070                                                         ; 5450: 85 70       .p
+    lda packed_data,y                                                 ; 5452: b9 00 57    ..W
+    adc #0                                                            ; 5455: 69 00       i.
+    sta l5602,x                                                       ; 5457: 9d 02 56    ..V
+    sta l0071                                                         ; 545a: 85 71       .q
+    jmp c5251                                                         ; 545c: 4c 51 52    LQR
+
+; &545f referenced 1 time by &540a
+.c545f
+    asl a                                                             ; 545f: 0a          .
+    tax                                                               ; 5460: aa          .
+    asl a                                                             ; 5461: 0a          .
+    tay                                                               ; 5462: a8          .
+    lda l5601,y                                                       ; 5463: b9 01 56    ..V
+    beq c5498                                                         ; 5466: f0 30       .0
+    tya                                                               ; 5468: 98          .
+    asl a                                                             ; 5469: 0a          .
+    and #&3f ; '?'                                                    ; 546a: 29 3f       )?
+    tay                                                               ; 546c: a8          .
+    lda #0                                                            ; 546d: a9 00       ..
+    sta l0070                                                         ; 546f: 85 70       .p
+    sta l0071                                                         ; 5471: 85 71       .q
+    lda packed_data_end,x                                             ; 5473: bd 60 57    .`W
+    asl a                                                             ; 5476: 0a          .
+    rol l0070                                                         ; 5477: 26 70       &p
+    asl a                                                             ; 5479: 0a          .
+    rol l0070                                                         ; 547a: 26 70       &p
+    asl a                                                             ; 547c: 0a          .
+    rol l0070                                                         ; 547d: 26 70       &p
+    sta l0404,y                                                       ; 547f: 99 04 04    ...
+    lda l0070                                                         ; 5482: a5 70       .p
+    sta l0405,y                                                       ; 5484: 99 05 04    ...
+    lda l5761,x                                                       ; 5487: bd 61 57    .aW
+    asl a                                                             ; 548a: 0a          .
+    rol l0071                                                         ; 548b: 26 71       &q
+    asl a                                                             ; 548d: 0a          .
+    rol l0071                                                         ; 548e: 26 71       &q
+    sta l0408,y                                                       ; 5490: 99 08 04    ...
+    lda l0071                                                         ; 5493: a5 71       .q
+    sta l0409,y                                                       ; 5495: 99 09 04    ...
+; &5498 referenced 1 time by &5466
+.c5498
+    rts                                                               ; 5498: 60          `
+
 ; Zero resident integer variables A%-Z%
 ; &5499 referenced 1 time by &35ae
-.c5499
+.v_subroutine
     ldx #&68 ; 'h'                                                    ; 5499: a2 68       .h
     lda #0                                                            ; 549b: a9 00       ..
 ; &549d referenced 1 time by &54a1
@@ -1913,17 +2073,18 @@ l3565 = loop_c3564+1
 
 .initial_qrstuv_values
 .initial_q_value
-    equw &4f00,     0                                                 ; 54dc: 00 4f 00... .O.
+    equw q_subroutine,            0                                   ; 54dc: 00 4f 00... .O.
+; TODO: never used?
 .initial_r_value
     equw &4f9f,     0                                                 ; 54e0: 9f 4f 00... .O.
 .initial_s_value
     equw s_subroutine,            0                                   ; 54e4: 33 50 00... 3P.
 .initial_t_value
-    equw &52e3,     0                                                 ; 54e8: e3 52 00... .R.
+    equw t_subroutine,            0                                   ; 54e8: e3 52 00... .R.
 .initial_u_value
-    equw &53fb,     0                                                 ; 54ec: fb 53 00... .S.
+    equw u_subroutine,            0                                   ; 54ec: fb 53 00... .S.
 .initial_v_value
-    equw &5499,     0                                                 ; 54f0: 99 54 00... .T.
+    equw v_subroutine,            0                                   ; 54f0: 99 54 00... .T.
 .initial_qrstuv_values_end
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 54f4: 00 00 00... ...
     equb &ff,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 5500: ff 00 00... ...
@@ -1964,16 +2125,16 @@ l3565 = loop_c3564+1
 ; &55fb referenced 3 times by &51bf, &51db, &53f3
 .l55fb
     equb &fe,   0,   0,   0,   0                                      ; 55fb: fe 00 00... ...
-; &5600 referenced 5 times by &508c, &5098, &50e9, &5111, &54cb
+; &5600 referenced 6 times by &508c, &5098, &50e9, &5111, &5414, &54cb
 .unpacked_data
     equb 0                                                            ; 5600: 00          .
-; &5601 referenced 6 times by &5091, &509d, &50ee, &5114, &5329, &54ce
+; &5601 referenced 9 times by &4f10, &5091, &509d, &50ee, &5114, &5329, &541b, &5463, &54ce
 .l5601
     equb 0                                                            ; 5601: 00          .
-; &5602 referenced 4 times by &50b2, &50d6, &5108, &54ba
+; &5602 referenced 6 times by &50b2, &50d6, &5108, &5439, &5457, &54ba
 .l5602
     equb &40                                                          ; 5602: 40          @
-; &5603 referenced 4 times by &50ad, &50d1, &5103, &54c0
+; &5603 referenced 6 times by &50ad, &50d1, &5103, &5434, &544d, &54c0
 .l5603
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 5603: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 560f: 00 00 00... ...
@@ -2013,10 +2174,11 @@ l3565 = loop_c3564+1
     equb   0, &5d, &c0, &5b, &80                                      ; 56f6: 00 5d c0... .].
     equs "Z@Y"                                                        ; 56fb: 5a 40 59    Z@Y
     equb   0, &58                                                     ; 56fe: 00 58       .X
-; &5700 referenced 1 time by &54b7
+; &5700 referenced 2 times by &5452, &54b7
 .packed_data
     equb &40                                                          ; 5700: 40          @
-; &5701 referenced 1 time by &54bd
+; &5701 referenced 2 times by &544a, &54bd
+.l5701
     equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5701: 00 40 00... .@.
     equb   0, &40,   0, &40, &c0, &41, &80                            ; 570d: 00 40 00... .@.
     equs "B@C"                                                        ; 5714: 42 40 43    B@C
@@ -2031,11 +2193,11 @@ l3565 = loop_c3564+1
     equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5747: 00 40 00... .@.
     equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5753: 00 40 00... .@.
     equb   0                                                          ; 575f: 00          .
-; &5760 referenced 13 times by &5049, &50f5, &5150, &517c, &518d, &5195, &51a8, &51b0, &5320, &5336, &538c, &53ad, &54c5
+; &5760 referenced 17 times by &4f31, &4f35, &5049, &50f5, &5150, &517c, &518d, &5195, &51a8, &51b0, &5320, &5336, &538c, &53ad, &5424, &5473, &54c5
 .packed_data_end
 .zero_data
     equb 0                                                            ; 5760: 00          .
-; &5761 referenced 12 times by &5050, &5155, &51c6, &51d6, &51de, &51f0, &51f8, &5346, &5353, &53bf, &53da, &54c8
+; &5761 referenced 15 times by &4f44, &4f48, &5050, &5155, &51c6, &51d6, &51de, &51f0, &51f8, &5346, &5353, &53bf, &53da, &5487, &54c8
 .l5761
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5761: 00 00 00... ...
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5775: 00 00 00... ...
@@ -2053,50 +2215,56 @@ l3565 = loop_c3564+1
 .pydis_end
 
 ; Label references by decreasing frequency:
-;     l0070:              28
-;     l007a:              25
-;     l0073:              15
-;     l0072:              13
-;     l007c:              13
-;     packed_data_end:    13
-;     l5761:              12
-;     l0071:              11
-;     l007b:               9
-;     l007e:               9
+;     l0070:              36
+;     l007a:              26
+;     l0073:              21
+;     l0071:              18
+;     l0072:              17
+;     packed_data_end:    17
+;     l5761:              15
+;     l007c:              14
+;     l0074:              12
+;     l007b:              10
+;     l007e:              10
+;     l5601:               9
 ;     l0076:               8
 ;     l0075:               7
 ;     c52bb:               7
-;     l5601:               6
+;     c53eb:               7
+;     l007d:               6
+;     l007f:               6
+;     l0464:               6
+;     c4f66:               6
+;     unpacked_data:       6
+;     l5602:               6
+;     l5603:               6
 ;     l0077:               5
 ;     l0078:               5
-;     l007d:               5
-;     l007f:               5
 ;     c5164:               5
-;     unpacked_data:       5
 ;     l0079:               4
-;     l5602:               4
-;     l5603:               4
+;     l045c:               4
+;     l0460:               4
 ;     zero_data_end:       4
-;     l0464:               3
+;     l0404:               3
+;     l0405:               3
+;     l0408:               3
+;     l0409:               3
+;     c4f5d:               3
 ;     c502f:               3
 ;     c533b:               3
 ;     c5358:               3
 ;     c53b4:               3
-;     c53eb:               3
 ;     l55c0:               3
 ;     l55c1:               3
 ;     l55f8:               3
 ;     l55f9:               3
 ;     l55fa:               3
 ;     l55fb:               3
-;     l0074:               2
-;     l0404:               2
-;     l0405:               2
-;     l0408:               2
-;     l0409:               2
-;     l045c:               2
+;     l0468:               2
 ;     l3565:               2
 ;     c35a0:               2
+;     c4f3e:               2
+;     c4f55:               2
 ;     c5025:               2
 ;     c50e1:               2
 ;     c5182:               2
@@ -2108,13 +2276,19 @@ l3565 = loop_c3564+1
 ;     c51e5:               2
 ;     c51f5:               2
 ;     c51ff:               2
+;     c5251:               2
 ;     c5346:               2
+;     packed_data:         2
+;     l5701:               2
 ;     basic_page_msb:      1
 ;     l0403:               1
 ;     l0443:               1
-;     l0468:               1
 ;     loop_c3564:          1
 ;     old_run:             1
+;     c4f28:               1
+;     c4f6f:               1
+;     c4f77:               1
+;     c4f83:               1
 ;     s_subroutine:        1
 ;     c50e5:               1
 ;     c511b:               1
@@ -2130,7 +2304,6 @@ l3565 = loop_c3564+1
 ;     c5239:               1
 ;     c523e:               1
 ;     c524c:               1
-;     c5251:               1
 ;     c5256:               1
 ;     c5258:               1
 ;     c528c:               1
@@ -2158,19 +2331,27 @@ l3565 = loop_c3564+1
 ;     loop_c53da:          1
 ;     c53ec:               1
 ;     c53f8:               1
-;     c5499:               1
+;     c545f:               1
+;     c5498:               1
+;     v_subroutine:        1
 ;     loop_c549d:          1
 ;     loop_c54a5:          1
 ;     c54b7:               1
 ;     c54db:               1
 ;     unpacked_data_end:   1
 ;     l56c1:               1
-;     packed_data:         1
-;     l5701:               1
 ;     osbyte:              1
 
 ; Automatically generated labels:
 ;     c35a0
+;     c4f28
+;     c4f3e
+;     c4f55
+;     c4f5d
+;     c4f66
+;     c4f6f
+;     c4f77
+;     c4f83
 ;     c5025
 ;     c502f
 ;     c50e1
@@ -2229,7 +2410,8 @@ l3565 = loop_c3564+1
 ;     c53eb
 ;     c53ec
 ;     c53f8
-;     c5499
+;     c545f
+;     c5498
 ;     c54b7
 ;     c54db
 ;     l0070
@@ -2255,6 +2437,7 @@ l3565 = loop_c3564+1
 ;     l0409
 ;     l0443
 ;     l045c
+;     l0460
 ;     l0464
 ;     l0468
 ;     l3565
@@ -2284,10 +2467,14 @@ l3565 = loop_c3564+1
     assert osbyte_insert_buffer == &8a
     assert packed_data+0 == &5700
     assert packed_data+1 == &5701
+    assert q_subroutine == &4f00
     assert s_subroutine == &5033
+    assert t_subroutine == &52e3
+    assert u_subroutine == &53fb
     assert unpacked_data+1 == &5601
     assert unpacked_data+2 == &5602
     assert unpacked_data+3 == &5603
+    assert v_subroutine == &5499
     assert zero_data+0 == &5760
     assert zero_data+1 == &5761
 
