@@ -21,8 +21,8 @@
   210DEFPROCr:PROCf
   220c1%=RND(7):c2%=RND(7):c3%=RND(7):IFc1%=c2%ORc1%=c3%ORc2%=c3%:GOTO220 ELSEIFscore%=100:c2%=0:c3%=4:c1%=6
   230VDU19,1,c1%;0;19,2,c2%;0;19,3,c3%;0;:IFlogical_room%=10:dc%=4 ELSEdc%=40
-  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:lee_x_os%=128:a%=0:PROCq(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
-  250PROCq(logical_room%):ENDPROC
+  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:lee_x_os%=128:a%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
+  250PROCdraw_room(logical_room%):ENDPROC
   260DEFPROCp
   270GCOL0,0:Y%=0:PROC4
   280IFscore%=100ANDRND(dc%)=1:PROCjg
@@ -82,7 +82,9 @@
   820DEFPROCone_off_init:CALLV%:os%=&FFEE:PROCcc:DIMad%(4),ed%(6),tc%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
   840DEFPROCf:VDU28,0,26,19,9,17,128,12,26:ENDPROC
-  850DEFPROCq(b1%):fb%=&3508+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
+  850DEFPROCdraw_room(b1%):fb%=&3508+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
+  851REM TODO: The following implies &70-&73 contain valuable persistent state.
+  852REM TODO: We could preserve them more efficiently using foo%=!&70:!&70=foo%
   860s0%=?&70:s1%=?&71:s2%=?&72:s3%=?&73:?&70=aa%:?&71=bb%:?&72=226:?&73=30
   870CALLs:?&70=s0%:?&71=s1%:?&72=s2%:?&73=s3%
   880IFa%=2:I%=608:J%=672:W%=5:Y%=0:CALLS%:GOTO900
@@ -131,7 +133,7 @@
  1300DATA116,3,88,3,116,2,0,0,116,3,120,3,116,3,0,0,116,2,88,2,116,2,116,2,116,2,120,2,116,2,0,0,116,3,72,3,100,3,0,0,100,3,108,3,100,3,0,0,100,2,72,2,100,2,100,2,100,2,108,2,100,2,0,0
  1310DATA52,3,32,3,80,3,0,0,80,3,88,3,80,3,0,0,52,2,32,2,80,2,80,2,80,2,88,2,80,2,0,0,32,3,32,3,60,3,0,0,60,3,68,3,60,3,0,0,60,2,32,2,60,2,60,2,60,2,68,2,60,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
  1320DEFPROCnew_game_init2:c1%=7:c2%=6:c3%=1:PROCreset_note_count
- 1330day_night%=0:score%=0:a%=0:logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCq(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
+ 1330day_night%=0:score%=0:a%=0:logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
  1331REPEATREADn1%,n2%:IFn1%=0:PROCw(220):GOTO1350
  1340SOUND1,1,n1%,n2%:SOUND2,1,n1%,n2%:SOUND3,1,n1%,n2%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1:ex%=16:ec%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:j%=0:xm%=0:sd%=10:di%=10:mx%=0:VDU28,3,30,16,28,17,128,12,26:dc%=40:cr%=0
@@ -157,9 +159,15 @@
  1532REM mnemonic without an intervening space, so spaces have been added here.
  1533REM TODO: Could be assembled in a separate file
  1540[OPTn%
- 1550.s LDY#0:.l LDA(&70),Y:CMP#0:BEQ ze:CMP#1:BEQ on:CMP#2:BEQ tw:CMP#3:BEQ th:.ba:DEC&73:LDA&73:BEQ rr:.pe:INY:TYA:CMP#180:BNE l:RTS:.rr JMP rt:.ze LDA#32:JSR os%:JSR os%:JMP ba
+ 1541\ The UDG used for level "walls" changes every 30*2 OS characters, i.e. every three 20-character
+ 1542\ screen lines. &73 tracks the number of double characters left with the current UDG. There are
+ 1543\ 180 double characters per level, giving 2*180/20=18 lines, so levels are on a 20x18 grid.
+ 1550.s LDY#0:.l LDA(&70),Y:CMP#0:BEQ ze:CMP#1:BEQ on:CMP#2:BEQ tw:CMP#3:BEQ th:.ba:DEC&73:LDA&73:BEQ rr:.pe:INY:TYA:CMP#180:BNE l:RTS:.rr JMP rt
+ 1551\ The following routines output two OS characters (a combination of spaces and ?&72)
+ 1552.ze LDA#32:JSR os%:JSR os%:JMP ba
  1560.on LDA#32:JSR os%:LDA#17:JSR os%:LDA#131:JSR os%:LDA#17:JSR os%:LDA#2:JSR os%:LDA&72:JSR os%:LDA#17:JSR os%:LDA#128:JSR os%:JMP ba
  1570.tw LDA#17:JSR os%:LDA#131:JSR os%:LDA#17:JSR os%:LDA#2:JSR os%:LDA&72:JSR os%:LDA#17:JSR os%:LDA#128:JSR os%:LDA#32:JSR os%:JMP ba
  1580.th LDA#17:JSR os%:LDA#131:JSR os%:LDA#17:JSR os%:LDA#2:JSR os%:LDA&72:JSR os%:LDA&72:JSR os%:LDA#17:JSR os%:LDA#128:JSR os%:JMP ba
+ 1581\ Reset &73 and bump &72
  1590.rt LDA#30:STA&73:INC&72:JMP pe
  1600]NEXT:ENDPROC
