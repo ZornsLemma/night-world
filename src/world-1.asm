@@ -1988,7 +1988,7 @@ l3565 = loop_c3564+1
     asl a                                                             ; 5446: 0a          .
     tay                                                               ; 5447: a8          .
     lda u_subroutine_zero_data_y_and_3_times_48                       ; 5448: a5 72       .r
-    adc l5701,y                                                       ; 544a: 79 01 57    y.W
+    adc packed_data+1,y                                               ; 544a: 79 01 57    y.W
     sta unpacked_data+3,x                                             ; 544d: 9d 03 56    ..V
     sta l0070                                                         ; 5450: 85 70       .p
     lda packed_data,y                                                 ; 5452: b9 00 57    ..W
@@ -2189,7 +2189,6 @@ l3565 = loop_c3564+1
 .packed_data
     equb &40                                                          ; 5700: 40          @
 ; &5701 referenced 2 times by &544a, &54bd
-.l5701
     equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5701: 00 40 00... .@.
     equb   0, &40,   0, &40, &c0, &41, &80                            ; 570d: 00 40 00... .@.
     equs "B@C"                                                        ; 5714: 42 40 43    B@C
@@ -2288,7 +2287,7 @@ l3565 = loop_c3564+1
 ;     c5251:                                            2
 ;     c5346:                                            2
 ;     packed_data:                                      2
-;     l5701:                                            2
+;     packed_data+1:                                    2
 ;     basic_page_msb:                                   1
 ;     l0403:                                            1
 ;     l0443:                                            1
@@ -2441,7 +2440,6 @@ l3565 = loop_c3564+1
 ;     l55fa
 ;     l55fb
 ;     l56c1
-;     l5701
 ;     loop_c3564
 ;     loop_c538c
 ;     loop_c53da
