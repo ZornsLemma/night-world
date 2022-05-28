@@ -59,9 +59,11 @@
 
   400DEFPROCz(xx%,yy%,ch%):M%=(xx%*64)-4:N%=(1024-(32*yy%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
+
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
   430IFlee_direction%=9:lee_direction%=10:PROCsr:W%=10:IFday_night%=1:W%=12
   440delta_x%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
+
   450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
   460IFlee_direction%=10:lee_direction%=9:PROCsr:W%=9:IFday_night%=1:W%=11
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
