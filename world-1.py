@@ -140,9 +140,12 @@ label(0x75, "sprite_chunks") # TODO: poor name
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
-label(0x5700, "packed_data")
-expr_label(0x5701, "packed_data+1")
-#label(0x5700+0x30*2, "packed_data_end")
+comment(0x5700, "This appears to be a big-endian table of start addresses for the game sprites. TODO: This is inspired guesswork; note that the copy of this at unpacked_data+{2,3] does get tweaked slightly.")
+label(0x5700, "sprite_addrs_be")
+for i in range(0x30):
+    byte(0x5700+i*2, n=2)
+expr_label(0x5701, "sprite_addrs_be+1")
+#label(0x5700+0x30*2, "sprite_addrs_be_end")
 label(0x5600, "unpacked_data")
 expr_label(0x5601, "unpacked_data+1")
 expr_label(0x5602, "unpacked_data+2")
@@ -151,9 +154,9 @@ label(0x5600+0x30*4, "unpacked_data_end")
 label(0x5760, "zero_data") # TODO: very poor name, I think
 expr_label(0x5761, "zero_data+1")
 label(0x5760+0x30*2, "zero_data_end")
-expr(0x54b8, "packed_data+0")
+expr(0x54b8, "sprite_addrs_be+0")
 expr(0x54bb, "unpacked_data+2")
-expr(0x54be, "packed_data+1")
+expr(0x54be, "sprite_addrs_be+1")
 expr(0x54c1, "unpacked_data+3")
 expr(0x54c6, "zero_data+0")
 expr(0x54c9, "zero_data+1")

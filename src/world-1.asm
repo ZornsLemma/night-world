@@ -2061,10 +2061,10 @@ l3565 = loop_c3564+1
     asl a                                                             ; 5446: 0a          .
     tay                                                               ; 5447: a8          .
     lda u_subroutine_zero_data_y_and_3_times_48                       ; 5448: a5 72       .r
-    adc packed_data+1,y                                               ; 544a: 79 01 57    y.W
+    adc sprite_addrs_be+1,y                                           ; 544a: 79 01 57    y.W
     sta unpacked_data+3,x                                             ; 544d: 9d 03 56    ..V
     sta sprite_ptr                                                    ; 5450: 85 70       .p
-    lda packed_data,y                                                 ; 5452: b9 00 57    ..W
+    lda sprite_addrs_be,y                                             ; 5452: b9 00 57    ..W
     adc #0                                                            ; 5455: 69 00       i.
     sta unpacked_data+2,x                                             ; 5457: 9d 02 56    ..V
     sta sprite_ptr+1                                                  ; 545a: 85 71       .q
@@ -2139,9 +2139,9 @@ l3565 = loop_c3564+1
     ldy #0                                                            ; 54b5: a0 00       ..
 ; &54b7 referenced 1 time by &54d9
 .c54b7
-    lda packed_data+0,x                                               ; 54b7: bd 00 57    ..W
+    lda sprite_addrs_be+0,x                                           ; 54b7: bd 00 57    ..W
     sta unpacked_data+2,y                                             ; 54ba: 99 02 56    ..V
-    lda packed_data+1,x                                               ; 54bd: bd 01 57    ..W
+    lda sprite_addrs_be+1,x                                           ; 54bd: bd 01 57    ..W
     sta unpacked_data+3,y                                             ; 54c0: 99 03 56    ..V
     lda #0                                                            ; 54c3: a9 00       ..
     sta zero_data+0,x                                                 ; 54c5: 9d 60 57    .`W
@@ -2258,24 +2258,60 @@ l3565 = loop_c3564+1
     equb   0, &5d, &c0, &5b, &80                                      ; 56f6: 00 5d c0... .].
     equs "Z@Y"                                                        ; 56fb: 5a 40 59    Z@Y
     equb   0, &58                                                     ; 56fe: 00 58       .X
+; This appears to be a big-endian table of start addresses for the
+; game sprites. TODO: This is inspired guesswork; note that the copy
+; of this at unpacked_data+{2,3] does get tweaked slightly.
 ; &5700 referenced 2 times by &5452, &54b7
-.packed_data
-    equb &40                                                          ; 5700: 40          @
+.sprite_addrs_be
+    equb &40,   0                                                     ; 5700: 40 00       @.
 ; &5701 referenced 2 times by &544a, &54bd
-    equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5701: 00 40 00... .@.
-    equb   0, &40,   0, &40, &c0, &41, &80                            ; 570d: 00 40 00... .@.
-    equs "B@C"                                                        ; 5714: 42 40 43    B@C
-    equb   0, &43, &c0, &44, &80                                      ; 5717: 00 43 c0... .C.
-    equs "E@F"                                                        ; 571c: 45 40 46    E@F
-    equb   0, &46, &c0, &47, &80                                      ; 571f: 00 46 c0... .F.
-    equs "H@I"                                                        ; 5724: 48 40 49    H@I
-    equb   0, &49, &c0, &4a, &80                                      ; 5727: 00 49 c0... .I.
-    equs "K@L"                                                        ; 572c: 4b 40 4c    K@L
-    equb   0, &4c, &c0, &4d, &80, &40,   0, &40,   0, &40,   0, &40   ; 572f: 00 4c c0... .L.
-    equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 573b: 00 40 00... .@.
-    equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5747: 00 40 00... .@.
-    equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5753: 00 40 00... .@.
-    equb   0                                                          ; 575f: 00          .
+    equb &40,   0                                                     ; 5702: 40 00       @.
+    equb &40,   0                                                     ; 5704: 40 00       @.
+    equb &40,   0                                                     ; 5706: 40 00       @.
+    equb &40,   0                                                     ; 5708: 40 00       @.
+    equb &40,   0                                                     ; 570a: 40 00       @.
+    equb &40,   0                                                     ; 570c: 40 00       @.
+    equb &40,   0                                                     ; 570e: 40 00       @.
+    equb &40, &c0                                                     ; 5710: 40 c0       @.
+    equb &41, &80                                                     ; 5712: 41 80       A.
+    equb &42, &40                                                     ; 5714: 42 40       B@
+    equb &43,   0                                                     ; 5716: 43 00       C.
+    equb &43, &c0                                                     ; 5718: 43 c0       C.
+    equb &44, &80                                                     ; 571a: 44 80       D.
+    equb &45, &40                                                     ; 571c: 45 40       E@
+    equb &46,   0                                                     ; 571e: 46 00       F.
+    equb &46, &c0                                                     ; 5720: 46 c0       F.
+    equb &47, &80                                                     ; 5722: 47 80       G.
+    equb &48, &40                                                     ; 5724: 48 40       H@
+    equb &49,   0                                                     ; 5726: 49 00       I.
+    equb &49, &c0                                                     ; 5728: 49 c0       I.
+    equb &4a, &80                                                     ; 572a: 4a 80       J.
+    equb &4b, &40                                                     ; 572c: 4b 40       K@
+    equb &4c,   0                                                     ; 572e: 4c 00       L.
+    equb &4c, &c0                                                     ; 5730: 4c c0       L.
+    equb &4d, &80                                                     ; 5732: 4d 80       M.
+    equb &40,   0                                                     ; 5734: 40 00       @.
+    equb &40,   0                                                     ; 5736: 40 00       @.
+    equb &40,   0                                                     ; 5738: 40 00       @.
+    equb &40,   0                                                     ; 573a: 40 00       @.
+    equb &40,   0                                                     ; 573c: 40 00       @.
+    equb &40,   0                                                     ; 573e: 40 00       @.
+    equb &40,   0                                                     ; 5740: 40 00       @.
+    equb &40,   0                                                     ; 5742: 40 00       @.
+    equb &40,   0                                                     ; 5744: 40 00       @.
+    equb &40,   0                                                     ; 5746: 40 00       @.
+    equb &40,   0                                                     ; 5748: 40 00       @.
+    equb &40,   0                                                     ; 574a: 40 00       @.
+    equb &40,   0                                                     ; 574c: 40 00       @.
+    equb &40,   0                                                     ; 574e: 40 00       @.
+    equb &40,   0                                                     ; 5750: 40 00       @.
+    equb &40,   0                                                     ; 5752: 40 00       @.
+    equb &40,   0                                                     ; 5754: 40 00       @.
+    equb &40,   0                                                     ; 5756: 40 00       @.
+    equb &40,   0                                                     ; 5758: 40 00       @.
+    equb &40,   0                                                     ; 575a: 40 00       @.
+    equb &40,   0                                                     ; 575c: 40 00       @.
+    equb &40,   0                                                     ; 575e: 40 00       @.
 ; &5760 referenced 17 times by &4f31, &4f35, &5049, &50f5, &5150, &517c, &518d, &5195, &51a8, &51b0, &5320, &5336, &538c, &53ad, &5424, &5473, &54c5
 .zero_data
     equb 0                                                            ; 5760: 00          .
@@ -2359,8 +2395,8 @@ l3565 = loop_c3564+1
 ;     sprite_core:                                      2
 ;     c5251:                                            2
 ;     c5346:                                            2
-;     packed_data:                                      2
-;     packed_data+1:                                    2
+;     sprite_addrs_be:                                  2
+;     sprite_addrs_be+1:                                2
 ;     basic_page_msb:                                   1
 ;     l0403:                                            1
 ;     l0443:                                            1
@@ -2509,12 +2545,12 @@ l3565 = loop_c3564+1
     assert >screen_data == &1f
     assert initial_qrstuv_values-1 == &54db
     assert osbyte_insert_buffer == &8a
-    assert packed_data+0 == &5700
-    assert packed_data+1 == &5701
     assert q_subroutine == &4f00
     assert q_subroutine_ri_w_minus_1_times_2 == &71
     assert q_subroutine_ri_y_minus_1_times_2 == &70
     assert s_subroutine == &5033
+    assert sprite_addrs_be+0 == &5700
+    assert sprite_addrs_be+1 == &5701
     assert t_subroutine == &52e3
     assert u_subroutine == &53fb
     assert u_subroutine_zero_data_y_and_3_times_16 == &73
