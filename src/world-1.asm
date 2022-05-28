@@ -1435,11 +1435,11 @@ l3565 = loop_c3564+1
     and #7                                                            ; 5060: 29 07       ).
     eor #7                                                            ; 5062: 49 07       I.
     sta sprite_chunks                                                 ; 5064: 85 75       .u
-    lda stuff,y                                                       ; 5066: b9 c0 56    ..V
+    lda screen_y_addr_table,y                                         ; 5066: b9 c0 56    ..V
     clc                                                               ; 5069: 18          .
     adc sprite_chunks                                                 ; 506a: 65 75       eu
     sta screen_ptr                                                    ; 506c: 85 7a       .z
-    lda stuff+1,y                                                     ; 506e: b9 c1 56    ..V
+    lda screen_y_addr_table+1,y                                       ; 506e: b9 c1 56    ..V
     adc #0                                                            ; 5071: 69 00       i.
     sta screen_ptr+1                                                  ; 5073: 85 7b       .{
     lda #0                                                            ; 5075: a9 00       ..
@@ -2335,7 +2335,7 @@ l3565 = loop_c3564+1
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 56ab: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0                  ; 56b7: 00 00 00... ...
 ; &56c0 referenced 1 time by &5066
-.stuff
+.screen_y_addr_table
     equw &7ec0                                                        ; 56c0: c0 7e       .~
 ; &56c1 referenced 1 time by &506e
     equw &7d80                                                        ; 56c2: 80 7d       .}
@@ -2375,7 +2375,6 @@ l3565 = loop_c3564+1
 ; slightly.
 ; &5700 referenced 2 times by &5452, &54b7
 .sprite_ref_addrs_be
-.stuff_end
     equb >sprite_00, <sprite_00                                       ; 5700: 40 00       @.
 ; &5701 referenced 2 times by &544a, &54bd
     equb >sprite_00, <sprite_00                                       ; 5702: 40 00       @.
@@ -2568,8 +2567,8 @@ l3565 = loop_c3564+1
 ;     loop_c54a5:                                       1
 ;     c54b7:                                            1
 ;     c54db:                                            1
-;     stuff:                                            1
-;     stuff+1:                                          1
+;     screen_y_addr_table:                              1
+;     screen_y_addr_table+1:                            1
 ;     osbyte:                                           1
 
 ; Automatically generated labels:

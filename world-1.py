@@ -180,12 +180,11 @@ expr_label(0x5600, "sprite_screen_and_data_addrs+screen_addr_lo")
 expr_label(0x5601, "sprite_screen_and_data_addrs+screen_addr_hi")
 expr_label(0x5602, "sprite_screen_and_data_addrs+sprite_addr_hi")
 expr_label(0x5603, "sprite_screen_and_data_addrs+sprite_addr_lo")
-stuff_addr = 0x5600+0x30*4
-label(stuff_addr, "stuff") # TODO: poor name!
-expr_label(stuff_addr+1, "stuff+1")
+screen_y_addr_table_addr = 0x5600+0x30*4
+label(screen_y_addr_table_addr, "screen_y_addr_table") # TODO: poor name!
+expr_label(screen_y_addr_table_addr+1, "screen_y_addr_table+1")
 for i in range(32):
-    word(stuff_addr+i*2)
-label(stuff_addr+32*2, "stuff_end")
+    word(screen_y_addr_table_addr+i*2)
 label(0x5760, "zero_data") # TODO: very poor name, I think
 expr_label(0x5761, "zero_data+1")
 label(0x5760+0x30*2, "zero_data_end")
