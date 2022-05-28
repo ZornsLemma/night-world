@@ -14,20 +14,20 @@
   112REM TODO: As with g4/g5 below, PROC4/PROC5 are the only users of A%/B%/C%/D% and
   113REM use them to save/restore some values.
 
-  120DEFPROC4:IFday_night%=1:PROCg4:ENDPROC ELSEIFdi%=9:A%=lee_x_os%:B%=lee_y_os%:ww%=9:ENDPROC
+  120DEFPROC4:IFday_night%=1:PROCg4:ENDPROC ELSEIFlee_direction%=9:A%=lee_x_os%:B%=lee_y_os%:ww%=9:ENDPROC
   130C%=lee_x_os%:D%=lee_y_os%:ww%=10:ENDPROC
 
-  140DEFPROC5:IFday_night%=1:PROCg5:ENDPROC ELSEIFdi%=9:lee_x_os%=A%:lee_y_os%=B%:ww%=9:ENDPROC
+  140DEFPROC5:IFday_night%=1:PROCg5:ENDPROC ELSEIFlee_direction%=9:lee_x_os%=A%:lee_y_os%=B%:ww%=9:ENDPROC
   150lee_x_os%=C%:lee_y_os%=D%:ww%=10:ENDPROC
 
   152REM TODO: Not sure what's going on yet, but note that PROCg4 and PROCg5 are the
   153REM only users of E%/F%/G%/H% and one stores things in those and the other
   154REM retrieves the old values.
 
-  160DEFPROCg4:IFdi%=9:E%=lee_x_os%:F%=lee_y_os%:ww%=11:ENDPROC
+  160DEFPROCg4:IFlee_direction%=9:E%=lee_x_os%:F%=lee_y_os%:ww%=11:ENDPROC
   170G%=lee_x_os%:H%=lee_y_os%:ww%=12:ENDPROC
 
-  180DEFPROCg5:IFdi%=9:lee_x_os%=E%:lee_y_os%=F%:ww%=11:ENDPROC
+  180DEFPROCg5:IFlee_direction%=9:lee_x_os%=E%:lee_y_os%=F%:ww%=11:ENDPROC
   190lee_x_os%=G%:lee_y_os%=H%:ww%=12:ENDPROC
 
   200DEFPROCsr:Y%=2:FORn%=9TO12:W%=n%:CALLS%:NEXT:Y%=0:ENDPROC
@@ -60,10 +60,10 @@
   400DEFPROCz(xx%,yy%,ch%):M%=(xx%*64)-4:N%=(1024-(32*yy%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
-  430IFdi%=9:di%=10:PROCsr:W%=10:IFday_night%=1:W%=12
+  430IFlee_direction%=9:lee_direction%=10:PROCsr:W%=10:IFday_night%=1:W%=12
   440delta_x%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
   450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
-  460IFdi%=10:di%=9:PROCsr:W%=9:IFday_night%=1:W%=11
+  460IFlee_direction%=10:lee_direction%=9:PROCsr:W%=9:IFday_night%=1:W%=11
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
@@ -173,7 +173,7 @@
  1331REPEATREADnote_pitch%,note_duration%:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351ex%=16:ec%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:di%=10:falling_delta_x%=0:VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
+ 1351ex%=16:ec%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0:VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:ng%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
