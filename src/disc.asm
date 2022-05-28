@@ -6,8 +6,8 @@ org &0000
 .boot_end
 save "!BOOT", boot_start, boot_end
 
-; TODO: Ideally we'd be able to rebuild BBC-Wor from ASCII BASIC source, but it's not
-; all that interesting to modify and it contains embedded data so it's slightly
-; fiddly.
+; TODO: Ideally we'd be able to rebuild BBC-Wor from ASCII BASIC source, but
+; it's not all that interesting to modify and it contains embedded data so it's
+; slightly fiddly.
 putfile "orig/bbc-wor", "BBC-Wor", &1900, &1900
 putfile "tmp/nightwo.tok", "Nightwo", &1100, &8023
