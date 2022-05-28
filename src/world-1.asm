@@ -1183,22 +1183,22 @@ l3565 = loop_c3564+1
     equb   0,   0,   0,   0,   0,   0                                 ; 4efa: 00 00 00... ...
 .q_subroutine
     lda ri_w                                                          ; 4f00: ad 5c 04    .\.
-    beq c4f66                                                         ; 4f03: f0 61       .a
+    beq zero_ri_x_y_and_rts                                           ; 4f03: f0 61       .a
     cmp #&31 ; '1'                                                    ; 4f05: c9 31       .1
-    bcs c4f66                                                         ; 4f07: b0 5d       .]
+    bcs zero_ri_x_y_and_rts                                           ; 4f07: b0 5d       .]
     sec                                                               ; 4f09: 38          8
     sbc #1                                                            ; 4f0a: e9 01       ..
     asl a                                                             ; 4f0c: 0a          .
     tax                                                               ; 4f0d: aa          .
     asl a                                                             ; 4f0e: 0a          .
     tay                                                               ; 4f0f: a8          .
-    lda l5601,y                                                       ; 4f10: b9 01 56    ..V
-    beq c4f66                                                         ; 4f13: f0 51       .Q
+    lda unpacked_data+1,y                                             ; 4f10: b9 01 56    ..V
+    beq zero_ri_x_y_and_rts                                           ; 4f13: f0 51       .Q
     stx l0071                                                         ; 4f15: 86 71       .q
     lda ri_y                                                          ; 4f17: ad 64 04    .d.
-    beq c4f66                                                         ; 4f1a: f0 4a       .J
+    beq zero_ri_x_y_and_rts                                           ; 4f1a: f0 4a       .J
     cmp #&31 ; '1'                                                    ; 4f1c: c9 31       .1
-    bcs c4f66                                                         ; 4f1e: b0 46       .F
+    bcs zero_ri_x_y_and_rts                                           ; 4f1e: b0 46       .F
     sec                                                               ; 4f20: 38          8
     sbc #1                                                            ; 4f21: e9 01       ..
     asl a                                                             ; 4f23: 0a          .
@@ -1211,9 +1211,9 @@ l3565 = loop_c3564+1
     tay                                                               ; 4f2c: a8          .
     lda #5                                                            ; 4f2d: a9 05       ..
     sta l0074                                                         ; 4f2f: 85 74       .t
-    lda packed_data_end,x                                             ; 4f31: bd 60 57    .`W
+    lda zero_data,x                                                   ; 4f31: bd 60 57    .`W
     sec                                                               ; 4f34: 38          8
-    sbc packed_data_end,y                                             ; 4f35: f9 60 57    .`W
+    sbc zero_data,y                                                   ; 4f35: f9 60 57    .`W
     bmi c4f6f                                                         ; 4f38: 30 35       05
     beq c4f3e                                                         ; 4f3a: f0 02       ..
     dec l0074                                                         ; 4f3c: c6 74       .t
@@ -1222,9 +1222,9 @@ l3565 = loop_c3564+1
     cmp #9                                                            ; 4f3e: c9 09       ..
     bcs c4f5d                                                         ; 4f40: b0 1b       ..
     sta l0072                                                         ; 4f42: 85 72       .r
-    lda l5761,x                                                       ; 4f44: bd 61 57    .aW
+    lda zero_data+1,x                                                 ; 4f44: bd 61 57    .aW
     sec                                                               ; 4f47: 38          8
-    sbc l5761,y                                                       ; 4f48: f9 61 57    .aW
+    sbc zero_data+1,y                                                 ; 4f48: f9 61 57    .aW
     bmi c4f77                                                         ; 4f4b: 30 2a       0*
     beq c4f55                                                         ; 4f4d: f0 06       ..
     inc l0074                                                         ; 4f4f: e6 74       .t
@@ -1239,12 +1239,12 @@ l3565 = loop_c3564+1
 ; &4f5d referenced 3 times by &4f2a, &4f40, &4f57
 .c4f5d
     cpy l0070                                                         ; 4f5d: c4 70       .p
-    beq c4f66                                                         ; 4f5f: f0 05       ..
+    beq zero_ri_x_y_and_rts                                           ; 4f5f: f0 05       ..
     tya                                                               ; 4f61: 98          .
     adc #2                                                            ; 4f62: 69 02       i.
     bne c4f28                                                         ; 4f64: d0 c2       ..
 ; &4f66 referenced 6 times by &4f03, &4f07, &4f13, &4f1a, &4f1e, &4f5f
-.c4f66
+.zero_ri_x_y_and_rts
     lda #0                                                            ; 4f66: a9 00       ..
     sta ri_x                                                          ; 4f68: 8d 60 04    .`.
     sta ri_y                                                          ; 4f6b: 8d 64 04    .d.
@@ -1317,10 +1317,10 @@ l3565 = loop_c3564+1
     cpx #2                                                            ; 5042: e0 02       ..
     beq c502f                                                         ; 5044: f0 e9       ..
     jsr sub_c511c                                                     ; 5046: 20 1c 51     .Q
-    lda packed_data_end,x                                             ; 5049: bd 60 57    .`W
+    lda zero_data,x                                                   ; 5049: bd 60 57    .`W
     cmp #&fe                                                          ; 504c: c9 fe       ..
     bcs c502f                                                         ; 504e: b0 df       ..
-    lda l5761,x                                                       ; 5050: bd 61 57    .aW
+    lda zero_data+1,x                                                 ; 5050: bd 61 57    .aW
     cmp #2                                                            ; 5053: c9 02       ..
     bcc c502f                                                         ; 5055: 90 d8       ..
     lda l0077                                                         ; 5057: a5 77       .w
@@ -1354,12 +1354,12 @@ l3565 = loop_c3564+1
     ldx l0074                                                         ; 508a: a6 74       .t
     lda unpacked_data,x                                               ; 508c: bd 00 56    ..V
     sta l007c                                                         ; 508f: 85 7c       .|
-    lda l5601,x                                                       ; 5091: bd 01 56    ..V
+    lda unpacked_data+1,x                                             ; 5091: bd 01 56    ..V
     sta l007d                                                         ; 5094: 85 7d       .}
     lda l007a                                                         ; 5096: a5 7a       .z
     sta unpacked_data,x                                               ; 5098: 9d 00 56    ..V
     lda l007b                                                         ; 509b: a5 7b       .{
-    sta l5601,x                                                       ; 509d: 9d 01 56    ..V
+    sta unpacked_data+1,x                                             ; 509d: 9d 01 56    ..V
     lda l0076                                                         ; 50a0: a5 76       .v
     and #3                                                            ; 50a2: 29 03       ).
     asl a                                                             ; 50a4: 0a          .
@@ -1409,10 +1409,10 @@ l3565 = loop_c3564+1
     tax                                                               ; 50e8: aa          .
     lda unpacked_data,x                                               ; 50e9: bd 00 56    ..V
     sta l007a                                                         ; 50ec: 85 7a       .z
-    lda l5601,x                                                       ; 50ee: bd 01 56    ..V
+    lda unpacked_data+1,x                                             ; 50ee: bd 01 56    ..V
     beq c511b                                                         ; 50f1: f0 28       .(
     sta l007b                                                         ; 50f3: 85 7b       .{
-    lda packed_data_end,y                                             ; 50f5: b9 60 57    .`W
+    lda zero_data,y                                                   ; 50f5: b9 60 57    .`W
     and #3                                                            ; 50f8: 29 03       ).
     asl a                                                             ; 50fa: 0a          .
     asl a                                                             ; 50fb: 0a          .
@@ -1428,7 +1428,7 @@ l3565 = loop_c3564+1
     sta l0071                                                         ; 510d: 85 71       .q
     lda #0                                                            ; 510f: a9 00       ..
     sta unpacked_data,x                                               ; 5111: 9d 00 56    ..V
-    sta l5601,x                                                       ; 5114: 9d 01 56    ..V
+    sta unpacked_data+1,x                                             ; 5114: 9d 01 56    ..V
     clc                                                               ; 5117: 18          .
     jmp c51ff                                                         ; 5118: 4c ff 51    L.Q
 
@@ -1467,9 +1467,9 @@ l3565 = loop_c3564+1
     ror a                                                             ; 514b: 6a          j
     sta l0077                                                         ; 514c: 85 77       .w
     ldy l007c                                                         ; 514e: a4 7c       .|
-    lda packed_data_end,x                                             ; 5150: bd 60 57    .`W
+    lda zero_data,x                                                   ; 5150: bd 60 57    .`W
     sta l0072                                                         ; 5153: 85 72       .r
-    lda l5761,x                                                       ; 5155: bd 61 57    .aW
+    lda zero_data+1,x                                                 ; 5155: bd 61 57    .aW
     sta l0073                                                         ; 5158: 85 73       .s
     lda l0078                                                         ; 515a: a5 78       .x
     beq c516e                                                         ; 515c: f0 10       ..
@@ -1493,7 +1493,7 @@ l3565 = loop_c3564+1
     bcs c5182                                                         ; 517a: b0 06       ..
 ; &517c referenced 1 time by &5178
 .c517c
-    sta packed_data_end,x                                             ; 517c: 9d 60 57    .`W
+    sta zero_data,x                                                   ; 517c: 9d 60 57    .`W
     clc                                                               ; 517f: 18          .
     bcc c5164                                                         ; 5180: 90 e2       ..
 ; &5182 referenced 2 times by &5160, &517a
@@ -1503,12 +1503,12 @@ l3565 = loop_c3564+1
     cmp #1                                                            ; 5187: c9 01       ..
     beq c51ad                                                         ; 5189: f0 22       ."
     lda #&ff                                                          ; 518b: a9 ff       ..
-    sta packed_data_end,x                                             ; 518d: 9d 60 57    .`W
+    sta zero_data,x                                                   ; 518d: 9d 60 57    .`W
     bne c5164                                                         ; 5190: d0 d2       ..
 ; &5192 referenced 2 times by &5185, &51a4
 .c5192
     lda l55f9                                                         ; 5192: ad f9 55    ..U
-    sta packed_data_end,x                                             ; 5195: 9d 60 57    .`W
+    sta zero_data,x                                                   ; 5195: 9d 60 57    .`W
     sta l0076                                                         ; 5198: 85 76       .v
     clc                                                               ; 519a: 18          .
     bcc c5164                                                         ; 519b: 90 c7       ..
@@ -1519,12 +1519,12 @@ l3565 = loop_c3564+1
     cmp #1                                                            ; 51a2: c9 01       ..
     beq c5192                                                         ; 51a4: f0 ec       ..
     lda #&fe                                                          ; 51a6: a9 fe       ..
-    sta packed_data_end,x                                             ; 51a8: 9d 60 57    .`W
+    sta zero_data,x                                                   ; 51a8: 9d 60 57    .`W
     bne c5164                                                         ; 51ab: d0 b7       ..
 ; &51ad referenced 2 times by &5189, &51a0
 .c51ad
     lda l55f8                                                         ; 51ad: ad f8 55    ..U
-    sta packed_data_end,x                                             ; 51b0: 9d 60 57    .`W
+    sta zero_data,x                                                   ; 51b0: 9d 60 57    .`W
     sta l0076                                                         ; 51b3: 85 76       .v
     clc                                                               ; 51b5: 18          .
     bcc c5164                                                         ; 51b6: 90 ac       ..
@@ -1538,7 +1538,7 @@ l3565 = loop_c3564+1
     bcs c51cb                                                         ; 51c4: b0 05       ..
 ; &51c6 referenced 1 time by &51c2
 .c51c6
-    sta l5761,x                                                       ; 51c6: 9d 61 57    .aW
+    sta zero_data+1,x                                                 ; 51c6: 9d 61 57    .aW
     clc                                                               ; 51c9: 18          .
     rts                                                               ; 51ca: 60          `
 
@@ -1549,14 +1549,14 @@ l3565 = loop_c3564+1
     cmp #1                                                            ; 51d0: c9 01       ..
     beq c51f5                                                         ; 51d2: f0 21       .!
     lda #0                                                            ; 51d4: a9 00       ..
-    sta l5761,x                                                       ; 51d6: 9d 61 57    .aW
+    sta zero_data+1,x                                                 ; 51d6: 9d 61 57    .aW
     clc                                                               ; 51d9: 18          .
     rts                                                               ; 51da: 60          `
 
 ; &51db referenced 2 times by &51ce, &51ec
 .c51db
     lda l55fb                                                         ; 51db: ad fb 55    ..U
-    sta l5761,x                                                       ; 51de: 9d 61 57    .aW
+    sta zero_data+1,x                                                 ; 51de: 9d 61 57    .aW
     sta l0077                                                         ; 51e1: 85 77       .w
     clc                                                               ; 51e3: 18          .
     rts                                                               ; 51e4: 60          `
@@ -1568,14 +1568,14 @@ l3565 = loop_c3564+1
     cmp #1                                                            ; 51ea: c9 01       ..
     beq c51db                                                         ; 51ec: f0 ed       ..
     lda #1                                                            ; 51ee: a9 01       ..
-    sta l5761,x                                                       ; 51f0: 9d 61 57    .aW
+    sta zero_data+1,x                                                 ; 51f0: 9d 61 57    .aW
     clc                                                               ; 51f3: 18          .
     rts                                                               ; 51f4: 60          `
 
 ; &51f5 referenced 2 times by &51d2, &51e8
 .c51f5
     lda l55fa                                                         ; 51f5: ad fa 55    ..U
-    sta l5761,x                                                       ; 51f8: 9d 61 57    .aW
+    sta zero_data+1,x                                                 ; 51f8: 9d 61 57    .aW
     sta l0077                                                         ; 51fb: 85 77       .w
     clc                                                               ; 51fd: 18          .
     rts                                                               ; 51fe: 60          `
@@ -1781,17 +1781,17 @@ l3565 = loop_c3564+1
     and #&3f ; '?'                                                    ; 531b: 29 3f       )?
     asl a                                                             ; 531d: 0a          .
     sta l0076                                                         ; 531e: 85 76       .v
-    lda packed_data_end,y                                             ; 5320: b9 60 57    .`W
+    lda zero_data,y                                                   ; 5320: b9 60 57    .`W
     cmp #&fe                                                          ; 5323: c9 fe       ..
     bcs c537e                                                         ; 5325: b0 57       .W
     ldy l007e                                                         ; 5327: a4 7e       .~
-    lda l5601,y                                                       ; 5329: b9 01 56    ..V
+    lda unpacked_data+1,y                                             ; 5329: b9 01 56    ..V
     beq c52bb                                                         ; 532c: f0 8d       ..
     ldy l007f                                                         ; 532e: a4 7f       ..
     lda l55c0,x                                                       ; 5330: bd c0 55    ..U
     bmi c53ac                                                         ; 5333: 30 77       0w
     clc                                                               ; 5335: 18          .
-    adc packed_data_end,y                                             ; 5336: 79 60 57    y`W
+    adc zero_data,y                                                   ; 5336: 79 60 57    y`W
     bcs c53a8                                                         ; 5339: b0 6d       .m
 ; &533b referenced 3 times by &537c, &53aa, &53b2
 .c533b
@@ -1804,13 +1804,13 @@ l3565 = loop_c3564+1
     sta l0071                                                         ; 5344: 85 71       .q
 ; &5346 referenced 2 times by &539a, &53b8
 .c5346
-    lda l5761,y                                                       ; 5346: b9 61 57    .aW
+    lda zero_data+1,y                                                 ; 5346: b9 61 57    .aW
     cmp #2                                                            ; 5349: c9 02       ..
     bcc c5378                                                         ; 534b: 90 2b       .+
     lda l55c1,x                                                       ; 534d: bd c1 55    ..U
     bmi c53be                                                         ; 5350: 30 6c       0l
     clc                                                               ; 5352: 18          .
-    adc l5761,y                                                       ; 5353: 79 61 57    yaW
+    adc zero_data+1,y                                                 ; 5353: 79 61 57    yaW
     bcs c53ba                                                         ; 5356: b0 62       .b
 ; &5358 referenced 3 times by &53bc, &53c4, &53c8
 .c5358
@@ -1850,7 +1850,7 @@ l3565 = loop_c3564+1
     lda l55f8                                                         ; 5389: ad f8 55    ..U
 ; &538c referenced 1 time by &53a6
 .loop_c538c
-    sta packed_data_end,y                                             ; 538c: 99 60 57    .`W
+    sta zero_data,y                                                   ; 538c: 99 60 57    .`W
     asl a                                                             ; 538f: 0a          .
     rol l0070                                                         ; 5390: 26 70       &p
     asl a                                                             ; 5392: 0a          .
@@ -1873,7 +1873,7 @@ l3565 = loop_c3564+1
 ; &53ac referenced 1 time by &5333
 .c53ac
     clc                                                               ; 53ac: 18          .
-    adc packed_data_end,y                                             ; 53ad: 79 60 57    y`W
+    adc zero_data,y                                                   ; 53ad: 79 60 57    y`W
     bcc c537a                                                         ; 53b0: 90 c8       ..
     bcs c533b                                                         ; 53b2: b0 87       ..
 ; &53b4 referenced 3 times by &5383, &5387, &53a1
@@ -1888,7 +1888,7 @@ l3565 = loop_c3564+1
 ; &53be referenced 1 time by &5350
 .c53be
     clc                                                               ; 53be: 18          .
-    adc l5761,y                                                       ; 53bf: 79 61 57    yaW
+    adc zero_data+1,y                                                 ; 53bf: 79 61 57    yaW
     bcc c53c6                                                         ; 53c2: 90 02       ..
     bcs c5358                                                         ; 53c4: b0 92       ..
 ; &53c6 referenced 1 time by &53c2
@@ -1906,7 +1906,7 @@ l3565 = loop_c3564+1
     lda l55fa                                                         ; 53d7: ad fa 55    ..U
 ; &53da referenced 1 time by &53f6
 .loop_c53da
-    sta l5761,y                                                       ; 53da: 99 61 57    .aW
+    sta zero_data+1,y                                                 ; 53da: 99 61 57    .aW
     asl a                                                             ; 53dd: 0a          .
     rol l0072                                                         ; 53de: 26 72       &r
     asl a                                                             ; 53e0: 0a          .
@@ -1949,11 +1949,11 @@ l3565 = loop_c3564+1
     lda unpacked_data,x                                               ; 5414: bd 00 56    ..V
     sta l007c                                                         ; 5417: 85 7c       .|
     sta l007a                                                         ; 5419: 85 7a       .z
-    lda l5601,x                                                       ; 541b: bd 01 56    ..V
+    lda unpacked_data+1,x                                             ; 541b: bd 01 56    ..V
     beq c53eb                                                         ; 541e: f0 cb       ..
     sta l007d                                                         ; 5420: 85 7d       .}
     sta l007b                                                         ; 5422: 85 7b       .{
-    lda packed_data_end,y                                             ; 5424: b9 60 57    .`W
+    lda zero_data,y                                                   ; 5424: b9 60 57    .`W
     and #3                                                            ; 5427: 29 03       ).
     asl a                                                             ; 5429: 0a          .
     asl a                                                             ; 542a: 0a          .
@@ -1989,7 +1989,7 @@ l3565 = loop_c3564+1
     tax                                                               ; 5460: aa          .
     asl a                                                             ; 5461: 0a          .
     tay                                                               ; 5462: a8          .
-    lda l5601,y                                                       ; 5463: b9 01 56    ..V
+    lda unpacked_data+1,y                                             ; 5463: b9 01 56    ..V
     beq c5498                                                         ; 5466: f0 30       .0
     tya                                                               ; 5468: 98          .
     asl a                                                             ; 5469: 0a          .
@@ -1998,7 +1998,7 @@ l3565 = loop_c3564+1
     lda #0                                                            ; 546d: a9 00       ..
     sta l0070                                                         ; 546f: 85 70       .p
     sta l0071                                                         ; 5471: 85 71       .q
-    lda packed_data_end,x                                             ; 5473: bd 60 57    .`W
+    lda zero_data,x                                                   ; 5473: bd 60 57    .`W
     asl a                                                             ; 5476: 0a          .
     rol l0070                                                         ; 5477: 26 70       &p
     asl a                                                             ; 5479: 0a          .
@@ -2008,7 +2008,7 @@ l3565 = loop_c3564+1
     sta l0404,y                                                       ; 547f: 99 04 04    ...
     lda l0070                                                         ; 5482: a5 70       .p
     sta l0405,y                                                       ; 5484: 99 05 04    ...
-    lda l5761,x                                                       ; 5487: bd 61 57    .aW
+    lda zero_data+1,x                                                 ; 5487: bd 61 57    .aW
     asl a                                                             ; 548a: 0a          .
     rol l0071                                                         ; 548b: 26 71       &q
     asl a                                                             ; 548d: 0a          .
@@ -2129,7 +2129,6 @@ l3565 = loop_c3564+1
 .unpacked_data
     equb 0                                                            ; 5600: 00          .
 ; &5601 referenced 9 times by &4f10, &5091, &509d, &50ee, &5114, &5329, &541b, &5463, &54ce
-.l5601
     equb 0                                                            ; 5601: 00          .
 ; &5602 referenced 6 times by &50b2, &50d6, &5108, &5439, &5457, &54ba
 .l5602
@@ -2194,11 +2193,9 @@ l3565 = loop_c3564+1
     equb   0, &40,   0, &40,   0, &40,   0, &40,   0, &40,   0, &40   ; 5753: 00 40 00... .@.
     equb   0                                                          ; 575f: 00          .
 ; &5760 referenced 17 times by &4f31, &4f35, &5049, &50f5, &5150, &517c, &518d, &5195, &51a8, &51b0, &5320, &5336, &538c, &53ad, &5424, &5473, &54c5
-.packed_data_end
 .zero_data
     equb 0                                                            ; 5760: 00          .
 ; &5761 referenced 15 times by &4f44, &4f48, &5050, &5155, &51c6, &51d6, &51de, &51f0, &51f8, &5346, &5353, &53bf, &53da, &5487, &54c8
-.l5761
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5761: 00 00 00... ...
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5775: 00 00 00... ...
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5789: 00 00 00... ...
@@ -2215,132 +2212,132 @@ l3565 = loop_c3564+1
 .pydis_end
 
 ; Label references by decreasing frequency:
-;     l0070:              36
-;     l007a:              26
-;     l0073:              21
-;     l0071:              18
-;     l0072:              17
-;     packed_data_end:    17
-;     l5761:              15
-;     l007c:              14
-;     l0074:              12
-;     l007b:              10
-;     l007e:              10
-;     l5601:               9
-;     l0076:               8
-;     l0075:               7
-;     c52bb:               7
-;     c53eb:               7
-;     l007d:               6
-;     l007f:               6
-;     ri_y:                6
-;     c4f66:               6
-;     unpacked_data:       6
-;     l5602:               6
-;     l5603:               6
-;     l0077:               5
-;     l0078:               5
-;     c5164:               5
-;     l0079:               4
-;     ri_w:                4
-;     ri_x:                4
-;     zero_data_end:       4
-;     l0404:               3
-;     l0405:               3
-;     l0408:               3
-;     l0409:               3
-;     c4f5d:               3
-;     c502f:               3
-;     c533b:               3
-;     c5358:               3
-;     c53b4:               3
-;     l55c0:               3
-;     l55c1:               3
-;     l55f8:               3
-;     l55f9:               3
-;     l55fa:               3
-;     l55fb:               3
-;     l0468:               2
-;     l3565:               2
-;     c35a0:               2
-;     c4f3e:               2
-;     c4f55:               2
-;     c5025:               2
-;     c50e1:               2
-;     c5182:               2
-;     c5192:               2
-;     c519d:               2
-;     c51ad:               2
-;     c51cb:               2
-;     c51db:               2
-;     c51e5:               2
-;     c51f5:               2
-;     c51ff:               2
-;     c5251:               2
-;     c5346:               2
-;     packed_data:         2
-;     l5701:               2
-;     basic_page_msb:      1
-;     l0403:               1
-;     l0443:               1
-;     loop_c3564:          1
-;     old_run:             1
-;     c4f28:               1
-;     c4f6f:               1
-;     c4f77:               1
-;     c4f83:               1
-;     s_subroutine:        1
-;     c50e5:               1
-;     c511b:               1
-;     sub_c511c:           1
-;     c516e:               1
-;     c517c:               1
-;     c51b8:               1
-;     c51c6:               1
-;     c5203:               1
-;     c5205:               1
-;     c5227:               1
-;     c522b:               1
-;     c5239:               1
-;     c523e:               1
-;     c524c:               1
-;     c5256:               1
-;     c5258:               1
-;     c528c:               1
-;     c5296:               1
-;     c529a:               1
-;     c529e:               1
-;     c52ac:               1
-;     c52b7:               1
-;     c52bd:               1
-;     c52cb:               1
-;     c52d9:               1
-;     c52de:               1
-;     c535f:               1
-;     c5378:               1
-;     c537a:               1
-;     c537e:               1
-;     loop_c538c:          1
-;     c539c:               1
-;     c53a8:               1
-;     c53ac:               1
-;     c53ba:               1
-;     c53be:               1
-;     c53c6:               1
-;     c53ca:               1
-;     loop_c53da:          1
-;     c53ec:               1
-;     c53f8:               1
-;     c545f:               1
-;     c5498:               1
-;     v_subroutine:        1
-;     loop_c549d:          1
-;     loop_c54a5:          1
-;     c54b7:               1
-;     c54db:               1
-;     unpacked_data_end:   1
-;     l56c1:               1
-;     osbyte:              1
+;     l0070:                36
+;     l007a:                26
+;     l0073:                21
+;     l0071:                18
+;     l0072:                17
+;     zero_data:            17
+;     zero_data+1:          15
+;     l007c:                14
+;     l0074:                12
+;     l007b:                10
+;     l007e:                10
+;     unpacked_data+1:       9
+;     l0076:                 8
+;     l0075:                 7
+;     c52bb:                 7
+;     c53eb:                 7
+;     l007d:                 6
+;     l007f:                 6
+;     ri_y:                  6
+;     zero_ri_x_y_and_rts:   6
+;     unpacked_data:         6
+;     l5602:                 6
+;     l5603:                 6
+;     l0077:                 5
+;     l0078:                 5
+;     c5164:                 5
+;     l0079:                 4
+;     ri_w:                  4
+;     ri_x:                  4
+;     zero_data_end:         4
+;     l0404:                 3
+;     l0405:                 3
+;     l0408:                 3
+;     l0409:                 3
+;     c4f5d:                 3
+;     c502f:                 3
+;     c533b:                 3
+;     c5358:                 3
+;     c53b4:                 3
+;     l55c0:                 3
+;     l55c1:                 3
+;     l55f8:                 3
+;     l55f9:                 3
+;     l55fa:                 3
+;     l55fb:                 3
+;     l0468:                 2
+;     l3565:                 2
+;     c35a0:                 2
+;     c4f3e:                 2
+;     c4f55:                 2
+;     c5025:                 2
+;     c50e1:                 2
+;     c5182:                 2
+;     c5192:                 2
+;     c519d:                 2
+;     c51ad:                 2
+;     c51cb:                 2
+;     c51db:                 2
+;     c51e5:                 2
+;     c51f5:                 2
+;     c51ff:                 2
+;     c5251:                 2
+;     c5346:                 2
+;     packed_data:           2
+;     l5701:                 2
+;     basic_page_msb:        1
+;     l0403:                 1
+;     l0443:                 1
+;     loop_c3564:            1
+;     old_run:               1
+;     c4f28:                 1
+;     c4f6f:                 1
+;     c4f77:                 1
+;     c4f83:                 1
+;     s_subroutine:          1
+;     c50e5:                 1
+;     c511b:                 1
+;     sub_c511c:             1
+;     c516e:                 1
+;     c517c:                 1
+;     c51b8:                 1
+;     c51c6:                 1
+;     c5203:                 1
+;     c5205:                 1
+;     c5227:                 1
+;     c522b:                 1
+;     c5239:                 1
+;     c523e:                 1
+;     c524c:                 1
+;     c5256:                 1
+;     c5258:                 1
+;     c528c:                 1
+;     c5296:                 1
+;     c529a:                 1
+;     c529e:                 1
+;     c52ac:                 1
+;     c52b7:                 1
+;     c52bd:                 1
+;     c52cb:                 1
+;     c52d9:                 1
+;     c52de:                 1
+;     c535f:                 1
+;     c5378:                 1
+;     c537a:                 1
+;     c537e:                 1
+;     loop_c538c:            1
+;     c539c:                 1
+;     c53a8:                 1
+;     c53ac:                 1
+;     c53ba:                 1
+;     c53be:                 1
+;     c53c6:                 1
+;     c53ca:                 1
+;     loop_c53da:            1
+;     c53ec:                 1
+;     c53f8:                 1
+;     c545f:                 1
+;     c5498:                 1
+;     v_subroutine:          1
+;     loop_c549d:            1
+;     loop_c54a5:            1
+;     c54b7:                 1
+;     c54db:                 1
+;     unpacked_data_end:     1
+;     l56c1:                 1
+;     osbyte:                1
 
 ; Automatically generated labels:
 ;     c35a0
@@ -2348,7 +2345,6 @@ l3565 = loop_c3564+1
 ;     c4f3e
 ;     c4f55
 ;     c4f5d
-;     c4f66
 ;     c4f6f
 ;     c4f77
 ;     c4f83
@@ -2444,12 +2440,10 @@ l3565 = loop_c3564+1
 ;     l55f9
 ;     l55fa
 ;     l55fb
-;     l5601
 ;     l5602
 ;     l5603
 ;     l56c1
 ;     l5701
-;     l5761
 ;     loop_c3564
 ;     loop_c538c
 ;     loop_c53da

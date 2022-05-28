@@ -52,13 +52,18 @@ expr(0x54dc+4*4, "u_subroutine")
 entry(0x5499, "v_subroutine") # TODO: rename
 expr(0x54dc+5*4, "v_subroutine")
 
+# q_subroutine
+label(0x4f66, "zero_ri_x_y_and_rts")
+
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
 label(0x5700, "packed_data")
-label(0x5700+0x30*2, "packed_data_end")
+#label(0x5700+0x30*2, "packed_data_end")
 label(0x5600, "unpacked_data")
+expr_label(0x5601, "unpacked_data+1")
 label(0x5600+0x30*4, "unpacked_data_end")
 label(0x5760, "zero_data") # TODO: very poor name, I think
+expr_label(0x5761, "zero_data+1")
 label(0x5760+0x30*2, "zero_data_end")
 expr(0x54b8, "packed_data+0")
 expr(0x54bb, "unpacked_data+2")
