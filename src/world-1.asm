@@ -1207,8 +1207,12 @@ l3565 = loop_c3564+1
     asl a                                                             ; 4f23: 0a          .
     sta q_subroutine_ri_y_minus_1_times_2                             ; 4f24: 85 70       .p
     lda #0                                                            ; 4f26: a9 00       ..
+; TODO: This is roughly a loop over Y, bumping Y by 2 each time,
+; although the end condition is complex - note that because Y
+; temporarily gets copied into A for the bump by 2, the code at &4f5d
+; has the *original* value of Y when it does cpy
 ; &4f28 referenced 1 time by &4f64
-.c4f28
+.q_subroutine_y_loop
     cmp q_subroutine_ri_w_minus_1_times_2                             ; 4f28: c5 71       .q
     beq c4f5d                                                         ; 4f2a: f0 31       .1
     tay                                                               ; 4f2c: a8          .
@@ -1245,7 +1249,7 @@ l3565 = loop_c3564+1
     beq zero_ri_x_y_and_rts                                           ; 4f5f: f0 05       ..
     tya                                                               ; 4f61: 98          .
     adc #2                                                            ; 4f62: 69 02       i.
-    bne c4f28                                                         ; 4f64: d0 c2       ..
+    bne q_subroutine_y_loop                                           ; 4f64: d0 c2       ..
 ; &4f66 referenced 6 times by &4f03, &4f07, &4f13, &4f1a, &4f1e, &4f5f
 .zero_ri_x_y_and_rts
     lda #0                                                            ; 4f66: a9 00       ..
@@ -2285,7 +2289,7 @@ l3565 = loop_c3564+1
 ;     l0443:                 1
 ;     loop_c3564:            1
 ;     old_run:               1
-;     c4f28:                 1
+;     q_subroutine_y_loop:   1
 ;     c4f6f:                 1
 ;     c4f77:                 1
 ;     c4f83:                 1
@@ -2344,7 +2348,6 @@ l3565 = loop_c3564+1
 
 ; Automatically generated labels:
 ;     c35a0
-;     c4f28
 ;     c4f3e
 ;     c4f55
 ;     c4f5d

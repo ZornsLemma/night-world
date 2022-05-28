@@ -61,6 +61,8 @@ expr(0x4f29, "q_subroutine_ri_w_minus_1_times_2")
 constant(0x70, "q_subroutine_ri_y_minus_1_times_2")
 expr(0x4f25, "q_subroutine_ri_y_minus_1_times_2")
 expr(0x4f5e, "q_subroutine_ri_y_minus_1_times_2")
+label(0x4f28, "q_subroutine_y_loop")
+comment(0x4f28, "TODO: This is roughly a loop over Y, bumping Y by 2 each time, although the end condition is complex - note that because Y temporarily gets copied into A for the bump by 2, the code at &4f5d has the *original* value of Y when it does cpy")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
