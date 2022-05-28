@@ -7,6 +7,7 @@ label(0x18, "basic_page_msb")
 label(0x45c, "ri_w")
 label(0x460, "ri_x")
 label(0x464, "ri_y")
+label(0x468, "ri_z")
 
 load(0x1f00, "orig/world-1", "630948d4685cb15e7485103744ff95f7")
 entry(0x3560, "start")
@@ -67,7 +68,7 @@ label(0x4f5d, "q_subroutine_y_loop_test_and_bump")
 comment(0x4f3c, "zero_data,x > zero_data,y (TODO: assuming unsigned)")
 comment(0x4f4f, "zero_data+1,x > zero_data+1,y (TODO: assuming unsigned)")
 comment(0x4f5b, "always branch", inline=True)
-label(0x4f83, "q_subroutine_set_ri_x_y_to_something_and_rts")
+label(0x4f83, "q_subroutine_set_ri_x_y_z_to_something_and_rts")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
