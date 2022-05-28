@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Don't leave an outdated .ssd lying around if the build fails.
+rm -f night-world.ssd
+
 # TODO: world-1 contains embedded BASIC and eventually we might want to split it up and
 # handle the two parts separately, but let's not worry about that for now. Given the way
 # the BASIC code is in the middle of the file, it would be easier to build this from
