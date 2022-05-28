@@ -85,12 +85,22 @@ label(0x52bb, "cli_rts")
 
 # u_subroutine
 label(0x53eb, "u_subroutine_rts")
+label(0x5498, "u_subroutine_rts2")
 constant(0x73, "u_subroutine_zero_data_y_and_3_times_16")
 expr(0x542e, "u_subroutine_zero_data_y_and_3_times_16")
 expr(0x5431, "u_subroutine_zero_data_y_and_3_times_16")
 constant(0x72, "u_subroutine_zero_data_y_and_3_times_48")
 expr(0x5433, "u_subroutine_zero_data_y_and_3_times_48")
 expr(0x5449, "u_subroutine_zero_data_y_and_3_times_48")
+
+# Sprite core code.
+# TODO: This is probably a good thing to focus on now - even a first glance at this makes it a lot more obvious what some other code is setting up in the zero page locations, and working back from this sprite core is probably helpful.
+label(0x51ff, "sprite_core")
+comment(0x5239, "TODO: Can we ever take this branch? sprite_core sets l0075 to 1. Is there another entry point?")
+label(0x5203, "sprite_core_outer_loop")
+label(0x5205, "sprite_core_inner_loop")
+label(0x524c, "sprite_core_low_byte_wrapped")
+label(0x522b, "sprite_core_low_byte_wrap_handled")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")

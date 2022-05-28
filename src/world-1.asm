@@ -1411,7 +1411,7 @@ l3565 = loop_c3564+1
 ; &50e1 referenced 2 times by &50be, &50c2
 .c50e1
     clc                                                               ; 50e1: 18          .
-    jmp c51ff                                                         ; 50e2: 4c ff 51    L.Q
+    jmp sprite_core                                                   ; 50e2: 4c ff 51    L.Q
 
 ; &50e5 referenced 1 time by &5030
 .c50e5
@@ -1442,7 +1442,7 @@ l3565 = loop_c3564+1
     sta unpacked_data,x                                               ; 5111: 9d 00 56    ..V
     sta unpacked_data+1,x                                             ; 5114: 9d 01 56    ..V
     clc                                                               ; 5117: 18          .
-    jmp c51ff                                                         ; 5118: 4c ff 51    L.Q
+    jmp sprite_core                                                   ; 5118: 4c ff 51    L.Q
 
 ; &511b referenced 1 time by &50f1
 .c511b
@@ -1595,14 +1595,14 @@ l3565 = loop_c3564+1
     rts                                                               ; 51fe: 60          `
 
 ; &51ff referenced 2 times by &50e2, &5118
-.c51ff
+.sprite_core
     lda #1                                                            ; 51ff: a9 01       ..
     sta l0075                                                         ; 5201: 85 75       .u
 ; &5203 referenced 1 time by &523b
-.c5203
+.sprite_core_outer_loop
     ldx #8                                                            ; 5203: a2 08       ..
 ; &5205 referenced 1 time by &522c
-.c5205
+.sprite_core_inner_loop
     ldy #0                                                            ; 5205: a0 00       ..
     lda (l007a),y                                                     ; 5207: b1 7a       .z
     eor (l0070),y                                                     ; 5209: 51 70       Qp
@@ -1623,21 +1623,23 @@ l3565 = loop_c3564+1
 ; &5227 referenced 1 time by &524a
 .c5227
     inc l0070                                                         ; 5227: e6 70       .p
-    beq c524c                                                         ; 5229: f0 21       .!
+    beq sprite_core_low_byte_wrapped                                  ; 5229: f0 21       .!
 ; &522b referenced 1 time by &524f
-.c522b
+.sprite_core_low_byte_wrap_handled
     dex                                                               ; 522b: ca          .
-    bne c5205                                                         ; 522c: d0 d7       ..
+    bne sprite_core_inner_loop                                        ; 522c: d0 d7       ..
     lda l0070                                                         ; 522e: a5 70       .p
     adc #&10                                                          ; 5230: 69 10       i.
     sta l0070                                                         ; 5232: 85 70       .p
     bcc c5239                                                         ; 5234: 90 03       ..
     inc l0071                                                         ; 5236: e6 71       .q
     clc                                                               ; 5238: 18          .
+; TODO: Can we ever take this branch? sprite_core sets l0075 to 1. Is
+; there another entry point?
 ; &5239 referenced 1 time by &5234
 .c5239
     dec l0075                                                         ; 5239: c6 75       .u
-    beq c5203                                                         ; 523b: f0 c6       ..
+    beq sprite_core_outer_loop                                        ; 523b: f0 c6       ..
     rts                                                               ; 523d: 60          `
 
 ; &523e referenced 1 time by &5223
@@ -1650,10 +1652,10 @@ l3565 = loop_c3564+1
     sta l007b                                                         ; 5248: 85 7b       .{
     bne c5227                                                         ; 524a: d0 db       ..
 ; &524c referenced 1 time by &5229
-.c524c
+.sprite_core_low_byte_wrapped
     inc l0071                                                         ; 524c: e6 71       .q
     clc                                                               ; 524e: 18          .
-    bne c522b                                                         ; 524f: d0 da       ..
+    bne sprite_core_low_byte_wrap_handled                             ; 524f: d0 da       ..
 ; &5251 referenced 2 times by &50de, &545c
 .c5251
     lda #1                                                            ; 5251: a9 01       ..
@@ -2004,7 +2006,7 @@ l3565 = loop_c3564+1
     asl a                                                             ; 5461: 0a          .
     tay                                                               ; 5462: a8          .
     lda unpacked_data+1,y                                             ; 5463: b9 01 56    ..V
-    beq c5498                                                         ; 5466: f0 30       .0
+    beq u_subroutine_rts2                                             ; 5466: f0 30       .0
     tya                                                               ; 5468: 98          .
     asl a                                                             ; 5469: 0a          .
     and #&3f ; '?'                                                    ; 546a: 29 3f       )?
@@ -2031,7 +2033,7 @@ l3565 = loop_c3564+1
     lda l0071                                                         ; 5493: a5 71       .q
     sta ri_b+1,y                                                      ; 5495: 99 09 04    ...
 ; &5498 referenced 1 time by &5466
-.c5498
+.u_subroutine_rts2
     rts                                                               ; 5498: 60          `
 
 ; Zero resident integer variables A%-Z%
@@ -2283,7 +2285,7 @@ l3565 = loop_c3564+1
 ;     c51db:                                            2
 ;     c51e5:                                            2
 ;     c51f5:                                            2
-;     c51ff:                                            2
+;     sprite_core:                                      2
 ;     c5251:                                            2
 ;     c5346:                                            2
 ;     packed_data:                                      2
@@ -2305,13 +2307,13 @@ l3565 = loop_c3564+1
 ;     c517c:                                            1
 ;     c51b8:                                            1
 ;     c51c6:                                            1
-;     c5203:                                            1
-;     c5205:                                            1
+;     sprite_core_outer_loop:                           1
+;     sprite_core_inner_loop:                           1
 ;     c5227:                                            1
-;     c522b:                                            1
+;     sprite_core_low_byte_wrap_handled:                1
 ;     c5239:                                            1
 ;     c523e:                                            1
-;     c524c:                                            1
+;     sprite_core_low_byte_wrapped:                     1
 ;     c5256:                                            1
 ;     c5258:                                            1
 ;     c528c:                                            1
@@ -2340,7 +2342,7 @@ l3565 = loop_c3564+1
 ;     c53ec:                                            1
 ;     c53f8:                                            1
 ;     c545f:                                            1
-;     c5498:                                            1
+;     u_subroutine_rts2:                                1
 ;     v_subroutine:                                     1
 ;     loop_c549d:                                       1
 ;     loop_c54a5:                                       1
@@ -2373,14 +2375,9 @@ l3565 = loop_c3564+1
 ;     c51db
 ;     c51e5
 ;     c51f5
-;     c51ff
-;     c5203
-;     c5205
 ;     c5227
-;     c522b
 ;     c5239
 ;     c523e
-;     c524c
 ;     c5251
 ;     c5256
 ;     c5258
@@ -2412,7 +2409,6 @@ l3565 = loop_c3564+1
 ;     c53ec
 ;     c53f8
 ;     c545f
-;     c5498
 ;     c54b7
 ;     c54db
 ;     l0070
