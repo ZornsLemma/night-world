@@ -3,8 +3,8 @@
    30ENVELOPE1,1,0,0,0,2,2,2,30,0,0,255,128,1:REM TODO: Could be moved into earlier file
    40ONERROR:VDU4:uw%=1:GOTO100
    50es%=0:score%=13:uw%=0:ex%=10
-   60PROCuvii
-   70PROCs:*FX15,0
+   60PROCone_off_init
+   70PROCnew_game_init:*FX15,0
    80*FX200,2
    90PROCt:PROCr:PROCp:IFw%=1:PROCo
   100PROCg:GOTO70
@@ -77,9 +77,9 @@
   770DEFPROCa5:Z%=ed%:IFed%=6ANDI%>688:ed%=4
   780IFed%=4ANDI%<644:ed%=6
   790CALLT%:ENDPROC
-  800DEFPROCs:CALLV%:PROCf:VDU28,4,30,15,28,17,128,12,26:ENDPROC
+  800DEFPROCnew_game_init:CALLV%:PROCf:VDU28,4,30,15,28,17,128,12,26:ENDPROC
   810COLOUR3:FORn%=28TO30:PRINTTAB(1,n%)STRING$(2,CHR$(259-n%));TAB(17,n%)STRING$(2,CHR$(259-n%)):NEXT:ENDPROC
-  820DEFPROCuvii:CALLV%:os%=&FFEE:PROCcc:DIMad%(4),ed%(6),tc%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
+  820DEFPROCone_off_init:CALLV%:os%=&FFEE:PROCcc:DIMad%(4),ed%(6),tc%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
   840DEFPROCf:VDU28,0,26,19,9,17,128,12,26:ENDPROC
   850DEFPROCq(b1%):fb%=&3508+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
@@ -155,6 +155,7 @@
  1530P%=cc%
  1531REM ABE's pack won't always correctly rename variables which follow an assembler
  1532REM mnemonic without an intervening space, so spaces have been added here.
+ 1533REM TODO: Could be assembled in a separate file
  1540[OPTn%
  1550.s LDY#0:.l LDA(&70),Y:CMP#0:BEQ ze:CMP#1:BEQ on:CMP#2:BEQ tw:CMP#3:BEQ th:.ba:DEC&73:LDA&73:BEQ rr:.pe:INY:TYA:CMP#180:BNE l:RTS:.rr JMP rt:.ze LDA#32:JSR os%:JSR os%:JMP ba
  1560.on LDA#32:JSR os%:LDA#17:JSR os%:LDA#131:JSR os%:LDA#17:JSR os%:LDA#2:JSR os%:LDA&72:JSR os%:LDA#17:JSR os%:LDA#128:JSR os%:JMP ba
