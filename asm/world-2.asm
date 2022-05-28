@@ -1,11 +1,12 @@
 osbyte_tape = &8c
 osbyte_insert_buffer = &8a
 
-l0018 = &0018
+basic_page_msb = &0018
 l0080 = &0080
 l0081 = &0081
 l0082 = &0082
 l0083 = &0083
+relocated_start = &0d00
 osbyte = &fff4
 
     org &1100
@@ -1215,19 +1216,22 @@ osbyte = &fff4
     equb &0d,   0, &a2                                                ; 32ac: 0d 00 a2    ...
     equs '"', ".rt LDA#30:STA&73:INC&72:JMPpe"                        ; 32af: 22 2e 72... ".r
     equb &0d,   0, &a3,   8, &5d, &ed, &3a, &e1, &0d, &ff             ; 32ce: 0d 00 a3... ...
+; Select the tape filing system and relocate the code down to
+; relocated_start, then set PAGE=relocated_start and start running the
+; relocated code.
 .start
     lda #osbyte_tape                                                  ; 32d8: a9 8c       ..
     ldx #0                                                            ; 32da: a2 00       ..
     jsr osbyte                                                        ; 32dc: 20 f4 ff     ..
     lda #0                                                            ; 32df: a9 00       ..
     sta l0080                                                         ; 32e1: 85 80       ..
-    lda #&11                                                          ; 32e3: a9 11       ..
+    lda #>pydis_start                                                 ; 32e3: a9 11       ..
     sta l0081                                                         ; 32e5: 85 81       ..
     lda #0                                                            ; 32e7: a9 00       ..
     sta l0082                                                         ; 32e9: 85 82       ..
-    lda #&0d                                                          ; 32eb: a9 0d       ..
+    lda #>relocated_start                                             ; 32eb: a9 0d       ..
     sta l0083                                                         ; 32ed: 85 83       ..
-    ldx #&22 ; '"'                                                    ; 32ef: a2 22       ."
+    ldx #>(relocation_end-pydis_start)                                ; 32ef: a2 22       ."
     ldy #0                                                            ; 32f1: a0 00       ..
 ; &32f3 referenced 2 times by &32f8, &32ff
 .c32f3
@@ -1238,9 +1242,11 @@ osbyte = &fff4
     inc l0081                                                         ; 32fa: e6 81       ..
     inc l0083                                                         ; 32fc: e6 83       ..
     dex                                                               ; 32fe: ca          .
+.sub_c32ff
+relocation_end = sub_c32ff+1
     bne c32f3                                                         ; 32ff: d0 f2       ..
-    lda #&0d                                                          ; 3301: a9 0d       ..
-    sta l0018                                                         ; 3303: 85 18       ..
+    lda #>relocated_start                                             ; 3301: a9 0d       ..
+    sta basic_page_msb                                                ; 3303: 85 18       ..
     lda #osbyte_insert_buffer                                         ; 3305: a9 8a       ..
     ldy #&4f ; 'O'                                                    ; 3307: a0 4f       .O
     jsr osbyte                                                        ; 3309: 20 f4 ff     ..
@@ -1248,6 +1254,7 @@ osbyte = &fff4
     jsr osbyte                                                        ; 330e: 20 f4 ff     ..
     ldy #&0d                                                          ; 3311: a0 0d       ..
     jsr osbyte                                                        ; 3313: 20 f4 ff     ..
+; TODO: What exactly is going on here?
     ldy #&f9                                                          ; 3316: a0 f9       ..
     jsr osbyte                                                        ; 3318: 20 f4 ff     ..
     ldy #&0d                                                          ; 331b: a0 0d       ..
@@ -1256,21 +1263,24 @@ osbyte = &fff4
 .pydis_end
 
 ; Label references by decreasing frequency:
-;     osbyte:   6
-;     l0080:    2
-;     l0081:    2
-;     l0082:    2
-;     l0083:    2
-;     c32f3:    2
-;     l0018:    1
+;     osbyte:           6
+;     l0080:            2
+;     l0081:            2
+;     l0082:            2
+;     l0083:            2
+;     c32f3:            2
+;     basic_page_msb:   1
 
 ; Automatically generated labels:
 ;     c32f3
-;     l0018
 ;     l0080
 ;     l0081
 ;     l0082
 ;     l0083
+;     sub_c32ff
+    assert >(relocation_end-pydis_start) == &22
+    assert >pydis_start == &11
+    assert >relocated_start == &0d
     assert osbyte_insert_buffer == &8a
     assert osbyte_tape == &8c
 
