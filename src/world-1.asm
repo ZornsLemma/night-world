@@ -1,5 +1,6 @@
 mode_5_himem = &5800
 q_subroutine_ri_w_minus_1_times_2 = &71
+q_subroutine_ri_y_minus_1_times_2 = &70
 osbyte_insert_buffer = &8a
 
 basic_page_msb = &0018
@@ -1204,7 +1205,7 @@ l3565 = loop_c3564+1
     sec                                                               ; 4f20: 38          8
     sbc #1                                                            ; 4f21: e9 01       ..
     asl a                                                             ; 4f23: 0a          .
-    sta l0070                                                         ; 4f24: 85 70       .p
+    sta q_subroutine_ri_y_minus_1_times_2                             ; 4f24: 85 70       .p
     lda #0                                                            ; 4f26: a9 00       ..
 ; &4f28 referenced 1 time by &4f64
 .c4f28
@@ -1240,7 +1241,7 @@ l3565 = loop_c3564+1
     bcc c4f83                                                         ; 4f5b: 90 26       .&
 ; &4f5d referenced 3 times by &4f2a, &4f40, &4f57
 .c4f5d
-    cpy l0070                                                         ; 4f5d: c4 70       .p
+    cpy q_subroutine_ri_y_minus_1_times_2                             ; 4f5d: c4 70       .p
     beq zero_ri_x_y_and_rts                                           ; 4f5f: f0 05       ..
     tya                                                               ; 4f61: 98          .
     adc #2                                                            ; 4f62: 69 02       i.
@@ -2462,6 +2463,7 @@ l3565 = loop_c3564+1
     assert packed_data+1 == &5701
     assert q_subroutine == &4f00
     assert q_subroutine_ri_w_minus_1_times_2 == &71
+    assert q_subroutine_ri_y_minus_1_times_2 == &70
     assert s_subroutine == &5033
     assert t_subroutine == &52e3
     assert u_subroutine == &53fb

@@ -58,6 +58,9 @@ comment(0x4f10, "We have X=(W%-1)*2, Y=(W%-1)*4.")
 constant(0x71, "q_subroutine_ri_w_minus_1_times_2")
 expr(0x4f16, "q_subroutine_ri_w_minus_1_times_2")
 expr(0x4f29, "q_subroutine_ri_w_minus_1_times_2")
+constant(0x70, "q_subroutine_ri_y_minus_1_times_2")
+expr(0x4f25, "q_subroutine_ri_y_minus_1_times_2")
+expr(0x4f5e, "q_subroutine_ri_y_minus_1_times_2")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
