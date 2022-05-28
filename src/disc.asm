@@ -6,6 +6,15 @@ org &0000
 .boot_end
 save "!BOOT", boot_start, boot_end
 
+; Put a file on the disc to help indicate this is a hacked version.
+; TODO: If this ever gets tidied up, we might end up announcing this on the
+; instructions page or something, but for now this will do.
+org &1000
+.message_start
+    equs "Work-in-progress disassembly/re-assembly: ", TIME$, 13
+.message_end
+save "README", message_start, message_end, 0, 0
+
 ; TODO: Ideally we'd be able to rebuild BBC-Wor from ASCII BASIC source, but
 ; it's not all that interesting to modify and it contains embedded data so it's
 ; slightly fiddly.
