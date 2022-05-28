@@ -13,12 +13,16 @@
 
   120DEFPROC4:IFday_night%=1:PROCg4:ENDPROC ELSEIFdi%=9:A%=lee_x_os%:B%=lee_y_os%:ww%=9:ENDPROC
   130C%=lee_x_os%:D%=lee_y_os%:ww%=10:ENDPROC
+
   140DEFPROC5:IFday_night%=1:PROCg5:ENDPROC ELSEIFdi%=9:lee_x_os%=A%:lee_y_os%=B%:ww%=9:ENDPROC
   150lee_x_os%=C%:lee_y_os%=D%:ww%=10:ENDPROC
+
   160DEFPROCg4:IFdi%=9:E%=lee_x_os%:F%=lee_y_os%:ww%=11:ENDPROC
   170G%=lee_x_os%:H%=lee_y_os%:ww%=12:ENDPROC
+
   180DEFPROCg5:IFdi%=9:lee_x_os%=E%:lee_y_os%=F%:ww%=11:ENDPROC
   190lee_x_os%=G%:lee_y_os%=H%:ww%=12:ENDPROC
+
   200DEFPROCsr:Y%=2:FORn%=9TO12:W%=n%:CALLS%:NEXT:Y%=0:ENDPROC
 
   210DEFPROCdraw_current_room:PROCclear_room
@@ -31,7 +35,7 @@
   270GCOL0,0:Y%=0:PROC4
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
   290PROC5:W%=ww%:IFj%=1:PROC3:GOTO330 ELSExm%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+mx%:lee_y_os%=lee_y_os%-8:df%=df%+1:GOTO330
-  300mx%=0:IFINKEY-98PROC1 ELSEIFINKEY-67PROC2
+  300mx%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310df%=0:IFINKEY-1j%=1:jc%=0:jm%=8:mx%=xm%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCure
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
   330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCk:PROCreset_note_count:IFge%=0GOTO270 ELSEIFge%=1:ENDPROC
@@ -45,10 +49,10 @@
 
   400DEFPROCz(xx%,yy%,ch%):M%=(xx%*64)-4:N%=(1024-(32*yy%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
-  420DEFPROC1:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
+  420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
   430IFdi%=9:di%=10:PROCsr:W%=10:IFday_night%=1:W%=12
   440xm%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
-  450DEFPROC2:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
+  450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
   460IFdi%=10:di%=9:PROCsr:W%=9:IFday_night%=1:W%=11
   470xm%=8:lee_x_os%=lee_x_os%+8:ENDPROC
   480DEFPROC3:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:j%=0:PROCstop_sound:ENDPROC
