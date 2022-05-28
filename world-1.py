@@ -80,8 +80,20 @@ comment(0x519a, "TODO: I believe this is effectively a jmp and nothing cares abo
 # TODO: I believe this address is only ever read from, but maybe there's something that can modify it.
 label(0x55f9, "constant_96")
 
+# t_subroutine
+label(0x52bb, "cli_rts")
+
+# u_subroutine
+label(0x53eb, "u_subroutine_rts")
+constant(0x73, "u_subroutine_zero_data_y_and_3_times_16")
+expr(0x542e, "u_subroutine_zero_data_y_and_3_times_16")
+expr(0x5431, "u_subroutine_zero_data_y_and_3_times_16")
+constant(0x72, "u_subroutine_zero_data_y_and_3_times_48")
+expr(0x5433, "u_subroutine_zero_data_y_and_3_times_48")
+expr(0x5449, "u_subroutine_zero_data_y_and_3_times_48")
+
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
-comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
+comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
 label(0x5700, "packed_data")
 #label(0x5700+0x30*2, "packed_data_end")
 label(0x5600, "unpacked_data")

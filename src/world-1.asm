@@ -1,6 +1,8 @@
 mode_5_himem = &5800
 q_subroutine_ri_w_minus_1_times_2 = &71
 q_subroutine_ri_y_minus_1_times_2 = &70
+u_subroutine_zero_data_y_and_3_times_16 = &73
+u_subroutine_zero_data_y_and_3_times_48 = &72
 osbyte_insert_buffer = &8a
 
 basic_page_msb = &0018
@@ -1726,7 +1728,7 @@ l3565 = loop_c3564+1
     dec l0075                                                         ; 52b7: c6 75       .u
     beq c5256                                                         ; 52b9: f0 9b       ..
 ; &52bb referenced 7 times by &52e6, &52ea, &52f3, &52f7, &52fb, &52ff, &532c
-.c52bb
+.cli_rts
     cli                                                               ; 52bb: 58          X
     rts                                                               ; 52bc: 60          `
 
@@ -1760,20 +1762,20 @@ l3565 = loop_c3564+1
     bne c529e                                                         ; 52e1: d0 bb       ..
 .t_subroutine
     lda ri_w                                                          ; 52e3: ad 5c 04    .\.
-    beq c52bb                                                         ; 52e6: f0 d3       ..
+    beq cli_rts                                                       ; 52e6: f0 d3       ..
     cmp #&31 ; '1'                                                    ; 52e8: c9 31       .1
-    bcs c52bb                                                         ; 52ea: b0 cf       ..
+    bcs cli_rts                                                       ; 52ea: b0 cf       ..
     sec                                                               ; 52ec: 38          8
     sbc #1                                                            ; 52ed: e9 01       ..
     tay                                                               ; 52ef: a8          .
     lda ri_z                                                          ; 52f0: ad 68 04    .h.
-    beq c52bb                                                         ; 52f3: f0 c6       ..
+    beq cli_rts                                                       ; 52f3: f0 c6       ..
     cmp #&0a                                                          ; 52f5: c9 0a       ..
-    beq c52bb                                                         ; 52f7: f0 c2       ..
+    beq cli_rts                                                       ; 52f7: f0 c2       ..
     cmp #5                                                            ; 52f9: c9 05       ..
-    beq c52bb                                                         ; 52fb: f0 be       ..
+    beq cli_rts                                                       ; 52fb: f0 be       ..
     cmp #&14                                                          ; 52fd: c9 14       ..
-    bcs c52bb                                                         ; 52ff: b0 ba       ..
+    bcs cli_rts                                                       ; 52ff: b0 ba       ..
     sec                                                               ; 5301: 38          8
     sbc #1                                                            ; 5302: e9 01       ..
     asl a                                                             ; 5304: 0a          .
@@ -1798,7 +1800,7 @@ l3565 = loop_c3564+1
     bcs c537e                                                         ; 5325: b0 57       .W
     ldy l007e                                                         ; 5327: a4 7e       .~
     lda unpacked_data+1,y                                             ; 5329: b9 01 56    ..V
-    beq c52bb                                                         ; 532c: f0 8d       ..
+    beq cli_rts                                                       ; 532c: f0 8d       ..
     ldy l007f                                                         ; 532e: a4 7f       ..
     lda l55c0,x                                                       ; 5330: bd c0 55    ..U
     bmi c53ac                                                         ; 5333: 30 77       0w
@@ -1912,9 +1914,9 @@ l3565 = loop_c3564+1
     cmp #1                                                            ; 53ca: c9 01       ..
     beq c53ec                                                         ; 53cc: f0 1e       ..
     lda l55c1,x                                                       ; 53ce: bd c1 55    ..U
-    beq c53eb                                                         ; 53d1: f0 18       ..
+    beq u_subroutine_rts                                              ; 53d1: f0 18       ..
     cmp #&80                                                          ; 53d3: c9 80       ..
-    bcs c53eb                                                         ; 53d5: b0 14       ..
+    bcs u_subroutine_rts                                              ; 53d5: b0 14       ..
     lda l55fa                                                         ; 53d7: ad fa 55    ..U
 ; &53da referenced 1 time by &53f6
 .loop_c53da
@@ -1929,14 +1931,14 @@ l3565 = loop_c3564+1
     lda l0073                                                         ; 53e7: a5 73       .s
     bne c53f8                                                         ; 53e9: d0 0d       ..
 ; &53eb referenced 7 times by &53d1, &53d5, &53f1, &53fe, &5402, &540e, &541e
-.c53eb
+.u_subroutine_rts
     rts                                                               ; 53eb: 60          `
 
 ; &53ec referenced 1 time by &53cc
 .c53ec
     lda l55c1,x                                                       ; 53ec: bd c1 55    ..U
     cmp #&80                                                          ; 53ef: c9 80       ..
-    bcc c53eb                                                         ; 53f1: 90 f8       ..
+    bcc u_subroutine_rts                                              ; 53f1: 90 f8       ..
     lda l55fb                                                         ; 53f3: ad fb 55    ..U
     bne loop_c53da                                                    ; 53f6: d0 e2       ..
 ; &53f8 referenced 1 time by &53e9
@@ -1945,15 +1947,15 @@ l3565 = loop_c3564+1
 
 .u_subroutine
     lda ri_w                                                          ; 53fb: ad 5c 04    .\.
-    beq c53eb                                                         ; 53fe: f0 eb       ..
+    beq u_subroutine_rts                                              ; 53fe: f0 eb       ..
     cmp #&31 ; '1'                                                    ; 5400: c9 31       .1
-    bcs c53eb                                                         ; 5402: b0 e7       ..
+    bcs u_subroutine_rts                                              ; 5402: b0 e7       ..
     sec                                                               ; 5404: 38          8
     sbc #1                                                            ; 5405: e9 01       ..
     ldx ri_x                                                          ; 5407: ae 60 04    .`.
     beq c545f                                                         ; 540a: f0 53       .S
     cpx #&31 ; '1'                                                    ; 540c: e0 31       .1
-    bcs c53eb                                                         ; 540e: b0 db       ..
+    bcs u_subroutine_rts                                              ; 540e: b0 db       ..
     asl a                                                             ; 5410: 0a          .
     tay                                                               ; 5411: a8          .
     asl a                                                             ; 5412: 0a          .
@@ -1962,7 +1964,7 @@ l3565 = loop_c3564+1
     sta l007c                                                         ; 5417: 85 7c       .|
     sta l007a                                                         ; 5419: 85 7a       .z
     lda unpacked_data+1,x                                             ; 541b: bd 01 56    ..V
-    beq c53eb                                                         ; 541e: f0 cb       ..
+    beq u_subroutine_rts                                              ; 541e: f0 cb       ..
     sta l007d                                                         ; 5420: 85 7d       .}
     sta l007b                                                         ; 5422: 85 7b       .{
     lda zero_data,y                                                   ; 5424: b9 60 57    .`W
@@ -1971,10 +1973,10 @@ l3565 = loop_c3564+1
     asl a                                                             ; 542a: 0a          .
     asl a                                                             ; 542b: 0a          .
     asl a                                                             ; 542c: 0a          .
-    sta l0073                                                         ; 542d: 85 73       .s
+    sta u_subroutine_zero_data_y_and_3_times_16                       ; 542d: 85 73       .s
     asl a                                                             ; 542f: 0a          .
-    adc l0073                                                         ; 5430: 65 73       es
-    sta l0072                                                         ; 5432: 85 72       .r
+    adc u_subroutine_zero_data_y_and_3_times_16                       ; 5430: 65 73       es
+    sta u_subroutine_zero_data_y_and_3_times_48                       ; 5432: 85 72       .r
     adc l5603,x                                                       ; 5434: 7d 03 56    }.V
     sta l007e                                                         ; 5437: 85 7e       .~
     lda l5602,x                                                       ; 5439: bd 02 56    ..V
@@ -1985,7 +1987,7 @@ l3565 = loop_c3564+1
     sbc #1                                                            ; 5444: e9 01       ..
     asl a                                                             ; 5446: 0a          .
     tay                                                               ; 5447: a8          .
-    lda l0072                                                         ; 5448: a5 72       .r
+    lda u_subroutine_zero_data_y_and_3_times_48                       ; 5448: a5 72       .r
     adc l5701,y                                                       ; 544a: 79 01 57    y.W
     sta l5603,x                                                       ; 544d: 9d 03 56    ..V
     sta l0070                                                         ; 5450: 85 70       .p
@@ -2033,6 +2035,10 @@ l3565 = loop_c3564+1
     rts                                                               ; 5498: 60          `
 
 ; Zero resident integer variables A%-Z%
+; TODO: This code probably initialises some game state; if this is
+; one-off initialisation I think it could just have been done at build
+; time, but if it changes during gameplay it makes sense to have code
+; to reset things when a new game starts.
 ; &5499 referenced 1 time by &35ae
 .v_subroutine
     ldx #&68 ; 'h'                                                    ; 5499: a2 68       .h
@@ -2053,10 +2059,6 @@ l3565 = loop_c3564+1
     sta l0443,x                                                       ; 54a8: 9d 43 04    .C.
     dex                                                               ; 54ab: ca          .
     bne loop_c54a5                                                    ; 54ac: d0 f7       ..
-; TODO: This code probably initialises some game state; if this is
-; one-off initialisation I think it could just have been done at build
-; time, but if it changes during gameplay it makes sense to have code
-; to reset things when a new game starts.
     ldx #0                                                            ; 54ae: a2 00       ..
     clc                                                               ; 54b0: 18          .
     ldy #&30 ; '0'                                                    ; 54b1: a0 30       .0
@@ -2238,8 +2240,8 @@ l3565 = loop_c3564+1
 ;     unpacked_data+1:                                  9
 ;     l0076:                                            8
 ;     l0075:                                            7
-;     c52bb:                                            7
-;     c53eb:                                            7
+;     cli_rts:                                          7
+;     u_subroutine_rts:                                 7
 ;     l007d:                                            6
 ;     l007f:                                            6
 ;     ri_y:                                             6
@@ -2391,7 +2393,6 @@ l3565 = loop_c3564+1
 ;     c529e
 ;     c52ac
 ;     c52b7
-;     c52bb
 ;     c52bd
 ;     c52cb
 ;     c52d9
@@ -2411,7 +2412,6 @@ l3565 = loop_c3564+1
 ;     c53be
 ;     c53c6
 ;     c53ca
-;     c53eb
 ;     c53ec
 ;     c53f8
 ;     c545f
@@ -2466,6 +2466,8 @@ l3565 = loop_c3564+1
     assert s_subroutine == &5033
     assert t_subroutine == &52e3
     assert u_subroutine == &53fb
+    assert u_subroutine_zero_data_y_and_3_times_16 == &73
+    assert u_subroutine_zero_data_y_and_3_times_48 == &72
     assert unpacked_data+1 == &5601
     assert unpacked_data+2 == &5602
     assert unpacked_data+3 == &5603
