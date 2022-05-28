@@ -54,6 +54,10 @@ expr(0x54dc+5*4, "v_subroutine")
 
 # q_subroutine
 label(0x4f66, "zero_ri_x_y_and_rts")
+comment(0x4f10, "We have X=(W%-1)*2, Y=(W%-1)*4.")
+constant(0x71, "q_subroutine_ri_w_minus_1_times_2")
+expr(0x4f16, "q_subroutine_ri_w_minus_1_times_2")
+expr(0x4f29, "q_subroutine_ri_w_minus_1_times_2")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")

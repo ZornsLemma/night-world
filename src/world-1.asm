@@ -1,4 +1,5 @@
 mode_5_himem = &5800
+q_subroutine_ri_w_minus_1_times_2 = &71
 osbyte_insert_buffer = &8a
 
 basic_page_msb = &0018
@@ -1192,9 +1193,10 @@ l3565 = loop_c3564+1
     tax                                                               ; 4f0d: aa          .
     asl a                                                             ; 4f0e: 0a          .
     tay                                                               ; 4f0f: a8          .
+; We have X=(W%-1)*2, Y=(W%-1)*4.
     lda unpacked_data+1,y                                             ; 4f10: b9 01 56    ..V
     beq zero_ri_x_y_and_rts                                           ; 4f13: f0 51       .Q
-    stx l0071                                                         ; 4f15: 86 71       .q
+    stx q_subroutine_ri_w_minus_1_times_2                             ; 4f15: 86 71       .q
     lda ri_y                                                          ; 4f17: ad 64 04    .d.
     beq zero_ri_x_y_and_rts                                           ; 4f1a: f0 4a       .J
     cmp #&31 ; '1'                                                    ; 4f1c: c9 31       .1
@@ -1206,7 +1208,7 @@ l3565 = loop_c3564+1
     lda #0                                                            ; 4f26: a9 00       ..
 ; &4f28 referenced 1 time by &4f64
 .c4f28
-    cmp l0071                                                         ; 4f28: c5 71       .q
+    cmp q_subroutine_ri_w_minus_1_times_2                             ; 4f28: c5 71       .q
     beq c4f5d                                                         ; 4f2a: f0 31       .1
     tay                                                               ; 4f2c: a8          .
     lda #5                                                            ; 4f2d: a9 05       ..
@@ -2459,6 +2461,7 @@ l3565 = loop_c3564+1
     assert packed_data+0 == &5700
     assert packed_data+1 == &5701
     assert q_subroutine == &4f00
+    assert q_subroutine_ri_w_minus_1_times_2 == &71
     assert s_subroutine == &5033
     assert t_subroutine == &52e3
     assert u_subroutine == &53fb
