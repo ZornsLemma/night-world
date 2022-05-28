@@ -36,7 +36,7 @@
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
   290PROC5:W%=ww%:IFjumping%=1:PROC3:GOTO330 ELSExm%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+mx%:lee_y_os%=lee_y_os%-8:df%=df%+1:GOTO330
   300mx%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  310df%=0:IFINKEY-1jumping%=1:jc%=0:jm%=8:mx%=xm%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
+  310df%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:mx%=xm%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
   330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFa%=1:PROCa1 ELSEIFa%=2:PROCa2 ELSEIFa%=3:PROCa3 ELSEIFa%=4:PROCa4 ELSEIFa%=5:PROCa5
@@ -56,14 +56,16 @@
   460IFdi%=10:di%=9:PROCsr:W%=9:IFday_night%=1:W%=11
   470xm%=8:lee_x_os%=lee_x_os%+8:ENDPROC
   480DEFPROC3:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
-  490jc%=jc%+1:lee_y_os%=lee_y_os%+jm%:lee_x_os%=lee_x_os%+xm%:jc%=jc%+1:IFjc%>js%:jm%=-4:IFjc%=jt%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
+  490jump_time%=jump_time%+1:lee_y_os%=lee_y_os%+jump_delta_y%:lee_x_os%=lee_x_os%+xm%:jump_time%=jump_time%+1
+  491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=jt%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
   500ENDPROC
   510DEFPROCm:W%=6:Z%=6:CALLT%:IFK%=1016:PROCms
   520IFlogical_room%=5:W%=8:Z%=6:CALLT%
   530ENDPROC
   540DEFPROCms:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
-  550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROCsr:K%=192:IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCg4:js%=45:jt%=90:PROCmu:ENDPROC
-  560js%=20:jt%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROC4:PROCvx:ENDPROC
+  550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROCsr:K%=192
+  551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCg4:full_speed_jump_time_limit%=45:jt%=90:PROCmu:ENDPROC
+  560full_speed_jump_time_limit%=20:jt%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROC4:PROCvx:ENDPROC
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
   580DEFPROCsp:IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=2:W%=5:CALLS%:PROCsr:logical_room%=8:PROCdraw_current_room:PROCsf:ENDPROC
   590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=2:W%=5:CALLS%:PROCsr:PROCdraw_current_room:PROCsf:a%=2:ENDPROC
@@ -155,7 +157,7 @@
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351ex%=16:ec%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:xm%=0:sd%=10:di%=10:mx%=0:VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
- 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:js%=20:jt%=40:uw%=0:ng%=0:m%=0:a%=3:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
+ 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:jt%=40:uw%=0:ng%=0:m%=0:a%=3:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
