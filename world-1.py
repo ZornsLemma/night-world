@@ -138,11 +138,11 @@ label(0x70, "sprite_ptr")
 expr_label(0x71, "sprite_ptr+1")
 label(0x75, "sprite_chunks") # TODO: poor name
 
-# TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
+# TODO: What "data" is this, though? There's presumably a suggestion that the data at sprite_screen_and_data_addrs[n*2] and zero_data[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
-comment(0x5700, "This appears to be a big-endian table of start addresses for the game sprites. TODO: This is inspired guesswork; note that the copy of this at unpacked_data+{2,3] does get tweaked slightly.")
-label(0x5700, "sprite_addrs_be")
-expr_label(0x5701, "sprite_addrs_be+1")
+comment(0x5700, "This appears to be a big-endian table of start addresses for the game sprites. TODO: This is inspired guesswork; note that the copy of this at sprite_screen_and_data_addrs+{2,3] does get tweaked slightly.")
+label(0x5700, "sprite_ref_addrs_be")
+expr_label(0x5701, "sprite_ref_addrs_be+1")
 sprite_labels = {}
 for i in range(0x30):
     addr = 0x5700+i*2
@@ -154,22 +154,28 @@ for i in range(0x30):
     byte(addr, n=2)
     expr(addr, ">%s" % sprite_labels[sprite_addr])
     expr(addr+1, "<%s" % sprite_labels[sprite_addr])
-#label(0x5700+0x30*2, "sprite_addrs_be_end")
-label(0x5600, "unpacked_data")
-expr_label(0x5601, "unpacked_data+1")
-expr_label(0x5602, "unpacked_data+2")
-expr_label(0x5603, "unpacked_data+3")
-label(0x5600+0x30*4, "unpacked_data_end")
+#label(0x5700+0x30*2, "sprite_ref_addrs_be_end")
+comment(0x5600, "This is (TODO: probably!) a table with four bytes per sprite. The first two bytes are the little-endian screen address of the sprite (0 if it is not on screen) and the second two bytes are the big-endian address of the sprite's definition.")
+annotate(0x5600, ".sprite_screen_and_data_addrs") # TODO: hacky
+constant(0, "screen_addr_lo")
+constant(1, "screen_addr_hi")
+constant(2, "sprite_addr_hi")
+constant(3, "sprite_addr_lo")
+expr_label(0x5600, "sprite_screen_and_data_addrs+screen_addr_lo")
+expr_label(0x5601, "sprite_screen_and_data_addrs+screen_addr_hi")
+expr_label(0x5602, "sprite_screen_and_data_addrs+sprite_addr_hi")
+expr_label(0x5603, "sprite_screen_and_data_addrs+sprite_addr_lo")
+label(0x5600+0x30*4, "sprite_screen_and_data_addrs_end")
 label(0x5760, "zero_data") # TODO: very poor name, I think
 expr_label(0x5761, "zero_data+1")
 label(0x5760+0x30*2, "zero_data_end")
-expr(0x54b8, "sprite_addrs_be+0")
-expr(0x54bb, "unpacked_data+2")
-expr(0x54be, "sprite_addrs_be+1")
-expr(0x54c1, "unpacked_data+3")
+expr(0x54b8, "sprite_ref_addrs_be+0")
+#expr(0x54bb, "sprite_screen_and_data_addrs+2")
+expr(0x54be, "sprite_ref_addrs_be+1")
+#expr(0x54c1, "sprite_screen_and_data_addrs+3")
 expr(0x54c6, "zero_data+0")
 expr(0x54c9, "zero_data+1")
-expr(0x54cb, "unpacked_data+0")
-expr(0x54cf, "unpacked_data+1")
+#expr(0x54cb, "sprite_screen_and_data_addrs+0")
+#expr(0x54cf, "sprite_screen_and_data_addrs+1")
 
 go()

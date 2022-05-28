@@ -4,6 +4,10 @@ q_subroutine_ri_y_minus_1_times_2 = &70
 u_subroutine_zero_data_y_and_3_times_16 = &73
 u_subroutine_zero_data_y_and_3_times_48 = &72
 bytes_per_screen_line = &0140
+screen_addr_lo = &00
+screen_addr_hi = &01
+sprite_addr_hi = &02
+sprite_addr_lo = &03
 osbyte_insert_buffer = &8a
 
 basic_page_msb = &0018
@@ -1274,7 +1278,7 @@ l3565 = loop_c3564+1
 ; subroutine. Y's value is only used if the beq
 ; q_subroutine_y_loop_test_and_bump branch is taken on the first pass
 ; round q_subroutine_y_loop.
-    lda unpacked_data+1,y                                             ; 4f10: b9 01 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 4f10: b9 01 56    ..V
     beq zero_ri_x_y_and_rts                                           ; 4f13: f0 51       .Q
     stx q_subroutine_ri_w_minus_1_times_2                             ; 4f15: 86 71       .q
     lda ri_y                                                          ; 4f17: ad 64 04    .d.
@@ -1421,7 +1425,7 @@ l3565 = loop_c3564+1
     and #7                                                            ; 5060: 29 07       ).
     eor #7                                                            ; 5062: 49 07       I.
     sta sprite_chunks                                                 ; 5064: 85 75       .u
-    lda unpacked_data_end,y                                           ; 5066: b9 c0 56    ..V
+    lda sprite_screen_and_data_addrs_end,y                            ; 5066: b9 c0 56    ..V
     clc                                                               ; 5069: 18          .
     adc sprite_chunks                                                 ; 506a: 65 75       eu
     sta screen_ptr                                                    ; 506c: 85 7a       .z
@@ -1440,14 +1444,14 @@ l3565 = loop_c3564+1
     adc l0073                                                         ; 5086: 65 73       es
     sta screen_ptr+1                                                  ; 5088: 85 7b       .{
     ldx l0074                                                         ; 508a: a6 74       .t
-    lda unpacked_data,x                                               ; 508c: bd 00 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_lo,x                 ; 508c: bd 00 56    ..V
     sta l007c                                                         ; 508f: 85 7c       .|
-    lda unpacked_data+1,x                                             ; 5091: bd 01 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_hi,x                 ; 5091: bd 01 56    ..V
     sta l007d                                                         ; 5094: 85 7d       .}
     lda screen_ptr                                                    ; 5096: a5 7a       .z
-    sta unpacked_data,x                                               ; 5098: 9d 00 56    ..V
+    sta sprite_screen_and_data_addrs+screen_addr_lo,x                 ; 5098: 9d 00 56    ..V
     lda screen_ptr+1                                                  ; 509b: a5 7b       .{
-    sta unpacked_data+1,x                                             ; 509d: 9d 01 56    ..V
+    sta sprite_screen_and_data_addrs+screen_addr_hi,x                 ; 509d: 9d 01 56    ..V
     lda l0076                                                         ; 50a0: a5 76       .v
     and #3                                                            ; 50a2: 29 03       ).
     asl a                                                             ; 50a4: 0a          .
@@ -1457,9 +1461,9 @@ l3565 = loop_c3564+1
     sta l0073                                                         ; 50a8: 85 73       .s
     asl a                                                             ; 50aa: 0a          .
     adc l0073                                                         ; 50ab: 65 73       es
-    adc unpacked_data+3,x                                             ; 50ad: 7d 03 56    }.V
+    adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 50ad: 7d 03 56    }.V
     sta sprite_ptr                                                    ; 50b0: 85 70       .p
-    lda unpacked_data+2,x                                             ; 50b2: bd 02 56    ..V
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 50b2: bd 02 56    ..V
     adc #0                                                            ; 50b5: 69 00       i.
     sta sprite_ptr+1                                                  ; 50b7: 85 71       .q
     lda ri_y                                                          ; 50b9: ad 64 04    .d.
@@ -1476,9 +1480,9 @@ l3565 = loop_c3564+1
     sta l0073                                                         ; 50cc: 85 73       .s
     asl a                                                             ; 50ce: 0a          .
     adc l0073                                                         ; 50cf: 65 73       es
-    adc unpacked_data+3,x                                             ; 50d1: 7d 03 56    }.V
+    adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 50d1: 7d 03 56    }.V
     sta l007e                                                         ; 50d4: 85 7e       .~
-    lda unpacked_data+2,x                                             ; 50d6: bd 02 56    ..V
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 50d6: bd 02 56    ..V
     adc #0                                                            ; 50d9: 69 00       i.
     sta l007f                                                         ; 50db: 85 7f       ..
     clc                                                               ; 50dd: 18          .
@@ -1495,9 +1499,9 @@ l3565 = loop_c3564+1
     tay                                                               ; 50e6: a8          .
     asl a                                                             ; 50e7: 0a          .
     tax                                                               ; 50e8: aa          .
-    lda unpacked_data,x                                               ; 50e9: bd 00 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_lo,x                 ; 50e9: bd 00 56    ..V
     sta screen_ptr                                                    ; 50ec: 85 7a       .z
-    lda unpacked_data+1,x                                             ; 50ee: bd 01 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_hi,x                 ; 50ee: bd 01 56    ..V
     beq c511b                                                         ; 50f1: f0 28       .(
     sta screen_ptr+1                                                  ; 50f3: 85 7b       .{
     lda zero_data,y                                                   ; 50f5: b9 60 57    .`W
@@ -1509,14 +1513,14 @@ l3565 = loop_c3564+1
     sta l0073                                                         ; 50fe: 85 73       .s
     asl a                                                             ; 5100: 0a          .
     adc l0073                                                         ; 5101: 65 73       es
-    adc unpacked_data+3,x                                             ; 5103: 7d 03 56    }.V
+    adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 5103: 7d 03 56    }.V
     sta sprite_ptr                                                    ; 5106: 85 70       .p
-    lda unpacked_data+2,x                                             ; 5108: bd 02 56    ..V
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5108: bd 02 56    ..V
     adc #0                                                            ; 510b: 69 00       i.
     sta sprite_ptr+1                                                  ; 510d: 85 71       .q
     lda #0                                                            ; 510f: a9 00       ..
-    sta unpacked_data,x                                               ; 5111: 9d 00 56    ..V
-    sta unpacked_data+1,x                                             ; 5114: 9d 01 56    ..V
+    sta sprite_screen_and_data_addrs+screen_addr_lo,x                 ; 5111: 9d 00 56    ..V
+    sta sprite_screen_and_data_addrs+screen_addr_hi,x                 ; 5114: 9d 01 56    ..V
     clc                                                               ; 5117: 18          .
     jmp sprite_core                                                   ; 5118: 4c ff 51    L.Q
 
@@ -1894,7 +1898,7 @@ l3565 = loop_c3564+1
     cmp #&fe                                                          ; 5323: c9 fe       ..
     bcs c537e                                                         ; 5325: b0 57       .W
     ldy l007e                                                         ; 5327: a4 7e       .~
-    lda unpacked_data+1,y                                             ; 5329: b9 01 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 5329: b9 01 56    ..V
     beq cli_rts                                                       ; 532c: f0 8d       ..
     ldy l007f                                                         ; 532e: a4 7f       ..
     lda l55c0,x                                                       ; 5330: bd c0 55    ..U
@@ -2055,10 +2059,10 @@ l3565 = loop_c3564+1
     tay                                                               ; 5411: a8          .
     asl a                                                             ; 5412: 0a          .
     tax                                                               ; 5413: aa          .
-    lda unpacked_data,x                                               ; 5414: bd 00 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_lo,x                 ; 5414: bd 00 56    ..V
     sta l007c                                                         ; 5417: 85 7c       .|
     sta screen_ptr                                                    ; 5419: 85 7a       .z
-    lda unpacked_data+1,x                                             ; 541b: bd 01 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_hi,x                 ; 541b: bd 01 56    ..V
     beq u_subroutine_rts                                              ; 541e: f0 cb       ..
     sta l007d                                                         ; 5420: 85 7d       .}
     sta screen_ptr+1                                                  ; 5422: 85 7b       .{
@@ -2072,9 +2076,9 @@ l3565 = loop_c3564+1
     asl a                                                             ; 542f: 0a          .
     adc u_subroutine_zero_data_y_and_3_times_16                       ; 5430: 65 73       es
     sta u_subroutine_zero_data_y_and_3_times_48                       ; 5432: 85 72       .r
-    adc unpacked_data+3,x                                             ; 5434: 7d 03 56    }.V
+    adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 5434: 7d 03 56    }.V
     sta l007e                                                         ; 5437: 85 7e       .~
-    lda unpacked_data+2,x                                             ; 5439: bd 02 56    ..V
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5439: bd 02 56    ..V
     adc #0                                                            ; 543c: 69 00       i.
     sta l007f                                                         ; 543e: 85 7f       ..
     lda ri_x                                                          ; 5440: ad 60 04    .`.
@@ -2083,12 +2087,12 @@ l3565 = loop_c3564+1
     asl a                                                             ; 5446: 0a          .
     tay                                                               ; 5447: a8          .
     lda u_subroutine_zero_data_y_and_3_times_48                       ; 5448: a5 72       .r
-    adc sprite_addrs_be+1,y                                           ; 544a: 79 01 57    y.W
-    sta unpacked_data+3,x                                             ; 544d: 9d 03 56    ..V
+    adc sprite_ref_addrs_be+1,y                                       ; 544a: 79 01 57    y.W
+    sta sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 544d: 9d 03 56    ..V
     sta sprite_ptr                                                    ; 5450: 85 70       .p
-    lda sprite_addrs_be,y                                             ; 5452: b9 00 57    ..W
+    lda sprite_ref_addrs_be,y                                         ; 5452: b9 00 57    ..W
     adc #0                                                            ; 5455: 69 00       i.
-    sta unpacked_data+2,x                                             ; 5457: 9d 02 56    ..V
+    sta sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5457: 9d 02 56    ..V
     sta sprite_ptr+1                                                  ; 545a: 85 71       .q
     jmp c5251                                                         ; 545c: 4c 51 52    LQR
 
@@ -2098,7 +2102,7 @@ l3565 = loop_c3564+1
     tax                                                               ; 5460: aa          .
     asl a                                                             ; 5461: 0a          .
     tay                                                               ; 5462: a8          .
-    lda unpacked_data+1,y                                             ; 5463: b9 01 56    ..V
+    lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 5463: b9 01 56    ..V
     beq u_subroutine_rts2                                             ; 5466: f0 30       .0
     tya                                                               ; 5468: 98          .
     asl a                                                             ; 5469: 0a          .
@@ -2161,15 +2165,15 @@ l3565 = loop_c3564+1
     ldy #0                                                            ; 54b5: a0 00       ..
 ; &54b7 referenced 1 time by &54d9
 .c54b7
-    lda sprite_addrs_be+0,x                                           ; 54b7: bd 00 57    ..W
-    sta unpacked_data+2,y                                             ; 54ba: 99 02 56    ..V
-    lda sprite_addrs_be+1,x                                           ; 54bd: bd 01 57    ..W
-    sta unpacked_data+3,y                                             ; 54c0: 99 03 56    ..V
+    lda sprite_ref_addrs_be+0,x                                       ; 54b7: bd 00 57    ..W
+    sta sprite_screen_and_data_addrs+sprite_addr_hi,y                 ; 54ba: 99 02 56    ..V
+    lda sprite_ref_addrs_be+1,x                                       ; 54bd: bd 01 57    ..W
+    sta sprite_screen_and_data_addrs+sprite_addr_lo,y                 ; 54c0: 99 03 56    ..V
     lda #0                                                            ; 54c3: a9 00       ..
     sta zero_data+0,x                                                 ; 54c5: 9d 60 57    .`W
     sta zero_data+1,x                                                 ; 54c8: 9d 61 57    .aW
-    sta unpacked_data,y                                               ; 54cb: 99 00 56    ..V
-    sta unpacked_data+1,y                                             ; 54ce: 99 01 56    ..V
+    sta sprite_screen_and_data_addrs+screen_addr_lo,y                 ; 54cb: 99 00 56    ..V
+    sta sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 54ce: 99 01 56    ..V
     tya                                                               ; 54d1: 98          .
     adc #4                                                            ; 54d2: 69 04       i.
     tay                                                               ; 54d4: a8          .
@@ -2234,8 +2238,12 @@ l3565 = loop_c3564+1
 ; &55fb referenced 3 times by &51bf, &51db, &53f3
 .l55fb
     equb &fe,   0,   0,   0,   0                                      ; 55fb: fe 00 00... ...
+; This is (TODO: probably!) a table with four bytes per sprite. The
+; first two bytes are the little-endian screen address of the sprite
+; (0 if it is not on screen) and the second two bytes are the big-
+; endian address of the sprite's definition.
+.sprite_screen_and_data_addrs
 ; &5600 referenced 6 times by &508c, &5098, &50e9, &5111, &5414, &54cb
-.unpacked_data
     equb 0                                                            ; 5600: 00          .
 ; &5601 referenced 9 times by &4f10, &5091, &509d, &50ee, &5114, &5329, &541b, &5463, &54ce
     equb 0                                                            ; 5601: 00          .
@@ -2259,7 +2267,7 @@ l3565 = loop_c3564+1
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 56ab: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0                  ; 56b7: 00 00 00... ...
 ; &56c0 referenced 1 time by &5066
-.unpacked_data_end
+.sprite_screen_and_data_addrs_end
     equb &c0                                                          ; 56c0: c0          .
 ; &56c1 referenced 1 time by &506e
 .l56c1
@@ -2282,9 +2290,10 @@ l3565 = loop_c3564+1
     equb   0, &58                                                     ; 56fe: 00 58       .X
 ; This appears to be a big-endian table of start addresses for the
 ; game sprites. TODO: This is inspired guesswork; note that the copy
-; of this at unpacked_data+{2,3] does get tweaked slightly.
+; of this at sprite_screen_and_data_addrs+{2,3] does get tweaked
+; slightly.
 ; &5700 referenced 2 times by &5452, &54b7
-.sprite_addrs_be
+.sprite_ref_addrs_be
     equb >sprite_00, <sprite_00                                       ; 5700: 40 00       @.
 ; &5701 referenced 2 times by &544a, &54bd
     equb >sprite_00, <sprite_00                                       ; 5702: 40 00       @.
@@ -2365,7 +2374,7 @@ l3565 = loop_c3564+1
 ;     l0074:                                           12
 ;     screen_ptr+1:                                    10
 ;     l007e:                                           10
-;     unpacked_data+1:                                  9
+;     sprite_screen_and_data_addrs+screen_addr_hi:      9
 ;     l0076:                                            8
 ;     sprite_chunks:                                    7
 ;     cli_rts:                                          7
@@ -2374,9 +2383,9 @@ l3565 = loop_c3564+1
 ;     l007f:                                            6
 ;     ri_y:                                             6
 ;     zero_ri_x_y_and_rts:                              6
-;     unpacked_data:                                    6
-;     unpacked_data+2:                                  6
-;     unpacked_data+3:                                  6
+;     sprite_screen_and_data_addrs+screen_addr_lo:      6
+;     sprite_screen_and_data_addrs+sprite_addr_hi:      6
+;     sprite_screen_and_data_addrs+sprite_addr_lo:      6
 ;     l0077:                                            5
 ;     l0078:                                            5
 ;     c5164:                                            5
@@ -2417,8 +2426,8 @@ l3565 = loop_c3564+1
 ;     sprite_core:                                      2
 ;     c5251:                                            2
 ;     c5346:                                            2
-;     sprite_addrs_be:                                  2
-;     sprite_addrs_be+1:                                2
+;     sprite_ref_addrs_be:                              2
+;     sprite_ref_addrs_be+1:                            2
 ;     basic_page_msb:                                   1
 ;     l0403:                                            1
 ;     l0443:                                            1
@@ -2477,7 +2486,7 @@ l3565 = loop_c3564+1
 ;     loop_c54a5:                                       1
 ;     c54b7:                                            1
 ;     c54db:                                            1
-;     unpacked_data_end:                                1
+;     sprite_screen_and_data_addrs_end:                 1
 ;     l56c1:                                            1
 ;     osbyte:                                           1
 
@@ -2609,15 +2618,12 @@ l3565 = loop_c3564+1
     assert q_subroutine_ri_w_minus_1_times_2 == &71
     assert q_subroutine_ri_y_minus_1_times_2 == &70
     assert s_subroutine == &5033
-    assert sprite_addrs_be+0 == &5700
-    assert sprite_addrs_be+1 == &5701
+    assert sprite_ref_addrs_be+0 == &5700
+    assert sprite_ref_addrs_be+1 == &5701
     assert t_subroutine == &52e3
     assert u_subroutine == &53fb
     assert u_subroutine_zero_data_y_and_3_times_16 == &73
     assert u_subroutine_zero_data_y_and_3_times_48 == &72
-    assert unpacked_data+1 == &5601
-    assert unpacked_data+2 == &5602
-    assert unpacked_data+3 == &5603
     assert v_subroutine == &5499
     assert zero_data+0 == &5760
     assert zero_data+1 == &5761
