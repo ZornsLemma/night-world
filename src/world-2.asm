@@ -65,4 +65,9 @@ endif
     brk                                                               ; 3320: 00          .
 .pydis_end
 
-save pydis_start, pydis_end
+MAKE_IMAGE =? FALSE
+if MAKE_IMAGE
+    save "World-2", pydis_start, pydis_end, start
+else
+    save pydis_start, pydis_end
+endif

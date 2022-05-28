@@ -2478,4 +2478,9 @@ l3565 = loop_c3564+1
     assert zero_data+0 == &5760
     assert zero_data+1 == &5761
 
-save pydis_start, pydis_end
+MAKE_IMAGE =? FALSE
+if MAKE_IMAGE
+    save "World-1", pydis_start, pydis_end, start
+else
+    save pydis_start, pydis_end
+endif
