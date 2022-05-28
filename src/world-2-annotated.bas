@@ -6,7 +6,7 @@
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
    80*FX200,2
-   90PROCtitle_screen:PROCdraw_current_room:PROCp:IFw%=1:PROCo
+   90PROCtitle_screen:PROCdraw_current_room:PROCplay:IFw%=1:PROCo
   100PROCg:GOTO70
 
   110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
@@ -31,14 +31,14 @@
   240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:lee_x_os%=128:a%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
   250PROCdraw_room(logical_room%):ENDPROC
 
-  260DEFPROCp
+  260DEFPROCplay
   270GCOL0,0:Y%=0:PROC4
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
   290PROC5:W%=ww%:IFj%=1:PROC3:GOTO330 ELSExm%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+mx%:lee_y_os%=lee_y_os%-8:df%=df%+1:GOTO330
   300mx%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310df%=0:IFINKEY-1j%=1:jc%=0:jm%=8:mx%=xm%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
-  330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCk:PROCreset_note_count:IFge%=0GOTO270 ELSEIFge%=1:ENDPROC
+  330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFge%=0GOTO270 ELSEIFge%=1:ENDPROC
   340W%=5:IFa%=1:PROCa1 ELSEIFa%=2:PROCa2 ELSEIFa%=3:PROCa3 ELSEIFa%=4:PROCa4 ELSEIFa%=5:PROCa5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=ww%:Y%=8:CALLQ%:IFX%<>0ORdf%>12:PROCuv
@@ -125,12 +125,13 @@
  1090IFlogical_room%=5ANDtc%(3)=0:PROCz(18,24,17)
  1100ENDPROC
 
- 1110DEFPROCk:IFlogical_room%=10ANDlee_y_os%<228:PROCes:ge%=1:ENDPROC
+ 1110DEFPROCchange_room:IFlogical_room%=10ANDlee_y_os%<228:PROCes:ge%=1:ENDPROC
  1120W%=5:Y%=2:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
  1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
  1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READa%:NEXT:IFscore%=100:a%=2
  1140IFlogical_room%=10ANDscore%>70:a%=5
  1150PROCdraw_current_room:ENDPROC
+
  1160DEFPROCuv:IFX%=5:GOTO1210 ELSEIFX%=5OR(X%=7ANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
  1170IFdf%>1:GOTO1210 ELSEIFlogical_room%=1:tt%=1 ELSEIFlogical_room%=7:tt%=2 ELSEIFlogical_room%=5:tt%=3 ELSEIFlogical_room%=14:tt%=4 ELSEIFlogical_room%=9:tt%=5
  1180IFtc%(tt%)=1:GOTO1220 ELSEtc%(tt%)=1
