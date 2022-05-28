@@ -79,6 +79,8 @@ label(0x5025, "s_subroutine_rts")
 comment(0x519a, "TODO: I believe this is effectively a jmp and nothing cares about the fact we've cleared carry.")
 # TODO: I believe this address is only ever read from, but maybe there's something that can modify it.
 label(0x55f9, "constant_96")
+label(0x50e1, "clc_jmp_sprite_core")
+label(0x50e5, "swizzle_jmp_sprite_core") # TODO: poor name!
 
 # t_subroutine
 label(0x52bb, "cli_rts")
@@ -95,7 +97,7 @@ expr(0x5449, "u_subroutine_zero_data_y_and_3_times_48")
 
 # Sprite core code.
 # TODO: This is probably a good thing to focus on now - even a first glance at this makes it a lot more obvious what some other code is setting up in the zero page locations, and working back from this sprite core is probably helpful.
-comment(0x51ff, "TODO: This seems to be eoring sprite data pointed to by l0070 which is aligned to an eight-byte screen character cell pointed to by l007a.\n\nThe basic building block seems to be a 3 byte wide chunk of data (i.e. three character cells horizontally); there is scope for doing multiples of this by setting l0075 to the number of chunks, but it isn't currently clear where/if this gets set.\n\nHaving the three bits of the screen address for the 24th byte of a chunk all set seems to trigger some extra processing, but it's not yet clear when/why this would happen; the extra processing seems to be related to moving onto the next screen row, it's the triggering event that seems a bit mysterious.")
+comment(0x51ff, "TODO: This seems to be eoring sprite data pointed to by l0070 which is aligned to an eight-byte screen character cell pointed to by l007a.\n\nThe basic building block seems to be a 3 byte wide chunk of data (i.e. three character cells horizontally); there is scope for doing multiples of this by setting l0075 to the number of chunks, but it isn't currently clear where/if this gets set.\n\nHaving the three bits of the screen address for the 24th byte of a chunk all set seems to trigger some extra processing, but it's not yet clear when/why this would happen; the extra processing seems to be related to moving onto the next screen row, it's the triggering event that seems a bit mysterious.\n\nCallers and this code seem very strict about having carry clear at all times, but I think this is just to save having to do it immediately before some adc instructions, which is a little unorthodox.")
 label(0x51ff, "sprite_core")
 comment(0x5239, "TODO: Can we ever take this branch? sprite_core sets l0075 to 1. Is there another entry point?")
 label(0x5203, "sprite_core_outer_loop")

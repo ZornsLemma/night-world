@@ -1314,7 +1314,7 @@ l3565 = loop_c3564+1
 ; &502f referenced 3 times by &5044, &504e, &5055
 .c502f
     clc                                                               ; 502f: 18          .
-    jmp c50e5                                                         ; 5030: 4c e5 50    L.P
+    jmp swizzle_jmp_sprite_core                                       ; 5030: 4c e5 50    L.P
 
 ; &5033 referenced 1 time by &5374
 .s_subroutine
@@ -1387,9 +1387,9 @@ l3565 = loop_c3564+1
     sta sprite_ptr+1                                                  ; 50b7: 85 71       .q
     lda ri_y                                                          ; 50b9: ad 64 04    .d.
     cmp #1                                                            ; 50bc: c9 01       ..
-    beq c50e1                                                         ; 50be: f0 21       .!
+    beq clc_jmp_sprite_core                                           ; 50be: f0 21       .!
     lda l007d                                                         ; 50c0: a5 7d       .}
-    beq c50e1                                                         ; 50c2: f0 1d       ..
+    beq clc_jmp_sprite_core                                           ; 50c2: f0 1d       ..
     lda l0072                                                         ; 50c4: a5 72       .r
     and #3                                                            ; 50c6: 29 03       ).
     asl a                                                             ; 50c8: 0a          .
@@ -1408,12 +1408,12 @@ l3565 = loop_c3564+1
     jmp c5251                                                         ; 50de: 4c 51 52    LQR
 
 ; &50e1 referenced 2 times by &50be, &50c2
-.c50e1
+.clc_jmp_sprite_core
     clc                                                               ; 50e1: 18          .
     jmp sprite_core                                                   ; 50e2: 4c ff 51    L.Q
 
 ; &50e5 referenced 1 time by &5030
-.c50e5
+.swizzle_jmp_sprite_core
     asl a                                                             ; 50e5: 0a          .
     tay                                                               ; 50e6: a8          .
     asl a                                                             ; 50e7: 0a          .
@@ -1603,7 +1603,10 @@ l3565 = loop_c3564+1
 ; set seems to trigger some extra processing, but it's not yet clear
 ; when/why this would happen; the extra processing seems to be related
 ; to moving onto the next screen row, it's the triggering event that
-; seems a bit mysterious.
+; seems a bit mysterious.  Callers and this code seem very strict
+; about having carry clear at all times, but I think this is just to
+; save having to do it immediately before some adc instructions, which
+; is a little unorthodox.
 ; &51ff referenced 2 times by &50e2, &5118
 .sprite_core
     lda #1                                                            ; 51ff: a9 01       ..
@@ -2288,7 +2291,7 @@ l3565 = loop_c3564+1
 ;     c4f3e:                                            2
 ;     c4f55:                                            2
 ;     s_subroutine_rts:                                 2
-;     c50e1:                                            2
+;     clc_jmp_sprite_core:                              2
 ;     c5182:                                            2
 ;     c5192:                                            2
 ;     c519d:                                            2
@@ -2312,7 +2315,7 @@ l3565 = loop_c3564+1
 ;     c4f77:                                            1
 ;     q_subroutine_set_ri_x_y_z_to_something_and_rts:   1
 ;     s_subroutine:                                     1
-;     c50e5:                                            1
+;     swizzle_jmp_sprite_core:                          1
 ;     c511b:                                            1
 ;     sub_c511c:                                        1
 ;     c516e:                                            1
@@ -2371,8 +2374,6 @@ l3565 = loop_c3564+1
 ;     c4f6f
 ;     c4f77
 ;     c502f
-;     c50e1
-;     c50e5
 ;     c511b
 ;     c5164
 ;     c516e
