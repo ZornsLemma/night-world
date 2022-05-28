@@ -1498,7 +1498,7 @@ l3565 = loop_c3564+1
     lda l0076                                                         ; 516e: a5 76       .v
     cmp l55f8                                                         ; 5170: cd f8 55    ..U
     bcc c519d                                                         ; 5173: 90 28       .(
-    cmp l55f9                                                         ; 5175: cd f9 55    ..U
+    cmp constant_96                                                   ; 5175: cd f9 55    ..U
     beq c517c                                                         ; 5178: f0 02       ..
     bcs c5182                                                         ; 517a: b0 06       ..
 ; &517c referenced 1 time by &5178
@@ -1517,9 +1517,11 @@ l3565 = loop_c3564+1
     bne c5164                                                         ; 5190: d0 d2       ..
 ; &5192 referenced 2 times by &5185, &51a4
 .c5192
-    lda l55f9                                                         ; 5192: ad f9 55    ..U
+    lda constant_96                                                   ; 5192: ad f9 55    ..U
     sta zero_data,x                                                   ; 5195: 9d 60 57    .`W
     sta l0076                                                         ; 5198: 85 76       .v
+; TODO: I believe this is effectively a jmp and nothing cares about
+; the fact we've cleared carry.
     clc                                                               ; 519a: 18          .
     bcc c5164                                                         ; 519b: 90 c7       ..
 ; &519d referenced 2 times by &5162, &5173
@@ -1874,7 +1876,7 @@ l3565 = loop_c3564+1
     lda l55c0,x                                                       ; 539c: bd c0 55    ..U
     cmp #&80                                                          ; 539f: c9 80       ..
     bcc c53b4                                                         ; 53a1: 90 11       ..
-    lda l55f9                                                         ; 53a3: ad f9 55    ..U
+    lda constant_96                                                   ; 53a3: ad f9 55    ..U
     bne loop_c538c                                                    ; 53a6: d0 e4       ..
 ; &53a8 referenced 1 time by &5339
 .c53a8
@@ -2127,7 +2129,7 @@ l3565 = loop_c3564+1
 .l55f8
     equb 2                                                            ; 55f8: 02          .
 ; &55f9 referenced 3 times by &5175, &5192, &53a3
-.l55f9
+.constant_96
     equb &96                                                          ; 55f9: 96          .
 ; &55fa referenced 3 times by &51ba, &51f5, &53d7
 .l55fa
@@ -2264,7 +2266,7 @@ l3565 = loop_c3564+1
 ;     l55c0:                                            3
 ;     l55c1:                                            3
 ;     l55f8:                                            3
-;     l55f9:                                            3
+;     constant_96:                                      3
 ;     l55fa:                                            3
 ;     l55fb:                                            3
 ;     ri_z:                                             2
@@ -2438,7 +2440,6 @@ l3565 = loop_c3564+1
 ;     l55c0
 ;     l55c1
 ;     l55f8
-;     l55f9
 ;     l55fa
 ;     l55fb
 ;     l5602

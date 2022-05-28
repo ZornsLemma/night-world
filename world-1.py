@@ -76,6 +76,9 @@ label(0x4f83, "q_subroutine_set_ri_x_y_z_to_something_and_rts")
 
 # s_subroutine
 label(0x5025, "s_subroutine_rts")
+comment(0x519a, "TODO: I believe this is effectively a jmp and nothing cares about the fact we've cleared carry.")
+# TODO: I believe this address is only ever read from, but maybe there's something that can modify it.
+label(0x55f9, "constant_96")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
