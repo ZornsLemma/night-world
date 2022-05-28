@@ -24,9 +24,9 @@ l0405 = &0405
 l0408 = &0408
 l0409 = &0409
 l0443 = &0443
-l045c = &045c
-l0460 = &0460
-l0464 = &0464
+ri_w = &045c
+ri_x = &0460
+ri_y = &0464
 l0468 = &0468
 osbyte = &fff4
 
@@ -1182,7 +1182,7 @@ l3565 = loop_c3564+1
     equb &e0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 4eee: e0 00 00... ...
     equb   0,   0,   0,   0,   0,   0                                 ; 4efa: 00 00 00... ...
 .q_subroutine
-    lda l045c                                                         ; 4f00: ad 5c 04    .\.
+    lda ri_w                                                          ; 4f00: ad 5c 04    .\.
     beq c4f66                                                         ; 4f03: f0 61       .a
     cmp #&31 ; '1'                                                    ; 4f05: c9 31       .1
     bcs c4f66                                                         ; 4f07: b0 5d       .]
@@ -1195,7 +1195,7 @@ l3565 = loop_c3564+1
     lda l5601,y                                                       ; 4f10: b9 01 56    ..V
     beq c4f66                                                         ; 4f13: f0 51       .Q
     stx l0071                                                         ; 4f15: 86 71       .q
-    lda l0464                                                         ; 4f17: ad 64 04    .d.
+    lda ri_y                                                          ; 4f17: ad 64 04    .d.
     beq c4f66                                                         ; 4f1a: f0 4a       .J
     cmp #&31 ; '1'                                                    ; 4f1c: c9 31       .1
     bcs c4f66                                                         ; 4f1e: b0 46       .F
@@ -1246,8 +1246,8 @@ l3565 = loop_c3564+1
 ; &4f66 referenced 6 times by &4f03, &4f07, &4f13, &4f1a, &4f1e, &4f5f
 .c4f66
     lda #0                                                            ; 4f66: a9 00       ..
-    sta l0460                                                         ; 4f68: 8d 60 04    .`.
-    sta l0464                                                         ; 4f6b: 8d 64 04    .d.
+    sta ri_x                                                          ; 4f68: 8d 60 04    .`.
+    sta ri_y                                                          ; 4f6b: 8d 64 04    .d.
     rts                                                               ; 4f6e: 60          `
 
 ; &4f6f referenced 1 time by &4f38
@@ -1273,14 +1273,14 @@ l3565 = loop_c3564+1
     lda #&23 ; '#'                                                    ; 4f8a: a9 23       .#
     sec                                                               ; 4f8c: 38          8
     sbc l0073                                                         ; 4f8d: e5 73       .s
-    sta l0464                                                         ; 4f8f: 8d 64 04    .d.
+    sta ri_y                                                          ; 4f8f: 8d 64 04    .d.
     lda l0074                                                         ; 4f92: a5 74       .t
     sta l0468                                                         ; 4f94: 8d 68 04    .h.
     iny                                                               ; 4f97: c8          .
     iny                                                               ; 4f98: c8          .
     tya                                                               ; 4f99: 98          .
     lsr a                                                             ; 4f9a: 4a          J
-    sta l0460                                                         ; 4f9b: 8d 60 04    .`.
+    sta ri_x                                                          ; 4f9b: 8d 60 04    .`.
     rts                                                               ; 4f9e: 60          `
 
     equb &ad, &60,   4, &c9,   4, &b0, &f8, &a2,   5, &86, &75, &a0   ; 4f9f: ad 60 04... .`.
@@ -1307,13 +1307,13 @@ l3565 = loop_c3564+1
 
 ; &5033 referenced 1 time by &5374
 .s_subroutine
-    lda l045c                                                         ; 5033: ad 5c 04    .\.
+    lda ri_w                                                          ; 5033: ad 5c 04    .\.
     beq c5025                                                         ; 5036: f0 ed       ..
     cmp #&31 ; '1'                                                    ; 5038: c9 31       .1
     bcs c5025                                                         ; 503a: b0 e9       ..
     sec                                                               ; 503c: 38          8
     sbc #1                                                            ; 503d: e9 01       ..
-    ldx l0464                                                         ; 503f: ae 64 04    .d.
+    ldx ri_y                                                          ; 503f: ae 64 04    .d.
     cpx #2                                                            ; 5042: e0 02       ..
     beq c502f                                                         ; 5044: f0 e9       ..
     jsr sub_c511c                                                     ; 5046: 20 1c 51     .Q
@@ -1374,7 +1374,7 @@ l3565 = loop_c3564+1
     lda l5602,x                                                       ; 50b2: bd 02 56    ..V
     adc #0                                                            ; 50b5: 69 00       i.
     sta l0071                                                         ; 50b7: 85 71       .q
-    lda l0464                                                         ; 50b9: ad 64 04    .d.
+    lda ri_y                                                          ; 50b9: ad 64 04    .d.
     cmp #1                                                            ; 50bc: c9 01       ..
     beq c50e1                                                         ; 50be: f0 21       .!
     lda l007d                                                         ; 50c0: a5 7d       .}
@@ -1747,7 +1747,7 @@ l3565 = loop_c3564+1
     clc                                                               ; 52e0: 18          .
     bne c529e                                                         ; 52e1: d0 bb       ..
 .t_subroutine
-    lda l045c                                                         ; 52e3: ad 5c 04    .\.
+    lda ri_w                                                          ; 52e3: ad 5c 04    .\.
     beq c52bb                                                         ; 52e6: f0 d3       ..
     cmp #&31 ; '1'                                                    ; 52e8: c9 31       .1
     bcs c52bb                                                         ; 52ea: b0 cf       ..
@@ -1767,7 +1767,7 @@ l3565 = loop_c3564+1
     asl a                                                             ; 5304: 0a          .
     tax                                                               ; 5305: aa          .
     lda #0                                                            ; 5306: a9 00       ..
-    sta l0464                                                         ; 5308: 8d 64 04    .d.
+    sta ri_y                                                          ; 5308: 8d 64 04    .d.
     sta l0070                                                         ; 530b: 85 70       .p
     sta l0072                                                         ; 530d: 85 72       .r
     lda #1                                                            ; 530f: a9 01       ..
@@ -1932,13 +1932,13 @@ l3565 = loop_c3564+1
     jmp c535f                                                         ; 53f8: 4c 5f 53    L_S
 
 .u_subroutine
-    lda l045c                                                         ; 53fb: ad 5c 04    .\.
+    lda ri_w                                                          ; 53fb: ad 5c 04    .\.
     beq c53eb                                                         ; 53fe: f0 eb       ..
     cmp #&31 ; '1'                                                    ; 5400: c9 31       .1
     bcs c53eb                                                         ; 5402: b0 e7       ..
     sec                                                               ; 5404: 38          8
     sbc #1                                                            ; 5405: e9 01       ..
-    ldx l0460                                                         ; 5407: ae 60 04    .`.
+    ldx ri_x                                                          ; 5407: ae 60 04    .`.
     beq c545f                                                         ; 540a: f0 53       .S
     cpx #&31 ; '1'                                                    ; 540c: e0 31       .1
     bcs c53eb                                                         ; 540e: b0 db       ..
@@ -1968,7 +1968,7 @@ l3565 = loop_c3564+1
     lda l5602,x                                                       ; 5439: bd 02 56    ..V
     adc #0                                                            ; 543c: 69 00       i.
     sta l007f                                                         ; 543e: 85 7f       ..
-    lda l0460                                                         ; 5440: ad 60 04    .`.
+    lda ri_x                                                          ; 5440: ad 60 04    .`.
     sec                                                               ; 5443: 38          8
     sbc #1                                                            ; 5444: e9 01       ..
     asl a                                                             ; 5446: 0a          .
@@ -2233,7 +2233,7 @@ l3565 = loop_c3564+1
 ;     c53eb:               7
 ;     l007d:               6
 ;     l007f:               6
-;     l0464:               6
+;     ri_y:                6
 ;     c4f66:               6
 ;     unpacked_data:       6
 ;     l5602:               6
@@ -2242,8 +2242,8 @@ l3565 = loop_c3564+1
 ;     l0078:               5
 ;     c5164:               5
 ;     l0079:               4
-;     l045c:               4
-;     l0460:               4
+;     ri_w:                4
+;     ri_x:                4
 ;     zero_data_end:       4
 ;     l0404:               3
 ;     l0405:               3
@@ -2436,9 +2436,6 @@ l3565 = loop_c3564+1
 ;     l0408
 ;     l0409
 ;     l0443
-;     l045c
-;     l0460
-;     l0464
 ;     l0468
 ;     l3565
 ;     l55c0

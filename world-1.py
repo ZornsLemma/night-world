@@ -4,6 +4,9 @@ import acorn
 
 acorn.bbc()
 label(0x18, "basic_page_msb")
+label(0x45c, "ri_w")
+label(0x460, "ri_x")
+label(0x464, "ri_y")
 
 load(0x1f00, "orig/world-1", "630948d4685cb15e7485103744ff95f7")
 entry(0x3560, "start")
