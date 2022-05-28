@@ -27,12 +27,16 @@ cmp orig/world-1 tmp/world-1 || (echo world-1 not rebuilt correctly > /dev/stder
 # hopes of later being able to manually "unpack" world-2.bas and use meaningful variable/
 # procedure names and have basictool crunch this at build time.
 basictool -t src/world-2.bas tmp/world-2.tok
+cmp orig/world-2.tok tmp/world-2.tok || (echo world-2.tok not rebuilt correctly > /dev/stderr; exit 1)
 
 # world-2.asm has been manually modified so world-2.py is now "frozen" as just
 # an artefact of the disassembly process.
 # python world-2.py > src/world-2.asm
 beebasm -v -o tmp/world-2 -i src/world-2.asm > tmp/world-2.lst
 cmp orig/world-2 tmp/world-2 || (echo world-2 not rebuilt correctly > /dev/stderr; exit 1)
+
+basictool -t src/nightwo.bas tmp/nightwo.tok
+cmp orig/nightwo tmp/nightwo.tok || (echo nightwo.tok not rebuilt correctly > /dev/stderr; exit 1)
 
 beebasm -do tmp/int1.ssd -title "Night World" -opt 3 -i src/disc.asm
 beebasm -do tmp/int2.ssd -di tmp/int1.ssd -D MAKE_IMAGE -i src/world-1.asm
