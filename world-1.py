@@ -103,6 +103,7 @@ comment(0x511c, "TODO: After the initial shifts, we have set Y=A*8 and then ande
 for a in range(0x30):
     y = (a << 3) & 0x38
     comment(0x511c, "    W%%=&%02X => A=&%02X => Y=&%02X => %s%%" % (a+1, a, y, chr(ord('A')+(y/4))))
+comment(0x512b, "Set l0076 (low) and l0078 (high) to the first resident integer variable for this sprite divided by 8, which converts from OS coordinates (0-1279) to pixel coordinates (0-319). Similarly, divide the second resident integer variable by 4 to get Y pixel coordinates (0-256) at l0077 (low) and l0079 (high).")
 
 # t_subroutine
 label(0x52bb, "cli_rts")

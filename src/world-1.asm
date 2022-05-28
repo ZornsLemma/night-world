@@ -1594,6 +1594,11 @@ l3565 = loop_c3564+1
     and #&38 ; '8'                                                    ; 5126: 29 38       )8
     tay                                                               ; 5128: a8          .
     sty sprite_chunks                                                 ; 5129: 84 75       .u
+; Set l0076 (low) and l0078 (high) to the first resident integer
+; variable for this sprite divided by 8, which converts from OS
+; coordinates (0-1279) to pixel coordinates (0-319). Similarly, divide
+; the second resident integer variable by 4 to get Y pixel coordinates
+; (0-256) at l0077 (low) and l0079 (high).
     lda ri_a+1,y                                                      ; 512b: b9 05 04    ...
     sta l0078                                                         ; 512e: 85 78       .x
     lda ri_a,y                                                        ; 5130: b9 04 04    ...
