@@ -57,7 +57,7 @@ endif
     jsr osbyte                                                        ; 330e: 20 f4 ff     ..
     ldy #&0d                                                          ; 3311: a0 0d       ..
     jsr osbyte                                                        ; 3313: 20 f4 ff     ..
-; TODO: What exactly is going on here?
+; TODO: This inserts the token for "RUN", which works, but it's not clear why.
     ldy #&f9                                                          ; 3316: a0 f9       ..
     jsr osbyte                                                        ; 3318: 20 f4 ff     ..
     ldy #&0d                                                          ; 331b: a0 0d       ..
