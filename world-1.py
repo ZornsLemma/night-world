@@ -142,9 +142,18 @@ label(0x75, "sprite_chunks") # TODO: poor name
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
 comment(0x5700, "This appears to be a big-endian table of start addresses for the game sprites. TODO: This is inspired guesswork; note that the copy of this at unpacked_data+{2,3] does get tweaked slightly.")
 label(0x5700, "sprite_addrs_be")
-for i in range(0x30):
-    byte(0x5700+i*2, n=2)
 expr_label(0x5701, "sprite_addrs_be+1")
+sprite_labels = {}
+for i in range(0x30):
+    addr = 0x5700+i*2
+    sprite_addr = get_u16_be(addr)
+    if sprite_addr not in sprite_labels:
+        sprite_labels[sprite_addr] = "sprite_%02d" % i
+        # byte(sprite_addr, n=TODO, cols=TODO)
+    label(sprite_addr, sprite_labels[sprite_addr])
+    byte(addr, n=2)
+    expr(addr, ">%s" % sprite_labels[sprite_addr])
+    expr(addr+1, "<%s" % sprite_labels[sprite_addr])
 #label(0x5700+0x30*2, "sprite_addrs_be_end")
 label(0x5600, "unpacked_data")
 expr_label(0x5601, "unpacked_data+1")
