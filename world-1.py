@@ -101,6 +101,9 @@ label(0x5203, "sprite_core_outer_loop")
 label(0x5205, "sprite_core_inner_loop")
 label(0x524c, "sprite_core_low_byte_wrapped")
 label(0x522b, "sprite_core_low_byte_wrap_handled")
+label(0x5239, "sprite_core_no_carry")
+comment(0x524f, "always branch", inline=True)
+comment(0x5251, "TODO: This looks like an 'alternate version' of sprite_core?")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")

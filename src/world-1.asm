@@ -1631,13 +1631,13 @@ l3565 = loop_c3564+1
     lda l0070                                                         ; 522e: a5 70       .p
     adc #&10                                                          ; 5230: 69 10       i.
     sta l0070                                                         ; 5232: 85 70       .p
-    bcc c5239                                                         ; 5234: 90 03       ..
+    bcc sprite_core_no_carry                                          ; 5234: 90 03       ..
     inc l0071                                                         ; 5236: e6 71       .q
     clc                                                               ; 5238: 18          .
 ; TODO: Can we ever take this branch? sprite_core sets l0075 to 1. Is
 ; there another entry point?
 ; &5239 referenced 1 time by &5234
-.c5239
+.sprite_core_no_carry
     dec l0075                                                         ; 5239: c6 75       .u
     beq sprite_core_outer_loop                                        ; 523b: f0 c6       ..
     rts                                                               ; 523d: 60          `
@@ -1655,7 +1655,8 @@ l3565 = loop_c3564+1
 .sprite_core_low_byte_wrapped
     inc l0071                                                         ; 524c: e6 71       .q
     clc                                                               ; 524e: 18          .
-    bne sprite_core_low_byte_wrap_handled                             ; 524f: d0 da       ..
+    bne sprite_core_low_byte_wrap_handled                             ; 524f: d0 da       ..             ; always branch
+; TODO: This looks like an 'alternate version' of sprite_core?
 ; &5251 referenced 2 times by &50de, &545c
 .c5251
     lda #1                                                            ; 5251: a9 01       ..
@@ -2311,7 +2312,7 @@ l3565 = loop_c3564+1
 ;     sprite_core_inner_loop:                           1
 ;     c5227:                                            1
 ;     sprite_core_low_byte_wrap_handled:                1
-;     c5239:                                            1
+;     sprite_core_no_carry:                             1
 ;     c523e:                                            1
 ;     sprite_core_low_byte_wrapped:                     1
 ;     c5256:                                            1
@@ -2376,7 +2377,6 @@ l3565 = loop_c3564+1
 ;     c51e5
 ;     c51f5
 ;     c5227
-;     c5239
 ;     c523e
 ;     c5251
 ;     c5256
