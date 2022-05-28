@@ -1383,6 +1383,7 @@ l3565 = loop_c3564+1
     sta ri_x                                                          ; 4f9b: 8d 60 04    .`.
     rts                                                               ; 4f9e: 60          `
 
+; TODO: Dead code?
     equb &ad, &60,   4, &c9,   4, &b0, &f8, &a2,   5, &86, &75, &a0   ; 4f9f: ad 60 04... .`.
     equb &ff, &ae, &f0, &57, &a9, &81, &20, &f4, &ff, &c0, &1b, &f0   ; 4fab: ff ae f0... ...
     equb &4a, &e8, &d0,   2, &e6, &75, &a9, &81, &ae, &f1, &57, &a0   ; 4fb7: 4a e8 d0... J..
@@ -1399,6 +1400,7 @@ l3565 = loop_c3564+1
 .s_subroutine_rts
     rts                                                               ; 5025: 60          `
 
+; TODO: Dead code?
     equb &ad, &f4, &57, &d0, &f4, &a5, &75, &d0, &f0                  ; 5026: ad f4 57... ..W
 ; &502f referenced 3 times by &5044, &504e, &5055
 .clc_swizzle_jmp_sprite_core
@@ -1416,7 +1418,7 @@ l3565 = loop_c3564+1
     ldx ri_y                                                          ; 503f: ae 64 04    .d.
     cpx #2                                                            ; 5042: e0 02       ..
     beq clc_swizzle_jmp_sprite_core                                   ; 5044: f0 e9       ..
-    jsr sub_c511c                                                     ; 5046: 20 1c 51     .Q
+    jsr get_sprite_details                                            ; 5046: 20 1c 51     .Q
     lda zero_data,x                                                   ; 5049: bd 60 57    .`W
     cmp #&fe                                                          ; 504c: c9 fe       ..
     bcs clc_swizzle_jmp_sprite_core                                   ; 504e: b0 df       ..
@@ -1591,7 +1593,7 @@ l3565 = loop_c3564+1
 ;     W%=&2F => A=&2E => Y=&30 => M%
 ;     W%=&30 => A=&2F => Y=&38 => O%
 ; &511c referenced 1 time by &5046
-.sub_c511c
+.get_sprite_details
     sta l007c                                                         ; 511c: 85 7c       .|
     asl a                                                             ; 511e: 0a          .
     tax                                                               ; 511f: aa          .
@@ -2506,7 +2508,7 @@ l3565 = loop_c3564+1
 ;     s_subroutine:                                     1
 ;     swizzle_jmp_sprite_core:                          1
 ;     c511b:                                            1
-;     sub_c511c:                                        1
+;     get_sprite_details:                               1
 ;     c516e:                                            1
 ;     c517c:                                            1
 ;     c51b8:                                            1
@@ -2630,7 +2632,6 @@ l3565 = loop_c3564+1
 ;     loop_c53da
 ;     loop_c549d
 ;     loop_c54a5
-;     sub_c511c
     assert <(bytes_per_screen_line-7) == &39
     assert <sprite_00 == &00
     assert <sprite_08 == &c0

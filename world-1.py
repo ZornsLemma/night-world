@@ -73,6 +73,9 @@ expr(0x54dc+4*4, "u_subroutine")
 entry(0x5499, "v_subroutine") # TODO: rename
 expr(0x54dc+5*4, "v_subroutine")
 
+comment(0x4f9f, "TODO: Dead code?")
+comment(0x5026, "TODO: Dead code?")
+
 # q_subroutine
 comment(0x4f00, "Based on how this is called by world-2.bas, I infer that it is a collision detection subroutine which returns with X% indicating what was collided with, or 0 if nothing. The code here appears to return values in Y% and Z% but I don't think they are used by the game. W% on entry is probably the sprite we are checking for collisions with; world-2.bas always sets it to the current player sprite. Y% is also used to pass something in but I don't know what; world-2.bas always sets it to 8.")
 label(0x4f66, "zero_ri_x_y_and_rts")
@@ -99,6 +102,7 @@ label(0x55f9, "constant_96")
 label(0x50e1, "clc_jmp_sprite_core")
 label(0x50e5, "swizzle_jmp_sprite_core") # TODO: poor name!
 label(0x502f, "clc_swizzle_jmp_sprite_core")
+label(0x511c, "get_sprite_details")
 comment(0x511c, "Entered with A=W%-1; 0<=A<=&2F")
 comment(0x511c, "TODO: After the initial shifts, we have set Y=A*8 and then anded it with &38=%00111000. We then use Y as an offset from ri_a, so we are effectively addressing A% (A=0/Y=0), C% (A=1/Y=8), E% (A=2/Y=16), ... here. Similarly, the offset from ri_b will address the next resident integer variable, i.e. B% if A=0/Y=0, D% if A=1/Y=8, etc.")
 for a in range(0x30):
