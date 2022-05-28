@@ -99,6 +99,10 @@ label(0x50e1, "clc_jmp_sprite_core")
 label(0x50e5, "swizzle_jmp_sprite_core") # TODO: poor name!
 label(0x502f, "clc_swizzle_jmp_sprite_core")
 comment(0x511c, "Entered with A=W%-1; 0<=A<=&2F")
+comment(0x511c, "TODO: After the initial shifts, we have set Y=A*8 and then anded it with &38=%00111000. We then use Y as an offset from ri_a, so we are effectively addressing A% (A=0/Y=0), C% (A=1/Y=8), E% (A=2/Y=16), ... here. Similarly, the offset from ri_b will address the next resident integer variable, i.e. B% if A=0/Y=0, D% if A=1/Y=8, etc.")
+for a in range(0x30):
+    y = (a << 3) & 0x38
+    comment(0x511c, "    W%%=&%02X => A=&%02X => Y=&%02X => %s%%" % (a+1, a, y, chr(ord('A')+(y/4))))
 
 # t_subroutine
 label(0x52bb, "cli_rts")
