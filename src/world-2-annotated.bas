@@ -47,14 +47,15 @@
   281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
   282REM when he's falling *after* a jump has finished in mid-air, and that all other
   283REM falls are straight down.
-  290PROC5:W%=lee_sprite_num%:IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:df%=df%+1:GOTO330
+  290PROC5:W%=lee_sprite_num%
+  291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:falling_time%=falling_time%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  310df%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
+  310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
   330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
-  360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORdf%>12:PROCuv
+  360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCuv
   370IFng%=0:m%=m%+1:IFm%=11:PROCm:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
 
@@ -172,11 +173,11 @@
  1150PROCdraw_current_room:ENDPROC
 
  1160DEFPROCuv:IFX%=5:GOTO1210 ELSEIFX%=5OR(X%=7ANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
- 1170IFdf%>1:GOTO1210 ELSEIFlogical_room%=1:tt%=1 ELSEIFlogical_room%=7:tt%=2 ELSEIFlogical_room%=5:tt%=3 ELSEIFlogical_room%=14:tt%=4 ELSEIFlogical_room%=9:tt%=5
+ 1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:tt%=1 ELSEIFlogical_room%=7:tt%=2 ELSEIFlogical_room%=5:tt%=3 ELSEIFlogical_room%=14:tt%=4 ELSEIFlogical_room%=9:tt%=5
  1180IFtc%(tt%)=1:GOTO1220 ELSEtc%(tt%)=1
  1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:ec%=50:PROCdelay(150):VDU19,0,0;0;:IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(ex%,5)CHR$246:ex%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
- 1210IFdf%>1:SOUND1,11,ec%,2:GOTO1230
+ 1210IFfalling_time%>1:SOUND1,11,ec%,2:GOTO1230
  1220IFroom_type%=2ANDday_night%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,ec%,2 ELSEIFX%=7:SOUND1,8,ec%,4 ELSESOUND1,12,ec%,5
  1230ec%=ec%-1:IFec%=0:ec%=25:ex%=ex%-1:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:VDU17,128,17,1:PRINTTAB(ex%+1,5)CHR$246:IFex%=3:game_ended%=1
  1240ENDPROC
