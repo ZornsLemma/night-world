@@ -54,7 +54,7 @@ expr(0x54dc+5*4, "v_subroutine")
 
 # q_subroutine
 label(0x4f66, "zero_ri_x_y_and_rts")
-comment(0x4f10, "We have X=(W%-1)*2, Y=(W%-1)*4.")
+comment(0x4f10, "We have X=(W%-1)*2, Y=(W%-1)*4. X retains this value for the entire subroutine. Y's value is only used if the beq q_subroutine_y_loop_test_and_bump branch is taken on the first pass round q_subroutine_y_loop.")
 constant(0x71, "q_subroutine_ri_w_minus_1_times_2")
 expr(0x4f16, "q_subroutine_ri_w_minus_1_times_2")
 expr(0x4f29, "q_subroutine_ri_w_minus_1_times_2")
@@ -63,6 +63,11 @@ expr(0x4f25, "q_subroutine_ri_y_minus_1_times_2")
 expr(0x4f5e, "q_subroutine_ri_y_minus_1_times_2")
 label(0x4f28, "q_subroutine_y_loop")
 comment(0x4f28, "TODO: This is roughly a loop over Y, bumping Y by 2 each time, although the end condition is complex - note that because Y temporarily gets copied into A for the bump by 2, the code at &4f5d has the *original* value of Y when it does cpy")
+label(0x4f5d, "q_subroutine_y_loop_test_and_bump")
+comment(0x4f3c, "zero_data,x > zero_data,y (TODO: assuming unsigned)")
+comment(0x4f4f, "zero_data+1,x > zero_data+1,y (TODO: assuming unsigned)")
+comment(0x4f5b, "always branch", inline=True)
+label(0x4f83, "q_subroutine_set_ri_x_y_to_something_and_rts")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")

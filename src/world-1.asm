@@ -1194,7 +1194,10 @@ l3565 = loop_c3564+1
     tax                                                               ; 4f0d: aa          .
     asl a                                                             ; 4f0e: 0a          .
     tay                                                               ; 4f0f: a8          .
-; We have X=(W%-1)*2, Y=(W%-1)*4.
+; We have X=(W%-1)*2, Y=(W%-1)*4. X retains this value for the entire
+; subroutine. Y's value is only used if the beq
+; q_subroutine_y_loop_test_and_bump branch is taken on the first pass
+; round q_subroutine_y_loop.
     lda unpacked_data+1,y                                             ; 4f10: b9 01 56    ..V
     beq zero_ri_x_y_and_rts                                           ; 4f13: f0 51       .Q
     stx q_subroutine_ri_w_minus_1_times_2                             ; 4f15: 86 71       .q
@@ -1214,7 +1217,7 @@ l3565 = loop_c3564+1
 ; &4f28 referenced 1 time by &4f64
 .q_subroutine_y_loop
     cmp q_subroutine_ri_w_minus_1_times_2                             ; 4f28: c5 71       .q
-    beq c4f5d                                                         ; 4f2a: f0 31       .1
+    beq q_subroutine_y_loop_test_and_bump                             ; 4f2a: f0 31       .1
     tay                                                               ; 4f2c: a8          .
     lda #5                                                            ; 4f2d: a9 05       ..
     sta l0074                                                         ; 4f2f: 85 74       .t
@@ -1223,28 +1226,30 @@ l3565 = loop_c3564+1
     sbc zero_data,y                                                   ; 4f35: f9 60 57    .`W
     bmi c4f6f                                                         ; 4f38: 30 35       05
     beq c4f3e                                                         ; 4f3a: f0 02       ..
+; zero_data,x > zero_data,y (TODO: assuming unsigned)
     dec l0074                                                         ; 4f3c: c6 74       .t
 ; &4f3e referenced 2 times by &4f3a, &4f75
 .c4f3e
     cmp #9                                                            ; 4f3e: c9 09       ..
-    bcs c4f5d                                                         ; 4f40: b0 1b       ..
+    bcs q_subroutine_y_loop_test_and_bump                             ; 4f40: b0 1b       ..
     sta l0072                                                         ; 4f42: 85 72       .r
     lda zero_data+1,x                                                 ; 4f44: bd 61 57    .aW
     sec                                                               ; 4f47: 38          8
     sbc zero_data+1,y                                                 ; 4f48: f9 61 57    .aW
     bmi c4f77                                                         ; 4f4b: 30 2a       0*
     beq c4f55                                                         ; 4f4d: f0 06       ..
+; zero_data+1,x > zero_data+1,y (TODO: assuming unsigned)
     inc l0074                                                         ; 4f4f: e6 74       .t
     inc l0074                                                         ; 4f51: e6 74       .t
     inc l0074                                                         ; 4f53: e6 74       .t
 ; &4f55 referenced 2 times by &4f4d, &4f81
 .c4f55
     cmp #&10                                                          ; 4f55: c9 10       ..
-    bcs c4f5d                                                         ; 4f57: b0 04       ..
+    bcs q_subroutine_y_loop_test_and_bump                             ; 4f57: b0 04       ..
     sta l0073                                                         ; 4f59: 85 73       .s
-    bcc c4f83                                                         ; 4f5b: 90 26       .&
+    bcc q_subroutine_set_ri_x_y_to_something_and_rts                  ; 4f5b: 90 26       .&             ; always branch
 ; &4f5d referenced 3 times by &4f2a, &4f40, &4f57
-.c4f5d
+.q_subroutine_y_loop_test_and_bump
     cpy q_subroutine_ri_y_minus_1_times_2                             ; 4f5d: c4 70       .p
     beq zero_ri_x_y_and_rts                                           ; 4f5f: f0 05       ..
     tya                                                               ; 4f61: 98          .
@@ -1272,7 +1277,7 @@ l3565 = loop_c3564+1
     dec l0074                                                         ; 4f7f: c6 74       .t
     bne c4f55                                                         ; 4f81: d0 d2       ..
 ; &4f83 referenced 1 time by &4f5b
-.c4f83
+.q_subroutine_set_ri_x_y_to_something_and_rts
     lda l0072                                                         ; 4f83: a5 72       .r
     asl a                                                             ; 4f85: 0a          .
     adc l0073                                                         ; 4f86: 65 73       es
@@ -2219,141 +2224,139 @@ l3565 = loop_c3564+1
 .pydis_end
 
 ; Label references by decreasing frequency:
-;     l0070:                36
-;     l007a:                26
-;     l0073:                21
-;     l0071:                18
-;     l0072:                17
-;     zero_data:            17
-;     zero_data+1:          15
-;     l007c:                14
-;     l0074:                12
-;     l007b:                10
-;     l007e:                10
-;     unpacked_data+1:       9
-;     l0076:                 8
-;     l0075:                 7
-;     c52bb:                 7
-;     c53eb:                 7
-;     l007d:                 6
-;     l007f:                 6
-;     ri_y:                  6
-;     zero_ri_x_y_and_rts:   6
-;     unpacked_data:         6
-;     l5602:                 6
-;     l5603:                 6
-;     l0077:                 5
-;     l0078:                 5
-;     c5164:                 5
-;     l0079:                 4
-;     ri_w:                  4
-;     ri_x:                  4
-;     zero_data_end:         4
-;     l0404:                 3
-;     l0405:                 3
-;     l0408:                 3
-;     l0409:                 3
-;     c4f5d:                 3
-;     c502f:                 3
-;     c533b:                 3
-;     c5358:                 3
-;     c53b4:                 3
-;     l55c0:                 3
-;     l55c1:                 3
-;     l55f8:                 3
-;     l55f9:                 3
-;     l55fa:                 3
-;     l55fb:                 3
-;     l0468:                 2
-;     l3565:                 2
-;     c35a0:                 2
-;     c4f3e:                 2
-;     c4f55:                 2
-;     c5025:                 2
-;     c50e1:                 2
-;     c5182:                 2
-;     c5192:                 2
-;     c519d:                 2
-;     c51ad:                 2
-;     c51cb:                 2
-;     c51db:                 2
-;     c51e5:                 2
-;     c51f5:                 2
-;     c51ff:                 2
-;     c5251:                 2
-;     c5346:                 2
-;     packed_data:           2
-;     l5701:                 2
-;     basic_page_msb:        1
-;     l0403:                 1
-;     l0443:                 1
-;     loop_c3564:            1
-;     old_run:               1
-;     q_subroutine_y_loop:   1
-;     c4f6f:                 1
-;     c4f77:                 1
-;     c4f83:                 1
-;     s_subroutine:          1
-;     c50e5:                 1
-;     c511b:                 1
-;     sub_c511c:             1
-;     c516e:                 1
-;     c517c:                 1
-;     c51b8:                 1
-;     c51c6:                 1
-;     c5203:                 1
-;     c5205:                 1
-;     c5227:                 1
-;     c522b:                 1
-;     c5239:                 1
-;     c523e:                 1
-;     c524c:                 1
-;     c5256:                 1
-;     c5258:                 1
-;     c528c:                 1
-;     c5296:                 1
-;     c529a:                 1
-;     c529e:                 1
-;     c52ac:                 1
-;     c52b7:                 1
-;     c52bd:                 1
-;     c52cb:                 1
-;     c52d9:                 1
-;     c52de:                 1
-;     c535f:                 1
-;     c5378:                 1
-;     c537a:                 1
-;     c537e:                 1
-;     loop_c538c:            1
-;     c539c:                 1
-;     c53a8:                 1
-;     c53ac:                 1
-;     c53ba:                 1
-;     c53be:                 1
-;     c53c6:                 1
-;     c53ca:                 1
-;     loop_c53da:            1
-;     c53ec:                 1
-;     c53f8:                 1
-;     c545f:                 1
-;     c5498:                 1
-;     v_subroutine:          1
-;     loop_c549d:            1
-;     loop_c54a5:            1
-;     c54b7:                 1
-;     c54db:                 1
-;     unpacked_data_end:     1
-;     l56c1:                 1
-;     osbyte:                1
+;     l0070:                                         36
+;     l007a:                                         26
+;     l0073:                                         21
+;     l0071:                                         18
+;     l0072:                                         17
+;     zero_data:                                     17
+;     zero_data+1:                                   15
+;     l007c:                                         14
+;     l0074:                                         12
+;     l007b:                                         10
+;     l007e:                                         10
+;     unpacked_data+1:                                9
+;     l0076:                                          8
+;     l0075:                                          7
+;     c52bb:                                          7
+;     c53eb:                                          7
+;     l007d:                                          6
+;     l007f:                                          6
+;     ri_y:                                           6
+;     zero_ri_x_y_and_rts:                            6
+;     unpacked_data:                                  6
+;     l5602:                                          6
+;     l5603:                                          6
+;     l0077:                                          5
+;     l0078:                                          5
+;     c5164:                                          5
+;     l0079:                                          4
+;     ri_w:                                           4
+;     ri_x:                                           4
+;     zero_data_end:                                  4
+;     l0404:                                          3
+;     l0405:                                          3
+;     l0408:                                          3
+;     l0409:                                          3
+;     q_subroutine_y_loop_test_and_bump:              3
+;     c502f:                                          3
+;     c533b:                                          3
+;     c5358:                                          3
+;     c53b4:                                          3
+;     l55c0:                                          3
+;     l55c1:                                          3
+;     l55f8:                                          3
+;     l55f9:                                          3
+;     l55fa:                                          3
+;     l55fb:                                          3
+;     l0468:                                          2
+;     l3565:                                          2
+;     c35a0:                                          2
+;     c4f3e:                                          2
+;     c4f55:                                          2
+;     c5025:                                          2
+;     c50e1:                                          2
+;     c5182:                                          2
+;     c5192:                                          2
+;     c519d:                                          2
+;     c51ad:                                          2
+;     c51cb:                                          2
+;     c51db:                                          2
+;     c51e5:                                          2
+;     c51f5:                                          2
+;     c51ff:                                          2
+;     c5251:                                          2
+;     c5346:                                          2
+;     packed_data:                                    2
+;     l5701:                                          2
+;     basic_page_msb:                                 1
+;     l0403:                                          1
+;     l0443:                                          1
+;     loop_c3564:                                     1
+;     old_run:                                        1
+;     q_subroutine_y_loop:                            1
+;     c4f6f:                                          1
+;     c4f77:                                          1
+;     q_subroutine_set_ri_x_y_to_something_and_rts:   1
+;     s_subroutine:                                   1
+;     c50e5:                                          1
+;     c511b:                                          1
+;     sub_c511c:                                      1
+;     c516e:                                          1
+;     c517c:                                          1
+;     c51b8:                                          1
+;     c51c6:                                          1
+;     c5203:                                          1
+;     c5205:                                          1
+;     c5227:                                          1
+;     c522b:                                          1
+;     c5239:                                          1
+;     c523e:                                          1
+;     c524c:                                          1
+;     c5256:                                          1
+;     c5258:                                          1
+;     c528c:                                          1
+;     c5296:                                          1
+;     c529a:                                          1
+;     c529e:                                          1
+;     c52ac:                                          1
+;     c52b7:                                          1
+;     c52bd:                                          1
+;     c52cb:                                          1
+;     c52d9:                                          1
+;     c52de:                                          1
+;     c535f:                                          1
+;     c5378:                                          1
+;     c537a:                                          1
+;     c537e:                                          1
+;     loop_c538c:                                     1
+;     c539c:                                          1
+;     c53a8:                                          1
+;     c53ac:                                          1
+;     c53ba:                                          1
+;     c53be:                                          1
+;     c53c6:                                          1
+;     c53ca:                                          1
+;     loop_c53da:                                     1
+;     c53ec:                                          1
+;     c53f8:                                          1
+;     c545f:                                          1
+;     c5498:                                          1
+;     v_subroutine:                                   1
+;     loop_c549d:                                     1
+;     loop_c54a5:                                     1
+;     c54b7:                                          1
+;     c54db:                                          1
+;     unpacked_data_end:                              1
+;     l56c1:                                          1
+;     osbyte:                                         1
 
 ; Automatically generated labels:
 ;     c35a0
 ;     c4f3e
 ;     c4f55
-;     c4f5d
 ;     c4f6f
 ;     c4f77
-;     c4f83
 ;     c5025
 ;     c502f
 ;     c50e1
