@@ -29,10 +29,14 @@ expr(0x3593, ">(screen_data_end-screen_data)")
 
 comment(0x5499, "Zero resident integer variables A%-Z%")
 comment(0x54a3, "Initialise resident integer variables Q%-V%")
-label(0x54dc, "initial_qrstuv_values")
+comment(0x54a3, "TODO: S% at least is effectively a way for this machine code to communicate its internal addresses to the BASIC - quite a neat trick. Other variables here may well work the same way")
+label(0x54dc, "initial_qrstuv_values") 
 label(0x54dc+0x18, "initial_qrstuv_values_end")
 expr(0x54a6, "initial_qrstuv_values-1")
-byte(0x54dc, 0x18)
+for i in range(6):
+    label(0x54dc+i*4, "initial_%s_value" % chr(ord("q")+i))
+    byte(0x54dc+i*4, 4)
+label(0x54dc+2*4, "initial_s_value")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")

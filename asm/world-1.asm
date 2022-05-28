@@ -1336,6 +1336,9 @@ l3565 = loop_c3564+1
     dex                                                               ; 54a0: ca          .
     bne loop_c549d                                                    ; 54a1: d0 fa       ..
 ; Initialise resident integer variables Q%-V%
+; TODO: S% at least is effectively a way for this machine code to
+; communicate its internal addresses to the BASIC - quite a neat
+; trick. Other variables here may well work the same way
     ldx #&18                                                          ; 54a3: a2 18       ..
 ; &54a5 referenced 1 time by &54ac
 .loop_c54a5
@@ -1374,8 +1377,18 @@ l3565 = loop_c3564+1
     rts                                                               ; 54db: 60          `
 
 .initial_qrstuv_values
-    equb   0, &4f,   0,   0, &9f, &4f,   0,   0, &33, &50,   0,   0   ; 54dc: 00 4f 00... .O.
-    equb &e3, &52,   0,   0, &fb, &53,   0,   0, &99, &54,   0,   0   ; 54e8: e3 52 00... .R.
+.initial_q_value
+    equb   0, &4f,   0,   0                                           ; 54dc: 00 4f 00... .O.
+.initial_r_value
+    equb &9f, &4f,   0,   0                                           ; 54e0: 9f 4f 00... .O.
+.initial_s_value
+    equb &33, &50,   0,   0                                           ; 54e4: 33 50 00... 3P.
+.initial_t_value
+    equb &e3, &52,   0,   0                                           ; 54e8: e3 52 00... .R.
+.initial_u_value
+    equb &fb, &53,   0,   0                                           ; 54ec: fb 53 00... .S.
+.initial_v_value
+    equb &99, &54,   0,   0                                           ; 54f0: 99 54 00... .T.
 .initial_qrstuv_values_end
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 54f4: 00 00 00... ...
     equb &ff,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 5500: ff 00 00... ...
