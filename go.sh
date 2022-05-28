@@ -1,8 +1,9 @@
 #!/bin/bash
 set -e
 
-# Don't leave an outdated .ssd lying around if the build fails.
-rm -f night-world.ssd
+# Don't leave an outdated .ssd lying around if the build fails. TODO: No, this is
+# a nice idea, but it makes it more (?) likely b-em won't see a change.
+# rm -f night-world.ssd
 
 # TODO: world-1 contains embedded BASIC and eventually we might want to split
 # it up and handle the two parts separately, but let's not worry about that for
@@ -33,14 +34,23 @@ cmp orig/world-1 tmp/world-1 || (echo world-1 not rebuilt correctly > /dev/stder
 # have hopes of later being able to manually "unpack" world-2.bas and use
 # meaningful variable/ procedure names and have basictool crunch this at build
 # time.
-basictool -t src/world-2.bas tmp/world-2.tok
-cmp orig/world-2.tok tmp/world-2.tok || (echo world-2.tok not rebuilt correctly > /dev/stderr; exit 1)
+USE_WORLD_2_ANNOTATED=1
+if [ "$USE_WORLD_2_ANNOTATED" == "0" ]; then
+    basictool -t src/world-2.bas tmp/world-2.tok
+    cmp orig/world-2.tok tmp/world-2.tok || (echo world-2.tok not rebuilt correctly > /dev/stderr; exit 1)
+else
+    # TODO: Do we need --pack-singles-n?
+    basictool -tp --pack-singles-n src/world-2-annotated.bas tmp/world-2.tok
+fi
+
 
 # world-2.asm has been manually modified so world-2.py is now "frozen" as just
 # an artefact of the disassembly process.
 # python world-2.py > src/world-2.asm
 beebasm -v -o tmp/world-2 -i src/world-2.asm > tmp/world-2.lst
-cmp orig/world-2 tmp/world-2 || (echo world-2 not rebuilt correctly > /dev/stderr; exit 1)
+if [ "$USE_WORLD_2_ANNOTATED" == "0" ]; then
+    cmp orig/world-2 tmp/world-2 || (echo world-2 not rebuilt correctly > /dev/stderr; exit 1)
+fi
 
 basictool -t src/nightwo.bas tmp/nightwo.tok
 cmp orig/nightwo tmp/nightwo.tok || (echo nightwo.tok not rebuilt correctly > /dev/stderr; exit 1)
