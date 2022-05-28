@@ -1312,7 +1312,7 @@ l3565 = loop_c3564+1
 
     equb &ad, &f4, &57, &d0, &f4, &a5, &75, &d0, &f0                  ; 5026: ad f4 57... ..W
 ; &502f referenced 3 times by &5044, &504e, &5055
-.c502f
+.clc_swizzle_jmp_sprite_core
     clc                                                               ; 502f: 18          .
     jmp swizzle_jmp_sprite_core                                       ; 5030: 4c e5 50    L.P
 
@@ -1326,14 +1326,14 @@ l3565 = loop_c3564+1
     sbc #1                                                            ; 503d: e9 01       ..
     ldx ri_y                                                          ; 503f: ae 64 04    .d.
     cpx #2                                                            ; 5042: e0 02       ..
-    beq c502f                                                         ; 5044: f0 e9       ..
+    beq clc_swizzle_jmp_sprite_core                                   ; 5044: f0 e9       ..
     jsr sub_c511c                                                     ; 5046: 20 1c 51     .Q
     lda zero_data,x                                                   ; 5049: bd 60 57    .`W
     cmp #&fe                                                          ; 504c: c9 fe       ..
-    bcs c502f                                                         ; 504e: b0 df       ..
+    bcs clc_swizzle_jmp_sprite_core                                   ; 504e: b0 df       ..
     lda zero_data+1,x                                                 ; 5050: bd 61 57    .aW
     cmp #2                                                            ; 5053: c9 02       ..
-    bcc c502f                                                         ; 5055: 90 d8       ..
+    bcc clc_swizzle_jmp_sprite_core                                   ; 5055: 90 d8       ..
     lda l0077                                                         ; 5057: a5 77       .w
     tax                                                               ; 5059: aa          .
     lsr a                                                             ; 505a: 4a          J
@@ -1447,6 +1447,7 @@ l3565 = loop_c3564+1
 .c511b
     rts                                                               ; 511b: 60          `
 
+; Entered with A=W%-1; 0<=A<=&2F
 ; &511c referenced 1 time by &5046
 .sub_c511c
     sta l007c                                                         ; 511c: 85 7c       .|
@@ -2275,7 +2276,7 @@ l3565 = loop_c3564+1
 ;     ri_b:                                             3
 ;     ri_b+1:                                           3
 ;     q_subroutine_y_loop_test_and_bump:                3
-;     c502f:                                            3
+;     clc_swizzle_jmp_sprite_core:                      3
 ;     c533b:                                            3
 ;     c5358:                                            3
 ;     c53b4:                                            3
@@ -2373,7 +2374,6 @@ l3565 = loop_c3564+1
 ;     c4f55
 ;     c4f6f
 ;     c4f77
-;     c502f
 ;     c511b
 ;     c5164
 ;     c516e

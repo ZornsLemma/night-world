@@ -81,6 +81,8 @@ comment(0x519a, "TODO: I believe this is effectively a jmp and nothing cares abo
 label(0x55f9, "constant_96")
 label(0x50e1, "clc_jmp_sprite_core")
 label(0x50e5, "swizzle_jmp_sprite_core") # TODO: poor name!
+label(0x502f, "clc_swizzle_jmp_sprite_core")
+comment(0x511c, "Entered with A=W%-1; 0<=A<=&2F")
 
 # t_subroutine
 label(0x52bb, "cli_rts")
