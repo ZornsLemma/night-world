@@ -14,21 +14,21 @@
   112REM TODO: As with g4/g5 below, PROC4/PROC5 are the only users of A%/B%/C%/D% and
   113REM use them to save/restore some values.
 
-  120DEFPROC4:IFday_night%=1:PROCg4:ENDPROC ELSEIFlee_direction%=9:A%=lee_x_os%:B%=lee_y_os%:ww%=9:ENDPROC
-  130C%=lee_x_os%:D%=lee_y_os%:ww%=10:ENDPROC
+  120DEFPROC4:IFday_night%=1:PROCg4:ENDPROC ELSEIFlee_direction%=9:A%=lee_x_os%:B%=lee_y_os%:lee_sprite_num%=9:ENDPROC
+  130C%=lee_x_os%:D%=lee_y_os%:lee_sprite_num%=10:ENDPROC
 
-  140DEFPROC5:IFday_night%=1:PROCg5:ENDPROC ELSEIFlee_direction%=9:lee_x_os%=A%:lee_y_os%=B%:ww%=9:ENDPROC
-  150lee_x_os%=C%:lee_y_os%=D%:ww%=10:ENDPROC
+  140DEFPROC5:IFday_night%=1:PROCg5:ENDPROC ELSEIFlee_direction%=9:lee_x_os%=A%:lee_y_os%=B%:lee_sprite_num%=9:ENDPROC
+  150lee_x_os%=C%:lee_y_os%=D%:lee_sprite_num%=10:ENDPROC
 
   152REM TODO: Not sure what's going on yet, but note that PROCg4 and PROCg5 are the
   153REM only users of E%/F%/G%/H% and one stores things in those and the other
   154REM retrieves the old values.
 
-  160DEFPROCg4:IFlee_direction%=9:E%=lee_x_os%:F%=lee_y_os%:ww%=11:ENDPROC
-  170G%=lee_x_os%:H%=lee_y_os%:ww%=12:ENDPROC
+  160DEFPROCg4:IFlee_direction%=9:E%=lee_x_os%:F%=lee_y_os%:lee_sprite_num%=11:ENDPROC
+  170G%=lee_x_os%:H%=lee_y_os%:lee_sprite_num%=12:ENDPROC
 
-  180DEFPROCg5:IFlee_direction%=9:lee_x_os%=E%:lee_y_os%=F%:ww%=11:ENDPROC
-  190lee_x_os%=G%:lee_y_os%=H%:ww%=12:ENDPROC
+  180DEFPROCg5:IFlee_direction%=9:lee_x_os%=E%:lee_y_os%=F%:lee_sprite_num%=11:ENDPROC
+  190lee_x_os%=G%:lee_y_os%=H%:lee_sprite_num%=12:ENDPROC
 
   200DEFPROCsr:Y%=2:FORn%=9TO12:W%=n%:CALLS%:NEXT:Y%=0:ENDPROC
 
@@ -44,14 +44,14 @@
   281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
   282REM when he's falling *after* a jump has finished in mid-air, and that all other
   283REM falls are straight down.
-  290PROC5:W%=ww%:IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:df%=df%+1:GOTO330
+  290PROC5:W%=lee_sprite_num%:IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:df%=df%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310df%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
   330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
-  360W%=ww%:Y%=8:CALLQ%:IFX%<>0ORdf%>12:PROCuv
+  360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORdf%>12:PROCuv
   370IFng%=0:m%=m%+1:IFm%=11:PROCm:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCsp:GOTO270
   380GOTO280
 
@@ -160,11 +160,15 @@
  1220IFroom_type%=2ANDday_night%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,ec%,2 ELSEIFX%=7:SOUND1,8,ec%,4 ELSESOUND1,12,ec%,5
  1230ec%=ec%-1:IFec%=0:ec%=25:ex%=ex%-1:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:VDU17,128,17,1:PRINTTAB(ex%+1,5)CHR$246:IFex%=3:game_ended%=1
  1240ENDPROC
+
  1250DEFPROCmu:IFlogical_room%<>5:ENDPROC
  1260IFscore%<90:ENDPROC ELSEW%=7:Y%=2:CALLS%:ENDPROC
  1270DEFPROCvx:IFlogical_room%<>5:ENDPROC
  1280IFscore%<90:ENDPROC ELSEW%=7:X%=17:CALLS%:CALLU%:ENDPROC
+
  1290DEFPROCsf:VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
+
+ 1299REM Background music data: (pitch, duration) pairs
  1300DATA116,3,88,3,116,2,0,0,116,3,120,3,116,3,0,0,116,2,88,2,116,2,116,2,116,2,120,2,116,2,0,0,116,3,72,3,100,3,0,0,100,3,108,3,100,3,0,0,100,2,72,2,100,2,100,2,100,2,108,2,100,2,0,0
  1310DATA52,3,32,3,80,3,0,0,80,3,88,3,80,3,0,0,52,2,32,2,80,2,80,2,80,2,88,2,80,2,0,0,32,3,32,3,60,3,0,0,60,3,68,3,60,3,0,0,60,2,32,2,60,2,60,2,60,2,68,2,60,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
@@ -189,13 +193,16 @@
  1439REM room_type% values for each logical room
  1440DATA2,1,1,2,3,4,2,3,4,4,4,3,1,2
  1450DATA7,6,3,5,1,2,4,0
+
  1460DEFPROCg:W%=6:Y%=2:CALLS%:IFes%=0:score%=score%-1:IFscore%=-1:score%=0
  1470PROCstop_sound:pw%=1000:on%=2:IFes%=1ORuw%=1:GOTO1490
- 1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=ww%:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
+ 1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=lee_sprite_num%:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
  1490VDU19,1,1;0;19,2,6;0;19,3,7;0;17,3:s$=STR$score%+"%":PROCclear_room:PRINTTAB(5,16);:VDU232,233,234,235,32,32,238,239,235,240,5
  1491GCOL0,2:FORn%=416TO412STEP-4:MOVE544,n%:PRINTs$:NEXT:VDU4:PROCdelay(14000):COLOUR1:PRINTTAB(ex%,5)CHR$246:ENDPROC
+
  1500DEFPROCes:es%=1:PROCstop_sound:VDU19,1,1;0;19,2,3;0;19,3,6;0;:PROCclear_room:COLOUR2:PRINTTAB(6,16);:VDU232,233,234,235,32,235,242,245,5:GCOL0,1:a$=CHR$10+STRING$(12,CHR$8):FORn%=416TO412STEP-4:MOVE256,n%
  1510PRINT"INNER  WORLD"+a$+"COMMING SOON":NEXT:PROCdelay(13000):VDU4:ENDPROC
+
  1520DEFPROCcc:S1%=&70:S2%=&71:S3%=&72:S4%=&74:DIM cc% 200:FORn%=0TO2STEP2
  1530P%=cc%
  1531REM ABE's pack won't always correctly rename variables which follow an assembler
