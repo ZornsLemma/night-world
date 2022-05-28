@@ -55,7 +55,7 @@
   330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
-  360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCuv
+  360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy
   370IFng%=0:m%=m%+1:IFm%=11:PROCm:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
 
@@ -172,7 +172,7 @@
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
  1150PROCdraw_current_room:ENDPROC
 
- 1160DEFPROCuv:IFX%=5:GOTO1210 ELSEIFX%=5OR(X%=7ANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
+ 1160DEFPROCupdate_energy:IFX%=5:GOTO1210 ELSEIFX%=5OR(X%=7ANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
  1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:tt%=1 ELSEIFlogical_room%=7:tt%=2 ELSEIFlogical_room%=5:tt%=3 ELSEIFlogical_room%=14:tt%=4 ELSEIFlogical_room%=9:tt%=5
  1180IFtc%(tt%)=1:GOTO1220 ELSEtc%(tt%)=1
  1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
