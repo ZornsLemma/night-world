@@ -1435,11 +1435,11 @@ l3565 = loop_c3564+1
     and #7                                                            ; 5060: 29 07       ).
     eor #7                                                            ; 5062: 49 07       I.
     sta sprite_chunks                                                 ; 5064: 85 75       .u
-    lda sprite_screen_and_data_addrs_end,y                            ; 5066: b9 c0 56    ..V
+    lda stuff,y                                                       ; 5066: b9 c0 56    ..V
     clc                                                               ; 5069: 18          .
     adc sprite_chunks                                                 ; 506a: 65 75       eu
     sta screen_ptr                                                    ; 506c: 85 7a       .z
-    lda l56c1,y                                                       ; 506e: b9 c1 56    ..V
+    lda stuff+1,y                                                     ; 506e: b9 c1 56    ..V
     adc #0                                                            ; 5071: 69 00       i.
     sta screen_ptr+1                                                  ; 5073: 85 7b       .{
     lda #0                                                            ; 5075: a9 00       ..
@@ -2335,10 +2335,9 @@ l3565 = loop_c3564+1
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 56ab: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0                  ; 56b7: 00 00 00... ...
 ; &56c0 referenced 1 time by &5066
-.sprite_screen_and_data_addrs_end
+.stuff
     equb &c0                                                          ; 56c0: c0          .
 ; &56c1 referenced 1 time by &506e
-.l56c1
     equb &7e, &80                                                     ; 56c1: 7e 80       ~.
     equs "}@|"                                                        ; 56c3: 7d 40 7c    }@|
     equb   0, &7b, &c0, &79, &80                                      ; 56c6: 00 7b c0... .{.
@@ -2554,8 +2553,8 @@ l3565 = loop_c3564+1
 ;     loop_c54a5:                                       1
 ;     c54b7:                                            1
 ;     c54db:                                            1
-;     sprite_screen_and_data_addrs_end:                 1
-;     l56c1:                                            1
+;     stuff:                                            1
+;     stuff+1:                                          1
 ;     osbyte:                                           1
 
 ; Automatically generated labels:
@@ -2626,7 +2625,6 @@ l3565 = loop_c3564+1
 ;     l55f8
 ;     l55fa
 ;     l55fb
-;     l56c1
 ;     loop_c3564
 ;     loop_c538c
 ;     loop_c53da

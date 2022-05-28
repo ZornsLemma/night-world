@@ -180,7 +180,8 @@ expr_label(0x5600, "sprite_screen_and_data_addrs+screen_addr_lo")
 expr_label(0x5601, "sprite_screen_and_data_addrs+screen_addr_hi")
 expr_label(0x5602, "sprite_screen_and_data_addrs+sprite_addr_hi")
 expr_label(0x5603, "sprite_screen_and_data_addrs+sprite_addr_lo")
-label(0x5600+0x30*4, "sprite_screen_and_data_addrs_end")
+label(0x5600+0x30*4, "stuff") # TODO: poor name!
+expr_label(0x5600+0x30*4+1, "stuff+1")
 label(0x5760, "zero_data") # TODO: very poor name, I think
 expr_label(0x5761, "zero_data+1")
 label(0x5760+0x30*2, "zero_data_end")
