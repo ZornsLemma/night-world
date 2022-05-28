@@ -15,7 +15,7 @@ osbyte = &fff4
 
 .pydis_start
 .basic_start
-    incbin "world-2.tok"
+    incbin "tmp/world-2.tok"
 .basic_end
 if basic_end and &ff = 0
     basic_end_rounded = basic_end
