@@ -24,9 +24,8 @@ else
 endif
 
 .start
-; Select the tape filing system and relocate the code down to
-; relocated_start, then set PAGE=relocated_start and start running the
-; relocated code.
+; Select the tape filing system and relocate the BASIC program down to
+; relocated_start, then run it.
     lda #osbyte_tape                                                  ; 32d8: a9 8c       ..
     ldx #0                                                            ; 32da: a2 00       ..
     jsr osbyte                                                        ; 32dc: 20 f4 ff     ..
@@ -40,17 +39,15 @@ endif
     sta l0083                                                         ; 32ed: 85 83       ..
     ldx #>(basic_end_rounded-basic_start)                             ; 32ef: a2 22       ."
     ldy #0                                                            ; 32f1: a0 00       ..
-; &32f3 referenced 2 times by &32f8, &32ff
-.c32f3
+.copy_loop
     lda (l0080),y                                                     ; 32f3: b1 80       ..
     sta (l0082),y                                                     ; 32f5: 91 82       ..
     iny                                                               ; 32f7: c8          .
-    bne c32f3                                                         ; 32f8: d0 f9       ..
+    bne copy_loop                                                         ; 32f8: d0 f9       ..
     inc l0081                                                         ; 32fa: e6 81       ..
     inc l0083                                                         ; 32fc: e6 83       ..
     dex                                                               ; 32fe: ca          .
-.sub_c32ff
-    bne c32f3                                                         ; 32ff: d0 f2       ..
+    bne copy_loop                                                         ; 32ff: d0 f2       ..
     lda #>relocated_start                                             ; 3301: a9 0d       ..
     sta basic_page_msb                                                ; 3303: 85 18       ..
     lda #osbyte_insert_buffer                                         ; 3305: a9 8a       ..
