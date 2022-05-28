@@ -34,11 +34,11 @@
   260DEFPROCplay
   270GCOL0,0:Y%=0:PROC4
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
-  290PROC5:W%=ww%:IFj%=1:PROC3:GOTO330 ELSExm%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+mx%:lee_y_os%=lee_y_os%-8:df%=df%+1:GOTO330
+  290PROC5:W%=ww%:IFjumping%=1:PROC3:GOTO330 ELSExm%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+mx%:lee_y_os%=lee_y_os%-8:df%=df%+1:GOTO330
   300mx%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  310df%=0:IFINKEY-1j%=1:jc%=0:jm%=8:mx%=xm%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
+  310df%=0:IFINKEY-1jumping%=1:jc%=0:jm%=8:mx%=xm%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
-  330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFge%=0GOTO270 ELSEIFge%=1:ENDPROC
+  330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFa%=1:PROCa1 ELSEIFa%=2:PROCa2 ELSEIFa%=3:PROCa3 ELSEIFa%=4:PROCa4 ELSEIFa%=5:PROCa5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=ww%:Y%=8:CALLQ%:IFX%<>0ORdf%>12:PROCuv
@@ -55,8 +55,8 @@
   450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
   460IFdi%=10:di%=9:PROCsr:W%=9:IFday_night%=1:W%=11
   470xm%=8:lee_x_os%=lee_x_os%+8:ENDPROC
-  480DEFPROC3:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:j%=0:PROCstop_sound:ENDPROC
-  490jc%=jc%+1:lee_y_os%=lee_y_os%+jm%:lee_x_os%=lee_x_os%+xm%:jc%=jc%+1:IFjc%>js%:jm%=-4:IFjc%=jt%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:j%=0:PROCstop_sound:ENDPROC
+  480DEFPROC3:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
+  490jc%=jc%+1:lee_y_os%=lee_y_os%+jm%:lee_x_os%=lee_x_os%+xm%:jc%=jc%+1:IFjc%>js%:jm%=-4:IFjc%=jt%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
   500ENDPROC
   510DEFPROCm:W%=6:Z%=6:CALLT%:IFK%=1016:PROCms
   520IFlogical_room%=5:W%=8:Z%=6:CALLT%
@@ -125,7 +125,7 @@
  1090IFlogical_room%=5ANDtc%(3)=0:PROCz(18,24,17)
  1100ENDPROC
 
- 1110DEFPROCchange_room:IFlogical_room%=10ANDlee_y_os%<228:PROCes:ge%=1:ENDPROC
+ 1110DEFPROCchange_room:IFlogical_room%=10ANDlee_y_os%<228:PROCes:game_ended%=1:ENDPROC
  1120W%=5:Y%=2:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
  1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
  1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READa%:NEXT:IFscore%=100:a%=2
@@ -139,7 +139,7 @@
  1200ENDPROC
  1210IFdf%>1:SOUND1,11,ec%,2:GOTO1230
  1220IFa%=2ANDday_night%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFa%=2SOUND1,9,ec%,2 ELSEIFX%=7:SOUND1,8,ec%,4 ELSESOUND1,12,ec%,5
- 1230ec%=ec%-1:IFec%=0:ec%=25:ex%=ex%-1:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:VDU17,128,17,1:PRINTTAB(ex%+1,5)CHR$246:IFex%=3:ge%=1
+ 1230ec%=ec%-1:IFec%=0:ec%=25:ex%=ex%-1:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:VDU17,128,17,1:PRINTTAB(ex%+1,5)CHR$246:IFex%=3:game_ended%=1
  1240ENDPROC
  1250DEFPROCmu:IFlogical_room%<>5:ENDPROC
  1260IFscore%<90:ENDPROC ELSEW%=7:Y%=2:CALLS%:ENDPROC
@@ -154,8 +154,8 @@
  1331REPEATREADnote_pitch%,note_duration%:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351ex%=16:ec%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:j%=0:xm%=0:sd%=10:di%=10:mx%=0:VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
- 1360PROCreset_note_count:phys_room%=12:ge%=0:W%=6:X%=24:CALLS%:CALLU%:js%=20:jt%=40:uw%=0:ng%=0:m%=0:a%=3:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
+ 1351ex%=16:ec%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:xm%=0:sd%=10:di%=10:mx%=0:VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
+ 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:js%=20:jt%=40:uw%=0:ng%=0:m%=0:a%=3:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
