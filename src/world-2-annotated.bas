@@ -2,7 +2,7 @@
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
    30ENVELOPE1,1,0,0,0,2,2,2,30,0,0,255,128,1:REM TODO: Could be moved into earlier file
    40ONERROR:VDU4:uw%=1:GOTO100
-   50es%=0:score%=13:uw%=0:ex%=10
+   50es%=0:score%=13:uw%=0:energy_major%=10
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
    80*FX200,2
@@ -175,11 +175,12 @@
  1160DEFPROCuv:IFX%=5:GOTO1210 ELSEIFX%=5OR(X%=7ANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
  1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:tt%=1 ELSEIFlogical_room%=7:tt%=2 ELSEIFlogical_room%=5:tt%=3 ELSEIFlogical_room%=14:tt%=4 ELSEIFlogical_room%=9:tt%=5
  1180IFtc%(tt%)=1:GOTO1220 ELSEtc%(tt%)=1
- 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:ec%=50:PROCdelay(150):VDU19,0,0;0;:IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(ex%,5)CHR$246:ex%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
+ 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
+ 1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
- 1210IFfalling_time%>1:SOUND1,11,ec%,2:GOTO1230
- 1220IFroom_type%=2ANDday_night%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,ec%,2 ELSEIFX%=7:SOUND1,8,ec%,4 ELSESOUND1,12,ec%,5
- 1230ec%=ec%-1:IFec%=0:ec%=25:ex%=ex%-1:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:VDU17,128,17,1:PRINTTAB(ex%+1,5)CHR$246:IFex%=3:game_ended%=1
+ 1210IFfalling_time%>1:SOUND1,11,energy_minor%,2:GOTO1230
+ 1220IFroom_type%=2ANDday_night%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,energy_minor%,2 ELSEIFX%=7:SOUND1,8,energy_minor%,4 ELSESOUND1,12,energy_minor%,5
+ 1230energy_minor%=energy_minor%-1:IFenergy_minor%=0:energy_minor%=25:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:game_ended%=1
  1240ENDPROC
 
  1250DEFPROCmu:IFlogical_room%<>5:ENDPROC
@@ -199,9 +200,10 @@
  1331REPEATREADnote_pitch%,note_duration%:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351ex%=16:ec%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0:VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
+ 1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
+ 1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:ng%=0:m%=0:room_type%=3
- 1361VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
+ 1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
@@ -220,7 +222,7 @@
  1470PROCstop_sound:pw%=1000:on%=2:IFes%=1ORuw%=1:GOTO1490
  1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=lee_sprite_num%:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
  1490VDU19,1,1;0;19,2,6;0;19,3,7;0;17,3:s$=STR$score%+"%":PROCclear_room:PRINTTAB(5,16);:VDU232,233,234,235,32,32,238,239,235,240,5
- 1491GCOL0,2:FORn%=416TO412STEP-4:MOVE544,n%:PRINTs$:NEXT:VDU4:PROCdelay(14000):COLOUR1:PRINTTAB(ex%,5)CHR$246:ENDPROC
+ 1491GCOL0,2:FORn%=416TO412STEP-4:MOVE544,n%:PRINTs$:NEXT:VDU4:PROCdelay(14000):COLOUR1:PRINTTAB(energy_major%,5)CHR$246:ENDPROC
 
  1500DEFPROCes:es%=1:PROCstop_sound:VDU19,1,1;0;19,2,3;0;19,3,6;0;:PROCclear_room:COLOUR2:PRINTTAB(6,16);:VDU232,233,234,235,32,235,242,245,5:GCOL0,1:a$=CHR$10+STRING$(12,CHR$8):FORn%=416TO412STEP-4:MOVE256,n%
  1510PRINT"INNER  WORLD"+a$+"COMMING SOON":NEXT:PROCdelay(13000):VDU4:ENDPROC
