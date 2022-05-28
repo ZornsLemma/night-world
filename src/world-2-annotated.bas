@@ -12,7 +12,10 @@
   110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
 
   112REM TODO: As with g4/g5 below, PROC4/PROC5 are the only users of A%/B%/C%/D% and
-  113REM use them to save/restore some values.
+  113REM use them to save/restore some values. Ahah(-ish), note that this logic does
+  114REM kind of tie up with the code at &511C in world-1.asm where each sprite number
+  115REM accesses a different adjacent pair of resident integer variables - and in
+  116REM particular sprite 9 uses A%/B%, 10 uses C%/D%, similarly for 11 and 12.
 
   120DEFPROC4:IFday_night%=1:PROCg4:ENDPROC ELSEIFlee_direction%=9:A%=lee_x_os%:B%=lee_y_os%:lee_sprite_num%=9:ENDPROC
   130C%=lee_x_os%:D%=lee_y_os%:lee_sprite_num%=10:ENDPROC
