@@ -85,13 +85,13 @@
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
-  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=2:W%=5:CALLS%:PROCsr:logical_room%=8:PROCdraw_current_room:PROCsf:ENDPROC
+  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=2:W%=5:CALLS%:PROCsr:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   585REM If player is in room 10 (Ed's room J) and in the top half of the screen,
   586REM warp to room 9 (Ed's room N) - the fleece room.
-  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=2:W%=5:CALLS%:PROCsr:PROCdraw_current_room:PROCsf:room_type%=2:ENDPROC
+  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=2:W%=5:CALLS%:PROCsr:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
   595REM If player is in room 13 at a specific point on the right edge, warp to
   596REM room 7 (Ed's room H).
-  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=2:W%=5:CALLS%:PROCsr:logical_room%=7:PROCdraw_current_room:PROCsf:ENDPROC
+  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=2:W%=5:CALLS%:PROCsr:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM force specific colours and if (TODO: what does this mean?) X%=7, show the fleece.
   607REM TODO: I think this shows the fleece anyway.
@@ -180,7 +180,7 @@
  1270DEFPROCvx:IFlogical_room%<>5:ENDPROC
  1280IFscore%<90:ENDPROC ELSEW%=7:X%=17:CALLS%:CALLU%:ENDPROC
 
- 1290DEFPROCsf:VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
+ 1290DEFPROCwarp_effect:VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
  1299REM Background music data: (pitch, duration) pairs
  1300DATA116,3,88,3,116,2,0,0,116,3,120,3,116,3,0,0,116,2,88,2,116,2,116,2,116,2,120,2,116,2,0,0,116,3,72,3,100,3,0,0,100,3,108,3,100,3,0,0,100,2,72,2,100,2,100,2,100,2,108,2,100,2,0,0
