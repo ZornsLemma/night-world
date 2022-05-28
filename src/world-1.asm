@@ -2336,31 +2336,46 @@ l3565 = loop_c3564+1
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0                  ; 56b7: 00 00 00... ...
 ; &56c0 referenced 1 time by &5066
 .stuff
-    equb &c0                                                          ; 56c0: c0          .
+    equw &7ec0                                                        ; 56c0: c0 7e       .~
 ; &56c1 referenced 1 time by &506e
-    equb &7e, &80                                                     ; 56c1: 7e 80       ~.
-    equs "}@|"                                                        ; 56c3: 7d 40 7c    }@|
-    equb   0, &7b, &c0, &79, &80                                      ; 56c6: 00 7b c0... .{.
-    equs "x@w"                                                        ; 56cb: 78 40 77    x@w
-    equb   0, &76, &c0, &74, &80                                      ; 56ce: 00 76 c0... .v.
-    equs "s@r"                                                        ; 56d3: 73 40 72    s@r
-    equb   0, &71, &c0, &6f, &80                                      ; 56d6: 00 71 c0... .q.
-    equs "n@m"                                                        ; 56db: 6e 40 6d    n@m
-    equb   0, &6c, &c0, &6a, &80                                      ; 56de: 00 6c c0... .l.
-    equs "i@h"                                                        ; 56e3: 69 40 68    i@h
-    equb   0, &67, &c0, &65, &80                                      ; 56e6: 00 67 c0... .g.
-    equs "d@c"                                                        ; 56eb: 64 40 63    d@c
-    equb   0, &62, &c0, &60, &80                                      ; 56ee: 00 62 c0... .b.
-    equs "_@^"                                                        ; 56f3: 5f 40 5e    _@^
-    equb   0, &5d, &c0, &5b, &80                                      ; 56f6: 00 5d c0... .].
-    equs "Z@Y"                                                        ; 56fb: 5a 40 59    Z@Y
-    equb   0, &58                                                     ; 56fe: 00 58       .X
+    equw &7d80                                                        ; 56c2: 80 7d       .}
+    equw &7c40                                                        ; 56c4: 40 7c       @|
+    equw &7b00                                                        ; 56c6: 00 7b       .{
+    equw &79c0                                                        ; 56c8: c0 79       .y
+    equw &7880                                                        ; 56ca: 80 78       .x
+    equw &7740                                                        ; 56cc: 40 77       @w
+    equw &7600                                                        ; 56ce: 00 76       .v
+    equw &74c0                                                        ; 56d0: c0 74       .t
+    equw &7380                                                        ; 56d2: 80 73       .s
+    equw &7240                                                        ; 56d4: 40 72       @r
+    equw &7100                                                        ; 56d6: 00 71       .q
+    equw &6fc0                                                        ; 56d8: c0 6f       .o
+    equw &6e80                                                        ; 56da: 80 6e       .n
+    equw &6d40                                                        ; 56dc: 40 6d       @m
+    equw &6c00                                                        ; 56de: 00 6c       .l
+    equw &6ac0                                                        ; 56e0: c0 6a       .j
+    equw &6980                                                        ; 56e2: 80 69       .i
+    equw &6840                                                        ; 56e4: 40 68       @h
+    equw &6700                                                        ; 56e6: 00 67       .g
+    equw &65c0                                                        ; 56e8: c0 65       .e
+    equw &6480                                                        ; 56ea: 80 64       .d
+    equw &6340                                                        ; 56ec: 40 63       @c
+    equw &6200                                                        ; 56ee: 00 62       .b
+    equw &60c0                                                        ; 56f0: c0 60       .`
+    equw &5f80                                                        ; 56f2: 80 5f       ._
+    equw &5e40                                                        ; 56f4: 40 5e       @^
+    equw &5d00                                                        ; 56f6: 00 5d       .]
+    equw &5bc0                                                        ; 56f8: c0 5b       .[
+    equw &5a80                                                        ; 56fa: 80 5a       .Z
+    equw &5940                                                        ; 56fc: 40 59       @Y
+    equw &5800                                                        ; 56fe: 00 58       .X
 ; This appears to be a big-endian table of start addresses for the
 ; game sprites. TODO: This is inspired guesswork; note that the copy
 ; of this at sprite_screen_and_data_addrs+{2,3] does get tweaked
 ; slightly.
 ; &5700 referenced 2 times by &5452, &54b7
 .sprite_ref_addrs_be
+.stuff_end
     equb >sprite_00, <sprite_00                                       ; 5700: 40 00       @.
 ; &5701 referenced 2 times by &544a, &54bd
     equb >sprite_00, <sprite_00                                       ; 5702: 40 00       @.
