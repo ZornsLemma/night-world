@@ -74,7 +74,7 @@ entry(0x5499, "v_subroutine") # TODO: rename
 expr(0x54dc+5*4, "v_subroutine")
 
 # q_subroutine
-comment(0x4f00, "Based on how this is called by world-2.bas, I infer that it is a collision detection subroutine which returns with X% indicating what was collided with, or 0 if nothing. The code here appears to return values in Y% and Z% but I don't think they are used by the game.")
+comment(0x4f00, "Based on how this is called by world-2.bas, I infer that it is a collision detection subroutine which returns with X% indicating what was collided with, or 0 if nothing. The code here appears to return values in Y% and Z% but I don't think they are used by the game. W% on entry is probably the sprite we are checking for collisions with; world-2.bas always sets it to the current player sprite. Y% is also used to pass something in but I don't know what; world-2.bas always sets it to 8.")
 label(0x4f66, "zero_ri_x_y_and_rts")
 comment(0x4f10, "We have X=(W%-1)*2, Y=(W%-1)*4. X retains this value for the entire subroutine. Y's value is only used if the beq q_subroutine_y_loop_test_and_bump branch is taken on the first pass round q_subroutine_y_loop.")
 constant(0x71, "q_subroutine_ri_w_minus_1_times_2")
