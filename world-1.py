@@ -24,7 +24,7 @@ label(0x3580, "old_run")
 string(0x3580, 8)
 comment(0x2900, "Tokenised BASIC")
 label(0x2900, "basic")
-byte(0x2900, 0x3560-0x2900)
+byte(0x2900, 0x3508-0x2900)
 
 comment(0x3590, "Copy screen_data onto the screen")
 constant(0x5800, "mode_5_himem")
@@ -34,6 +34,22 @@ byte(0x1f00, 0xa00)
 label(0x1f00+0xa00, "screen_data_end")
 expr(0x3591, ">screen_data")
 expr(0x3593, ">(screen_data_end-screen_data)")
+
+# There is no room 0; the code at "start" lives there.
+for i in range(1, 15):
+    label(0x3508+i*180, "room_data_%02d" % i)
+    # Use 10 columns because each byte represents two OS characters, so 10 bytes
+    # is a screen row.
+    byte(0x3508+i*180, 180, cols=10)
+    # Luckily (deliberately?) the way the values are packed into these bytes
+    # means that by expressing the data as two bit binary constants, the 1s
+    # indicate where platforms exists, making the level layout kind-of visible
+    # in the source.
+    def custom_binary_formatter(n, bits):
+        return "%"+("00"+(bin(n)[2:]))[-2:]
+    set_formatter(0x3508+i*180, 180, custom_binary_formatter)
+
+label(0x3508+15*180, "something") # TODO: bad name, just to mark end of room data
 
 comment(0x5499, "Zero resident integer variables A%-Z%")
 comment(0x54a3, "Initialise resident integer variables Q%-V%")
