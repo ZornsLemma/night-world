@@ -1,5 +1,5 @@
-; We could use putfle to create !BOOT, but by doing this we stop beebasm warning
-; about there being no SAVE command.
+; We could use putfile to create !BOOT, but by doing this we stop beebasm
+; warning about there being no SAVE command.
 org &0000
 .boot_start
     incbin "orig/boot"
