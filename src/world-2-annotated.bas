@@ -71,11 +71,11 @@
   491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
   500ENDPROC
 
-  510DEFPROCm:W%=6:Z%=6:CALLT%:IFK%=1016:PROCms
+  510DEFPROCm:W%=6:Z%=6:CALLT%:IFK%=1016:PROCtoggle_day_night
   520IFlogical_room%=5:W%=8:Z%=6:CALLT%
   530ENDPROC
 
-  540DEFPROCms:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
+  540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
   550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROCsr:K%=192
   551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCg4:full_speed_jump_time_limit%=45:max_jump_time%=90:PROCmu:ENDPROC
   560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROC4:PROCvx:ENDPROC
@@ -177,6 +177,7 @@
 
  1250DEFPROCmu:IFlogical_room%<>5:ENDPROC
  1260IFscore%<90:ENDPROC ELSEW%=7:Y%=2:CALLS%:ENDPROC
+
  1270DEFPROCvx:IFlogical_room%<>5:ENDPROC
  1280IFscore%<90:ENDPROC ELSEW%=7:X%=17:CALLS%:CALLU%:ENDPROC
 
