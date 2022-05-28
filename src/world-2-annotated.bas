@@ -11,11 +11,18 @@
 
   110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
 
+  112REM TODO: As with g4/g5 below, PROC4/PROC5 are the only users of A%/B%/C%/D% and
+  113REM use them to save/restore some values.
+
   120DEFPROC4:IFday_night%=1:PROCg4:ENDPROC ELSEIFdi%=9:A%=lee_x_os%:B%=lee_y_os%:ww%=9:ENDPROC
   130C%=lee_x_os%:D%=lee_y_os%:ww%=10:ENDPROC
 
   140DEFPROC5:IFday_night%=1:PROCg5:ENDPROC ELSEIFdi%=9:lee_x_os%=A%:lee_y_os%=B%:ww%=9:ENDPROC
   150lee_x_os%=C%:lee_y_os%=D%:ww%=10:ENDPROC
+
+  152REM TODO: Not sure what's going on yet, but note that PROCg4 and PROCg5 are the
+  153REM only users of E%/F%/G%/H% and one stores things in those and the other
+  154REM retrieves the old values.
 
   160DEFPROCg4:IFdi%=9:E%=lee_x_os%:F%=lee_y_os%:ww%=11:ENDPROC
   170G%=lee_x_os%:H%=lee_y_os%:ww%=12:ENDPROC
