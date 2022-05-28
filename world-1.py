@@ -104,6 +104,11 @@ for a in range(0x30):
     y = (a << 3) & 0x38
     comment(0x511c, "    W%%=&%02X => A=&%02X => Y=&%02X => %s%%" % (a+1, a, y, chr(ord('A')+(y/4))))
 comment(0x512b, "Set l0076 (low) and l0078 (high) to the first resident integer variable for this sprite divided by 8, which converts from OS coordinates (0-1279) to pixel coordinates (0-319). Similarly, divide the second resident integer variable by 4 to get Y pixel coordinates (0-255) at l0077 (low) and l0079 (high).")
+# TODO: Let's just assume these addresses are single-use
+label(0x76, "sprite_pixel_x_lo")
+label(0x78, "sprite_pixel_x_hi")
+label(0x77, "sprite_pixel_y_lo")
+label(0x79, "sprite_pixel_y_hi")
 
 # t_subroutine
 label(0x52bb, "cli_rts")

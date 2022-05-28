@@ -16,10 +16,10 @@ l0072 = &0072
 l0073 = &0073
 l0074 = &0074
 sprite_chunks = &0075
-l0076 = &0076
-l0077 = &0077
-l0078 = &0078
-l0079 = &0079
+sprite_pixel_x_lo = &0076
+sprite_pixel_y_lo = &0077
+sprite_pixel_x_hi = &0078
+sprite_pixel_y_hi = &0079
 screen_ptr = &007a
 l007c = &007c
 l007d = &007d
@@ -1415,7 +1415,7 @@ l3565 = loop_c3564+1
     lda zero_data+1,x                                                 ; 5050: bd 61 57    .aW
     cmp #2                                                            ; 5053: c9 02       ..
     bcc clc_swizzle_jmp_sprite_core                                   ; 5055: 90 d8       ..
-    lda l0077                                                         ; 5057: a5 77       .w
+    lda sprite_pixel_y_lo                                             ; 5057: a5 77       .w
     tax                                                               ; 5059: aa          .
     lsr a                                                             ; 505a: 4a          J
     lsr a                                                             ; 505b: 4a          J
@@ -1434,7 +1434,7 @@ l3565 = loop_c3564+1
     sta screen_ptr+1                                                  ; 5073: 85 7b       .{
     lda #0                                                            ; 5075: a9 00       ..
     sta l0073                                                         ; 5077: 85 73       .s
-    lda l0076                                                         ; 5079: a5 76       .v
+    lda sprite_pixel_x_lo                                             ; 5079: a5 76       .v
     asl a                                                             ; 507b: 0a          .
     rol l0073                                                         ; 507c: 26 73       &s
     and #&f8                                                          ; 507e: 29 f8       ).
@@ -1452,7 +1452,7 @@ l3565 = loop_c3564+1
     sta sprite_screen_and_data_addrs+screen_addr_lo,x                 ; 5098: 9d 00 56    ..V
     lda screen_ptr+1                                                  ; 509b: a5 7b       .{
     sta sprite_screen_and_data_addrs+screen_addr_hi,x                 ; 509d: 9d 01 56    ..V
-    lda l0076                                                         ; 50a0: a5 76       .v
+    lda sprite_pixel_x_lo                                             ; 50a0: a5 76       .v
     and #3                                                            ; 50a2: 29 03       ).
     asl a                                                             ; 50a4: 0a          .
     asl a                                                             ; 50a5: 0a          .
@@ -1598,45 +1598,45 @@ l3565 = loop_c3564+1
 ; variable for this sprite divided by 8, which converts from OS
 ; coordinates (0-1279) to pixel coordinates (0-319). Similarly, divide
 ; the second resident integer variable by 4 to get Y pixel coordinates
-; (0-256) at l0077 (low) and l0079 (high).
+; (0-255) at l0077 (low) and l0079 (high).
     lda ri_a+1,y                                                      ; 512b: b9 05 04    ...
-    sta l0078                                                         ; 512e: 85 78       .x
+    sta sprite_pixel_x_hi                                             ; 512e: 85 78       .x
     lda ri_a,y                                                        ; 5130: b9 04 04    ...
-    lsr l0078                                                         ; 5133: 46 78       Fx
+    lsr sprite_pixel_x_hi                                             ; 5133: 46 78       Fx
     ror a                                                             ; 5135: 6a          j
-    lsr l0078                                                         ; 5136: 46 78       Fx
+    lsr sprite_pixel_x_hi                                             ; 5136: 46 78       Fx
     ror a                                                             ; 5138: 6a          j
-    lsr l0078                                                         ; 5139: 46 78       Fx
+    lsr sprite_pixel_x_hi                                             ; 5139: 46 78       Fx
     ror a                                                             ; 513b: 6a          j
-    sta l0076                                                         ; 513c: 85 76       .v
+    sta sprite_pixel_x_lo                                             ; 513c: 85 76       .v
     lda ri_b+1,y                                                      ; 513e: b9 09 04    ...
-    sta l0079                                                         ; 5141: 85 79       .y
+    sta sprite_pixel_y_hi                                             ; 5141: 85 79       .y
     lda ri_b,y                                                        ; 5143: b9 08 04    ...
-    lsr l0079                                                         ; 5146: 46 79       Fy
+    lsr sprite_pixel_y_hi                                             ; 5146: 46 79       Fy
     ror a                                                             ; 5148: 6a          j
-    lsr l0079                                                         ; 5149: 46 79       Fy
+    lsr sprite_pixel_y_hi                                             ; 5149: 46 79       Fy
     ror a                                                             ; 514b: 6a          j
-    sta l0077                                                         ; 514c: 85 77       .w
+    sta sprite_pixel_y_lo                                             ; 514c: 85 77       .w
     ldy l007c                                                         ; 514e: a4 7c       .|
     lda zero_data,x                                                   ; 5150: bd 60 57    .`W
     sta l0072                                                         ; 5153: 85 72       .r
     lda zero_data+1,x                                                 ; 5155: bd 61 57    .aW
     sta l0073                                                         ; 5158: 85 73       .s
-    lda l0078                                                         ; 515a: a5 78       .x
+    lda sprite_pixel_x_hi                                             ; 515a: a5 78       .x
     beq c516e                                                         ; 515c: f0 10       ..
     cmp #&80                                                          ; 515e: c9 80       ..
     bcc c5182                                                         ; 5160: 90 20       .
     bcs c519d                                                         ; 5162: b0 39       .9
 ; &5164 referenced 5 times by &5180, &5190, &519b, &51ab, &51b6
 .c5164
-    lda l0079                                                         ; 5164: a5 79       .y
+    lda sprite_pixel_y_hi                                             ; 5164: a5 79       .y
     beq c51b8                                                         ; 5166: f0 50       .P
     cmp #&80                                                          ; 5168: c9 80       ..
     bcc c51cb                                                         ; 516a: 90 5f       ._
     bcs c51e5                                                         ; 516c: b0 77       .w
 ; &516e referenced 1 time by &515c
 .c516e
-    lda l0076                                                         ; 516e: a5 76       .v
+    lda sprite_pixel_x_lo                                             ; 516e: a5 76       .v
     cmp l55f8                                                         ; 5170: cd f8 55    ..U
     bcc c519d                                                         ; 5173: 90 28       .(
     cmp constant_96                                                   ; 5175: cd f9 55    ..U
@@ -1660,7 +1660,7 @@ l3565 = loop_c3564+1
 .c5192
     lda constant_96                                                   ; 5192: ad f9 55    ..U
     sta zero_data,x                                                   ; 5195: 9d 60 57    .`W
-    sta l0076                                                         ; 5198: 85 76       .v
+    sta sprite_pixel_x_lo                                             ; 5198: 85 76       .v
 ; TODO: I believe this is effectively a jmp and nothing cares about
 ; the fact we've cleared carry.
     clc                                                               ; 519a: 18          .
@@ -1678,12 +1678,12 @@ l3565 = loop_c3564+1
 .c51ad
     lda l55f8                                                         ; 51ad: ad f8 55    ..U
     sta zero_data,x                                                   ; 51b0: 9d 60 57    .`W
-    sta l0076                                                         ; 51b3: 85 76       .v
+    sta sprite_pixel_x_lo                                             ; 51b3: 85 76       .v
     clc                                                               ; 51b5: 18          .
     bcc c5164                                                         ; 51b6: 90 ac       ..
 ; &51b8 referenced 1 time by &5166
 .c51b8
-    lda l0077                                                         ; 51b8: a5 77       .w
+    lda sprite_pixel_y_lo                                             ; 51b8: a5 77       .w
     cmp l55fa                                                         ; 51ba: cd fa 55    ..U
     bcc c51e5                                                         ; 51bd: 90 26       .&
     cmp l55fb                                                         ; 51bf: cd fb 55    ..U
@@ -1710,7 +1710,7 @@ l3565 = loop_c3564+1
 .c51db
     lda l55fb                                                         ; 51db: ad fb 55    ..U
     sta zero_data+1,x                                                 ; 51de: 9d 61 57    .aW
-    sta l0077                                                         ; 51e1: 85 77       .w
+    sta sprite_pixel_y_lo                                             ; 51e1: 85 77       .w
     clc                                                               ; 51e3: 18          .
     rts                                                               ; 51e4: 60          `
 
@@ -1729,7 +1729,7 @@ l3565 = loop_c3564+1
 .c51f5
     lda l55fa                                                         ; 51f5: ad fa 55    ..U
     sta zero_data+1,x                                                 ; 51f8: 9d 61 57    .aW
-    sta l0077                                                         ; 51fb: 85 77       .w
+    sta sprite_pixel_y_lo                                             ; 51fb: 85 77       .w
     clc                                                               ; 51fd: 18          .
     rts                                                               ; 51fe: 60          `
 
@@ -1951,7 +1951,7 @@ l3565 = loop_c3564+1
     sta l007e                                                         ; 5319: 85 7e       .~
     and #&3f ; '?'                                                    ; 531b: 29 3f       )?
     asl a                                                             ; 531d: 0a          .
-    sta l0076                                                         ; 531e: 85 76       .v
+    sta sprite_pixel_x_lo                                             ; 531e: 85 76       .v
     lda zero_data,y                                                   ; 5320: b9 60 57    .`W
     cmp #&fe                                                          ; 5323: c9 fe       ..
     bcs c537e                                                         ; 5325: b0 57       .W
@@ -1992,7 +1992,7 @@ l3565 = loop_c3564+1
     tax                                                               ; 535e: aa          .
 ; &535f referenced 1 time by &53f8
 .c535f
-    ldy l0076                                                         ; 535f: a4 76       .v
+    ldy sprite_pixel_x_lo                                             ; 535f: a4 76       .v
     lda sprite_ptr+1                                                  ; 5361: a5 71       .q
     sta ri_a,y                                                        ; 5363: 99 04 04    ...
     lda sprite_ptr                                                    ; 5366: a5 70       .p
@@ -2433,7 +2433,7 @@ l3565 = loop_c3564+1
 ;     screen_ptr+1:                                    10
 ;     l007e:                                           10
 ;     sprite_screen_and_data_addrs+screen_addr_hi:      9
-;     l0076:                                            8
+;     sprite_pixel_x_lo:                                8
 ;     sprite_chunks:                                    7
 ;     cli_rts:                                          7
 ;     u_subroutine_rts:                                 7
@@ -2444,10 +2444,10 @@ l3565 = loop_c3564+1
 ;     sprite_screen_and_data_addrs+screen_addr_lo:      6
 ;     sprite_screen_and_data_addrs+sprite_addr_hi:      6
 ;     sprite_screen_and_data_addrs+sprite_addr_lo:      6
-;     l0077:                                            5
-;     l0078:                                            5
+;     sprite_pixel_y_lo:                                5
+;     sprite_pixel_x_hi:                                5
 ;     c5164:                                            5
-;     l0079:                                            4
+;     sprite_pixel_y_hi:                                4
 ;     ri_w:                                             4
 ;     ri_x:                                             4
 ;     zero_data_end:                                    4
@@ -2604,10 +2604,6 @@ l3565 = loop_c3564+1
 ;     l0072
 ;     l0073
 ;     l0074
-;     l0076
-;     l0077
-;     l0078
-;     l0079
 ;     l007c
 ;     l007d
 ;     l007e
