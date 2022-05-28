@@ -4,6 +4,10 @@ import acorn
 
 acorn.bbc()
 label(0x18, "basic_page_msb")
+label(0x404, "ri_a")
+expr_label(0x405, "ri_a+1")
+label(0x408, "ri_b")
+expr_label(0x409, "ri_b+1")
 label(0x45c, "ri_w")
 label(0x460, "ri_x")
 label(0x464, "ri_y")
@@ -69,6 +73,9 @@ comment(0x4f3c, "zero_data,x > zero_data,y (TODO: assuming unsigned)")
 comment(0x4f4f, "zero_data+1,x > zero_data+1,y (TODO: assuming unsigned)")
 comment(0x4f5b, "always branch", inline=True)
 label(0x4f83, "q_subroutine_set_ri_x_y_z_to_something_and_rts")
+
+# s_subroutine
+label(0x5025, "s_subroutine_rts")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
