@@ -35,8 +35,10 @@ label(0x54dc+0x18, "initial_qrstuv_values_end")
 expr(0x54a6, "initial_qrstuv_values-1")
 for i in range(6):
     label(0x54dc+i*4, "initial_%s_value" % chr(ord("q")+i))
-    byte(0x54dc+i*4, 4)
+    word(0x54dc+i*4, 2)
 label(0x54dc+2*4, "initial_s_value")
+entry(0x5033, "s_subroutine") # TODO: rename
+expr(0x54dc+2*4, "s_subroutine")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at unpacked_data[n*2] and zero_data[n] is related.
 comment(0x54ae, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
