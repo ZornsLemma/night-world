@@ -82,6 +82,7 @@
   820DEFPROCone_off_init:CALLV%:os%=&FFEE:PROCcc:DIMad%(4),ed%(6),tc%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
   840DEFPROCf:VDU28,0,26,19,9,17,128,12,26:ENDPROC
+
   850DEFPROCdraw_room(b1%):fb%=&3508+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
   851REM TODO: The following implies &70-&73 contain valuable persistent state.
   852REM TODO: We could preserve them more efficiently using foo%=!&70:!&70=foo%
@@ -110,6 +111,7 @@
  1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLS%:X%=17:CALLU%:IFday_night%=1:Y%=2:CALLS%
  1090IFlogical_room%=5ANDtc%(3)=0:PROCz(18,24,17)
  1100ENDPROC
+
  1110DEFPROCk:IFlogical_room%=10ANDlee_y_os%<228:PROCes:ge%=1:ENDPROC
  1120W%=5:Y%=2:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
  1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
@@ -134,8 +136,8 @@
  1310DATA52,3,32,3,80,3,0,0,80,3,88,3,80,3,0,0,52,2,32,2,80,2,80,2,80,2,88,2,80,2,0,0,32,3,32,3,60,3,0,0,60,3,68,3,60,3,0,0,60,2,32,2,60,2,60,2,60,2,68,2,60,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
  1320DEFPROCnew_game_init2:c1%=7:c2%=6:c3%=1:PROCreset_note_count
  1330day_night%=0:score%=0:a%=0:logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
- 1331REPEATREADn1%,n2%:IFn1%=0:PROCw(220):GOTO1350
- 1340SOUND1,1,n1%,n2%:SOUND2,1,n1%,n2%:SOUND3,1,n1%,n2%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
+ 1331REPEATREADnote_pitch%,note_duration%:IFnote_pitch%=0:PROCw(220):GOTO1350
+ 1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1:ex%=16:ec%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:j%=0:xm%=0:sd%=10:di%=10:mx%=0:VDU28,3,30,16,28,17,128,12,26:dc%=40:cr%=0
  1360PROCreset_note_count:phys_room%=12:ge%=0:W%=6:X%=24:CALLS%:CALLU%:js%=20:jt%=40:uw%=0:ng%=0:m%=0:a%=3:VDU17,0,17,131:PRINTTAB(ex%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
  1370PROCso:IFs$="Q":*FX210,1
