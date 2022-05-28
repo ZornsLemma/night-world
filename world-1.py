@@ -98,6 +98,8 @@ label(0x5700, "packed_data")
 #label(0x5700+0x30*2, "packed_data_end")
 label(0x5600, "unpacked_data")
 expr_label(0x5601, "unpacked_data+1")
+expr_label(0x5602, "unpacked_data+2")
+expr_label(0x5603, "unpacked_data+3")
 label(0x5600+0x30*4, "unpacked_data_end")
 label(0x5760, "zero_data") # TODO: very poor name, I think
 expr_label(0x5761, "zero_data+1")

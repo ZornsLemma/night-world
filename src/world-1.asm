@@ -1381,9 +1381,9 @@ l3565 = loop_c3564+1
     sta l0073                                                         ; 50a8: 85 73       .s
     asl a                                                             ; 50aa: 0a          .
     adc l0073                                                         ; 50ab: 65 73       es
-    adc l5603,x                                                       ; 50ad: 7d 03 56    }.V
+    adc unpacked_data+3,x                                             ; 50ad: 7d 03 56    }.V
     sta l0070                                                         ; 50b0: 85 70       .p
-    lda l5602,x                                                       ; 50b2: bd 02 56    ..V
+    lda unpacked_data+2,x                                             ; 50b2: bd 02 56    ..V
     adc #0                                                            ; 50b5: 69 00       i.
     sta l0071                                                         ; 50b7: 85 71       .q
     lda ri_y                                                          ; 50b9: ad 64 04    .d.
@@ -1400,9 +1400,9 @@ l3565 = loop_c3564+1
     sta l0073                                                         ; 50cc: 85 73       .s
     asl a                                                             ; 50ce: 0a          .
     adc l0073                                                         ; 50cf: 65 73       es
-    adc l5603,x                                                       ; 50d1: 7d 03 56    }.V
+    adc unpacked_data+3,x                                             ; 50d1: 7d 03 56    }.V
     sta l007e                                                         ; 50d4: 85 7e       .~
-    lda l5602,x                                                       ; 50d6: bd 02 56    ..V
+    lda unpacked_data+2,x                                             ; 50d6: bd 02 56    ..V
     adc #0                                                            ; 50d9: 69 00       i.
     sta l007f                                                         ; 50db: 85 7f       ..
     clc                                                               ; 50dd: 18          .
@@ -1433,9 +1433,9 @@ l3565 = loop_c3564+1
     sta l0073                                                         ; 50fe: 85 73       .s
     asl a                                                             ; 5100: 0a          .
     adc l0073                                                         ; 5101: 65 73       es
-    adc l5603,x                                                       ; 5103: 7d 03 56    }.V
+    adc unpacked_data+3,x                                             ; 5103: 7d 03 56    }.V
     sta l0070                                                         ; 5106: 85 70       .p
-    lda l5602,x                                                       ; 5108: bd 02 56    ..V
+    lda unpacked_data+2,x                                             ; 5108: bd 02 56    ..V
     adc #0                                                            ; 510b: 69 00       i.
     sta l0071                                                         ; 510d: 85 71       .q
     lda #0                                                            ; 510f: a9 00       ..
@@ -1977,9 +1977,9 @@ l3565 = loop_c3564+1
     asl a                                                             ; 542f: 0a          .
     adc u_subroutine_zero_data_y_and_3_times_16                       ; 5430: 65 73       es
     sta u_subroutine_zero_data_y_and_3_times_48                       ; 5432: 85 72       .r
-    adc l5603,x                                                       ; 5434: 7d 03 56    }.V
+    adc unpacked_data+3,x                                             ; 5434: 7d 03 56    }.V
     sta l007e                                                         ; 5437: 85 7e       .~
-    lda l5602,x                                                       ; 5439: bd 02 56    ..V
+    lda unpacked_data+2,x                                             ; 5439: bd 02 56    ..V
     adc #0                                                            ; 543c: 69 00       i.
     sta l007f                                                         ; 543e: 85 7f       ..
     lda ri_x                                                          ; 5440: ad 60 04    .`.
@@ -1989,11 +1989,11 @@ l3565 = loop_c3564+1
     tay                                                               ; 5447: a8          .
     lda u_subroutine_zero_data_y_and_3_times_48                       ; 5448: a5 72       .r
     adc l5701,y                                                       ; 544a: 79 01 57    y.W
-    sta l5603,x                                                       ; 544d: 9d 03 56    ..V
+    sta unpacked_data+3,x                                             ; 544d: 9d 03 56    ..V
     sta l0070                                                         ; 5450: 85 70       .p
     lda packed_data,y                                                 ; 5452: b9 00 57    ..W
     adc #0                                                            ; 5455: 69 00       i.
-    sta l5602,x                                                       ; 5457: 9d 02 56    ..V
+    sta unpacked_data+2,x                                             ; 5457: 9d 02 56    ..V
     sta l0071                                                         ; 545a: 85 71       .q
     jmp c5251                                                         ; 545c: 4c 51 52    LQR
 
@@ -2145,10 +2145,8 @@ l3565 = loop_c3564+1
 ; &5601 referenced 9 times by &4f10, &5091, &509d, &50ee, &5114, &5329, &541b, &5463, &54ce
     equb 0                                                            ; 5601: 00          .
 ; &5602 referenced 6 times by &50b2, &50d6, &5108, &5439, &5457, &54ba
-.l5602
     equb &40                                                          ; 5602: 40          @
 ; &5603 referenced 6 times by &50ad, &50d1, &5103, &5434, &544d, &54c0
-.l5603
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 5603: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 560f: 00 00 00... ...
     equb   0,   0,   0, &40,   0,   0,   0, &40, &c0,   0,   0, &41   ; 561b: 00 00 00... ...
@@ -2247,8 +2245,8 @@ l3565 = loop_c3564+1
 ;     ri_y:                                             6
 ;     zero_ri_x_y_and_rts:                              6
 ;     unpacked_data:                                    6
-;     l5602:                                            6
-;     l5603:                                            6
+;     unpacked_data+2:                                  6
+;     unpacked_data+3:                                  6
 ;     l0077:                                            5
 ;     l0078:                                            5
 ;     c5164:                                            5
@@ -2442,8 +2440,6 @@ l3565 = loop_c3564+1
 ;     l55f8
 ;     l55fa
 ;     l55fb
-;     l5602
-;     l5603
 ;     l56c1
 ;     l5701
 ;     loop_c3564
