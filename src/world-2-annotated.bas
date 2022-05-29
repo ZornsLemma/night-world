@@ -11,26 +11,19 @@
 
   110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
 
-  112REM TODO: As with g4/g5 below, PROC4/PROC5 are the only users of A%/B%/C%/D% and
-  113REM use them to save/restore some values. Ahah(-ish), note that this logic does
-  114REM kind of tie up with the code at &511C in world-1.asm where each sprite number
-  115REM accesses a different adjacent pair of resident integer variables - and in
-  116REM particular sprite 9 uses A%/B%, 10 uses C%/D%, similarly for 11 and 12.
+  115REM Note for the following procedures that different sprite numbers have their position
+  116REM managed via different resident integer variables pairs.
 
-  120DEFPROC4:IFday_night%=1:PROCg4:ENDPROC ELSEIFlee_direction%=9:A%=lee_x_os%:B%=lee_y_os%:lee_sprite_num%=9:ENDPROC
+  120DEFPROCset_lee_sprite_from_lee_xy_os:IFday_night%=1:PROCset_lee_sprite_from_lee_xy_os_gargoyle:ENDPROC ELSEIFlee_direction%=9:A%=lee_x_os%:B%=lee_y_os%:lee_sprite_num%=9:ENDPROC
   130C%=lee_x_os%:D%=lee_y_os%:lee_sprite_num%=10:ENDPROC
 
-  140DEFPROC5:IFday_night%=1:PROCg5:ENDPROC ELSEIFlee_direction%=9:lee_x_os%=A%:lee_y_os%=B%:lee_sprite_num%=9:ENDPROC
+  140DEFPROCset_lee_xy_os_from_lee_sprite:IFday_night%=1:PROCset_lee_xy_os_from_lee_sprite_gargoyle:ENDPROC ELSEIFlee_direction%=9:lee_x_os%=A%:lee_y_os%=B%:lee_sprite_num%=9:ENDPROC
   150lee_x_os%=C%:lee_y_os%=D%:lee_sprite_num%=10:ENDPROC
 
-  152REM TODO: Not sure what's going on yet, but note that PROCg4 and PROCg5 are the
-  153REM only users of E%/F%/G%/H% and one stores things in those and the other
-  154REM retrieves the old values.
-
-  160DEFPROCg4:IFlee_direction%=9:E%=lee_x_os%:F%=lee_y_os%:lee_sprite_num%=11:ENDPROC
+  160DEFPROCset_lee_sprite_from_lee_xy_os_gargoyle:IFlee_direction%=9:E%=lee_x_os%:F%=lee_y_os%:lee_sprite_num%=11:ENDPROC
   170G%=lee_x_os%:H%=lee_y_os%:lee_sprite_num%=12:ENDPROC
 
-  180DEFPROCg5:IFlee_direction%=9:lee_x_os%=E%:lee_y_os%=F%:lee_sprite_num%=11:ENDPROC
+  180DEFPROCset_lee_xy_os_from_lee_sprite_gargoyle:IFlee_direction%=9:lee_x_os%=E%:lee_y_os%=F%:lee_sprite_num%=11:ENDPROC
   190lee_x_os%=G%:lee_y_os%=H%:lee_sprite_num%=12:ENDPROC
 
   198REM TODO: The name is a guess here; this is doing some sort of sprite plot operation on the
@@ -44,17 +37,17 @@
   250PROCdraw_room(logical_room%):ENDPROC
 
   260DEFPROCplay
-  270GCOL0,0:Y%=0:PROC4
+  270GCOL0,0:Y%=0:PROCset_lee_sprite_from_lee_xy_os
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
   281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
   282REM when he's falling *after* a jump has finished in mid-air, and that all other
   283REM falls are straight down.
-  290PROC5:W%=lee_sprite_num%
+  290PROCset_lee_xy_os_from_lee_sprite:W%=lee_sprite_num%
   291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:falling_time%=falling_time%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
-  330PROC4:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
+  330PROCset_lee_sprite_from_lee_xy_os:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy
@@ -92,8 +85,8 @@
 
   540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
   550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROClee_sprite_reset:K%=192
-  551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCg4:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
-  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROC4:PROCrestore_fleece:ENDPROC
+  551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os_gargoyle:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
+  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
 
