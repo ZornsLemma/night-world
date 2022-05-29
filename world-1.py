@@ -123,6 +123,7 @@ label(0x52bb, "cli_rts")
 # u_subroutine
 comment(0x53fb, "Entered with sprite number in W%. If X%=0, returns with the sprite's resident integer variable pair (see comment at get_sprite_details) updated with the sprite's OS coordinates. If X%<>0, TODO: what?")
 expr(0x5401, "max_sprite_num+1") # TODO: DO THIS ELSEWHERE &31 APPEARS
+expr(0x540c, "max_sprite_num+1")
 label(0x53eb, "u_subroutine_rts")
 label(0x5498, "u_subroutine_rts2")
 label(0x545f, "u_subroutine_ri_x_0")
