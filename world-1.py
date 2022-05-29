@@ -130,14 +130,14 @@ expr(0x5449, "u_subroutine_zero_data_y_and_3_times_48")
 
 # Sprite core code.
 # TODO: This is probably a good thing to focus on now - even a first glance at this makes it a lot more obvious what some other code is setting up in the zero page locations, and working back from this sprite core is probably helpful.
-comment(0x51ff, "TODO: This seems to be eoring sprite data pointed to by l0070 which is aligned to an eight-byte screen character cell pointed to by l007a.\n\nThe basic building block seems to be a 3 byte wide chunk of data (i.e. three character cells horizontally); there is scope for doing multiples of this by setting l0075 to the number of chunks, but it isn't currently clear where/if this gets set.\n\nHaving the three bits of the screen address for the 24th byte of a chunk all set seems to trigger some extra processing, but it's not yet clear when/why this would happen; the extra processing seems to be related to moving onto the next screen row, it's the triggering event that seems a bit mysterious.\n\nCallers and this code seem very strict about having carry clear at all times, but I think this is just to save having to do it immediately before some adc instructions, which is a little unorthodox.")
+comment(0x51ff, "Sprite plot routine. EORs a 3-byte (12 pixel) wide sprite onto the screen, writing data starting at the address pointed to by screen_ptr and taking sprite data from the address pointed to by sprite_ptr. There's provision for wrapping around onto next screen character row as required and I think in principle sprites can be arbitrarily many screen character rows tall; it looks as though l0075 is used to control this, although in practice it is probably always 1 as I can't see any entry point which would change this. (The caller will have adjusted the start screen address to allow for arbitrary Y pixel positioning; the sprite data itself is not adjusted - I think this is obvious really but it confused me for a while.)\n\nThere seems to be a slightly odd desire to keep carry clear all the time instead of just clearing it before we need it to be clear, but I may be missing something.")
 label(0x51ff, "sprite_core")
-comment(0x5239, "TODO: Can we ever take this branch? sprite_core sets l0075 to 1. Is there another entry point?")
 label(0x5203, "sprite_core_outer_loop")
 label(0x5205, "sprite_core_inner_loop")
 label(0x524c, "sprite_core_low_byte_wrapped")
 label(0x522b, "sprite_core_low_byte_wrap_handled")
 label(0x5239, "sprite_core_no_carry")
+comment(0x524a, "always branch", inline=True)
 comment(0x524f, "always branch", inline=True)
 constant(320, "bytes_per_screen_line")
 expr(0x5241, "<(bytes_per_screen_line-7)")
@@ -145,13 +145,15 @@ expr(0x5246, ">(bytes_per_screen_line-7)")
 label(0x5227, "sprite_core_screen_ptr_updated")
 label(0x523e, "sprite_core_next_row")
 blank(0x5251)
-comment(0x5251, "TODO: This looks like an 'alternate version' of sprite_core?")
+comment(0x5251, "TODO: This looks like an 'alternate version' of sprite_core? I haven't been over the code properly yet, but I suspect it is a 'erase at old location, replot immediately at new location' variant, to handle moving sprites more efficiently.")
 # TODO: Provisionally assuming these zp locations are single-use
 label(0x7a, "screen_ptr")
 expr_label(0x7b, "screen_ptr+1")
 label(0x70, "sprite_ptr")
 expr_label(0x71, "sprite_ptr+1")
-label(0x75, "sprite_chunks") # TODO: poor name
+constant(0x75, "sprite_y_offset_within_row")
+expr(0x5065, "sprite_y_offset_within_row")
+expr(0x506b, "sprite_y_offset_within_row")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at sprite_screen_and_data_addrs[n*2] and zero_data[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")

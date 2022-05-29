@@ -4,6 +4,7 @@ q_subroutine_ri_y_minus_1_times_2 = &70
 u_subroutine_zero_data_y_and_3_times_16 = &73
 u_subroutine_zero_data_y_and_3_times_48 = &72
 bytes_per_screen_line = &0140
+sprite_y_offset_within_row = &75
 screen_addr_lo = &00
 screen_addr_hi = &01
 sprite_addr_hi = &02
@@ -15,7 +16,7 @@ sprite_ptr = &0070
 l0072 = &0072
 l0073 = &0073
 l0074 = &0074
-sprite_chunks = &0075
+l0075 = &0075
 sprite_pixel_x_lo = &0076
 sprite_pixel_y_lo = &0077
 sprite_pixel_x_hi = &0078
@@ -1434,10 +1435,10 @@ l3565 = loop_c3564+1
     txa                                                               ; 505f: 8a          .
     and #7                                                            ; 5060: 29 07       ).
     eor #7                                                            ; 5062: 49 07       I.
-    sta sprite_chunks                                                 ; 5064: 85 75       .u
+    sta sprite_y_offset_within_row                                    ; 5064: 85 75       .u
     lda screen_y_addr_table,y                                         ; 5066: b9 c0 56    ..V
     clc                                                               ; 5069: 18          .
-    adc sprite_chunks                                                 ; 506a: 65 75       eu
+    adc sprite_y_offset_within_row                                    ; 506a: 65 75       eu
     sta screen_ptr                                                    ; 506c: 85 7a       .z
     lda screen_y_addr_table+1,y                                       ; 506e: b9 c1 56    ..V
     adc #0                                                            ; 5071: 69 00       i.
@@ -1603,7 +1604,7 @@ l3565 = loop_c3564+1
     asl a                                                             ; 5125: 0a          .
     and #&38 ; '8'                                                    ; 5126: 29 38       )8
     tay                                                               ; 5128: a8          .
-    sty sprite_chunks                                                 ; 5129: 84 75       .u
+    sty l0075                                                         ; 5129: 84 75       .u
 ; Set l0076 (low) and l0078 (high) to the first resident integer
 ; variable for this sprite divided by 8, which converts from OS
 ; coordinates (0-1279) to pixel coordinates (0-319). Similarly, divide
@@ -1743,24 +1744,24 @@ l3565 = loop_c3564+1
     clc                                                               ; 51fd: 18          .
     rts                                                               ; 51fe: 60          `
 
-; TODO: This seems to be eoring sprite data pointed to by l0070 which
-; is aligned to an eight-byte screen character cell pointed to by
-; l007a.  The basic building block seems to be a 3 byte wide chunk of
-; data (i.e. three character cells horizontally); there is scope for
-; doing multiples of this by setting l0075 to the number of chunks,
-; but it isn't currently clear where/if this gets set.  Having the
-; three bits of the screen address for the 24th byte of a chunk all
-; set seems to trigger some extra processing, but it's not yet clear
-; when/why this would happen; the extra processing seems to be related
-; to moving onto the next screen row, it's the triggering event that
-; seems a bit mysterious.  Callers and this code seem very strict
-; about having carry clear at all times, but I think this is just to
-; save having to do it immediately before some adc instructions, which
-; is a little unorthodox.
+; Sprite plot routine. EORs a 3-byte (12 pixel) wide sprite onto the
+; screen, writing data starting at the address pointed to by
+; screen_ptr and taking sprite data from the address pointed to by
+; sprite_ptr. There's provision for wrapping around onto next screen
+; character row as required and I think in principle sprites can be
+; arbitrarily many screen character rows tall; it looks as though
+; l0075 is used to control this, although in practice it is probably
+; always 1 as I can't see any entry point which would change this.
+; (The caller will have adjusted the start screen address to allow for
+; arbitrary Y pixel positioning; the sprite data itself is not
+; adjusted - I think this is obvious really but it confused me for a
+; while.)  There seems to be a slightly odd desire to keep carry clear
+; all the time instead of just clearing it before we need it to be
+; clear, but I may be missing something.
 ; &51ff referenced 2 times by &50e2, &5118
 .sprite_core
     lda #1                                                            ; 51ff: a9 01       ..
-    sta sprite_chunks                                                 ; 5201: 85 75       .u
+    sta l0075                                                         ; 5201: 85 75       .u
 ; &5203 referenced 1 time by &523b
 .sprite_core_outer_loop
     ldx #8                                                            ; 5203: a2 08       ..
@@ -1797,11 +1798,9 @@ l3565 = loop_c3564+1
     bcc sprite_core_no_carry                                          ; 5234: 90 03       ..
     inc sprite_ptr+1                                                  ; 5236: e6 71       .q
     clc                                                               ; 5238: 18          .
-; TODO: Can we ever take this branch? sprite_core sets l0075 to 1. Is
-; there another entry point?
 ; &5239 referenced 1 time by &5234
 .sprite_core_no_carry
-    dec sprite_chunks                                                 ; 5239: c6 75       .u
+    dec l0075                                                         ; 5239: c6 75       .u
     beq sprite_core_outer_loop                                        ; 523b: f0 c6       ..
     rts                                                               ; 523d: 60          `
 
@@ -1813,18 +1812,21 @@ l3565 = loop_c3564+1
     lda screen_ptr+1                                                  ; 5244: a5 7b       .{
     adc #1                                                            ; 5246: 69 01       i.
     sta screen_ptr+1                                                  ; 5248: 85 7b       .{
-    bne sprite_core_screen_ptr_updated                                ; 524a: d0 db       ..
+    bne sprite_core_screen_ptr_updated                                ; 524a: d0 db       ..             ; always branch
 ; &524c referenced 1 time by &5229
 .sprite_core_low_byte_wrapped
     inc sprite_ptr+1                                                  ; 524c: e6 71       .q
     clc                                                               ; 524e: 18          .
     bne sprite_core_low_byte_wrap_handled                             ; 524f: d0 da       ..             ; always branch
 
-; TODO: This looks like an 'alternate version' of sprite_core?
+; TODO: This looks like an 'alternate version' of sprite_core? I
+; haven't been over the code properly yet, but I suspect it is a
+; 'erase at old location, replot immediately at new location' variant,
+; to handle moving sprites more efficiently.
 ; &5251 referenced 2 times by &50de, &545c
 .c5251
     lda #1                                                            ; 5251: a9 01       ..
-    sta sprite_chunks                                                 ; 5253: 85 75       .u
+    sta l0075                                                         ; 5253: 85 75       .u
     sei                                                               ; 5255: 78          x
 ; &5256 referenced 1 time by &52b9
 .c5256
@@ -1892,7 +1894,7 @@ l3565 = loop_c3564+1
     clc                                                               ; 52b6: 18          .
 ; &52b7 referenced 1 time by &52b2
 .c52b7
-    dec sprite_chunks                                                 ; 52b7: c6 75       .u
+    dec l0075                                                         ; 52b7: c6 75       .u
     beq c5256                                                         ; 52b9: f0 9b       ..
 ; &52bb referenced 7 times by &52e6, &52ea, &52f3, &52f7, &52fb, &52ff, &532c
 .cli_rts
@@ -2457,7 +2459,7 @@ l3565 = loop_c3564+1
 ;     l007e:                                           10
 ;     sprite_screen_and_data_addrs+screen_addr_hi:      9
 ;     sprite_pixel_x_lo:                                8
-;     sprite_chunks:                                    7
+;     l0075:                                            7
 ;     cli_rts:                                          7
 ;     u_subroutine_rts:                                 7
 ;     l007d:                                            6
@@ -2627,6 +2629,7 @@ l3565 = loop_c3564+1
 ;     l0072
 ;     l0073
 ;     l0074
+;     l0075
 ;     l007c
 ;     l007d
 ;     l007e
@@ -2695,6 +2698,7 @@ l3565 = loop_c3564+1
     assert s_subroutine == &5033
     assert sprite_ref_addrs_be+0 == &5700
     assert sprite_ref_addrs_be+1 == &5701
+    assert sprite_y_offset_within_row == &75
     assert t_subroutine == &52e3
     assert u_subroutine == &53fb
     assert u_subroutine_zero_data_y_and_3_times_16 == &73
