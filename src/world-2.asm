@@ -63,6 +63,7 @@ endif
     ldy #&0d                                                          ; 331b: a0 0d       ..
     jsr osbyte                                                        ; 331d: 20 f4 ff     ..
     brk                                                               ; 3320: 00          .
+; TODO: This brk is "incomplete", should we extend it to do "brk:equb 0, "Foo", 0" to be safe?
 .pydis_end
 
 MAKE_IMAGE =? FALSE
