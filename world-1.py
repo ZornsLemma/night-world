@@ -12,6 +12,7 @@ label(0x45c, "ri_w")
 label(0x460, "ri_x")
 label(0x464, "ri_y")
 label(0x468, "ri_z")
+constant(0x30, "max_sprite_num")
 
 load(0x1f00, "orig/world-1", "630948d4685cb15e7485103744ff95f7")
 entry(0x3560, "start")
@@ -89,8 +90,8 @@ expr(0x4f5e, "q_subroutine_ri_y_minus_1_times_2")
 label(0x4f28, "q_subroutine_y_loop")
 comment(0x4f28, "TODO: This is roughly a loop over Y, bumping Y by 2 each time, although the end condition is complex - note that because Y temporarily gets copied into A for the bump by 2, the code at &4f5d has the *original* value of Y when it does cpy")
 label(0x4f5d, "q_subroutine_y_loop_test_and_bump")
-comment(0x4f3c, "zero_data,x > zero_data,y (TODO: assuming unsigned)")
-comment(0x4f4f, "zero_data+1,x > zero_data+1,y (TODO: assuming unsigned)")
+comment(0x4f3c, "sprite_pixel_coord_table_xy,x > sprite_pixel_coord_table_xy,y (TODO: assuming unsigned)")
+comment(0x4f4f, "sprite_pixel_coord_table_xy+1,x > sprite_pixel_coord_table_xy+1,y (TODO: assuming unsigned)")
 comment(0x4f5b, "always branch", inline=True)
 label(0x4f83, "q_subroutine_set_ri_x_y_z_to_something_and_rts")
 
@@ -120,15 +121,17 @@ label(0x79, "sprite_pixel_y_hi")
 label(0x52bb, "cli_rts")
 
 # u_subroutine
+comment(0x53fb, "Entered with sprite number in W%. If X%=0, returns with the sprite's resident integer variable pair (see comment at get_sprite_details) updated with the sprite's OS coordinates. If X%<>0, TODO: what?")
+expr(0x5401, "max_sprite_num+1") # TODO: DO THIS ELSEWHERE &31 APPEARS
 label(0x53eb, "u_subroutine_rts")
 label(0x5498, "u_subroutine_rts2")
 label(0x545f, "u_subroutine_ri_x_0")
-constant(0x73, "u_subroutine_zero_data_y_and_3_times_16")
-expr(0x542e, "u_subroutine_zero_data_y_and_3_times_16")
-expr(0x5431, "u_subroutine_zero_data_y_and_3_times_16")
-constant(0x72, "u_subroutine_zero_data_y_and_3_times_48")
-expr(0x5433, "u_subroutine_zero_data_y_and_3_times_48")
-expr(0x5449, "u_subroutine_zero_data_y_and_3_times_48")
+constant(0x73, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_16")
+expr(0x542e, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_16")
+expr(0x5431, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_16")
+constant(0x72, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_48")
+expr(0x5433, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_48")
+expr(0x5449, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_48")
 
 # Sprite core code.
 # TODO: This is probably a good thing to focus on now - even a first glance at this makes it a lot more obvious what some other code is setting up in the zero page locations, and working back from this sprite core is probably helpful.
@@ -158,7 +161,7 @@ expr(0x5065, "sprite_y_offset_within_row")
 expr(0x506b, "sprite_y_offset_within_row")
 label(0x5251, "sprite_core_moving")
 
-# TODO: What "data" is this, though? There's presumably a suggestion that the data at sprite_screen_and_data_addrs[n*2] and zero_data[n] is related.
+# TODO: What "data" is this, though? There's presumably a suggestion that the data at sprite_screen_and_data_addrs[n*2] and sprite_pixel_coord_table_xy[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
 comment(0x5700, "This appears to be a big-endian table of start addresses for the game sprites. TODO: This is inspired guesswork; note that the copy of this at sprite_screen_and_data_addrs+{2,3] does get tweaked slightly.")
 label(0x5700, "sprite_ref_addrs_be")
@@ -190,15 +193,16 @@ label(screen_y_addr_table_addr, "screen_y_addr_table") # TODO: poor name!
 expr_label(screen_y_addr_table_addr+1, "screen_y_addr_table+1")
 for i in range(32):
     word(screen_y_addr_table_addr+i*2)
-label(0x5760, "zero_data") # TODO: very poor name, I think
-expr_label(0x5761, "zero_data+1")
-label(0x5760+0x30*2, "zero_data_end")
+comment(0x5760, "Table of (pixel X coordinate, pixel Y coordinate) sprite positions, two bytes per sprite")
+label(0x5760, "sprite_pixel_coord_table_xy")
+expr_label(0x5761, "sprite_pixel_coord_table_xy+1")
+label(0x5760+0x30*2, "sprite_pixel_coord_table_xy_end")
 expr(0x54b8, "sprite_ref_addrs_be+0")
 #expr(0x54bb, "sprite_screen_and_data_addrs+2")
 expr(0x54be, "sprite_ref_addrs_be+1")
 #expr(0x54c1, "sprite_screen_and_data_addrs+3")
-expr(0x54c6, "zero_data+0")
-expr(0x54c9, "zero_data+1")
+expr(0x54c6, "sprite_pixel_coord_table_xy+0")
+expr(0x54c9, "sprite_pixel_coord_table_xy+1")
 #expr(0x54cb, "sprite_screen_and_data_addrs+0")
 #expr(0x54cf, "sprite_screen_and_data_addrs+1")
 
