@@ -33,7 +33,9 @@
   180DEFPROCg5:IFlee_direction%=9:lee_x_os%=E%:lee_y_os%=F%:lee_sprite_num%=11:ENDPROC
   190lee_x_os%=G%:lee_y_os%=H%:lee_sprite_num%=12:ENDPROC
 
-  200DEFPROCsr:Y%=2:FORn%=9TO12:W%=n%:CALLS%:NEXT:Y%=0:ENDPROC
+  198REM TODO: The name is a guess here; this is doing some sort of sprite plot operation on the
+  199REM four player sprites (human/gargoyle, left/right) but I don't know what Y%=2 means yet.
+  200DEFPROClee_sprite_reset:Y%=2:FORn%=9TO12:W%=n%:CALLS%:NEXT:Y%=0:ENDPROC
 
   210DEFPROCdraw_current_room:PROCclear_room
   220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
@@ -65,11 +67,11 @@
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
-  430IFlee_direction%=9:lee_direction%=10:PROCsr:W%=10:IFday_night%=1:W%=12
+  430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=10:IFday_night%=1:W%=12
   440delta_x%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
-  460IFlee_direction%=10:lee_direction%=9:PROCsr:W%=9:IFday_night%=1:W%=11
+  460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=9:IFday_night%=1:W%=11
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
@@ -82,7 +84,7 @@
   530ENDPROC
 
   540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
-  550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROCsr:K%=192
+  550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROClee_sprite_reset:K%=192
   551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCg4:full_speed_jump_time_limit%=45:max_jump_time%=90:PROCmu:ENDPROC
   560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROC4:PROCvx:ENDPROC
 
@@ -91,20 +93,20 @@
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
-  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=2:W%=5:CALLS%:PROCsr:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=2:W%=5:CALLS%:PROClee_sprite_reset:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   585REM If player is in room 10 (Ed's room J) and in the top half of the screen,
   586REM warp to room 9 (Ed's room N) - the fleece room.
-  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=2:W%=5:CALLS%:PROCsr:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
+  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=2:W%=5:CALLS%:PROClee_sprite_reset:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
   595REM If player is in room 13 at a specific point on the right edge, warp to
   596REM room 7 (Ed's room H).
-  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=2:W%=5:CALLS%:PROCsr:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=2:W%=5:CALLS%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM force specific colours and if (TODO: what does this mean?) X%=7, show the fleece.
   607REM TODO: I think this shows the fleece anyway.
   610IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=7:PROCshow_fleece
   620ENDPROC
 
-  630DEFPROCshow_fleece:Y%=2:W%=6:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:ng%=1:PROCsr:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
+  630DEFPROCshow_fleece:Y%=2:W%=6:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:ng%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
 
   650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
