@@ -139,7 +139,7 @@
   805REM TODO: The next line appears to be unreachable.
   810COLOUR3:FORn%=28TO30:PRINTTAB(1,n%)STRING$(2,CHR$(259-n%));TAB(17,n%)STRING$(2,CHR$(259-n%)):NEXT:ENDPROC
 
-  820DEFPROCone_off_init:CALLV%:os%=&FFEE:PROCcc:DIMad%(4),ed%(6),tc%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
+  820DEFPROCone_off_init:CALLV%:os%=&FFEE:PROCcc:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
   840DEFPROCclear_room:VDU28,0,26,19,9,17,128,12,26:ENDPROC
@@ -157,20 +157,20 @@
   930IFroom_type%=3:X%=16:CALLU%
   940IFroom_type%=4:X%=22:CALLU%
   950IFroom_type%=5:Y%=2:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=19:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=27:CALLU%
-  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFtc%(5)=0:PROCplot_and_maxplutz_sprite_7(2,14,18)
+  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCplot_and_maxplutz_sprite_7(2,14,18)
   970IFlogical_room%=6:PROCplot_and_maxplutz_sprite_7(18,15,21):PROCplot_and_maxplutz_sprite_7(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
  1000IFlogical_room%=13ANDscore%=60:PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
- 1010IFlogical_room%=1:PROCplot_and_maxplutz_sprite_7(9,12,23):IFtc%(1)=0:PROCplot_and_maxplutz_sprite_7(2,12,17)
- 1020IFlogical_room%=7:PROCplot_and_maxplutz_sprite_7(6,21,23):IFtc%(2)=0:PROCplot_and_maxplutz_sprite_7(2,11,17)
+ 1010IFlogical_room%=1:PROCplot_and_maxplutz_sprite_7(9,12,23):IFitem_collected%(1)=0:PROCplot_and_maxplutz_sprite_7(2,12,17)
+ 1020IFlogical_room%=7:PROCplot_and_maxplutz_sprite_7(6,21,23):IFitem_collected%(2)=0:PROCplot_and_maxplutz_sprite_7(2,11,17)
  1030IFlogical_room%=2:PROCplot_and_maxplutz_sprite_7(1,23,20)
  1040IFlogical_room%=8:PROCplot_and_maxplutz_sprite_7(11,23,23):PROCplot_and_maxplutz_sprite_7(9,21,23):PROCplot_and_maxplutz_sprite_7(13,24,23)
- 1050IFlogical_room%=14:PROCplot_and_maxplutz_sprite_7(8,20,21):PROCplot_and_maxplutz_sprite_7(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFtc%(4)=0:PROCplot_and_maxplutz_sprite_7(12,25,17)
+ 1050IFlogical_room%=14:PROCplot_and_maxplutz_sprite_7(8,20,21):PROCplot_and_maxplutz_sprite_7(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCplot_and_maxplutz_sprite_7(12,25,17)
  1060IFlogical_room%=12:PROCplot_and_maxplutz_sprite_7(1,15,20):PROCplot_and_maxplutz_sprite_7(1,18,20):PROCplot_and_maxplutz_sprite_7(1,21,20)
  1070IFlogical_room%=13:PROCplot_and_maxplutz_sprite_7(7,21,23):PROCplot_and_maxplutz_sprite_7(12,21,23)
  1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLS%:X%=17:CALLU%:IFday_night%=1:Y%=2:CALLS%
- 1090IFlogical_room%=5ANDtc%(3)=0:PROCplot_and_maxplutz_sprite_7(18,24,17)
+ 1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCplot_and_maxplutz_sprite_7(18,24,17)
  1100ENDPROC
 
  1110DEFPROCchange_room:IFlogical_room%=10ANDlee_y_os%<228:PROCes:game_ended%=1:ENDPROC
@@ -182,7 +182,7 @@
 
  1160DEFPROCupdate_energy:IFX%=5:GOTO1210 ELSEIFX%=5OR(X%=7ANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
  1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:tt%=1 ELSEIFlogical_room%=7:tt%=2 ELSEIFlogical_room%=5:tt%=3 ELSEIFlogical_room%=14:tt%=4 ELSEIFlogical_room%=9:tt%=5
- 1180IFtc%(tt%)=1:GOTO1220 ELSEtc%(tt%)=1
+ 1180IFitem_collected%(tt%)=1:GOTO1220 ELSEitem_collected%(tt%)=1
  1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
  1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
@@ -211,7 +211,7 @@
  1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:ng%=0:m%=0:room_type%=3
- 1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:tc%(n%)=0:NEXT:es%=0:*FX210,0
+ 1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:es%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
@@ -221,6 +221,7 @@
  1410SOUND1,6,30,3:*FX15,1
  1420ENDPROC
 
+ 1429REM logical room number for each physical room
  1430DATA1,2,3,4,5,0,6,0,7,0,0,8,0,9,0,10,11,12,13,14
  1439REM room_type% values for each logical room
  1440DATA2,1,1,2,3,4,2,3,4,4,4,3,1,2
