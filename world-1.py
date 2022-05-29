@@ -122,9 +122,10 @@ label(0x79, "sprite_pixel_y_hi")
 label(0x52bb, "cli_rts")
 
 # u_subroutine
-comment(0x53fb, "Entered with sprite number in W%. If X%=0, returns with the sprite's resident integer variable pair (see comment at get_sprite_details) updated with the sprite's OS coordinates. If X%<>0, TODO: what?")
+# TODO: I think I have been getting slightly mixed up with sprites. Need to tweak all comments later once this is clearer. Roughly speaking I think there are sprite "slots" (1-&30 inclusive) and sprite "images" (1-&30 inclusive). Each slot remembers what was last plotted there (using the sprite address in sprite_screen_and_data_addrs for the relevant slot).")
+comment(0x53fb, "If X%=0 on entry, update the resident integer variables for sprite slot W% with that sprite's current OS coordinates. Otherwise, remove the existing sprite in slot W% from the screen and replace it with sprite image X%, effectively changing its appearance in place. TODO: There are probably some subtleties here, but I think that's broadly right.")
 expr(0x5401, "max_sprite_num+1") # TODO: DO THIS ELSEWHERE &31 APPEARS
-expr(0x540c, "max_sprite_num+1")
+expr(0x540d, "max_sprite_num+1")
 label(0x53eb, "u_subroutine_rts")
 label(0x5498, "u_subroutine_rts2")
 label(0x545f, "u_subroutine_ri_x_0")

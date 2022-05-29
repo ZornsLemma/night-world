@@ -2120,9 +2120,12 @@ l3565 = loop_c3564+1
 .c53f8
     jmp c535f                                                         ; 53f8: 4c 5f 53    L_S
 
-; Entered with sprite number in W%. If X%=0, returns with the sprite's
-; resident integer variable pair (see comment at get_sprite_details)
-; updated with the sprite's OS coordinates. If X%<>0, TODO: what?
+; If X%=0 on entry, update the resident integer variables for sprite
+; slot W% with that sprite's current OS coordinates. Otherwise, remove
+; the existing sprite in slot W% from the screen and replace it with
+; sprite image X%, effectively changing its appearance in place. TODO:
+; There are probably some subtleties here, but I think that's broadly
+; right.
 .u_subroutine
     lda ri_w                                                          ; 53fb: ad 5c 04    .\.
     beq u_subroutine_rts                                              ; 53fe: f0 eb       ..
@@ -2132,7 +2135,7 @@ l3565 = loop_c3564+1
     sbc #1                                                            ; 5405: e9 01       ..
     ldx ri_x                                                          ; 5407: ae 60 04    .`.
     beq u_subroutine_ri_x_0                                           ; 540a: f0 53       .S
-    cpx #&31 ; '1'                                                    ; 540c: e0 31       .1
+    cpx #max_sprite_num+1                                             ; 540c: e0 31       .1
     bcs u_subroutine_rts                                              ; 540e: b0 db       ..
     asl a                                                             ; 5410: 0a          .
     tay                                                               ; 5411: a8          .
