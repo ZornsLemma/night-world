@@ -1409,9 +1409,10 @@ l3565 = loop_c3564+1
 
 ; Entered with a sprite slot number in W%.
 ; 
-; If Y%=2 or slot W% has invalid coordinates, the sprite is assumed to
-; be on screen and is eor-plotted to remove it and
-; sprite_screen_and_data_addrs updated to reflect this.
+; If Y%=2 or slot W% has invalid coordinates, if the sprite is on on
+; screen and is eor-plotted to remove it and
+; sprite_screen_and_data_addrs updated to reflect this. This is a no-
+; op if the sprite is not on screen.
 ; 
 ; If Y% is not 2, the sprite is eor-plotted at its new position and
 ; sprite_screen_and_data_addrs updated to reflect this. If Y% is also

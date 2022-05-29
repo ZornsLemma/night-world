@@ -97,7 +97,7 @@ label(0x4f83, "q_subroutine_set_ri_x_y_z_to_something_and_rts")
 
 # s_subroutine
 label(0x5025, "s_subroutine_rts")
-comment(0x5033, "Entered with a sprite slot number in W%.\n\nIf Y%=2 or slot W% has invalid coordinates, the sprite is assumed to be on screen and is eor-plotted to remove it and sprite_screen_and_data_addrs updated to reflect this.\n\nIf Y% is not 2, the sprite is eor-plotted at its new position and sprite_screen_and_data_addrs updated to reflect this. If Y% is also not 1, the sprite is eor-plotted at its old position.\n\nEffectively Y%=1 means 'show sprite', Y%=0 means 'move sprite' and Y%=2 means 'remove sprite'.")
+comment(0x5033, "Entered with a sprite slot number in W%.\n\nIf Y%=2 or slot W% has invalid coordinates, if the sprite is on on screen and is eor-plotted to remove it and sprite_screen_and_data_addrs updated to reflect this. This is a no-op if the sprite is not on screen.\n\nIf Y% is not 2, the sprite is eor-plotted at its new position and sprite_screen_and_data_addrs updated to reflect this. If Y% is also not 1, the sprite is eor-plotted at its old position.\n\nEffectively Y%=1 means 'show sprite', Y%=0 means 'move sprite' and Y%=2 means 'remove sprite'.")
 comment(0x519a, "TODO: I believe this is effectively a jmp and nothing cares about the fact we've cleared carry.")
 # TODO: I believe this address is only ever read from, but maybe there's something that can modify it.
 label(0x55f9, "constant_96")
