@@ -1609,6 +1609,7 @@ l3565 = loop_c3564+1
     asl a                                                             ; 5125: 0a          .
     and #&38 ; '8'                                                    ; 5126: 29 38       )8
     tay                                                               ; 5128: a8          .
+; TODO: I don't think the value written to l0075 here is ever used?
     sty l0075                                                         ; 5129: 84 75       .u
 ; Set l0076 (low) and l0078 (high) to the first resident integer
 ; variable for this sprite divided by 8, which converts from OS
