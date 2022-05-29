@@ -97,13 +97,13 @@ label(0x4f83, "q_subroutine_set_ri_x_y_z_to_something_and_rts")
 
 # s_subroutine
 label(0x5025, "s_subroutine_rts")
-comment(0x5033, "TODO: This is probably a sprite plotting subroutine. W% on entry indicates the sprite to plot, Y% indicates something (possibly related to whether the sprite is animated or not?). The sprite's X and Y coordinates are specified in OS coordinates by the (W-1)th pair of resident integer values, wrapping back to A%/B% after O%/P% - see the comment at get_sprite_details.")
+comment(0x5033, "Entered with a sprite slot number in W%.\n\nIf Y%=2 or slot W% has invalid coordinates, the sprite is assumed to be on screen and is eor-plotted to remove it and sprite_screen_and_data_addrs updated to reflect this.\n\nIf Y% is not 2, the sprite is eor-plotted at its new position and sprite_screen_and_data_addrs updated to reflect this. If Y% is also not 1, the sprite is eor-plotted at its old position.\n\nEffectively Y%=1 means 'show sprite', Y%=0 means 'move sprite' and Y%=2 means 'remove sprite'.")
 comment(0x519a, "TODO: I believe this is effectively a jmp and nothing cares about the fact we've cleared carry.")
 # TODO: I believe this address is only ever read from, but maybe there's something that can modify it.
 label(0x55f9, "constant_96")
 label(0x50e1, "clc_jmp_sprite_core")
-label(0x50e5, "swizzle_jmp_sprite_core") # TODO: poor name!
-label(0x502f, "clc_swizzle_jmp_sprite_core")
+label(0x50e5, "remove_sprite_from_screen") # TODO: poor name!
+label(0x502f, "clc_remove_sprite_from_screen")
 label(0x511c, "get_sprite_details")
 comment(0x5129, "TODO: I don't think the value written to l0075 here is ever used?")
 comment(0x511c, "Entered with A=W%-1; 0<=A<=&2F")
@@ -186,7 +186,7 @@ for i in range(0x30):
     expr(addr, ">%s" % sprite_labels[sprite_addr])
     expr(addr+1, "<%s" % sprite_labels[sprite_addr])
 #label(0x5700+0x30*2, "sprite_ref_addrs_be_end")
-comment(0x5600, "This is (TODO: probably!) a table with four bytes per sprite. The first two bytes are the little-endian screen address of the sprite (0 if it is not on screen) and the second two bytes are the big-endian address of the sprite's definition.")
+comment(0x5600, "This is (TODO: probably!) a table with four bytes per sprite. The first two bytes are the little-endian screen address of the sprite (0 if it is not on screen) and the second two bytes are the big-endian address of the sprite's definition. The sprite address is the address of X-offset version 0; this does not change as the sprite moves, so it needs to be offset appropriately when plotting/unplotting.")
 annotate(0x5600, ".sprite_screen_and_data_addrs") # TODO: hacky
 constant(0, "screen_addr_lo")
 constant(1, "screen_addr_hi")

@@ -1403,16 +1403,22 @@ l3565 = loop_c3564+1
 ; TODO: Dead code?
     equb &ad, &f4, &57, &d0, &f4, &a5, &75, &d0, &f0                  ; 5026: ad f4 57... ..W
 ; &502f referenced 3 times by &5044, &504e, &5055
-.clc_swizzle_jmp_sprite_core
+.clc_remove_sprite_from_screen
     clc                                                               ; 502f: 18          .
-    jmp swizzle_jmp_sprite_core                                       ; 5030: 4c e5 50    L.P
+    jmp remove_sprite_from_screen                                     ; 5030: 4c e5 50    L.P
 
-; TODO: This is probably a sprite plotting subroutine. W% on entry
-; indicates the sprite to plot, Y% indicates something (possibly
-; related to whether the sprite is animated or not?). The sprite's X
-; and Y coordinates are specified in OS coordinates by the (W-1)th
-; pair of resident integer values, wrapping back to A%/B% after O%/P%
-; - see the comment at get_sprite_details.
+; Entered with a sprite slot number in W%.
+; 
+; If Y%=2 or slot W% has invalid coordinates, the sprite is assumed to
+; be on screen and is eor-plotted to remove it and
+; sprite_screen_and_data_addrs updated to reflect this.
+; 
+; If Y% is not 2, the sprite is eor-plotted at its new position and
+; sprite_screen_and_data_addrs updated to reflect this. If Y% is also
+; not 1, the sprite is eor-plotted at its old position.
+; 
+; Effectively Y%=1 means 'show sprite', Y%=0 means 'move sprite' and
+; Y%=2 means 'remove sprite'.
 ; &5033 referenced 1 time by &5374
 .s_subroutine
     lda ri_w                                                          ; 5033: ad 5c 04    .\.
@@ -1423,14 +1429,14 @@ l3565 = loop_c3564+1
     sbc #1                                                            ; 503d: e9 01       ..
     ldx ri_y                                                          ; 503f: ae 64 04    .d.
     cpx #2                                                            ; 5042: e0 02       ..
-    beq clc_swizzle_jmp_sprite_core                                   ; 5044: f0 e9       ..
+    beq clc_remove_sprite_from_screen                                 ; 5044: f0 e9       ..
     jsr get_sprite_details                                            ; 5046: 20 1c 51     .Q
     lda sprite_pixel_coord_table_xy,x                                 ; 5049: bd 60 57    .`W
     cmp #&fe                                                          ; 504c: c9 fe       ..
-    bcs clc_swizzle_jmp_sprite_core                                   ; 504e: b0 df       ..
+    bcs clc_remove_sprite_from_screen                                 ; 504e: b0 df       ..
     lda sprite_pixel_coord_table_xy+1,x                               ; 5050: bd 61 57    .aW
     cmp #2                                                            ; 5053: c9 02       ..
-    bcc clc_swizzle_jmp_sprite_core                                   ; 5055: 90 d8       ..
+    bcc clc_remove_sprite_from_screen                                 ; 5055: 90 d8       ..
     lda sprite_pixel_y_lo                                             ; 5057: a5 77       .w
     tax                                                               ; 5059: aa          .
     lsr a                                                             ; 505a: 4a          J
@@ -1510,7 +1516,7 @@ l3565 = loop_c3564+1
     jmp sprite_core                                                   ; 50e2: 4c ff 51    L.Q
 
 ; &50e5 referenced 1 time by &5030
-.swizzle_jmp_sprite_core
+.remove_sprite_from_screen
     asl a                                                             ; 50e5: 0a          .
     tay                                                               ; 50e6: a8          .
     asl a                                                             ; 50e7: 0a          .
@@ -1761,9 +1767,11 @@ l3565 = loop_c3564+1
 ; (The caller will have adjusted the start screen address to allow for
 ; arbitrary Y pixel positioning; the sprite data itself is not
 ; adjusted - I think this is obvious really but it confused me for a
-; while.)  There seems to be a slightly odd desire to keep carry clear
-; all the time instead of just clearing it before we need it to be
-; clear, but I may be missing something.
+; while.)
+; 
+; There seems to be a slightly odd desire to keep carry clear all the
+; time instead of just clearing it before we need it to be clear, but
+; I may be missing something.
 ; &51ff referenced 2 times by &50e2, &5118
 .sprite_core
     lda #1                                                            ; 51ff: a9 01       ..
@@ -2326,7 +2334,10 @@ l3565 = loop_c3564+1
 ; This is (TODO: probably!) a table with four bytes per sprite. The
 ; first two bytes are the little-endian screen address of the sprite
 ; (0 if it is not on screen) and the second two bytes are the big-
-; endian address of the sprite's definition.
+; endian address of the sprite's definition. The sprite address is the
+; address of X-offset version 0; this does not change as the sprite
+; moves, so it needs to be offset appropriately when
+; plotting/unplotting.
 .sprite_screen_and_data_addrs
 ; &5600 referenced 6 times by &508c, &5098, &50e9, &5111, &5414, &54cb
     equb 0                                                            ; 5600: 00          .
@@ -2498,7 +2509,7 @@ l3565 = loop_c3564+1
 ;     ri_b:                                             3
 ;     ri_b+1:                                           3
 ;     q_subroutine_y_loop_test_and_bump:                3
-;     clc_swizzle_jmp_sprite_core:                      3
+;     clc_remove_sprite_from_screen:                    3
 ;     c533b:                                            3
 ;     c5358:                                            3
 ;     c53b4:                                            3
@@ -2538,7 +2549,7 @@ l3565 = loop_c3564+1
 ;     c4f77:                                            1
 ;     q_subroutine_set_ri_x_y_z_to_something_and_rts:   1
 ;     s_subroutine:                                     1
-;     swizzle_jmp_sprite_core:                          1
+;     remove_sprite_from_screen:                        1
 ;     c511b:                                            1
 ;     get_sprite_details:                               1
 ;     c516e:                                            1
