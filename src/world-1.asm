@@ -1503,7 +1503,7 @@ l3565 = loop_c3564+1
     adc #0                                                            ; 50d9: 69 00       i.
     sta l007f                                                         ; 50db: 85 7f       ..
     clc                                                               ; 50dd: 18          .
-    jmp c5251                                                         ; 50de: 4c 51 52    LQR
+    jmp sprite_core_moving                                            ; 50de: 4c 51 52    LQR
 
 ; &50e1 referenced 2 times by &50be, &50c2
 .clc_jmp_sprite_core
@@ -1830,7 +1830,7 @@ l3565 = loop_c3564+1
 ; 'erase at old location, replot immediately at new location' variant,
 ; to handle moving sprites more efficiently.
 ; &5251 referenced 2 times by &50de, &545c
-.c5251
+.sprite_core_moving
     lda #1                                                            ; 5251: a9 01       ..
     sta l0075                                                         ; 5253: 85 75       .u
     sei                                                               ; 5255: 78          x
@@ -2128,7 +2128,7 @@ l3565 = loop_c3564+1
     sec                                                               ; 5404: 38          8
     sbc #1                                                            ; 5405: e9 01       ..
     ldx ri_x                                                          ; 5407: ae 60 04    .`.
-    beq c545f                                                         ; 540a: f0 53       .S
+    beq u_subroutine_ri_x_0                                           ; 540a: f0 53       .S
     cpx #&31 ; '1'                                                    ; 540c: e0 31       .1
     bcs u_subroutine_rts                                              ; 540e: b0 db       ..
     asl a                                                             ; 5410: 0a          .
@@ -2170,10 +2170,10 @@ l3565 = loop_c3564+1
     adc #0                                                            ; 5455: 69 00       i.
     sta sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5457: 9d 02 56    ..V
     sta sprite_ptr+1                                                  ; 545a: 85 71       .q
-    jmp c5251                                                         ; 545c: 4c 51 52    LQR
+    jmp sprite_core_moving                                            ; 545c: 4c 51 52    LQR
 
 ; &545f referenced 1 time by &540a
-.c545f
+.u_subroutine_ri_x_0
     asl a                                                             ; 545f: 0a          .
     tax                                                               ; 5460: aa          .
     asl a                                                             ; 5461: 0a          .
@@ -2513,7 +2513,7 @@ l3565 = loop_c3564+1
 ;     c51e5:                                            2
 ;     c51f5:                                            2
 ;     sprite_core:                                      2
-;     c5251:                                            2
+;     sprite_core_moving:                               2
 ;     c5346:                                            2
 ;     sprite_ref_addrs_be:                              2
 ;     sprite_ref_addrs_be+1:                            2
@@ -2568,7 +2568,7 @@ l3565 = loop_c3564+1
 ;     loop_c53da:                                       1
 ;     c53ec:                                            1
 ;     c53f8:                                            1
-;     c545f:                                            1
+;     u_subroutine_ri_x_0:                              1
 ;     u_subroutine_rts2:                                1
 ;     v_subroutine:                                     1
 ;     loop_c549d:                                       1
@@ -2599,7 +2599,6 @@ l3565 = loop_c3564+1
 ;     c51db
 ;     c51e5
 ;     c51f5
-;     c5251
 ;     c5256
 ;     c5258
 ;     c528c
@@ -2629,7 +2628,6 @@ l3565 = loop_c3564+1
 ;     c53ca
 ;     c53ec
 ;     c53f8
-;     c545f
 ;     c54b7
 ;     c54db
 ;     l0072

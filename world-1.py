@@ -122,6 +122,7 @@ label(0x52bb, "cli_rts")
 # u_subroutine
 label(0x53eb, "u_subroutine_rts")
 label(0x5498, "u_subroutine_rts2")
+label(0x545f, "u_subroutine_ri_x_0")
 constant(0x73, "u_subroutine_zero_data_y_and_3_times_16")
 expr(0x542e, "u_subroutine_zero_data_y_and_3_times_16")
 expr(0x5431, "u_subroutine_zero_data_y_and_3_times_16")
@@ -155,6 +156,7 @@ expr_label(0x71, "sprite_ptr+1")
 constant(0x75, "sprite_y_offset_within_row")
 expr(0x5065, "sprite_y_offset_within_row")
 expr(0x506b, "sprite_y_offset_within_row")
+label(0x5251, "sprite_core_moving")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at sprite_screen_and_data_addrs[n*2] and zero_data[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
