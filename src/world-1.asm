@@ -2031,7 +2031,10 @@ l3565 = loop_c3564+1
     inc l007f                                                         ; 52de: e6 7f       ..
     clc                                                               ; 52e0: 18          .
     bne c529e                                                         ; 52e1: d0 bb       ..
-; Takes sprite slot in W%. Takes TODO: something in Z%.
+; Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise
+; appears to be responsible for moving the selected sprite according
+; to some internal rules. Set Y%=0 (move) and calls s_subroutine after
+; moving.
 .t_subroutine
     lda ri_w                                                          ; 52e3: ad 5c 04    .\.
     beq cli_rts                                                       ; 52e6: f0 d3       ..
@@ -2069,12 +2072,12 @@ l3565 = loop_c3564+1
     sta l0076                                                         ; 531e: 85 76       .v
     lda sprite_pixel_coord_table_xy,y                                 ; 5320: b9 60 57    .`W
     cmp #&fe                                                          ; 5323: c9 fe       ..
-    bcs c537e                                                         ; 5325: b0 57       .W
+    bcs t_subroutine_invalid_sprite_pixel_coord                       ; 5325: b0 57       .W
     ldy l007e                                                         ; 5327: a4 7e       .~
     lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 5329: b9 01 56    ..V
     beq cli_rts                                                       ; 532c: f0 8d       ..
     ldy l007f                                                         ; 532e: a4 7f       ..
-    lda l55c0,x                                                       ; 5330: bd c0 55    ..U
+    lda sprite_something_table_two_bytes_per_sprite,x                 ; 5330: bd c0 55    ..U
     bmi c53ac                                                         ; 5333: 30 77       0w
     clc                                                               ; 5335: 18          .
     adc sprite_pixel_coord_table_xy,y                                 ; 5336: 79 60 57    y`W
@@ -2093,7 +2096,7 @@ l3565 = loop_c3564+1
     lda sprite_pixel_coord_table_xy+1,y                               ; 5346: b9 61 57    .aW
     cmp #2                                                            ; 5349: c9 02       ..
     bcc c5378                                                         ; 534b: 90 2b       .+
-    lda l55c1,x                                                       ; 534d: bd c1 55    ..U
+    lda sprite_something_table_two_bytes_per_sprite+1,x               ; 534d: bd c1 55    ..U
     bmi c53be                                                         ; 5350: 30 6c       0l
     clc                                                               ; 5352: 18          .
     adc sprite_pixel_coord_table_xy+1,y                               ; 5353: 79 61 57    yaW
@@ -2127,9 +2130,9 @@ l3565 = loop_c3564+1
     dec l0070                                                         ; 537a: c6 70       .p
     bcc c533b                                                         ; 537c: 90 bd       ..
 ; &537e referenced 1 time by &5325
-.c537e
+.t_subroutine_invalid_sprite_pixel_coord
     beq c539c                                                         ; 537e: f0 1c       ..
-    lda l55c0,x                                                       ; 5380: bd c0 55    ..U
+    lda sprite_something_table_two_bytes_per_sprite,x                 ; 5380: bd c0 55    ..U
     beq c53b4                                                         ; 5383: f0 2f       ./
     cmp #&80                                                          ; 5385: c9 80       ..
     bcs c53b4                                                         ; 5387: b0 2b       .+
@@ -2147,7 +2150,7 @@ l3565 = loop_c3564+1
     bne c5346                                                         ; 539a: d0 aa       ..
 ; &539c referenced 1 time by &537e
 .c539c
-    lda l55c0,x                                                       ; 539c: bd c0 55    ..U
+    lda sprite_something_table_two_bytes_per_sprite,x                 ; 539c: bd c0 55    ..U
     cmp #&80                                                          ; 539f: c9 80       ..
     bcc c53b4                                                         ; 53a1: 90 11       ..
     lda constant_96                                                   ; 53a3: ad f9 55    ..U
@@ -2185,7 +2188,7 @@ l3565 = loop_c3564+1
 .c53ca
     cmp #1                                                            ; 53ca: c9 01       ..
     beq c53ec                                                         ; 53cc: f0 1e       ..
-    lda l55c1,x                                                       ; 53ce: bd c1 55    ..U
+    lda sprite_something_table_two_bytes_per_sprite+1,x               ; 53ce: bd c1 55    ..U
     beq u_subroutine_rts                                              ; 53d1: f0 18       ..
     cmp #&80                                                          ; 53d3: c9 80       ..
     bcs u_subroutine_rts                                              ; 53d5: b0 14       ..
@@ -2208,7 +2211,7 @@ l3565 = loop_c3564+1
 
 ; &53ec referenced 1 time by &53cc
 .c53ec
-    lda l55c1,x                                                       ; 53ec: bd c1 55    ..U
+    lda sprite_something_table_two_bytes_per_sprite+1,x               ; 53ec: bd c1 55    ..U
     cmp #&80                                                          ; 53ef: c9 80       ..
     bcc u_subroutine_rts                                              ; 53f1: 90 f8       ..
     lda l55fb                                                         ; 53f3: ad fb 55    ..U
@@ -2399,10 +2402,9 @@ l3565 = loop_c3564+1
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 55a8: 00 00 00... ...
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 55b4: 00 00 00... ...
 ; &55c0 referenced 3 times by &5330, &5380, &539c
-.l55c0
+.sprite_something_table_two_bytes_per_sprite
     equb &ff                                                          ; 55c0: ff          .
 ; &55c1 referenced 3 times by &534d, &53ce, &53ec
-.l55c1
     equb   1,   0,   1,   1,   1, &ff,   0,   0,   0,   1,   0, &ff   ; 55c1: 01 00 01... ...
     equb &ff,   0, &ff,   1, &ff,   0,   0, &f8,   8,   0,   8,   8   ; 55cd: ff 00 ff... ...
     equb   8, &f8,   0,   0,   0,   8,   0, &f8, &f8,   0, &f8,   8   ; 55d9: 08 f8 00... ...
@@ -2618,8 +2620,8 @@ l3565 = loop_c3564+1
 ;     c533b:                                            3
 ;     c5358:                                            3
 ;     c53b4:                                            3
-;     l55c0:                                            3
-;     l55c1:                                            3
+;     sprite_something_table_two_bytes_per_sprite:      3
+;     sprite_something_table_two_bytes_per_sprite+1:    3
 ;     l55f8:                                            3
 ;     constant_96:                                      3
 ;     l55fa:                                            3
@@ -2692,7 +2694,7 @@ l3565 = loop_c3564+1
 ;     c535f:                                            1
 ;     c5378:                                            1
 ;     c537a:                                            1
-;     c537e:                                            1
+;     t_subroutine_invalid_sprite_pixel_coord:          1
 ;     loop_c538c:                                       1
 ;     c539c:                                            1
 ;     c53a8:                                            1
@@ -2766,7 +2768,6 @@ l3565 = loop_c3564+1
 ;     c535f
 ;     c5378
 ;     c537a
-;     c537e
 ;     c539c
 ;     c53a8
 ;     c53ac
@@ -2786,8 +2787,6 @@ l3565 = loop_c3564+1
 ;     l0403
 ;     l0443
 ;     l3565
-;     l55c0
-;     l55c1
 ;     l55f8
 ;     l55fa
 ;     l55fb

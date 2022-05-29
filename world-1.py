@@ -131,7 +131,7 @@ label(0x79, "sprite_pixel_y_hi")
 #set_label_maker_hook(our_label_maker)
 
 # t_subroutine
-comment(0x52e3, "Takes sprite slot in W%. Takes TODO: something in Z%.")
+comment(0x52e3, "Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise appears to be responsible for moving the selected sprite according to some internal rules. Set Y%=0 (move) and calls s_subroutine after moving.")
 label(0x52bb, "cli_rts")
 expr(0x52e9, "max_sprite_num+1")
 # TODO: Hack to work around over-zealous global naming of these addresses, which don't apply to t_subroutine.
@@ -150,6 +150,9 @@ expr(0x5345, "l0071")
 expr(0x5360, "l0076")
 expr(0x5362, "l0071")
 expr(0x5399, "l0071")
+label(0x537e, "t_subroutine_invalid_sprite_pixel_coord")
+label(0x55c0, "sprite_something_table_two_bytes_per_sprite")
+expr_label(0x55c1, "sprite_something_table_two_bytes_per_sprite+1")
 
 # u_subroutine
 # TODO: I think I have been getting slightly mixed up with sprites. Need to tweak all comments later once this is clearer. Roughly speaking I think there are sprite "slots" (1-&30 inclusive) and sprite "images" (1-&30 inclusive). Each slot remembers what was last plotted there (using the sprite address in sprite_screen_and_data_addrs for the relevant slot).")
