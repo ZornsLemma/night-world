@@ -65,6 +65,8 @@ for i in range(6):
 entry(0x4f00, "q_subroutine") # TODO: rename
 expr(0x54dc+0*4, "q_subroutine")
 comment(0x54dc+1*4, "TODO: never used?")
+entry(0x4f9f, "r_subroutine")
+expr(0x54dc+1*4, "r_subroutine")
 entry(0x5033, "s_subroutine") # TODO: rename
 expr(0x54dc+2*4, "s_subroutine")
 entry(0x52e3, "t_subroutine") # TODO: rename

@@ -9,6 +9,8 @@ screen_addr_hi = &01
 sprite_addr_hi = &02
 sprite_addr_lo = &03
 osbyte_insert_buffer = &8a
+osbyte_inkey = &81
+osbyte_clear_escape = &7c
 
 basic_page_msb = &0018
 sprite_ptr = &0070
@@ -1381,27 +1383,106 @@ l3565 = loop_c3564+1
     tya                                                               ; 4f99: 98          .
     lsr a                                                             ; 4f9a: 4a          J
     sta ri_x                                                          ; 4f9b: 8d 60 04    .`.
+; &4f9e referenced 1 time by &4fa4
+.loop_c4f9e
     rts                                                               ; 4f9e: 60          `
 
 ; TODO: Dead code?
-    equb &ad, &60,   4, &c9,   4, &b0, &f8, &a2,   5, &86, &75, &a0   ; 4f9f: ad 60 04... .`.
-    equb &ff, &ae, &f0, &57, &a9, &81, &20, &f4, &ff, &c0, &1b, &f0   ; 4fab: ff ae f0... ...
-    equb &4a, &e8, &d0,   2, &e6, &75, &a9, &81, &ae, &f1, &57, &a0   ; 4fb7: 4a e8 d0... J..
-    equb &ff, &20, &f4, &ff, &c0, &1b, &f0, &37, &e8, &d0,   2, &c6   ; 4fc3: ff 20 f4... . .
-    equb &75, &ad, &60,   4, &4a, &f0,   6, &a5, &75, &c9,   5, &d0   ; 4fcf: 75 ad 60... u.`
-    equb &43, &a9, &81, &ae, &f2, &57, &a0, &ff, &20, &f4, &ff, &c0   ; 4fdb: 43 a9 81... C..
-    equb &1b, &f0, &18, &e8, &d0,   7, &a5, &75, &38, &e9,   3, &85   ; 4fe7: 1b f0 18... ...
-    equb &75, &a9, &81, &ae, &f3, &57, &a0, &ff, &20, &f4, &ff, &c0   ; 4ff3: 75 a9 81... u..
-    equb &1b, &d0,   6, &a9, &7c, &20, &f4, &ff, &60, &e8, &d0,   7   ; 4fff: 1b d0 06... ...
-    equb &a5, &75, &18, &69,   3, &85, &75, &ad, &60,   4, &29,   1   ; 500b: a5 75 18... .u.
-    equb &d0, &12, &a5, &75, &c9,   5, &f0,   7, &8d, &f4, &57, &8d   ; 5017: d0 12 a5... ...
-    equb &68,   4                                                     ; 5023: 68 04       h.
+.r_subroutine
+    lda ri_x                                                          ; 4f9f: ad 60 04    .`.
+    cmp #4                                                            ; 4fa2: c9 04       ..
+    bcs loop_c4f9e                                                    ; 4fa4: b0 f8       ..
+    ldx #5                                                            ; 4fa6: a2 05       ..
+    stx l0075                                                         ; 4fa8: 86 75       .u
+    ldy #&ff                                                          ; 4faa: a0 ff       ..
+    ldx l57f0                                                         ; 4fac: ae f0 57    ..W
+    lda #osbyte_inkey                                                 ; 4faf: a9 81       ..
+    jsr osbyte                                                        ; 4fb1: 20 f4 ff     ..
+    cpy #&1b                                                          ; 4fb4: c0 1b       ..
+    beq c5002                                                         ; 4fb6: f0 4a       .J
+    inx                                                               ; 4fb8: e8          .
+    bne c4fbd                                                         ; 4fb9: d0 02       ..
+    inc l0075                                                         ; 4fbb: e6 75       .u
+; &4fbd referenced 1 time by &4fb9
+.c4fbd
+    lda #osbyte_inkey                                                 ; 4fbd: a9 81       ..
+    ldx l57f1                                                         ; 4fbf: ae f1 57    ..W
+    ldy #&ff                                                          ; 4fc2: a0 ff       ..
+    jsr osbyte                                                        ; 4fc4: 20 f4 ff     ..
+    cpy #&1b                                                          ; 4fc7: c0 1b       ..
+    beq c5002                                                         ; 4fc9: f0 37       .7
+    inx                                                               ; 4fcb: e8          .
+    bne c4fd0                                                         ; 4fcc: d0 02       ..
+    dec l0075                                                         ; 4fce: c6 75       .u
+; &4fd0 referenced 1 time by &4fcc
+.c4fd0
+    lda ri_x                                                          ; 4fd0: ad 60 04    .`.
+    lsr a                                                             ; 4fd3: 4a          J
+    beq c4fdc                                                         ; 4fd4: f0 06       ..
+    lda l0075                                                         ; 4fd6: a5 75       .u
+    cmp #5                                                            ; 4fd8: c9 05       ..
+    bne c501f                                                         ; 4fda: d0 43       .C
+; &4fdc referenced 1 time by &4fd4
+.c4fdc
+    lda #osbyte_inkey                                                 ; 4fdc: a9 81       ..
+    ldx l57f2                                                         ; 4fde: ae f2 57    ..W
+    ldy #&ff                                                          ; 4fe1: a0 ff       ..
+    jsr osbyte                                                        ; 4fe3: 20 f4 ff     ..
+    cpy #&1b                                                          ; 4fe6: c0 1b       ..
+    beq c5002                                                         ; 4fe8: f0 18       ..
+    inx                                                               ; 4fea: e8          .
+    bne c4ff4                                                         ; 4feb: d0 07       ..
+    lda l0075                                                         ; 4fed: a5 75       .u
+    sec                                                               ; 4fef: 38          8
+    sbc #3                                                            ; 4ff0: e9 03       ..
+    sta l0075                                                         ; 4ff2: 85 75       .u
+; &4ff4 referenced 1 time by &4feb
+.c4ff4
+    lda #osbyte_inkey                                                 ; 4ff4: a9 81       ..
+    ldx l57f3                                                         ; 4ff6: ae f3 57    ..W
+    ldy #&ff                                                          ; 4ff9: a0 ff       ..
+    jsr osbyte                                                        ; 4ffb: 20 f4 ff     ..
+    cpy #&1b                                                          ; 4ffe: c0 1b       ..
+    bne c5008                                                         ; 5000: d0 06       ..
+; &5002 referenced 3 times by &4fb6, &4fc9, &4fe8
+.c5002
+    lda #osbyte_clear_escape                                          ; 5002: a9 7c       .|
+    jsr osbyte                                                        ; 5004: 20 f4 ff     ..
+    rts                                                               ; 5007: 60          `
+
+; &5008 referenced 1 time by &5000
+.c5008
+    inx                                                               ; 5008: e8          .
+    bne c5012                                                         ; 5009: d0 07       ..
+    lda l0075                                                         ; 500b: a5 75       .u
+    clc                                                               ; 500d: 18          .
+    adc #3                                                            ; 500e: 69 03       i.
+    sta l0075                                                         ; 5010: 85 75       .u
+; &5012 referenced 1 time by &5009
+.c5012
+    lda ri_x                                                          ; 5012: ad 60 04    .`.
+    and #1                                                            ; 5015: 29 01       ).
+    bne c502b                                                         ; 5017: d0 12       ..
+    lda l0075                                                         ; 5019: a5 75       .u
+    cmp #5                                                            ; 501b: c9 05       ..
+    beq c5026                                                         ; 501d: f0 07       ..
+; &501f referenced 3 times by &4fda, &5029, &502d
+.c501f
+    sta l57f4                                                         ; 501f: 8d f4 57    ..W
+    sta ri_z                                                          ; 5022: 8d 68 04    .h.
 ; &5025 referenced 2 times by &5036, &503a
 .s_subroutine_rts
     rts                                                               ; 5025: 60          `
 
 ; TODO: Dead code?
-    equb &ad, &f4, &57, &d0, &f4, &a5, &75, &d0, &f0                  ; 5026: ad f4 57... ..W
+; &5026 referenced 1 time by &501d
+.c5026
+    lda l57f4                                                         ; 5026: ad f4 57    ..W
+    bne c501f                                                         ; 5029: d0 f4       ..
+; &502b referenced 1 time by &5017
+.c502b
+    lda l0075                                                         ; 502b: a5 75       .u
+    bne c501f                                                         ; 502d: d0 f0       ..
 ; &502f referenced 3 times by &5044, &504e, &5055
 .clc_remove_sprite_from_screen
     clc                                                               ; 502f: 18          .
@@ -2283,7 +2364,7 @@ l3565 = loop_c3564+1
     equw q_subroutine,            0                                   ; 54dc: 00 4f 00... .O.
 ; TODO: never used?
 .initial_r_value
-    equw &4f9f,     0                                                 ; 54e0: 9f 4f 00... .O.
+    equw r_subroutine,            0                                   ; 54e0: 9f 4f 00... .O.
 .initial_s_value
     equw s_subroutine,            0                                   ; 54e4: 33 50 00... 3P.
 .initial_t_value
@@ -2466,12 +2547,24 @@ l3565 = loop_c3564+1
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                  ; 57b1: 00 00 00... ...
 ; &57c0 referenced 4 times by &5182, &519d, &51cb, &51e5
 .sprite_pixel_coord_table_xy_end
-    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57c0: 01 01 01... ...
-    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57cc: 01 01 01... ...
-    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57d8: 01 01 01... ...
-    equb   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1   ; 57e4: 01 01 01... ...
-    equb &bd, &9e, &b7, &97,   0,   0,   0,   0,   0,   0,   0,   0   ; 57f0: bd 9e b7... ...
-    equb   0,   0,   0,   0                                           ; 57fc: 00 00 00... ...
+    equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1   ; 57c0: 01 01 01... ...
+    equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1   ; 57d4: 01 01 01... ...
+    equb 1, 1, 1, 1, 1, 1, 1, 1                                       ; 57e8: 01 01 01... ...
+; &57f0 referenced 1 time by &4fac
+.l57f0
+    equb &bd                                                          ; 57f0: bd          .
+; &57f1 referenced 1 time by &4fbf
+.l57f1
+    equb &9e                                                          ; 57f1: 9e          .
+; &57f2 referenced 1 time by &4fde
+.l57f2
+    equb &b7                                                          ; 57f2: b7          .
+; &57f3 referenced 1 time by &4ff6
+.l57f3
+    equb &97                                                          ; 57f3: 97          .
+; &57f4 referenced 2 times by &501f, &5026
+.l57f4
+    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                           ; 57f4: 00 00 00... ...
 .pydis_end
 
 ; Label references by decreasing frequency:
@@ -2480,6 +2573,7 @@ l3565 = loop_c3564+1
 ;     l0073:                                           21
 ;     sprite_ptr+1:                                    18
 ;     l0072:                                           17
+;     l0075:                                           17
 ;     sprite_pixel_coord_table_xy:                     17
 ;     sprite_pixel_coord_table_xy+1:                   15
 ;     screen_ptr2:                                     14
@@ -2488,7 +2582,7 @@ l3565 = loop_c3564+1
 ;     sprite_ptr2:                                     10
 ;     sprite_screen_and_data_addrs+screen_addr_hi:      9
 ;     sprite_pixel_x_lo:                                8
-;     l0075:                                            7
+;     ri_x:                                             7
 ;     cli_rts:                                          7
 ;     u_subroutine_rts:                                 7
 ;     screen_ptr2+1:                                    6
@@ -2498,18 +2592,21 @@ l3565 = loop_c3564+1
 ;     sprite_screen_and_data_addrs+screen_addr_lo:      6
 ;     sprite_screen_and_data_addrs+sprite_addr_hi:      6
 ;     sprite_screen_and_data_addrs+sprite_addr_lo:      6
+;     osbyte:                                           6
 ;     sprite_pixel_y_lo:                                5
 ;     sprite_pixel_x_hi:                                5
 ;     c5164:                                            5
 ;     sprite_pixel_y_hi:                                4
 ;     ri_w:                                             4
-;     ri_x:                                             4
 ;     sprite_pixel_coord_table_xy_end:                  4
 ;     ri_a:                                             3
 ;     ri_a+1:                                           3
 ;     ri_b:                                             3
 ;     ri_b+1:                                           3
+;     ri_z:                                             3
 ;     q_subroutine_y_loop_test_and_bump:                3
+;     c5002:                                            3
+;     c501f:                                            3
 ;     clc_remove_sprite_from_screen:                    3
 ;     c533b:                                            3
 ;     c5358:                                            3
@@ -2520,7 +2617,6 @@ l3565 = loop_c3564+1
 ;     constant_96:                                      3
 ;     l55fa:                                            3
 ;     l55fb:                                            3
-;     ri_z:                                             2
 ;     l3565:                                            2
 ;     c35a0:                                            2
 ;     c4f3e:                                            2
@@ -2540,6 +2636,7 @@ l3565 = loop_c3564+1
 ;     c5346:                                            2
 ;     sprite_ref_addrs_be:                              2
 ;     sprite_ref_addrs_be+1:                            2
+;     l57f4:                                            2
 ;     basic_page_msb:                                   1
 ;     l0403:                                            1
 ;     l0443:                                            1
@@ -2549,6 +2646,15 @@ l3565 = loop_c3564+1
 ;     c4f6f:                                            1
 ;     c4f77:                                            1
 ;     q_subroutine_set_ri_x_y_z_to_something_and_rts:   1
+;     loop_c4f9e:                                       1
+;     c4fbd:                                            1
+;     c4fd0:                                            1
+;     c4fdc:                                            1
+;     c4ff4:                                            1
+;     c5008:                                            1
+;     c5012:                                            1
+;     c5026:                                            1
+;     c502b:                                            1
 ;     s_subroutine:                                     1
 ;     remove_sprite_from_screen:                        1
 ;     c511b:                                            1
@@ -2600,7 +2706,10 @@ l3565 = loop_c3564+1
 ;     c54db:                                            1
 ;     screen_y_addr_table:                              1
 ;     screen_y_addr_table+1:                            1
-;     osbyte:                                           1
+;     l57f0:                                            1
+;     l57f1:                                            1
+;     l57f2:                                            1
+;     l57f3:                                            1
 
 ; Automatically generated labels:
 ;     c35a0
@@ -2608,6 +2717,16 @@ l3565 = loop_c3564+1
 ;     c4f55
 ;     c4f6f
 ;     c4f77
+;     c4fbd
+;     c4fd0
+;     c4fdc
+;     c4ff4
+;     c5002
+;     c5008
+;     c5012
+;     c501f
+;     c5026
+;     c502b
 ;     c511b
 ;     c5164
 ;     c516e
@@ -2665,7 +2784,13 @@ l3565 = loop_c3564+1
 ;     l55f8
 ;     l55fa
 ;     l55fb
+;     l57f0
+;     l57f1
+;     l57f2
+;     l57f3
+;     l57f4
 ;     loop_c3564
+;     loop_c4f9e
 ;     loop_c538c
 ;     loop_c53da
 ;     loop_c549d
@@ -2715,10 +2840,13 @@ l3565 = loop_c3564+1
     assert >sprite_25 == &4d
     assert initial_qrstuv_values-1 == &54db
     assert max_sprite_num+1 == &31
+    assert osbyte_clear_escape == &7c
+    assert osbyte_inkey == &81
     assert osbyte_insert_buffer == &8a
     assert q_subroutine == &4f00
     assert q_subroutine_ri_w_minus_1_times_2 == &71
     assert q_subroutine_ri_y_minus_1_times_2 == &70
+    assert r_subroutine == &4f9f
     assert s_subroutine == &5033
     assert sprite_pixel_coord_table_xy+0 == &5760
     assert sprite_pixel_coord_table_xy+1 == &5761
