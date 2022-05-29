@@ -1408,6 +1408,12 @@ l3565 = loop_c3564+1
     clc                                                               ; 502f: 18          .
     jmp swizzle_jmp_sprite_core                                       ; 5030: 4c e5 50    L.P
 
+; TODO: This is probably a sprite plotting subroutine. W% on entry
+; indicates the sprite to plot, Y% indicates something (possibly
+; related to whether the sprite is animated or not?). The sprite's X
+; and Y coordinates are specified in OS coordinates by the (W-1)th
+; pair of resident integer values, wrapping back to A%/B% after O%/P%
+; - see the comment at get_sprite_details.
 ; &5033 referenced 1 time by &5374
 .s_subroutine
     lda ri_w                                                          ; 5033: ad 5c 04    .\.

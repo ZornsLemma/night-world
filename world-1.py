@@ -96,6 +96,7 @@ label(0x4f83, "q_subroutine_set_ri_x_y_z_to_something_and_rts")
 
 # s_subroutine
 label(0x5025, "s_subroutine_rts")
+comment(0x5033, "TODO: This is probably a sprite plotting subroutine. W% on entry indicates the sprite to plot, Y% indicates something (possibly related to whether the sprite is animated or not?). The sprite's X and Y coordinates are specified in OS coordinates by the (W-1)th pair of resident integer values, wrapping back to A%/B% after O%/P% - see the comment at get_sprite_details.")
 comment(0x519a, "TODO: I believe this is effectively a jmp and nothing cares about the fact we've cleared carry.")
 # TODO: I believe this address is only ever read from, but maybe there's something that can modify it.
 label(0x55f9, "constant_96")
