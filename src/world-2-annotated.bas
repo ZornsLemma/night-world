@@ -2,7 +2,7 @@
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
    30ENVELOPE1,1,0,0,0,2,2,2,30,0,0,255,128,1:REM TODO: Could be moved into earlier file
    40ONERROR:VDU4:uw%=1:GOTO100
-   50es%=0:score%=13:uw%=0:energy_major%=10
+   50won%=0:score%=13:uw%=0:energy_major%=10
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
    80*FX200,2
@@ -211,7 +211,7 @@
  1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:ng%=0:m%=0:room_type%=3
- 1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:es%=0:*FX210,0
+ 1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
@@ -228,13 +228,13 @@
  1449REM colour sequence for day/night transition
  1450DATA7,6,3,5,1,2,4,0
 
- 1460DEFPROCgame_over:W%=6:Y%=2:CALLS%:IFes%=0:score%=score%-1:IFscore%=-1:score%=0
- 1470PROCstop_sound:pw%=1000:on%=2:IFes%=1ORuw%=1:GOTO1490
+ 1460DEFPROCgame_over:W%=6:Y%=2:CALLS%:IFwon%=0:score%=score%-1:IFscore%=-1:score%=0
+ 1470PROCstop_sound:pw%=1000:on%=2:IFwon%=1ORuw%=1:GOTO1490
  1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=lee_sprite_num%:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
  1490VDU19,1,1;0;19,2,6;0;19,3,7;0;17,3:s$=STR$score%+"%":PROCclear_room:PRINTTAB(5,16);:VDU232,233,234,235,32,32,238,239,235,240,5
  1491GCOL0,2:FORn%=416TO412STEP-4:MOVE544,n%:PRINTs$:NEXT:VDU4:PROCdelay(14000):COLOUR1:PRINTTAB(energy_major%,5)CHR$246:ENDPROC
 
- 1500DEFPROCwin:es%=1:PROCstop_sound:VDU19,1,1;0;19,2,3;0;19,3,6;0;:PROCclear_room:COLOUR2:PRINTTAB(6,16);:VDU232,233,234,235,32,235,242,245,5:GCOL0,1:a$=CHR$10+STRING$(12,CHR$8):FORn%=416TO412STEP-4:MOVE256,n%
+ 1500DEFPROCwin:won%=1:PROCstop_sound:VDU19,1,1;0;19,2,3;0;19,3,6;0;:PROCclear_room:COLOUR2:PRINTTAB(6,16);:VDU232,233,234,235,32,235,242,245,5:GCOL0,1:a$=CHR$10+STRING$(12,CHR$8):FORn%=416TO412STEP-4:MOVE256,n%
  1510PRINT"INNER  WORLD"+a$+"COMMING SOON":NEXT:PROCdelay(13000):VDU4:ENDPROC
 
  1520DEFPROCassemble:S1%=&70:S2%=&71:S3%=&72:S4%=&74:DIM cc% 200:FORn%=0TO2STEP2
