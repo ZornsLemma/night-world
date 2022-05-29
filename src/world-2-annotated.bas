@@ -7,7 +7,7 @@
    70PROCnew_game_init:*FX15,0
    80*FX200,2
    90PROCtitle_screen:PROCdraw_current_room:PROCplay:IFw%=1:PROCo
-  100PROCg:GOTO70
+  100PROCgame_over:GOTO70
 
   110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
 
@@ -228,7 +228,7 @@
  1449REM colour sequence for day/night transition
  1450DATA7,6,3,5,1,2,4,0
 
- 1460DEFPROCg:W%=6:Y%=2:CALLS%:IFes%=0:score%=score%-1:IFscore%=-1:score%=0
+ 1460DEFPROCgame_over:W%=6:Y%=2:CALLS%:IFes%=0:score%=score%-1:IFscore%=-1:score%=0
  1470PROCstop_sound:pw%=1000:on%=2:IFes%=1ORuw%=1:GOTO1490
  1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=lee_sprite_num%:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
  1490VDU19,1,1;0;19,2,6;0;19,3,7;0;17,3:s$=STR$score%+"%":PROCclear_room:PRINTTAB(5,16);:VDU232,233,234,235,32,32,238,239,235,240,5
