@@ -225,6 +225,7 @@
  1430DATA1,2,3,4,5,0,6,0,7,0,0,8,0,9,0,10,11,12,13,14
  1439REM room_type% values for each logical room
  1440DATA2,1,1,2,3,4,2,3,4,4,4,3,1,2
+ 1449REM colour sequence for day/night transition
  1450DATA7,6,3,5,1,2,4,0
 
  1460DEFPROCg:W%=6:Y%=2:CALLS%:IFes%=0:score%=score%-1:IFscore%=-1:score%=0
