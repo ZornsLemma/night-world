@@ -13,18 +13,23 @@ osbyte_inkey = &81
 osbyte_clear_escape = &7c
 
 basic_page_msb = &0018
+l0070 = &0070
 sprite_ptr = &0070
+l0071 = &0071
 l0072 = &0072
 l0073 = &0073
 l0074 = &0074
 l0075 = &0075
 sprite_pixel_x_lo = &0076
+l0076 = &0076
 sprite_pixel_y_lo = &0077
 sprite_pixel_x_hi = &0078
 sprite_pixel_y_hi = &0079
 screen_ptr = &007a
 screen_ptr2 = &007c
+l007e = &007e
 sprite_ptr2 = &007e
+l007f = &007f
 l0403 = &0403
 ri_a = &0404
 ri_b = &0408
@@ -546,18 +551,18 @@ l3565 = loop_c3564+1
     lda #>screen_data                                                 ; 3590: a9 1f       ..
     ldx #>(screen_data_end-screen_data)                               ; 3592: a2 0a       ..
     ldy #0                                                            ; 3594: a0 00       ..
-    sty sprite_ptr                                                    ; 3596: 84 70       .p
-    sta sprite_ptr+1                                                  ; 3598: 85 71       .q
+    sty l0070                                                         ; 3596: 84 70       .p
+    sta l0071                                                         ; 3598: 85 71       .q
     lda #>mode_5_himem                                                ; 359a: a9 58       .X
     sty l0072                                                         ; 359c: 84 72       .r
     sta l0073                                                         ; 359e: 85 73       .s
 ; &35a0 referenced 2 times by &35a5, &35ac
 .c35a0
-    lda (sprite_ptr),y                                                ; 35a0: b1 70       .p
+    lda (l0070),y                                                     ; 35a0: b1 70       .p
     sta (l0072),y                                                     ; 35a2: 91 72       .r
     iny                                                               ; 35a4: c8          .
     bne c35a0                                                         ; 35a5: d0 f9       ..
-    inc sprite_ptr+1                                                  ; 35a7: e6 71       .q
+    inc l0071                                                         ; 35a7: e6 71       .q
     inc l0073                                                         ; 35a9: e6 73       .s
     dex                                                               ; 35ab: ca          .
     bne c35a0                                                         ; 35ac: d0 f2       ..
@@ -1274,7 +1279,7 @@ l3565 = loop_c3564+1
 .q_subroutine
     lda ri_w                                                          ; 4f00: ad 5c 04    .\.
     beq zero_ri_x_y_and_rts                                           ; 4f03: f0 61       .a
-    cmp #&31 ; '1'                                                    ; 4f05: c9 31       .1
+    cmp #max_sprite_num+1                                             ; 4f05: c9 31       .1
     bcs zero_ri_x_y_and_rts                                           ; 4f07: b0 5d       .]
     sec                                                               ; 4f09: 38          8
     sbc #1                                                            ; 4f0a: e9 01       ..
@@ -1291,13 +1296,14 @@ l3565 = loop_c3564+1
     stx q_subroutine_ri_w_minus_1_times_2                             ; 4f15: 86 71       .q
     lda ri_y                                                          ; 4f17: ad 64 04    .d.
     beq zero_ri_x_y_and_rts                                           ; 4f1a: f0 4a       .J
-    cmp #&31 ; '1'                                                    ; 4f1c: c9 31       .1
+    cmp #max_sprite_num+1                                             ; 4f1c: c9 31       .1
     bcs zero_ri_x_y_and_rts                                           ; 4f1e: b0 46       .F
     sec                                                               ; 4f20: 38          8
     sbc #1                                                            ; 4f21: e9 01       ..
     asl a                                                             ; 4f23: 0a          .
     sta q_subroutine_ri_y_minus_1_times_2                             ; 4f24: 85 70       .p
     lda #0                                                            ; 4f26: a9 00       ..
+; Don't test for collision of W% with itself!
 ; TODO: This is roughly a loop over Y, bumping Y by 2 each time,
 ; although the end condition is complex - note that because Y
 ; temporarily gets copied into A for the bump by 2, the code at &4f5d
@@ -1566,10 +1572,10 @@ l3565 = loop_c3564+1
     asl a                                                             ; 50aa: 0a          .
     adc l0073                                                         ; 50ab: 65 73       es
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 50ad: 7d 03 56    }.V
-    sta sprite_ptr                                                    ; 50b0: 85 70       .p
+    sta l0070                                                         ; 50b0: 85 70       .p
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 50b2: bd 02 56    ..V
     adc #0                                                            ; 50b5: 69 00       i.
-    sta sprite_ptr+1                                                  ; 50b7: 85 71       .q
+    sta l0071                                                         ; 50b7: 85 71       .q
     lda ri_y                                                          ; 50b9: ad 64 04    .d.
     cmp #1                                                            ; 50bc: c9 01       ..
     beq clc_jmp_sprite_core                                           ; 50be: f0 21       .!
@@ -1585,10 +1591,10 @@ l3565 = loop_c3564+1
     asl a                                                             ; 50ce: 0a          .
     adc l0073                                                         ; 50cf: 65 73       es
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 50d1: 7d 03 56    }.V
-    sta sprite_ptr2                                                   ; 50d4: 85 7e       .~
+    sta l007e                                                         ; 50d4: 85 7e       .~
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 50d6: bd 02 56    ..V
     adc #0                                                            ; 50d9: 69 00       i.
-    sta sprite_ptr2+1                                                 ; 50db: 85 7f       ..
+    sta l007f                                                         ; 50db: 85 7f       ..
     clc                                                               ; 50dd: 18          .
     jmp sprite_core_moving                                            ; 50de: 4c 51 52    LQR
 
@@ -1618,10 +1624,10 @@ l3565 = loop_c3564+1
     asl a                                                             ; 5100: 0a          .
     adc l0073                                                         ; 5101: 65 73       es
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 5103: 7d 03 56    }.V
-    sta sprite_ptr                                                    ; 5106: 85 70       .p
+    sta l0070                                                         ; 5106: 85 70       .p
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5108: bd 02 56    ..V
     adc #0                                                            ; 510b: 69 00       i.
-    sta sprite_ptr+1                                                  ; 510d: 85 71       .q
+    sta l0071                                                         ; 510d: 85 71       .q
     lda #0                                                            ; 510f: a9 00       ..
     sta sprite_screen_and_data_addrs+screen_addr_lo,x                 ; 5111: 9d 00 56    ..V
     sta sprite_screen_and_data_addrs+screen_addr_hi,x                 ; 5114: 9d 01 56    ..V
@@ -1865,15 +1871,15 @@ l3565 = loop_c3564+1
 .sprite_core_inner_loop
     ldy #0                                                            ; 5205: a0 00       ..
     lda (screen_ptr),y                                                ; 5207: b1 7a       .z
-    eor (sprite_ptr),y                                                ; 5209: 51 70       Qp
+    eor (l0070),y                                                     ; 5209: 51 70       Qp
     sta (screen_ptr),y                                                ; 520b: 91 7a       .z
     ldy #8                                                            ; 520d: a0 08       ..
     lda (screen_ptr),y                                                ; 520f: b1 7a       .z
-    eor (sprite_ptr),y                                                ; 5211: 51 70       Qp
+    eor (l0070),y                                                     ; 5211: 51 70       Qp
     sta (screen_ptr),y                                                ; 5213: 91 7a       .z
     ldy #&10                                                          ; 5215: a0 10       ..
     lda (screen_ptr),y                                                ; 5217: b1 7a       .z
-    eor (sprite_ptr),y                                                ; 5219: 51 70       Qp
+    eor (l0070),y                                                     ; 5219: 51 70       Qp
     sta (screen_ptr),y                                                ; 521b: 91 7a       .z
     lda screen_ptr                                                    ; 521d: a5 7a       .z
     and #7                                                            ; 521f: 29 07       ).
@@ -1882,17 +1888,17 @@ l3565 = loop_c3564+1
     inc screen_ptr                                                    ; 5225: e6 7a       .z
 ; &5227 referenced 1 time by &524a
 .sprite_core_screen_ptr_updated
-    inc sprite_ptr                                                    ; 5227: e6 70       .p
+    inc l0070                                                         ; 5227: e6 70       .p
     beq sprite_core_low_byte_wrapped                                  ; 5229: f0 21       .!
 ; &522b referenced 1 time by &524f
 .sprite_core_low_byte_wrap_handled
     dex                                                               ; 522b: ca          .
     bne sprite_core_inner_loop                                        ; 522c: d0 d7       ..
-    lda sprite_ptr                                                    ; 522e: a5 70       .p
+    lda l0070                                                         ; 522e: a5 70       .p
     adc #&10                                                          ; 5230: 69 10       i.
-    sta sprite_ptr                                                    ; 5232: 85 70       .p
+    sta l0070                                                         ; 5232: 85 70       .p
     bcc sprite_core_no_carry                                          ; 5234: 90 03       ..
-    inc sprite_ptr+1                                                  ; 5236: e6 71       .q
+    inc l0071                                                         ; 5236: e6 71       .q
     clc                                                               ; 5238: 18          .
 ; &5239 referenced 1 time by &5234
 .sprite_core_no_carry
@@ -1911,7 +1917,7 @@ l3565 = loop_c3564+1
     bne sprite_core_screen_ptr_updated                                ; 524a: d0 db       ..             ; always branch
 ; &524c referenced 1 time by &5229
 .sprite_core_low_byte_wrapped
-    inc sprite_ptr+1                                                  ; 524c: e6 71       .q
+    inc l0071                                                         ; 524c: e6 71       .q
     clc                                                               ; 524e: 18          .
     bne sprite_core_low_byte_wrap_handled                             ; 524f: d0 da       ..             ; always branch
 
@@ -1931,24 +1937,24 @@ l3565 = loop_c3564+1
 .c5258
     ldy #0                                                            ; 5258: a0 00       ..
     lda (screen_ptr2),y                                               ; 525a: b1 7c       .|
-    eor (sprite_ptr2),y                                               ; 525c: 51 7e       Q~
+    eor (l007e),y                                                     ; 525c: 51 7e       Q~
     sta (screen_ptr2),y                                               ; 525e: 91 7c       .|
     lda (screen_ptr),y                                                ; 5260: b1 7a       .z
-    eor (sprite_ptr),y                                                ; 5262: 51 70       Qp
+    eor (l0070),y                                                     ; 5262: 51 70       Qp
     sta (screen_ptr),y                                                ; 5264: 91 7a       .z
     ldy #8                                                            ; 5266: a0 08       ..
     lda (screen_ptr2),y                                               ; 5268: b1 7c       .|
-    eor (sprite_ptr2),y                                               ; 526a: 51 7e       Q~
+    eor (l007e),y                                                     ; 526a: 51 7e       Q~
     sta (screen_ptr2),y                                               ; 526c: 91 7c       .|
     lda (screen_ptr),y                                                ; 526e: b1 7a       .z
-    eor (sprite_ptr),y                                                ; 5270: 51 70       Qp
+    eor (l0070),y                                                     ; 5270: 51 70       Qp
     sta (screen_ptr),y                                                ; 5272: 91 7a       .z
     ldy #&10                                                          ; 5274: a0 10       ..
     lda (screen_ptr2),y                                               ; 5276: b1 7c       .|
-    eor (sprite_ptr2),y                                               ; 5278: 51 7e       Q~
+    eor (l007e),y                                                     ; 5278: 51 7e       Q~
     sta (screen_ptr2),y                                               ; 527a: 91 7c       .|
     lda (screen_ptr),y                                                ; 527c: b1 7a       .z
-    eor (sprite_ptr),y                                                ; 527e: 51 70       Qp
+    eor (l0070),y                                                     ; 527e: 51 70       Qp
     sta (screen_ptr),y                                                ; 5280: 91 7a       .z
     lda screen_ptr                                                    ; 5282: a5 7a       .z
     and #7                                                            ; 5284: 29 07       ).
@@ -1964,29 +1970,29 @@ l3565 = loop_c3564+1
     inc screen_ptr2                                                   ; 5294: e6 7c       .|
 ; &5296 referenced 1 time by &52d7
 .c5296
-    inc sprite_ptr                                                    ; 5296: e6 70       .p
+    inc l0070                                                         ; 5296: e6 70       .p
     beq c52d9                                                         ; 5298: f0 3f       .?
 ; &529a referenced 1 time by &52dc
 .c529a
-    inc sprite_ptr2                                                   ; 529a: e6 7e       .~
+    inc l007e                                                         ; 529a: e6 7e       .~
     beq c52de                                                         ; 529c: f0 40       .@
 ; &529e referenced 1 time by &52e1
 .c529e
     dex                                                               ; 529e: ca          .
     bne c5258                                                         ; 529f: d0 b7       ..
-    lda sprite_ptr                                                    ; 52a1: a5 70       .p
+    lda l0070                                                         ; 52a1: a5 70       .p
     adc #&10                                                          ; 52a3: 69 10       i.
-    sta sprite_ptr                                                    ; 52a5: 85 70       .p
+    sta l0070                                                         ; 52a5: 85 70       .p
     bcc c52ac                                                         ; 52a7: 90 03       ..
-    inc sprite_ptr+1                                                  ; 52a9: e6 71       .q
+    inc l0071                                                         ; 52a9: e6 71       .q
     clc                                                               ; 52ab: 18          .
 ; &52ac referenced 1 time by &52a7
 .c52ac
-    lda sprite_ptr2                                                   ; 52ac: a5 7e       .~
+    lda l007e                                                         ; 52ac: a5 7e       .~
     adc #&10                                                          ; 52ae: 69 10       i.
-    sta sprite_ptr2                                                   ; 52b0: 85 7e       .~
+    sta l007e                                                         ; 52b0: 85 7e       .~
     bcc c52b7                                                         ; 52b2: 90 03       ..
-    inc sprite_ptr2+1                                                 ; 52b4: e6 7f       ..
+    inc l007f                                                         ; 52b4: e6 7f       ..
     clc                                                               ; 52b6: 18          .
 ; &52b7 referenced 1 time by &52b2
 .c52b7
@@ -2017,18 +2023,19 @@ l3565 = loop_c3564+1
     bne c5296                                                         ; 52d7: d0 bd       ..
 ; &52d9 referenced 1 time by &5298
 .c52d9
-    inc sprite_ptr+1                                                  ; 52d9: e6 71       .q
+    inc l0071                                                         ; 52d9: e6 71       .q
     clc                                                               ; 52db: 18          .
     bne c529a                                                         ; 52dc: d0 bc       ..
 ; &52de referenced 1 time by &529c
 .c52de
-    inc sprite_ptr2+1                                                 ; 52de: e6 7f       ..
+    inc l007f                                                         ; 52de: e6 7f       ..
     clc                                                               ; 52e0: 18          .
     bne c529e                                                         ; 52e1: d0 bb       ..
+; Takes sprite slot in W%. Takes TODO: something in Z%.
 .t_subroutine
     lda ri_w                                                          ; 52e3: ad 5c 04    .\.
     beq cli_rts                                                       ; 52e6: f0 d3       ..
-    cmp #&31 ; '1'                                                    ; 52e8: c9 31       .1
+    cmp #max_sprite_num+1                                             ; 52e8: c9 31       .1
     bcs cli_rts                                                       ; 52ea: b0 cf       ..
     sec                                                               ; 52ec: 38          8
     sbc #1                                                            ; 52ed: e9 01       ..
@@ -2047,26 +2054,26 @@ l3565 = loop_c3564+1
     tax                                                               ; 5305: aa          .
     lda #0                                                            ; 5306: a9 00       ..
     sta ri_y                                                          ; 5308: 8d 64 04    .d.
-    sta sprite_ptr                                                    ; 530b: 85 70       .p
+    sta l0070                                                         ; 530b: 85 70       .p
     sta l0072                                                         ; 530d: 85 72       .r
     lda #1                                                            ; 530f: a9 01       ..
     sta l0073                                                         ; 5311: 85 73       .s
     tya                                                               ; 5313: 98          .
     asl a                                                             ; 5314: 0a          .
-    sta sprite_ptr2+1                                                 ; 5315: 85 7f       ..
+    sta l007f                                                         ; 5315: 85 7f       ..
     tay                                                               ; 5317: a8          .
     asl a                                                             ; 5318: 0a          .
-    sta sprite_ptr2                                                   ; 5319: 85 7e       .~
+    sta l007e                                                         ; 5319: 85 7e       .~
     and #&3f ; '?'                                                    ; 531b: 29 3f       )?
     asl a                                                             ; 531d: 0a          .
-    sta sprite_pixel_x_lo                                             ; 531e: 85 76       .v
+    sta l0076                                                         ; 531e: 85 76       .v
     lda sprite_pixel_coord_table_xy,y                                 ; 5320: b9 60 57    .`W
     cmp #&fe                                                          ; 5323: c9 fe       ..
     bcs c537e                                                         ; 5325: b0 57       .W
-    ldy sprite_ptr2                                                   ; 5327: a4 7e       .~
+    ldy l007e                                                         ; 5327: a4 7e       .~
     lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 5329: b9 01 56    ..V
     beq cli_rts                                                       ; 532c: f0 8d       ..
-    ldy sprite_ptr2+1                                                 ; 532e: a4 7f       ..
+    ldy l007f                                                         ; 532e: a4 7f       ..
     lda l55c0,x                                                       ; 5330: bd c0 55    ..U
     bmi c53ac                                                         ; 5333: 30 77       0w
     clc                                                               ; 5335: 18          .
@@ -2075,12 +2082,12 @@ l3565 = loop_c3564+1
 ; &533b referenced 3 times by &537c, &53aa, &53b2
 .c533b
     asl a                                                             ; 533b: 0a          .
-    rol sprite_ptr                                                    ; 533c: 26 70       &p
+    rol l0070                                                         ; 533c: 26 70       &p
     asl a                                                             ; 533e: 0a          .
-    rol sprite_ptr                                                    ; 533f: 26 70       &p
+    rol l0070                                                         ; 533f: 26 70       &p
     asl a                                                             ; 5341: 0a          .
-    rol sprite_ptr                                                    ; 5342: 26 70       &p
-    sta sprite_ptr+1                                                  ; 5344: 85 71       .q
+    rol l0070                                                         ; 5342: 26 70       &p
+    sta l0071                                                         ; 5344: 85 71       .q
 ; &5346 referenced 2 times by &539a, &53b8
 .c5346
     lda sprite_pixel_coord_table_xy+1,y                               ; 5346: b9 61 57    .aW
@@ -2100,10 +2107,10 @@ l3565 = loop_c3564+1
     tax                                                               ; 535e: aa          .
 ; &535f referenced 1 time by &53f8
 .c535f
-    ldy sprite_pixel_x_lo                                             ; 535f: a4 76       .v
-    lda sprite_ptr+1                                                  ; 5361: a5 71       .q
+    ldy l0076                                                         ; 535f: a4 76       .v
+    lda l0071                                                         ; 5361: a5 71       .q
     sta ri_a,y                                                        ; 5363: 99 04 04    ...
-    lda sprite_ptr                                                    ; 5366: a5 70       .p
+    lda l0070                                                         ; 5366: a5 70       .p
     sta ri_a+1,y                                                      ; 5368: 99 05 04    ...
     lda l0072                                                         ; 536b: a5 72       .r
     sta ri_b+1,y                                                      ; 536d: 99 09 04    ...
@@ -2117,7 +2124,7 @@ l3565 = loop_c3564+1
     bcc c53ca                                                         ; 5378: 90 50       .P
 ; &537a referenced 1 time by &53b0
 .c537a
-    dec sprite_ptr                                                    ; 537a: c6 70       .p
+    dec l0070                                                         ; 537a: c6 70       .p
     bcc c533b                                                         ; 537c: 90 bd       ..
 ; &537e referenced 1 time by &5325
 .c537e
@@ -2131,12 +2138,12 @@ l3565 = loop_c3564+1
 .loop_c538c
     sta sprite_pixel_coord_table_xy,y                                 ; 538c: 99 60 57    .`W
     asl a                                                             ; 538f: 0a          .
-    rol sprite_ptr                                                    ; 5390: 26 70       &p
+    rol l0070                                                         ; 5390: 26 70       &p
     asl a                                                             ; 5392: 0a          .
-    rol sprite_ptr                                                    ; 5393: 26 70       &p
+    rol l0070                                                         ; 5393: 26 70       &p
     asl a                                                             ; 5395: 0a          .
-    rol sprite_ptr                                                    ; 5396: 26 70       &p
-    sta sprite_ptr+1                                                  ; 5398: 85 71       .q
+    rol l0070                                                         ; 5396: 26 70       &p
+    sta l0071                                                         ; 5398: 85 71       .q
     bne c5346                                                         ; 539a: d0 aa       ..
 ; &539c referenced 1 time by &537e
 .c539c
@@ -2147,7 +2154,7 @@ l3565 = loop_c3564+1
     bne loop_c538c                                                    ; 53a6: d0 e4       ..
 ; &53a8 referenced 1 time by &5339
 .c53a8
-    inc sprite_ptr                                                    ; 53a8: e6 70       .p
+    inc l0070                                                         ; 53a8: e6 70       .p
     bne c533b                                                         ; 53aa: d0 8f       ..
 ; &53ac referenced 1 time by &5333
 .c53ac
@@ -2252,10 +2259,10 @@ l3565 = loop_c3564+1
     adc l0073                                                         ; 5430: 65 73       es
     sta l0072                                                         ; 5432: 85 72       .r
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 5434: 7d 03 56    }.V
-    sta sprite_ptr2                                                   ; 5437: 85 7e       .~
+    sta l007e                                                         ; 5437: 85 7e       .~
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5439: bd 02 56    ..V
     adc #0                                                            ; 543c: 69 00       i.
-    sta sprite_ptr2+1                                                 ; 543e: 85 7f       ..
+    sta l007f                                                         ; 543e: 85 7f       ..
     lda ri_x                                                          ; 5440: ad 60 04    .`.
     sec                                                               ; 5443: 38          8
     sbc #1                                                            ; 5444: e9 01       ..
@@ -2264,11 +2271,11 @@ l3565 = loop_c3564+1
     lda l0072                                                         ; 5448: a5 72       .r
     adc sprite_ref_addrs_be+1,y                                       ; 544a: 79 01 57    y.W
     sta sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 544d: 9d 03 56    ..V
-    sta sprite_ptr                                                    ; 5450: 85 70       .p
+    sta l0070                                                         ; 5450: 85 70       .p
     lda sprite_ref_addrs_be,y                                         ; 5452: b9 00 57    ..W
     adc #0                                                            ; 5455: 69 00       i.
     sta sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5457: 9d 02 56    ..V
-    sta sprite_ptr+1                                                  ; 545a: 85 71       .q
+    sta l0071                                                         ; 545a: 85 71       .q
     jmp sprite_core_moving                                            ; 545c: 4c 51 52    LQR
 
 ; &545f referenced 1 time by &540a
@@ -2284,25 +2291,25 @@ l3565 = loop_c3564+1
     and #&3f ; '?'                                                    ; 546a: 29 3f       )?
     tay                                                               ; 546c: a8          .
     lda #0                                                            ; 546d: a9 00       ..
-    sta sprite_ptr                                                    ; 546f: 85 70       .p
-    sta sprite_ptr+1                                                  ; 5471: 85 71       .q
+    sta l0070                                                         ; 546f: 85 70       .p
+    sta l0071                                                         ; 5471: 85 71       .q
     lda sprite_pixel_coord_table_xy,x                                 ; 5473: bd 60 57    .`W
     asl a                                                             ; 5476: 0a          .
-    rol sprite_ptr                                                    ; 5477: 26 70       &p
+    rol l0070                                                         ; 5477: 26 70       &p
     asl a                                                             ; 5479: 0a          .
-    rol sprite_ptr                                                    ; 547a: 26 70       &p
+    rol l0070                                                         ; 547a: 26 70       &p
     asl a                                                             ; 547c: 0a          .
-    rol sprite_ptr                                                    ; 547d: 26 70       &p
+    rol l0070                                                         ; 547d: 26 70       &p
     sta ri_a,y                                                        ; 547f: 99 04 04    ...
-    lda sprite_ptr                                                    ; 5482: a5 70       .p
+    lda l0070                                                         ; 5482: a5 70       .p
     sta ri_a+1,y                                                      ; 5484: 99 05 04    ...
     lda sprite_pixel_coord_table_xy+1,x                               ; 5487: bd 61 57    .aW
     asl a                                                             ; 548a: 0a          .
-    rol sprite_ptr+1                                                  ; 548b: 26 71       &q
+    rol l0071                                                         ; 548b: 26 71       &q
     asl a                                                             ; 548d: 0a          .
-    rol sprite_ptr+1                                                  ; 548e: 26 71       &q
+    rol l0071                                                         ; 548e: 26 71       &q
     sta ri_b,y                                                        ; 5490: 99 08 04    ...
-    lda sprite_ptr+1                                                  ; 5493: a5 71       .q
+    lda l0071                                                         ; 5493: a5 71       .q
     sta ri_b+1,y                                                      ; 5495: 99 09 04    ...
 ; &5498 referenced 1 time by &5466
 .u_subroutine_rts2
@@ -2336,7 +2343,7 @@ l3565 = loop_c3564+1
     ldx #0                                                            ; 54ae: a2 00       ..
     clc                                                               ; 54b0: 18          .
     ldy #&30 ; '0'                                                    ; 54b1: a0 30       .0
-    sty sprite_ptr                                                    ; 54b3: 84 70       .p
+    sty l0070                                                         ; 54b3: 84 70       .p
     ldy #0                                                            ; 54b5: a0 00       ..
 ; &54b7 referenced 1 time by &54d9
 .c54b7
@@ -2354,7 +2361,7 @@ l3565 = loop_c3564+1
     tay                                                               ; 54d4: a8          .
     inx                                                               ; 54d5: e8          .
     inx                                                               ; 54d6: e8          .
-    dec sprite_ptr                                                    ; 54d7: c6 70       .p
+    dec l0070                                                         ; 54d7: c6 70       .p
     bne c54b7                                                         ; 54d9: d0 dc       ..
 ; &54db referenced 1 time by &54a5
     rts                                                               ; 54db: 60          `
@@ -2568,10 +2575,10 @@ l3565 = loop_c3564+1
 .pydis_end
 
 ; Label references by decreasing frequency:
-;     sprite_ptr:                                      36
+;     l0070:                                           36
 ;     screen_ptr:                                      26
 ;     l0073:                                           21
-;     sprite_ptr+1:                                    18
+;     l0071:                                           18
 ;     l0072:                                           17
 ;     l0075:                                           17
 ;     sprite_pixel_coord_table_xy:                     17
@@ -2579,14 +2586,14 @@ l3565 = loop_c3564+1
 ;     screen_ptr2:                                     14
 ;     l0074:                                           12
 ;     screen_ptr+1:                                    10
-;     sprite_ptr2:                                     10
+;     l007e:                                           10
 ;     sprite_screen_and_data_addrs+screen_addr_hi:      9
 ;     sprite_pixel_x_lo:                                8
 ;     ri_x:                                             7
 ;     cli_rts:                                          7
 ;     u_subroutine_rts:                                 7
 ;     screen_ptr2+1:                                    6
-;     sprite_ptr2+1:                                    6
+;     l007f:                                            6
 ;     ri_y:                                             6
 ;     zero_ri_x_y_and_rts:                              6
 ;     sprite_screen_and_data_addrs+screen_addr_lo:      6
@@ -2839,6 +2846,11 @@ l3565 = loop_c3564+1
     assert >sprite_24 == &4c
     assert >sprite_25 == &4d
     assert initial_qrstuv_values-1 == &54db
+    assert l0070 == &70
+    assert l0071 == &71
+    assert l0076 == &76
+    assert l007e == &7e
+    assert l007f == &7f
     assert max_sprite_num+1 == &31
     assert osbyte_clear_escape == &7c
     assert osbyte_inkey == &81

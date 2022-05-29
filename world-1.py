@@ -83,6 +83,8 @@ comment(0x5026, "TODO: Dead code?")
 comment(0x4f00, "Based on how this is called by world-2.bas, I infer that it is a collision detection subroutine which returns with X% indicating what was collided with, or 0 if nothing. The code here appears to return values in Y% and Z% but I don't think they are used by the game. W% on entry is probably the sprite we are checking for collisions with; world-2.bas always sets it to the current player sprite. Y% is also used to pass something in but I don't know what; world-2.bas always sets it to 8.")
 label(0x4f66, "zero_ri_x_y_and_rts")
 comment(0x4f10, "We have X=(W%-1)*2, Y=(W%-1)*4. X retains this value for the entire subroutine. Y's value is only used if the beq q_subroutine_y_loop_test_and_bump branch is taken on the first pass round q_subroutine_y_loop.")
+expr(0x4f06, "max_sprite_num+1")
+expr(0x4f1d, "max_sprite_num+1")
 constant(0x71, "q_subroutine_ri_w_minus_1_times_2")
 expr(0x4f16, "q_subroutine_ri_w_minus_1_times_2")
 expr(0x4f29, "q_subroutine_ri_w_minus_1_times_2")
@@ -90,6 +92,7 @@ constant(0x70, "q_subroutine_ri_y_minus_1_times_2")
 expr(0x4f25, "q_subroutine_ri_y_minus_1_times_2")
 expr(0x4f5e, "q_subroutine_ri_y_minus_1_times_2")
 label(0x4f28, "q_subroutine_y_loop")
+comment(0x4f28, "Don't test for collision of W% with itself!")
 comment(0x4f28, "TODO: This is roughly a loop over Y, bumping Y by 2 each time, although the end condition is complex - note that because Y temporarily gets copied into A for the bump by 2, the code at &4f5d has the *original* value of Y when it does cpy")
 label(0x4f5d, "q_subroutine_y_loop_test_and_bump")
 comment(0x4f3c, "sprite_pixel_coord_table_xy,x > sprite_pixel_coord_table_xy,y (TODO: assuming unsigned)")
@@ -120,8 +123,33 @@ label(0x78, "sprite_pixel_x_hi")
 label(0x77, "sprite_pixel_y_lo")
 label(0x79, "sprite_pixel_y_hi")
 
+# TODO: (for py8dis) this overrides things like "sprite_ptr+1" even outside the context region indicated. I vaguely see why this is happening, but it doesn't feel right.
+#def our_label_maker(addr, context, suggestion):
+#    if 0x52e3 <= context <= 0x53eb and addr < 0x100:
+#        return "TODO%04x" % addr
+#    return None
+#set_label_maker_hook(our_label_maker)
+
 # t_subroutine
+comment(0x52e3, "Takes sprite slot in W%. Takes TODO: something in Z%.")
 label(0x52bb, "cli_rts")
+expr(0x52e9, "max_sprite_num+1")
+# TODO: Hack to work around over-zealous global naming of these addresses, which don't apply to t_subroutine.
+label(0x70, "l0070")
+label(0x71, "l0071")
+label(0x76, "l0076")
+label(0x7e, "l007e")
+label(0x7f, "l007f")
+expr(0x530c, "l0070")
+expr(0x5316, "l007f")
+expr(0x531a, "l007e")
+expr(0x5328, "l007e")
+expr(0x532f, "l007f")
+expr(0x531f, "l0076")
+expr(0x5345, "l0071")
+expr(0x5360, "l0076")
+expr(0x5362, "l0071")
+expr(0x5399, "l0071")
 
 # u_subroutine
 # TODO: I think I have been getting slightly mixed up with sprites. Need to tweak all comments later once this is clearer. Roughly speaking I think there are sprite "slots" (1-&30 inclusive) and sprite "images" (1-&30 inclusive). Each slot remembers what was last plotted there (using the sprite address in sprite_screen_and_data_addrs for the relevant slot).")
