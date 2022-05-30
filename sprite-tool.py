@@ -1,5 +1,9 @@
 from PIL import Image, ImageColor
 
+# It looks like the screen dumps are not quite properly aligned, so work
+# around that.
+x_fudge = 1
+
 sprite_sheet_x_spacing = 96
 sprite_sheet_y_spacing = 32
 sprite_image_width = 48
@@ -12,7 +16,7 @@ def get_sprite_frames(sprite_sheet, n):
         right = left+sprite_image_width
         top = n*sprite_image_height
         bottom = top+sprite_image_height
-        frames.append(sprite_sheet.crop((left, top, right, bottom)))
+        frames.append(sprite_sheet.crop((left+x_fudge, top, right+x_fudge, bottom)))
         assert frames[-1].size == (sprite_image_width, sprite_image_height)
     return frames
 
