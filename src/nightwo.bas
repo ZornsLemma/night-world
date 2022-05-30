@@ -1,4 +1,3 @@
-   10*FX200,3
    20MODE7:VDU23;8202;0;0;0;
    30PRINTTAB(0,0);:VDU130,157,141,133:PRINTTAB(15,0)"NIGHTWORLD":PRINTTAB(0,1);:VDU129,157,141,132:PRINTTAB(15,1)"NIGHTWORLD"
    40PRINTTAB(3,3)"You are Lee Lance the explorer."'" Find your way through the many vaults   of this cavernous underworld collecting the objects that will lead to the final escape route and the magical golden     fleece."
