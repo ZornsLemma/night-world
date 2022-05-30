@@ -1,8 +1,8 @@
 The game contains 19 sprites. Each sprite has four versions for different sub-byte X positions; in mode 5, each byte of screen memory contains four pixels and having these pre-defined versions saves doing bit shifting when plotting data to the screen. It also allows animation "for free" by automatically changing the sprite's appearance based on its X co-ordinate.
 
-| physical | logical | frames | animation | notes |
-| --------:| -------:| ------ | --------- | ----- |
-| 0 &4000  |     1-8 | ![](img/sprite-00-0.png) ![](img/sprite-00-1.png) ![](img/sprite-00-2.png) ![](img/sprite-00-3.png) | ![](img/sprite-00-anim.gif) | Final Guardian/Demon Lord: guards the exit if the player has the fleece and is trying to escape for a 100% win. |
+| physical | logical | frames | animation | name |
+| --------:| -------:| ------ | --------- | ---- |
+| 0 &4000  |     1-8 | ![](img/sprite-00-0.png) ![](img/sprite-00-1.png) ![](img/sprite-00-2.png) ![](img/sprite-00-3.png) | ![](img/sprite-00-anim.gif) | Final Guardian/Demon Lord |
 | 1 &40C0  |       9 | ![](img/sprite-01-0.png) ![](img/sprite-01-1.png) ![](img/sprite-01-2.png) ![](img/sprite-01-3.png) | ![](img/sprite-01-anim.gif) | foo |
 | 2 &4180  |      10 | ![](img/sprite-02-0.png) ![](img/sprite-02-1.png) ![](img/sprite-02-2.png) ![](img/sprite-02-3.png) | ![](img/sprite-02-anim.gif) | foo |
 | 3 &4240  |      11 | ![](img/sprite-03-0.png) ![](img/sprite-03-1.png) ![](img/sprite-03-2.png) ![](img/sprite-03-3.png) | ![](img/sprite-03-anim.gif) | foo |
