@@ -59,7 +59,7 @@ oswrch = &ffee
     rts
 
 .chain_command
-    equs "PAGE=&1100:CHAIN ", '"', "World-2", '"', vdu_enable_output, 13, 0
+    equs "PAGE=&1100:CHAIN ", '"', "World1b", '"', vdu_enable_output, 13, 0
 
     assert P% < pydis_start
     assert (pydis_start - P%) < 256
@@ -69,3 +69,5 @@ oswrch = &ffee
 ; be changed. Should probably call it World11 and make the BASIC World12 later
 ; or something like that.
 save "World-1", start, pydis_end, exec
+
+putfile "tmp/world-1b.tok", "World1b", &1900, &8023
