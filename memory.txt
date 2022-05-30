@@ -1,0 +1,16 @@
+BBC-Wor - BASIC with some screen data on the end
+Nightwo - pure BASIC - ends with *RUN "WORLD-1"
+
+World-1
+- loads at &1F00 and occupies all memory up to &5800 (mode 4/5 HIMEM)
+- &1F00-&2900 is data that gets transferred onto the screen (it's the top banner) and which can then be overwritten
+- &2900-&3560 is the BASIC code which gets run via a little code stub at &3560 (which is the execution address of the file) - this code stub also calls v_subroutine to set up the resident integer variables
+- &35bc-&4f00 is game data (sprites/room data/some junk?)
+- &4f00-&5800 is machine code and some associated data (split between this and &35bc-&4f00 is a bit arbitrary in this crude classification)
+
+World-2
+- loads at &1100 and occupies memory up to &3321 when it's loaded - so this just (partially) overwrites the screen data and BASIC program in memory from World-1, with 575 bytes free (poss off-by-one error here, doesn't matter) before World-2 would overwriten the game data starting at &35bc
+- it relocates itself down to &D00 and sets PAGE=&D00, at which point it occupies memory &D00-&2F21
+- apart from the relocation it is pure BASIC and it doesn't change MODE or adjust LOMEM/HIMEM at all. The BASIC stack will therefore grow downwards from HIMEM=&5800; this is presumably OK because there's a small amount of slack (probably from &57c0-&5800, judging from current understanding of world-1.asm) and it doesn't need very much stack space.
+- BASIC variables will be allocated from &2F21 upwards and there's space free from there up to &35bc where World-1's game data/code starts
+- 
