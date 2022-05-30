@@ -1,0 +1,68 @@
+Take all this with a decent-sized shovelful of salt, but if anyone's interested in poking at the BASIC, here's a brief summary of my current understanding of the machine code routines. These almost all appear to be sprite-related, except for an unused subroutine accessible via R% which appears to do some keyboard reading.
+
+The sprite engine seems to have 48 "sprite slots" and support up to 48 "sprite images". (Suggestions for better terminology welcome...) These are numbered 1-48, with 0 used to mean "none" in some contexts.
+
+Each sprite slot has a position and an associated sprite image stored within the sprite engine's own data structures. A sprite slot effectively says "show sprite image n at screen position (x,y)". The same sprite image can be used by more than one sprite slot at once.
+
+In order to send sprite positions back and forth between BASIC and the sprite engine, each sprite slot also has a pair of adjacent resident integer variables assigned to it which are used to read/write its current position in OS graphics coordinates (1280x1024). There obviously aren't enough resident integer variables for each sprite slot to have its own pair, so they're shared:
+[list]
+[*]slots 1/ 9/17/25/33/41 use A% (X coordinate) and B% (Y coordinate)
+[*]slots 2/10/18/26/34/42 use C%/D%
+[*]slots 3/11/19/27/35/43 use E%/F%
+[*]slots 4/12/20/28/36/44 use G%/H%
+[*]slots 5/13/21/29/37/45 use I%/J%
+[*]slots 6/14/22/30/38/46 use K%/L%
+[*]slots 7/15/23/31/39/47 use M%/N%
+[*]slots 8/16/24/32/40/48 use O%/P%
+[/list]
+
+All sprite plotting uses EOR. The sprite engine is reasonably clever about not un-plotting something that hasn't already been plotted, but it's probably possible to make it do this if you call it wrongly. I haven't analysed its precise behaviour and one way or another world-2.bas seems to get this consistently right.
+
+[b]CALL V% - initialise/reset the sprite engine[/b]
+
+This sets up Q%-V% with the addresses of the machine code subroutines; the chicken-and-egg problem is avoided here because *RUNning "World-1" also implicitly calls this code.
+
+It also sets every sprite slot to be associated with the corresponding sprite image (so sprite slot 1 starts off associated with sprite image 1, etc) and sets its coordinates to (0, 0). A sprite Y co-ordinate of <2 is considered invalid, so all sprites start off "not shown", as you'd expect.
+
+[b]CALL S% - show, move or hide a sprite[/b]
+
+[list]
+[*]W% is the sprite slot to work with.
+[*]If Y%=1, the sprite image associated with the slot is made visible at the position specified by the corresponding resident integer variable pair.
+[*]If Y%=0, the sprite image already on the screen is moved to the position specified by the corresponding resident integer variable pair (so this does an "un-plot" and then a "plot").
+[*]If Y%=2, the sprite image is removed from the screen; this is a no-op if it's not visible anyway.
+[/list]
+
+[b]CALL U% - associate a sprite graphics with a sprite slot or query a sprite's position[/b]
+
+[list]
+[*]W% is the sprite slot to work with.
+[*]This is a no-op if the sprite isn't currently on the screen. (I think this might mean you have to at least briefly show the "default" sprite image for a slot using CALL S% before you can change the associated image to something else using CALL U%. I may be missing something here and/or it may be that the game is planned so this is never a problem.) Otherwise:
+[*]If X%=0, the resident integer variables for sprite slot W% are set to the sprite's current position.
+[*]If X%<>0, sprite image X% is associated with sprite slot W%. This will update the screen.
+[/list]
+
+[b]CALL Q% - collision detection[/b]
+
+[list]
+[*]W% is the sprite slot we want to check for collisions.
+[*]On exit, X% is the lowest-numbered sprite slot which is overlapping W%, or 0 if no overlapping sprite was found.
+[*]Y% and Z% are also updated on exit but world-2.bas doesn't seem to check them and I haven't tried to work out what they mean yet.
+[/list]
+
+Speculation alert: I haven't looked at exactly what counts as a collision yet. I would guess this is used for player-enemy collisions, not player-world collisions. If so, and *if* this isn't pixel-perfect collision detection but uses bounding boxes instead, tweaking this to be pixel-perfect might help improve the game's fairness by avoiding energy drains when an enemy is close but not actually touching. It might also break things *if* it's not just used for energy drain, as it might stop you jumping off an enemy.
+
+[b]CALL T% - move enemy sprite[/b]
+
+This is a no-op if Z% is 5, 10 or 20 on entry. (I have no idea why this is desirable.) Otherwise:
+
+[list]
+[*]W% is the sprite slot we want to move
+[*]The sprite's position will be updated according to rules I haven't decoded yet.
+[*]Y% is set to 0 (move) and S% is called to update the screen.
+[/list]
+
+I am sure there are going to be errors in here, and I haven't tried to describe every possible subtlety.
+
+Sprite slot/image numbers are usually (always?) validated at the start of these subroutines to see if they're in the correct range (1-48) and calls turn into a no-op if they're not. This is quite nice and probably doesn't cost a significant amount of performance, but it seems a bit odd if this isn't a generic sprite engine. I don't know if world-2.bas relies on this checking or not.
+
