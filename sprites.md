@@ -21,17 +21,17 @@
 | 18 &4D80 |      26 | ![](img/sprite-18-0.png) ![](img/sprite-18-1.png) ![](img/sprite-18-2.png) ![](img/sprite-18-3.png) | ![](img/sprite-18-anim.gif) | foo |
 
 | physical | frames |
-| -------- | ------ |
-| 0        | ![](img/sprite-00-0-large.png) ![](img/sprite-00-1-large.png) ![](img/sprite-00-2-large.png) ![](img/sprite-00-3-large.png) |
-| 01       | ![](img/sprite-01-0-large.png) ![](img/sprite-01-1-large.png) ![](img/sprite-01-2-large.png) ![](img/sprite-01-3-large.png) |
-| 02       | ![](img/sprite-02-0-large.png) ![](img/sprite-02-1-large.png) ![](img/sprite-02-2-large.png) ![](img/sprite-02-3-large.png) |
-| 03       | ![](img/sprite-03-0-large.png) ![](img/sprite-03-1-large.png) ![](img/sprite-03-2-large.png) ![](img/sprite-03-3-large.png) |
-| 04       | ![](img/sprite-04-0-large.png) ![](img/sprite-04-1-large.png) ![](img/sprite-04-2-large.png) ![](img/sprite-04-3-large.png) |
-| 05       | ![](img/sprite-05-0-large.png) ![](img/sprite-05-1-large.png) ![](img/sprite-05-2-large.png) ![](img/sprite-05-3-large.png) |
-| 06       | ![](img/sprite-06-0-large.png) ![](img/sprite-06-1-large.png) ![](img/sprite-06-2-large.png) ![](img/sprite-06-3-large.png) |
-| 07       | ![](img/sprite-07-0-large.png) ![](img/sprite-07-1-large.png) ![](img/sprite-07-2-large.png) ![](img/sprite-07-3-large.png) |
-| 08       | ![](img/sprite-08-0-large.png) ![](img/sprite-08-1-large.png) ![](img/sprite-08-2-large.png) ![](img/sprite-08-3-large.png) |
-| 09       | ![](img/sprite-09-0-large.png) ![](img/sprite-09-1-large.png) ![](img/sprite-09-2-large.png) ![](img/sprite-09-3-large.png) |
+| --------:| ------ |
+|  0       | ![](img/sprite-00-0-large.png) ![](img/sprite-00-1-large.png) ![](img/sprite-00-2-large.png) ![](img/sprite-00-3-large.png) |
+|  1       | ![](img/sprite-01-0-large.png) ![](img/sprite-01-1-large.png) ![](img/sprite-01-2-large.png) ![](img/sprite-01-3-large.png) |
+|  2       | ![](img/sprite-02-0-large.png) ![](img/sprite-02-1-large.png) ![](img/sprite-02-2-large.png) ![](img/sprite-02-3-large.png) |
+|  3       | ![](img/sprite-03-0-large.png) ![](img/sprite-03-1-large.png) ![](img/sprite-03-2-large.png) ![](img/sprite-03-3-large.png) |
+|  4       | ![](img/sprite-04-0-large.png) ![](img/sprite-04-1-large.png) ![](img/sprite-04-2-large.png) ![](img/sprite-04-3-large.png) |
+|  5       | ![](img/sprite-05-0-large.png) ![](img/sprite-05-1-large.png) ![](img/sprite-05-2-large.png) ![](img/sprite-05-3-large.png) |
+|  6       | ![](img/sprite-06-0-large.png) ![](img/sprite-06-1-large.png) ![](img/sprite-06-2-large.png) ![](img/sprite-06-3-large.png) |
+|  7       | ![](img/sprite-07-0-large.png) ![](img/sprite-07-1-large.png) ![](img/sprite-07-2-large.png) ![](img/sprite-07-3-large.png) |
+|  8       | ![](img/sprite-08-0-large.png) ![](img/sprite-08-1-large.png) ![](img/sprite-08-2-large.png) ![](img/sprite-08-3-large.png) |
+|  9       | ![](img/sprite-09-0-large.png) ![](img/sprite-09-1-large.png) ![](img/sprite-09-2-large.png) ![](img/sprite-09-3-large.png) |
 | 10       | ![](img/sprite-10-0-large.png) ![](img/sprite-10-1-large.png) ![](img/sprite-10-2-large.png) ![](img/sprite-10-3-large.png) |
 | 11       | ![](img/sprite-11-0-large.png) ![](img/sprite-11-1-large.png) ![](img/sprite-11-2-large.png) ![](img/sprite-11-3-large.png) |
 | 12       | ![](img/sprite-12-0-large.png) ![](img/sprite-12-1-large.png) ![](img/sprite-12-2-large.png) ![](img/sprite-12-3-large.png) |
