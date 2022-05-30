@@ -19,3 +19,7 @@
 | 16 &4C00 |      24 | ![](img/sprite-16-0.png) ![](img/sprite-16-1.png) ![](img/sprite-16-2.png) ![](img/sprite-16-3.png) | ![](img/sprite-16-anim.gif) | foo |
 | 17 &4CC0 |      25 | ![](img/sprite-17-0.png) ![](img/sprite-17-1.png) ![](img/sprite-17-2.png) ![](img/sprite-17-3.png) | ![](img/sprite-17-anim.gif) | foo |
 | 18 &4D80 |      26 | ![](img/sprite-18-0.png) ![](img/sprite-18-1.png) ![](img/sprite-18-2.png) ![](img/sprite-18-3.png) | ![](img/sprite-18-anim.gif) | foo |
+
+| physical | frames |
+| -------- | ------ |
+| 0        | ![](img/sprite-00-0-large.png) ![](img/sprite-00-1-large.png) ![](img/sprite-00-2-large.png) ![](img/sprite-00-3-large.png) |
