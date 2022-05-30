@@ -10,9 +10,14 @@ with open(sys.argv[1], "r") as f:
         c[addr] = int(s[1])
 
 ranges = (
-    ("game m/c", 0xd00, 0x8000),
+    ("main RAM", 0x0000, 0x8000),
+    ("q_subroutine", 0x4f00, 0x4f9f),
+    ("r_subroutine", 0x4f9f, 0x5025), # early end as s_subroutine overlaps a bit and this isn't used
+    ("s_subroutine", 0x5025, 0x52e3),
+    ("t_subroutine", 0x52e3, 0x53fb),
+    ("u_subroutine", 0x53fb, 0x54dc),
     ("BASIC", 0x8000, 0xc000),
-    ("OS", 0xc000, 0x10000),
+    ("other OS", 0xc000, 0x10000),
     ("OSWORD 9", 0xc735, 0xc748), # .osword9EntryPoint
     ("OSWORD 9", 0xd839, 0xd85d), # .readPixel
     ("OSWORD 9", 0xd149, 0xd176), # .plotConvertExternalAbsoluteCoordinatesToPixels
@@ -35,5 +40,5 @@ for addr, count in c.items():
     region_counts[range_dict[addr]] += count
 
 total_count = sum(x for x in region_counts.values())
-for name, count in region_counts.items():
-    print("%-10s %5.1f%% (%8d)" % (name, 100*float(count)/total_count, count))
+for name, count in sorted(region_counts.items(), key=lambda x: -x[1]):
+    print("%-12s %5.1f%% (%8d)" % (name, 100*float(count)/total_count, count))
