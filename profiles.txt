@@ -1,0 +1,5 @@
+prof-game-glitch.txt
+- me bumbling around on the first few screens, somehow managing to get as far as the first warp and then getting stuck on the rightmost statue and the enemy
+
+prof-game-no-glitch.txt
+- me bumbling around on the first few screens, unable to get up to the top of room C
