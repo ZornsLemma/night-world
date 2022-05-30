@@ -33,7 +33,7 @@ It also sets every sprite slot to be associated with the corresponding sprite im
 [*]If Y%=2, the sprite image is removed from the screen; this is a no-op if it's not visible anyway.
 [/list]
 
-[b]CALL U% - associate a sprite graphics with a sprite slot or query a sprite's position[/b]
+[b]CALL U% - associate a sprite image with a sprite slot or query a sprite's position[/b]
 
 [list]
 [*]W% is the sprite slot to work with.
