@@ -14,27 +14,7 @@ label(0x464, "ri_y")
 label(0x468, "ri_z")
 constant(0x30, "max_sprite_num")
 
-load(0x1f00, "orig/world-1", "630948d4685cb15e7485103744ff95f7")
-entry(0x3560, "start")
-# The embedded BASIC code CALLs this address.
-entry(0x3590, "basic_entry")
-
-comment(0x3560, "Set PAGE=&2900 and do OLD:RUN")
-expr(0x3575, ">basic")
-label(0x3580, "old_run")
-string(0x3580, 8)
-comment(0x2900, "Tokenised BASIC")
-label(0x2900, "basic")
-byte(0x2900, 0x3508-0x2900)
-
-comment(0x3590, "Copy screen_data onto the screen")
-constant(0x5800, "mode_5_himem")
-expr(0x359b, ">mode_5_himem")
-label(0x1f00, "screen_data")
-byte(0x1f00, 0xa00)
-label(0x1f00+0xa00, "screen_data_end")
-expr(0x3591, ">screen_data")
-expr(0x3593, ">(screen_data_end-screen_data)")
+load(0x35bc, "orig/world-1c", "28ab793fefbf7fa374ab6bd3957921c7")
 
 # There is no room 0; the code at "start" lives there.
 for i in range(1, 15):
