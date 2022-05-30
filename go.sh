@@ -57,5 +57,6 @@ basictool -t src/nightwo.bas tmp/nightwo.tok
 basictool -2t src/world-1b.bas tmp/world-1b.tok
 
 beebasm -do tmp/int1.ssd -title "Night World" -opt 3 -i src/disc.asm
-beebasm -do tmp/int2.ssd -di tmp/int1.ssd -D MAKE_IMAGE -i src/world-1c-wrapper.asm
-beebasm -do night-world.ssd -di tmp/int2.ssd -D MAKE_IMAGE -i src/world-2.asm
+#beebasm -do tmp/int2.ssd -di tmp/int1.ssd -D MAKE_IMAGE -i src/world-1c-wrapper.asm
+#beebasm -do night-world.ssd -di tmp/int2.ssd -D MAKE_IMAGE -i src/world-2.asm
+beebasm -do night-world.ssd -di tmp/int1.ssd -D MAKE_IMAGE -i src/world-1c-wrapper.asm
