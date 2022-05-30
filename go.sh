@@ -46,10 +46,10 @@ fi
 # world-2.asm has been manually modified so world-2.py is now "frozen" as just
 # an artefact of the disassembly process.
 # python world-2.py > src/world-2.asm
-beebasm -v -o tmp/world-2 -i src/world-2.asm > tmp/world-2.lst
-if [ "$USE_WORLD_2_ANNOTATED" == "0" ]; then
-    cmp orig/world-2 tmp/world-2 || (echo world-2 not rebuilt correctly > /dev/stderr; exit 1)
-fi
+#beebasm -v -o tmp/world-2 -i src/world-2.asm > tmp/world-2.lst
+#if [ "$USE_WORLD_2_ANNOTATED" == "0" ]; then
+#    cmp orig/world-2 tmp/world-2 || (echo world-2 not rebuilt correctly > /dev/stderr; exit 1)
+#fi
 
 basictool -t src/nightwo.bas tmp/nightwo.tok
 #cmp orig/nightwo tmp/nightwo.tok || (echo nightwo.tok not rebuilt correctly > /dev/stderr; exit 1)
