@@ -19,8 +19,11 @@ oswrch = &ffee
 .banner_data_end
     assert banner_data_end - banner_data == &a00
 
-    ; world-1.bas CALLs this address.
-basic_entry = &3500
+    ; world-1.bas CALLs this address. We could make it &3500 but (even though
+    ; files can't be mixed and matched between the bbcmicro.co.uk version and
+    ; this rearranged version anyway) we might as well stick with the original
+    ; value.
+basic_entry = &3590
     assert P% <= basic_entry
     assert (basic_entry - P%) < 256
     skipto basic_entry
