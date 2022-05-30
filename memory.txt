@@ -13,4 +13,13 @@ World-2
 - it relocates itself down to &D00 and sets PAGE=&D00, at which point it occupies memory &D00-&2F21
 - apart from the relocation it is pure BASIC and it doesn't change MODE or adjust LOMEM/HIMEM at all. The BASIC stack will therefore grow downwards from HIMEM=&5800; this is presumably OK because there's a small amount of slack (probably from &57c0-&5800, judging from current understanding of world-1.asm) and it doesn't need very much stack space.
 - BASIC variables will be allocated from &2F21 upwards and there's space free from there up to &35bc where World-1's game data/code starts
-- 
+
+It would perhaps be neater if the machine code/data lived just below the screen and HIMEM was set to the start of that region, rather than having the machine code/data live in between BASIC's heap growing up and its stack growing down. However, it's probably more disruptive than necessary to change that.
+
+It would be nice to unmix the BASIC and machine code on disc though, for ease of building/editing:
+- BBC-Wor would probably need some sort of concatenation, a little fiddly but not the end of the world. It could just be treated as a binary blob, *except* that it might well be a natural point for showing a version to distinguish a modified version from the original.
+- Nightwo is pure BASIC so no problem there, it might also be somewhere to identify a modified version, although both screens are pretty full.
+- World-1 could maybe be split up:
+	- World-1a - screen top banner data previously at &1F00 plus game code/data at &35bc-&5800 - the screen top banner would be relocated to just below &35bc (keeping the &35bc address unaltered), instead of entering the embedded basic after copying the screen data to the screen and setting up the resident integer variables, it would CHAIN "World-1b" - this *would* mean there's a bit of disc access after the banner appears, as opposed to more of the disc access happening before
+	- World-1b - the BASIC code that used to be buried inside World-1. Currently ends by doing *RUN World-2, would now do PAGE=&1100:CHAIN "World-2"
+- World-2 would be pure BASIC and use a standard BASIC !-copy loop to relocate itself, avoiding the need for the machine code stub at the end.
