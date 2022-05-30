@@ -43,3 +43,19 @@ The game contains 19 sprites. Each sprite has four versions for different sub-by
 | 16       | ![](img/sprite-16-0-large.png) ![](img/sprite-16-1-large.png) ![](img/sprite-16-2-large.png) ![](img/sprite-16-3-large.png) |
 | 17       | ![](img/sprite-17-0-large.png) ![](img/sprite-17-1-large.png) ![](img/sprite-17-2-large.png) ![](img/sprite-17-3-large.png) |
 | 18       | ![](img/sprite-18-0-large.png) ![](img/sprite-18-1-large.png) ![](img/sprite-18-2-large.png) ![](img/sprite-18-3-large.png) |
+
+| physical | behaviour |
+| --------:| --------- |
+| 0 | Guards the exit only if the player has the fleece and is trying to escape for a 100% win. Appears to be the initials of the game developer. |
+| 5/6 | Moves horizontally back and forth across the whole screen, but tracks the player's vertical position. |
+| 7 | Slowly homes in on the player. Damages the player in human form, but the gargoyle appears to be (mostly) immune. |
+| 8 | Moves in a fixed route around the screen. |
+| 9 | TODO |
+| 10 | Restores the player's health if touched. Can only be used once, disappears permanently once touched. |
+| 11 | Guards the exit and secret room once the player has collected all four prisms. |
+| 12/13 | Hurts the player if touched but doesn't do anything else. |
+| 14 | Normally moves around the screen like the robot sentinel (physical sprite 8); homes in on the player in the screen room. |
+| 15 | Hurts the player if touched when human but doesn't do anything else. |
+| 16 | Used to show the progress of time while the player is a human. |
+| 17 | Used to show the progress of time while the player is a gargoyle. |
+| 18 | Replaces an enemy in one of the rooms after the player has collected all four prisms. |
