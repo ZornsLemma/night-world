@@ -1,5 +1,7 @@
 The game contains 19 sprites. Each sprite has four versions for different sub-byte X positions; in mode 5, each byte of screen memory contains four pixels and having these pre-defined versions saves doing bit shifting when plotting data to the screen. It also allows animation "for free" by automatically changing the sprite's appearance based on its X co-ordinate.
 
+The 0-based physical sprite numbers shown here aren't really used by the game itself, but they're conveniently unambiguous as they correspond to the sprite's address in memory. The 1-based logical sprite numbers shown here are those used within the game's BASIC code; internally the machine code sprite engine subtracts one and works with 0-based logical sprite numbers.
+
 | physical | logical | frames | animation | notes |
 | --------:| -------:| ------ | --------- | ----- |
 | 0 &4000  |     1-8 | ![](img/sprite-00-0.png) ![](img/sprite-00-1.png) ![](img/sprite-00-2.png) ![](img/sprite-00-3.png) | ![](img/sprite-00-anim.gif) | Final Guardian/Demon Lord |
