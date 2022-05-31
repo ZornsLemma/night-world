@@ -43,7 +43,9 @@
   283REM when he's falling *after* a jump has finished in mid-air, and that all other
   284REM falls are straight down.
   290PROCset_lee_xy_os_from_lee_sprite:W%=lee_sprite_num%
-  291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:falling_time%=falling_time%+1:GOTO330
+  291REM TODO GCOL4,3:PLOT69,lee_x_os%+8,lee_y_os%+4:PLOT69,lee_x_os%+56,lee_y_os%+4
+  292REM TODO PLOT69,lee_x_os%+8,lee_y_os%+4:PLOT69,lee_x_os%+56,lee_y_os%+4
+  293IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:falling_time%=falling_time%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
@@ -74,9 +76,12 @@
   460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=9:IFday_night%=1:W%=11
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
-  475REM TODO: The next line seems weird. We seem to check *both* sides of Lee, without
-  476REM caring which direction we would actually jump in (bearing in mind we might be
-  477REM jumping straight up). Would this be worth an experimental tweak?
+  472REM TODO: The next line seems weird. We seem to check *both* sides of Lee, without
+  474REM caring which direction we would actually jump in (bearing in mind we might be
+  475REM jumping straight up). Would this be worth an experimental tweak? With the
+  476REM experimental PLOT69 calls added above, you can see that in human form the
+  478REM sprite actually fits quite nicely in both directions; the rear point (whichever that is) is just over the back of the head and the front point (ditto) is slightly in front, but that's "reasonable"
+  479REM as that's the direction we're jumping in. Perhaps less so with the gargoyle. *But* I don't think this is responsible for the weird "I am pressing jump and nothing happens" behaviour.
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
   490jump_time%=jump_time%+1:lee_y_os%=lee_y_os%+jump_delta_y%:lee_x_os%=lee_x_os%+delta_x%:jump_time%=jump_time%+1
   491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
