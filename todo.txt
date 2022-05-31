@@ -1,0 +1,19 @@
+Optional cheats/tweaks offered in loader
+- infinite health
+- teleport (press "T", type in X/Y coords when prompted to teleport there)
+
+Conservative "physics" tweaks
+- maybe allow jumping to be terminated by letting go of Shift?
+
+Optimise performance
+- avoid slowdown in some circumstances
+- perhaps improve responsiveness
+- more consistent frame rate, perhaps with a "wait for next frame" delay if we haven't overrun
+
+Maybe play the background music under interrupts so it's consistent?
+
+Maybe tweak the random colours for each room
+- e.g. maybe disallow a few "really intense" combinations (like white+{yellow,cyan} for the two colours used in the walls)
+- maybe have some static per-room colours instead of them being completely random (e.g. taken from Ed's map)
+
+Maybe use interrupts to allow different colours (fixed? or just "differently random to the room") in the header/footer regions
