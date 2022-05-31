@@ -1,0 +1,51 @@
+diff --git a/src/6502.c b/src/6502.c
+index 4c18c49..a360e5a 100644
+--- a/src/6502.c
++++ b/src/6502.c
+@@ -30,6 +30,8 @@
+ #include "video.h"
+ #include "wd1770.h"
+ 
++static uint32_t SFTODOHACK[0x10000];
++static uint32_t SFTODOHACKCOUNT;
+ static int dbg_core6502 = 0;
+ 
+ static int dbg_debug_enable(int newvalue) {
+@@ -335,6 +337,21 @@ static inline void fetch_opcode(void)
+     oldpc = pc;
+     vis20k = RAMbank[pc >> 12];
+ 
++    if ((pc >= 0x8000) && (pc < 0xc000) && ((ram_fe30 & 0x7f) == 0xc)) {
++        uint32_t ptra = do_readmem(0xb) | (do_readmem(0xc) << 8);
++        ++SFTODOHACK[ptra];
++        ++SFTODOHACKCOUNT;
++        if (SFTODOHACKCOUNT >= 1000000) {
++            FILE *f = fopen("basic-profile.txt", "w");
++            for (uint32_t i = 0; i < 0x10000; ++i) {
++                fprintf(f, "%04x %u\n", i, SFTODOHACK[i]);
++            }
++            fclose(f);
++            SFTODOHACKCOUNT = 0;
++        }
++
++    }
++
+     if (dbg_core6502)
+         debug_preexec(&core6502_cpu_debug, debug_addr(pc));
+     if (pc == buf_remv && x == 0 && clip_paste_ptr)
+diff --git a/src/debugger.c b/src/debugger.c
+index 4d6da4e..dbf93af 100644
+--- a/src/debugger.c
++++ b/src/debugger.c
+@@ -1555,8 +1555,9 @@ void debug_preexec (cpu_debug_t *cpu, uint32_t addr) {
+         putc('\n', trace_fp);
+     }
+ 
+-    if (cpu->prof_counts && addr >= cpu->prof_start && addr < cpu->prof_end)
+-        cpu->prof_counts[addr - cpu->prof_start]++;
++    uint32_t SFTODO = addr & 0xffff;
++    if (cpu->prof_counts && SFTODO >= cpu->prof_start && SFTODO < cpu->prof_end)
++        cpu->prof_counts[SFTODO - cpu->prof_start]++;
+ 
+     if (addr == cpu->tbreak) {
+         log_debug("debugger; enter for CPU %s on tbreak at %04X", cpu->cpu_name, addr);
