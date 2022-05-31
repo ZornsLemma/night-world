@@ -40,3 +40,4 @@ Moon/sun cycles taking approx: 7512 7246 7516 7245 cs with untweaked code
 7296 7021 7298 with lee_[xy]_os% put into Q%/R% - so looks like we're net ahead
 6832 6557 6836 with score%=100 RND() short-circuited
 6785 6512 6790 with m%->S% - not as impressive as I'd hoped, but a small win
+6791 6516 6796 short-circuiting line 291's POINT() tests - but starting point probably does match the first POINT() and I'm not moving in these tests - if I manually move left to stand with both feet on floor I get 6326 6602 6335 so there is quite a win sometimes, and it doesn't really seem to *hurt*

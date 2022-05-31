@@ -46,7 +46,7 @@
   291REM TODO GCOL4,3:PLOT69,Q%+8,R%+4:PLOT69,Q%+56,R%+4
   292REM TODO PLOT69,Q%+8,R%+4:PLOT69,Q%+56,R%+4
   293REM VDU19,0,jumping%,0,0,0:REM TODO!
-  294IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(Q%+4,R%-66)=0ANDPOINT(Q%+60,R%-66)=0:Q%=Q%+falling_delta_x%:R%=R%-8:falling_time%=falling_time%+1:GOTO330
+  294IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(Q%+4,R%-66)=0:IFPOINT(Q%+60,R%-66)=0:Q%=Q%+falling_delta_x%:R%=R%-8:falling_time%=falling_time%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,R%,12 ELSEIFINKEY-56PROCpause
   320sf%=R%-66:IFscore%=100ANDPOINT(Q%,sf%)=3ANDR%>260:MOVEQ%,sf%+26:VDU5,249,4
