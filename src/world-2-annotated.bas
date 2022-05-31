@@ -74,6 +74,9 @@
   460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=9:IFday_night%=1:W%=11
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
+  475REM TODO: The next line seems weird. We seem to check *both* sides of Lee, without
+  476REM caring which direction we would actually jump in (bearing in mind we might be
+  477REM jumping straight up). Would this be worth an experimental tweak?
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
   490jump_time%=jump_time%+1:lee_y_os%=lee_y_os%+jump_delta_y%:lee_x_os%=lee_x_os%+delta_x%:jump_time%=jump_time%+1
   491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
