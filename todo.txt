@@ -26,3 +26,6 @@ Ideally the game will work if put on tape (probably easy, and not that important
 Pixel-perfect collision detection when enemies drain health?
 - it may already *be* pixel perfect, I haven't checked
 - probably must not do this *if* the collision detection affects physics rather than health drain
+
+MODE 2 version using 16K of sideways RAM?
+- perhaps also with a NuLA version?
