@@ -46,14 +46,14 @@
   291REM TODO GCOL4,3:PLOT69,Q%+8,R%+4:PLOT69,Q%+56,R%+4
   292REM TODO PLOT69,Q%+8,R%+4:PLOT69,Q%+56,R%+4
   293REM VDU19,0,jumping%,0,0,0:REM TODO!
-  294IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(Q%+4,R%-66)=0:IFPOINT(Q%+60,R%-66)=0:Q%=Q%+falling_delta_x%:R%=R%-8:falling_time%=falling_time%+1:GOTO330
+  294IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(Q%+4,R%-66)=0:IFPOINT(Q%+60,R%-66)=0:Q%=Q%+falling_delta_x%:R%=R%-8:V%=V%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,R%,12 ELSEIFINKEY-56PROCpause
+  310V%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,R%,12 ELSEIFINKEY-56PROCpause
   320sf%=R%-66:IFscore%=100ANDPOINT(Q%,sf%)=3ANDR%>260:MOVEQ%,sf%+26:VDU5,249,4
   330PROCset_lee_sprite_from_lee_xy_os:CALLs_sub%:IFQ%<24ORQ%>1194ORR%>730ORR%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350T%=T%+1:IFT%=4:T%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
-  360W%=lee_sprite_num%:Y%=8:CALLq_sub%:IFX%<>0ORfalling_time%>12:PROCupdate_energy
+  360W%=lee_sprite_num%:Y%=8:CALLq_sub%:IFX%<>0ORV%>12:PROCupdate_energy
   370IFfleece_shown%=0:S%=S%+1:IFS%=11:PROCadvance_sun_moon_and_something_with_room_5:S%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
 
@@ -188,12 +188,12 @@
  1150PROCdraw_current_room:ENDPROC
 
  1160DEFPROCupdate_energy:IFX%=5:GOTO1210 ELSEIFX%=5OR(X%=7ANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
- 1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:tt%=1 ELSEIFlogical_room%=7:tt%=2 ELSEIFlogical_room%=5:tt%=3 ELSEIFlogical_room%=14:tt%=4 ELSEIFlogical_room%=9:tt%=5
+ 1170IFV%>1:GOTO1210 ELSEIFlogical_room%=1:tt%=1 ELSEIFlogical_room%=7:tt%=2 ELSEIFlogical_room%=5:tt%=3 ELSEIFlogical_room%=14:tt%=4 ELSEIFlogical_room%=9:tt%=5
  1180IFitem_collected%(tt%)=1:GOTO1220 ELSEitem_collected%(tt%)=1
  1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
  1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
- 1210IFfalling_time%>1:SOUND1,11,energy_minor%,2:GOTO1230
+ 1210IFV%>1:SOUND1,11,energy_minor%,2:GOTO1230
  1220IFroom_type%=2ANDU%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,energy_minor%,2 ELSEIFX%=7:SOUND1,8,energy_minor%,4 ELSESOUND1,12,energy_minor%,5
  1230energy_minor%=energy_minor%-1:IFenergy_minor%=0:energy_minor%=25
  1240ENDPROC
