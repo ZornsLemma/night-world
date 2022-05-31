@@ -13,10 +13,10 @@
   115REM Note for the following procedures that different sprite numbers have their position
   116REM managed via different resident integer variables pairs.
 
-  120DEFPROCset_lee_sprite_from_lee_xy_os:IFday_night%=1:PROCset_lee_sprite_from_lee_xy_os_gargoyle:ENDPROC ELSEIFlee_direction%=9:A%=Q%:B%=R%:lee_sprite_num%=9:ENDPROC
+  120DEFPROCset_lee_sprite_from_lee_xy_os:IFU%=1:PROCset_lee_sprite_from_lee_xy_os_gargoyle:ENDPROC ELSEIFlee_direction%=9:A%=Q%:B%=R%:lee_sprite_num%=9:ENDPROC
   130C%=Q%:D%=R%:lee_sprite_num%=10:ENDPROC
 
-  140DEFPROCset_lee_xy_os_from_lee_sprite:IFday_night%=1:PROCset_lee_xy_os_from_lee_sprite_gargoyle:ENDPROC ELSEIFlee_direction%=9:Q%=A%:R%=B%:lee_sprite_num%=9:ENDPROC
+  140DEFPROCset_lee_xy_os_from_lee_sprite:IFU%=1:PROCset_lee_xy_os_from_lee_sprite_gargoyle:ENDPROC ELSEIFlee_direction%=9:Q%=A%:R%=B%:lee_sprite_num%=9:ENDPROC
   150Q%=C%:R%=D%:lee_sprite_num%=10:ENDPROC
 
   160DEFPROCset_lee_sprite_from_lee_xy_os_gargoyle:IFlee_direction%=9:E%=Q%:F%=R%:lee_sprite_num%=11:ENDPROC
@@ -70,11 +70,11 @@
   410CALLs_sub%:CALLu_sub%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(Q%-4,R%-8)<>0:ENDPROC
-  430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=10:IFday_night%=1:W%=12
+  430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=10:IFU%=1:W%=12
   440delta_x%=-8:Q%=Q%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(Q%+64,R%-8)<>0:ENDPROC
-  460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=9:IFday_night%=1:W%=11
+  460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=9:IFU%=1:W%=11
   470delta_x%=8:Q%=Q%+8:ENDPROC
 
   472REM TODO: The next line seems weird. We seem to check *both* sides of Lee, without
@@ -96,8 +96,8 @@
   541PRINTTAB(0,0);TIME;" ";:TIME=0
   542RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
   550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLs_sub%:PROClee_sprite_reset:K%=192
-  551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLs_sub%:CALLu_sub%:PROCset_lee_sprite_from_lee_xy_os_gargoyle:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
-  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLs_sub%:CALLu_sub%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
+  551IFU%=0:U%=1:X%=25:W%=6:CALLs_sub%:CALLu_sub%:PROCset_lee_sprite_from_lee_xy_os_gargoyle:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
+  560full_speed_jump_time_limit%=20:max_jump_time%=40:U%=0:X%=24:W%=6:CALLs_sub%:CALLu_sub%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
 
@@ -114,7 +114,7 @@
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM force specific colours and if (TODO: what does this mean?) X%=7, show the fleece.
   607REM TODO: I think this shows the fleece anyway.
-  610IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=7:PROCshow_fleece
+  610IFlogical_room%=5ANDscore%=90ANDU%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=7:PROCshow_fleece
   620ENDPROC
 
   630DEFPROCshow_fleece:Y%=2:W%=6:CALLs_sub%:W%=7:CALLs_sub%:RESTORE1450:score%=100:fleece_shown%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
@@ -176,7 +176,7 @@
  1050IFlogical_room%=14:PROCplot_and_maxplutz_sprite_7(8,20,21):PROCplot_and_maxplutz_sprite_7(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCplot_and_maxplutz_sprite_7(12,25,17)
  1060IFlogical_room%=12:PROCplot_and_maxplutz_sprite_7(1,15,20):PROCplot_and_maxplutz_sprite_7(1,18,20):PROCplot_and_maxplutz_sprite_7(1,21,20)
  1070IFlogical_room%=13:PROCplot_and_maxplutz_sprite_7(7,21,23):PROCplot_and_maxplutz_sprite_7(12,21,23)
- 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLs_sub%:X%=17:CALLu_sub%:IFday_night%=1:Y%=2:CALLs_sub%
+ 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLs_sub%:X%=17:CALLu_sub%:IFU%=1:Y%=2:CALLs_sub%
  1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCplot_and_maxplutz_sprite_7(18,24,17)
  1100ENDPROC
 
@@ -194,7 +194,7 @@
  1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
  1210IFfalling_time%>1:SOUND1,11,energy_minor%,2:GOTO1230
- 1220IFroom_type%=2ANDday_night%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,energy_minor%,2 ELSEIFX%=7:SOUND1,8,energy_minor%,4 ELSESOUND1,12,energy_minor%,5
+ 1220IFroom_type%=2ANDU%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,energy_minor%,2 ELSEIFX%=7:SOUND1,8,energy_minor%,4 ELSESOUND1,12,energy_minor%,5
  1230energy_minor%=energy_minor%-1:IFenergy_minor%=0:energy_minor%=25
  1240ENDPROC
 
@@ -211,11 +211,11 @@
  1310DATA52,3,32,3,80,3,0,0,80,3,88,3,80,3,0,0,52,2,32,2,80,2,80,2,80,2,88,2,80,2,0,0,32,3,32,3,60,3,0,0,60,3,68,3,60,3,0,0,60,2,32,2,60,2,60,2,60,2,68,2,60,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
  1320DEFPROCtitle_screen:colour1%=7:colour2%=6:colour3%=1:PROCreset_note_count
- 1330day_night%=0:score%=0:room_type%=0:logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
+ 1330U%=0:score%=0:room_type%=0:logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
  1331REPEATREADnote_pitch%,note_duration%:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:R%=576:Q%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
+ 1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:U%=0:w%=0:R%=576:Q%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:T%=0
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLs_sub%:CALLu_sub%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:fleece_shown%=0:S%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
