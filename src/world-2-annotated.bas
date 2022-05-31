@@ -38,11 +38,15 @@
   260DEFPROCplay
   270GCOL0,0:Y%=0:PROCset_lee_sprite_from_lee_xy_os
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
-  281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
-  282REM when he's falling *after* a jump has finished in mid-air, and that all other
-  283REM falls are straight down.
+  281REM PRINTTAB(0,0);TIME;:TIME=0 - TODO: hack, this shows ~5-6cs a frame => ~16-20Hz
+  282REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
+  283REM when he's falling *after* a jump has finished in mid-air, and that all other
+  284REM falls are straight down.
   290PROCset_lee_xy_os_from_lee_sprite:W%=lee_sprite_num%
-  291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:falling_time%=falling_time%+1:GOTO330
+  291REM TODO GCOL4,3:PLOT69,lee_x_os%+8,lee_y_os%+4:PLOT69,lee_x_os%+56,lee_y_os%+4
+  292REM TODO PLOT69,lee_x_os%+8,lee_y_os%+4:PLOT69,lee_x_os%+56,lee_y_os%+4
+  293REM VDU19,0,jumping%,0,0,0:REM TODO!
+  294IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:falling_time%=falling_time%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
@@ -50,7 +54,7 @@
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy
-  370IFng%=0:m%=m%+1:IFm%=11:PROCm:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
+  370IFfleece_shown%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon_and_something_with_room_5:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
@@ -73,12 +77,18 @@
   460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=9:IFday_night%=1:W%=11
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
+  472REM TODO: The next line seems weird. We seem to check *both* sides of Lee, without
+  474REM caring which direction we would actually jump in (bearing in mind we might be
+  475REM jumping straight up). Would this be worth an experimental tweak? With the
+  476REM experimental PLOT69 calls added above, you can see that in human form the
+  478REM sprite actually fits quite nicely in both directions; the rear point (whichever that is) is just over the back of the head and the front point (ditto) is slightly in front, but that's "reasonable"
+  479REM as that's the direction we're jumping in. Perhaps less so with the gargoyle. *But* I don't think this is responsible for the weird "I am pressing jump and nothing happens" behaviour.
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
   490jump_time%=jump_time%+1:lee_y_os%=lee_y_os%+jump_delta_y%:lee_x_os%=lee_x_os%+delta_x%:jump_time%=jump_time%+1
   491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
   500ENDPROC
 
-  510DEFPROCm:W%=6:Z%=6:CALLT%:IFK%=1016:PROCtoggle_day_night
+  510DEFPROCadvance_sun_moon_and_something_with_room_5:W%=6:Z%=6:CALLT%:IFK%=1016:PROCtoggle_day_night
   520IFlogical_room%=5:W%=8:Z%=6:CALLT%
   530ENDPROC
 
@@ -105,7 +115,7 @@
   610IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=7:PROCshow_fleece
   620ENDPROC
 
-  630DEFPROCshow_fleece:Y%=2:W%=6:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:ng%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
+  630DEFPROCshow_fleece:Y%=2:W%=6:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:fleece_shown%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
 
   650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
@@ -203,14 +213,15 @@
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
- 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:ng%=0:m%=0:room_type%=3
+ 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:fleece_shown%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
  1390DEFPROCreset_note_count:RESTORE1300:note_count%=0:ENDPROC
 
- 1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLS%:VDU5:B$="WAITING":REPEATA$=INKEY$(0):GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFng%=0:Y%=0:CALLS%
+ 1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLS%:VDU5:B$="WAITING":REPEATA$=INKEY$(0):GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C"
+ 1405FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFfleece_shown%=0:Y%=0:CALLS%
  1410SOUND1,6,30,3:*FX15,1
  1420ENDPROC
 
@@ -230,6 +241,8 @@
  1500DEFPROCwin:won%=1:PROCstop_sound:VDU19,1,1;0;19,2,3;0;19,3,6;0;:PROCclear_room:COLOUR2:PRINTTAB(6,16);:VDU232,233,234,235,32,235,242,245,5:GCOL0,1:a$=CHR$10+STRING$(12,CHR$8):FORn%=416TO412STEP-4:MOVE256,n%
  1505REM TODO: Fix typo ("COMMING")?
  1510PRINT"INNER  WORLD"+a$+"COMMING SOON":NEXT:PROCdelay(13000):VDU4:ENDPROC
+
+ 2000REM Sprite slot 6 is used for the sun/moon
 
 32000*TAPE
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M
