@@ -1,0 +1,22 @@
+Notionally A%-P% inclusive are used by sprite package
+- are some actually free to be used safely?
+Sprite package also uses W%, X%, Y% and Z% at times
+Also Q%, R%, S%, T%, U%, V%
+So naively we only have P% free!
+
+world-2.bas uses:
+A% B% C% D% E% F% G% H% I% J% K% L% M% N% Q% S% T% U% V% W% X% Y% Z%
+does not use:
+O% P% (except one-off assembly) R%
+
+V% isn't used much and world-2 could do something like foo=V% on startup and replace CALL V% with CALL foo without it hurting anything
+
+So we maybe kinda-sorta have O% P% R% V% free (and don't forget it's possible if the "wrong" W% values are used, O% and P% may be read/written by the sprite code)
+
+TBH we could probably get away with shifting all of the sprite library subroutines out of ri variables into ordinary ones. The CALL itself is a pretty negligible performance impact I should think.
+
+So we might have (assuming O% and P% really can be used safely):
+O% P% Q% R% S% T% U% V%
+- no, we can't use O% and P%, because W%=8 is used with CALL T%, which uses the corresponding ri variables O% and P% to communicate with the internal machine code call to S%
+
+So we have Q% R% S% T% U% and V%, with very minor and fairly safe tweaks.
