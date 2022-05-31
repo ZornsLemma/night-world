@@ -44,3 +44,5 @@ Moon/sun cycles taking approx: 7512 7246 7516 7245 cs with untweaked code
 6705 6433 6708 cr%->T% modest improvement
 6673 6400 6677 day_night%->U% very small win
 6610 6343 6615 falling_time%->V% very small win
+all the above is ~12.5% reduction in time per sun/moon cycle compared to the original code
+6619 6349 6623 U%->day_night%,S%->U%,s_sub%->S% - not a net win
