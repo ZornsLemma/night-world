@@ -1,8 +1,8 @@
    10*FX200,1
    20MODE7:VDU23;8202;0;0;0;
    30PRINTTAB(0,0);:VDU130,157,141,133:PRINTTAB(15,0)"NIGHTWORLD":PRINTTAB(0,1);:VDU129,157,141,132:PRINTTAB(15,1)"NIGHTWORLD"
-   32R$="2022 re-mastered edition 0.02"
-   35PRINTTAB(5);CHR$131;R$
+   32R$="2022 re-mastered edition 0.02-inf":R%=(39-LEN(R$))/2
+   35PRINTTAB(R%);CHR$131;R$
    40PRINTTAB(3,4)"You are Lee Lance the explorer."'" Find your way through the many vaults   of this cavernous underworld collecting the objects that will lead to the final escape route and the magical golden     fleece."
    50PRINT'" Beware the flying harpies as they drain your energy level."
    60PRINT" It can be replenished. How? That's for  you to work out."
@@ -11,7 +11,7 @@
    90PRINT'TAB(7);:VDU136:PRINT"PRESS ANY KEY TO CONTINUE";
   100A=GET:*FX15,0
   110CLS:PRINTTAB(0,0);:VDU130,157,141,133:PRINTTAB(15,0)"NIGHTWORLD":PRINTTAB(0,1);:VDU129,157,141,132:PRINTTAB(15,1)"NIGHTWORLD"
-  115PRINTTAB(5);CHR$131;R$
+  115PRINTTAB(R%);CHR$131;R$
   120PRINT'" FEATURES"
   130PRINT" Time Clock: Sun - Lee Lance the human.  Moon - Lee Lance the gargoyle."
   140PRINT" Energy Level. Secret Passages.          Secret Rooms. Flying Harpies.           Mysterious Objects. Deadly Nasties.     Wall Climbing Abilities."
