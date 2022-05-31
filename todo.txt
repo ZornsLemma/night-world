@@ -29,3 +29,5 @@ Pixel-perfect collision detection when enemies drain health?
 
 MODE 2 version using 16K of sideways RAM?
 - perhaps also with a NuLA version?
+
+Perhaps remove the energy drain when you touch the objects you have to collect?
