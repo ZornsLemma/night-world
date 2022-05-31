@@ -62,7 +62,7 @@
   396REM in three different colours with a fourth frame blank, if so.) I half wonder if
   397REM sprite_00 gets patched at runtime depending on room!? (stardot "Demistifying Nightworld"
   398REM thread has screenshot/mention of this "Dm" guardian sprite, FWIW.)
-  400DEFPROCplot_and_maxplutz_sprite_7(text_x%,text_y%,ch%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
+  400DEFPROCupdate_sprite_slot_7_and_show(text_x%,text_y%,ch%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
@@ -150,20 +150,20 @@
   930IFroom_type%=3:X%=16:CALLU%
   940IFroom_type%=4:X%=22:CALLU%
   950IFroom_type%=5:Y%=2:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=19:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=27:CALLU%
-  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCplot_and_maxplutz_sprite_7(2,14,18)
-  970IFlogical_room%=6:PROCplot_and_maxplutz_sprite_7(18,15,21):PROCplot_and_maxplutz_sprite_7(18,19,21)
+  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,18)
+  970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,21):PROCupdate_sprite_slot_7_and_show(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
  1000IFlogical_room%=13ANDscore%=60:PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
- 1010IFlogical_room%=1:PROCplot_and_maxplutz_sprite_7(9,12,23):IFitem_collected%(1)=0:PROCplot_and_maxplutz_sprite_7(2,12,17)
- 1020IFlogical_room%=7:PROCplot_and_maxplutz_sprite_7(6,21,23):IFitem_collected%(2)=0:PROCplot_and_maxplutz_sprite_7(2,11,17)
- 1030IFlogical_room%=2:PROCplot_and_maxplutz_sprite_7(1,23,20)
- 1040IFlogical_room%=8:PROCplot_and_maxplutz_sprite_7(11,23,23):PROCplot_and_maxplutz_sprite_7(9,21,23):PROCplot_and_maxplutz_sprite_7(13,24,23)
- 1050IFlogical_room%=14:PROCplot_and_maxplutz_sprite_7(8,20,21):PROCplot_and_maxplutz_sprite_7(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCplot_and_maxplutz_sprite_7(12,25,17)
- 1060IFlogical_room%=12:PROCplot_and_maxplutz_sprite_7(1,15,20):PROCplot_and_maxplutz_sprite_7(1,18,20):PROCplot_and_maxplutz_sprite_7(1,21,20)
- 1070IFlogical_room%=13:PROCplot_and_maxplutz_sprite_7(7,21,23):PROCplot_and_maxplutz_sprite_7(12,21,23)
+ 1010IFlogical_room%=1:PROCupdate_sprite_slot_7_and_show(9,12,23):IFitem_collected%(1)=0:PROCupdate_sprite_slot_7_and_show(2,12,17)
+ 1020IFlogical_room%=7:PROCupdate_sprite_slot_7_and_show(6,21,23):IFitem_collected%(2)=0:PROCupdate_sprite_slot_7_and_show(2,11,17)
+ 1030IFlogical_room%=2:PROCupdate_sprite_slot_7_and_show(1,23,20)
+ 1040IFlogical_room%=8:PROCupdate_sprite_slot_7_and_show(11,23,23):PROCupdate_sprite_slot_7_and_show(9,21,23):PROCupdate_sprite_slot_7_and_show(13,24,23)
+ 1050IFlogical_room%=14:PROCupdate_sprite_slot_7_and_show(8,20,21):PROCupdate_sprite_slot_7_and_show(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCupdate_sprite_slot_7_and_show(12,25,17)
+ 1060IFlogical_room%=12:PROCupdate_sprite_slot_7_and_show(1,15,20):PROCupdate_sprite_slot_7_and_show(1,18,20):PROCupdate_sprite_slot_7_and_show(1,21,20)
+ 1070IFlogical_room%=13:PROCupdate_sprite_slot_7_and_show(7,21,23):PROCupdate_sprite_slot_7_and_show(12,21,23)
  1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLS%:X%=17:CALLU%:IFday_night%=1:Y%=2:CALLS%
- 1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCplot_and_maxplutz_sprite_7(18,24,17)
+ 1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCupdate_sprite_slot_7_and_show(18,24,17)
  1100ENDPROC
 
  1110DEFPROCchange_room:IFlogical_room%=10ANDlee_y_os%<228:PROCwin:game_ended%=1:ENDPROC
