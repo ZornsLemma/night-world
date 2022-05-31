@@ -18,3 +18,7 @@ Maybe tweak the random colours for each room
 - maybe have some static per-room colours instead of them being completely random (e.g. taken from Ed's map)
 
 Maybe use interrupts to allow different colours (fixed? or just "differently random to the room") in the header/footer regions
+
+Produce a single version that works on BBC and Electron
+
+Ideally the game will work if put on tape (probably easy, and not that important, but would be nice)
