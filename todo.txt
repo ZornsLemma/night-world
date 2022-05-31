@@ -4,6 +4,7 @@ Optional cheats/tweaks offered in loader
 
 Conservative "physics" tweaks
 - maybe allow jumping to be terminated by letting go of Shift?
+- some way of preventing player getting stuck (or, if that's not possible, escaping from being stuck)
 
 Optimise performance
 - avoid slowdown in some circumstances
