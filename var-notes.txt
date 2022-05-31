@@ -19,4 +19,17 @@ So we might have (assuming O% and P% really can be used safely):
 O% P% Q% R% S% T% U% V%
 - no, we can't use O% and P%, because W%=8 is used with CALL T%, which uses the corresponding ri variables O% and P% to communicate with the internal machine code call to S%
 
-So we have Q% R% S% T% U% and V%, with very minor and fairly safe tweaks.
+So we have Q% R% S% T% U% and V%, with very minor and fairly safe tweaks. (Don't forget we'd need to make the CALLV% in the main code not update these variables, or save them before and restore them after.)
+- we might want/need to reserve at least one of these for returning values to callers of any additional subroutines we add.
+
+
+Candidates
+lee_x_os%
+lee_y_os%
+m% - "IFA%=2:" seems to be ~14.5% faster than "IFa%=2:" (condition false all the time) in some tests on BASIC 2 - wrapping the m% increment-and-wrap-and-test and initial bit of PROCm up in machine code might well pay off too
+(score%)
+(room_type%)
+(falling_time%)
+(day_night%)
+(cr%)
+(jumping%)
