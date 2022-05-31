@@ -38,3 +38,4 @@ m% - "IFA%=2:" seems to be ~14.5% faster than "IFa%=2:" (condition false all the
 Moon/sun cycles taking approx: 7512 7246 7516 7245 cs with untweaked code
 7629 7357 7633 with code tweaked to get rid of Q%-V% for subroutines - looks like a small perf hit!
 7296 7021 7298 with lee_[xy]_os% put into Q%/R% - so looks like we're net ahead
+6832 6557 6836 with score%=100 RND() short-circuited
