@@ -38,9 +38,10 @@
   260DEFPROCplay
   270GCOL0,0:Y%=0:PROCset_lee_sprite_from_lee_xy_os
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
-  281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
-  282REM when he's falling *after* a jump has finished in mid-air, and that all other
-  283REM falls are straight down.
+  281REM PRINTTAB(0,0);TIME;:TIME=0 - TODO: hack, this shows ~5-6cs a frame => ~16-20Hz
+  282REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
+  283REM when he's falling *after* a jump has finished in mid-air, and that all other
+  284REM falls are straight down.
   290PROCset_lee_xy_os_from_lee_sprite:W%=lee_sprite_num%
   291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:falling_time%=falling_time%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
