@@ -13,17 +13,17 @@
   115REM Note for the following procedures that different sprite numbers have their position
   116REM managed via different resident integer variables pairs.
 
-  120DEFPROCset_lee_sprite_from_lee_xy_os:IFday_night%=1:PROCset_lee_sprite_from_lee_xy_os_gargoyle:ENDPROC ELSEIFlee_direction%=9:A%=lee_x_os%:B%=lee_y_os%:lee_sprite_num%=9:ENDPROC
-  130C%=lee_x_os%:D%=lee_y_os%:lee_sprite_num%=10:ENDPROC
+  120DEFPROCset_lee_sprite_from_lee_xy_os:IFday_night%=1:PROCset_lee_sprite_from_lee_xy_os_gargoyle:ENDPROC ELSEIFlee_direction%=9:A%=Q%:B%=R%:lee_sprite_num%=9:ENDPROC
+  130C%=Q%:D%=R%:lee_sprite_num%=10:ENDPROC
 
-  140DEFPROCset_lee_xy_os_from_lee_sprite:IFday_night%=1:PROCset_lee_xy_os_from_lee_sprite_gargoyle:ENDPROC ELSEIFlee_direction%=9:lee_x_os%=A%:lee_y_os%=B%:lee_sprite_num%=9:ENDPROC
-  150lee_x_os%=C%:lee_y_os%=D%:lee_sprite_num%=10:ENDPROC
+  140DEFPROCset_lee_xy_os_from_lee_sprite:IFday_night%=1:PROCset_lee_xy_os_from_lee_sprite_gargoyle:ENDPROC ELSEIFlee_direction%=9:Q%=A%:R%=B%:lee_sprite_num%=9:ENDPROC
+  150Q%=C%:R%=D%:lee_sprite_num%=10:ENDPROC
 
-  160DEFPROCset_lee_sprite_from_lee_xy_os_gargoyle:IFlee_direction%=9:E%=lee_x_os%:F%=lee_y_os%:lee_sprite_num%=11:ENDPROC
-  170G%=lee_x_os%:H%=lee_y_os%:lee_sprite_num%=12:ENDPROC
+  160DEFPROCset_lee_sprite_from_lee_xy_os_gargoyle:IFlee_direction%=9:E%=Q%:F%=R%:lee_sprite_num%=11:ENDPROC
+  170G%=Q%:H%=R%:lee_sprite_num%=12:ENDPROC
 
-  180DEFPROCset_lee_xy_os_from_lee_sprite_gargoyle:IFlee_direction%=9:lee_x_os%=E%:lee_y_os%=F%:lee_sprite_num%=11:ENDPROC
-  190lee_x_os%=G%:lee_y_os%=H%:lee_sprite_num%=12:ENDPROC
+  180DEFPROCset_lee_xy_os_from_lee_sprite_gargoyle:IFlee_direction%=9:Q%=E%:R%=F%:lee_sprite_num%=11:ENDPROC
+  190Q%=G%:R%=H%:lee_sprite_num%=12:ENDPROC
 
   198REM TODO: The name is a guess here; this is doing some sort of sprite plot operation on the
   199REM four player sprites (human/gargoyle, left/right) but I don't know what Y%=2 means yet.
@@ -32,7 +32,7 @@
   210DEFPROCdraw_current_room:PROCclear_room
   220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
   230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFlogical_room%=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
-  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:lee_x_os%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
+  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:Q%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
   250PROCdraw_room(logical_room%):ENDPROC
 
   260DEFPROCplay
@@ -43,14 +43,14 @@
   283REM when he's falling *after* a jump has finished in mid-air, and that all other
   284REM falls are straight down.
   290PROCset_lee_xy_os_from_lee_sprite:W%=lee_sprite_num%
-  291REM TODO GCOL4,3:PLOT69,lee_x_os%+8,lee_y_os%+4:PLOT69,lee_x_os%+56,lee_y_os%+4
-  292REM TODO PLOT69,lee_x_os%+8,lee_y_os%+4:PLOT69,lee_x_os%+56,lee_y_os%+4
+  291REM TODO GCOL4,3:PLOT69,Q%+8,R%+4:PLOT69,Q%+56,R%+4
+  292REM TODO PLOT69,Q%+8,R%+4:PLOT69,Q%+56,R%+4
   293REM VDU19,0,jumping%,0,0,0:REM TODO!
-  294IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(lee_x_os%+4,lee_y_os%-66)=0ANDPOINT(lee_x_os%+60,lee_y_os%-66)=0:lee_x_os%=lee_x_os%+falling_delta_x%:lee_y_os%=lee_y_os%-8:falling_time%=falling_time%+1:GOTO330
+  294IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(Q%+4,R%-66)=0ANDPOINT(Q%+60,R%-66)=0:Q%=Q%+falling_delta_x%:R%=R%-8:falling_time%=falling_time%+1:GOTO330
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
-  320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
-  330PROCset_lee_sprite_from_lee_xy_os:CALLs_sub%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
+  310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,R%,12 ELSEIFINKEY-56PROCpause
+  320sf%=R%-66:IFscore%=100ANDPOINT(Q%,sf%)=3ANDR%>260:MOVEQ%,sf%+26:VDU5,249,4
+  330PROCset_lee_sprite_from_lee_xy_os:CALLs_sub%:IFQ%<24ORQ%>1194ORR%>730ORR%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=lee_sprite_num%:Y%=8:CALLq_sub%:IFX%<>0ORfalling_time%>12:PROCupdate_energy
@@ -69,13 +69,13 @@
   400DEFPROCplot_and_maxplutz_sprite_7(text_x%,text_y%,ch%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
   410CALLs_sub%:CALLu_sub%:ENDPROC
 
-  420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
+  420DEFPROCmove_left:IFPOINT(Q%-4,R%-8)<>0:ENDPROC
   430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=10:IFday_night%=1:W%=12
-  440delta_x%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
+  440delta_x%=-8:Q%=Q%-8:ENDPROC
 
-  450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
+  450DEFPROCmove_right:IFPOINT(Q%+64,R%-8)<>0:ENDPROC
   460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=9:IFday_night%=1:W%=11
-  470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
+  470delta_x%=8:Q%=Q%+8:ENDPROC
 
   472REM TODO: The next line seems weird. We seem to check *both* sides of Lee, without
   474REM caring which direction we would actually jump in (bearing in mind we might be
@@ -83,9 +83,9 @@
   476REM experimental PLOT69 calls added above, you can see that in human form the
   478REM sprite actually fits quite nicely in both directions; the rear point (whichever that is) is just over the back of the head and the front point (ditto) is slightly in front, but that's "reasonable"
   479REM as that's the direction we're jumping in. Perhaps less so with the gargoyle. *But* I don't think this is responsible for the weird "I am pressing jump and nothing happens" behaviour.
-  480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
-  490jump_time%=jump_time%+1:lee_y_os%=lee_y_os%+jump_delta_y%:lee_x_os%=lee_x_os%+delta_x%:jump_time%=jump_time%+1
-  491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
+  480DEFPROCjump:IFPOINT(Q%+8,R%+4)<>0ORPOINT(Q%+56,R%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
+  490jump_time%=jump_time%+1:R%=R%+jump_delta_y%:Q%=Q%+delta_x%:jump_time%=jump_time%+1
+  491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(Q%+32,R%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
   500ENDPROC
 
   510DEFPROCadvance_sun_moon_and_something_with_room_5:W%=6:Z%=6:CALLt_sub%:IFK%=1016:PROCtoggle_day_night
@@ -104,13 +104,13 @@
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
-  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  583IFlogical_room%=1ANDQ%<68:phys_room%=12:Q%=1142:R%=316:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   585REM If player is in room 10 (Ed's room J) and in the top half of the screen,
   586REM warp to room 9 (Ed's room N) - the fleece room.
-  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
+  590IFlogical_room%=10ANDQ%>=1152ANDR%>480:phys_room%=14:logical_room%=9:Q%=68:R%=416:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
   595REM If player is in room 13 at a specific point on the right edge, warp to
   596REM room 7 (Ed's room H).
-  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  600IFlogical_room%=13ANDQ%>1150AND(R%=288ORR%=284):phys_room%=9:Q%=1148:R%=420:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM force specific colours and if (TODO: what does this mean?) X%=7, show the fleece.
   607REM TODO: I think this shows the fleece anyway.
@@ -121,13 +121,13 @@
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:PROCv_sub:ENDPROC
 
   650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
-  660IFdb%=6ANDJ%>lee_y_os%:Z%=9 ELSEIFdb%=6ANDJ%<lee_y_os%:Z%=3
-  670IFdb%=4ANDJ%>lee_y_os%:Z%=7 ELSEIFdb%=4ANDJ%<lee_y_os%:Z%=1
+  660IFdb%=6ANDJ%>R%:Z%=9 ELSEIFdb%=6ANDJ%<R%:Z%=3
+  670IFdb%=4ANDJ%>R%:Z%=7 ELSEIFdb%=4ANDJ%<R%:Z%=1
   680IFI%=1152:db%=4:X%=14:CALLu_sub% ELSEIFI%=64:db%=6:X%=13:CALLu_sub%
   690CALLt_sub%:ENDPROC
 
-  700DEFPROCroom_type2:axm%=3:IFI%>lee_x_os%:axm%=-3
-  710aym%=2:IFJ%>lee_y_os%:aym%=-4
+  700DEFPROCroom_type2:axm%=3:IFI%>Q%:axm%=-3
+  710aym%=2:IFJ%>R%:aym%=-4
   720I%=I%+axm%:J%=J%+aym%:CALLs_sub%:ENDPROC
 
   730DEFPROCroom_type4:Z%=ad%(ah%):ak%=ak%+1:IFak%=40:ak%=0:ah%=ah%+1:IFah%=5:ah%=1
@@ -180,9 +180,9 @@
  1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCplot_and_maxplutz_sprite_7(18,24,17)
  1100ENDPROC
 
- 1110DEFPROCchange_room:IFlogical_room%=10ANDlee_y_os%<228:PROCwin:game_ended%=1:ENDPROC
+ 1110DEFPROCchange_room:IFlogical_room%=10ANDR%<228:PROCwin:game_ended%=1:ENDPROC
  1120W%=5:Y%=2:CALLs_sub%:FORn%=9TO12:W%=n%:CALLs_sub%:NEXT
- 1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
+ 1121IFR%>730:R%=224:phys_room%=phys_room%-5 ELSEIFR%<228:R%=728:phys_room%=phys_room%+5 ELSEIFQ%>1194:Q%=24:phys_room%=phys_room%+1 ELSEIFQ%<24:Q%=1194:phys_room%=phys_room%-1
  1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type%:NEXT:IFscore%=100:room_type%=2
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
  1150PROCdraw_current_room:ENDPROC
@@ -215,7 +215,7 @@
  1331REPEATREADnote_pitch%,note_duration%:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
+ 1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:R%=576:Q%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLs_sub%:CALLu_sub%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:fleece_shown%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0

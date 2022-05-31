@@ -24,8 +24,8 @@ So we have Q% R% S% T% U% and V%, with very minor and fairly safe tweaks. (Don't
 
 
 Candidates
-lee_x_os%
-lee_y_os%
+lee_x_os% Q%
+lee_y_os% R%
 m% - "IFA%=2:" seems to be ~14.5% faster than "IFa%=2:" (condition false all the time) in some tests on BASIC 2 - wrapping the m% increment-and-wrap-and-test and initial bit of PROCm up in machine code might well pay off too
 (score%)
 (room_type%)
@@ -37,4 +37,4 @@ m% - "IFA%=2:" seems to be ~14.5% faster than "IFa%=2:" (condition false all the
 
 Moon/sun cycles taking approx: 7512 7246 7516 7245 cs with untweaked code
 7629 7357 7633 with code tweaked to get rid of Q%-V% for subroutines - looks like a small perf hit!
-
+7296 7021 7298 with lee_[xy]_os% put into Q%/R% - so looks like we're net ahead
