@@ -33,3 +33,8 @@ m% - "IFA%=2:" seems to be ~14.5% faster than "IFa%=2:" (condition false all the
 (day_night%)
 (cr%)
 (jumping%)
+
+
+Moon/sun cycles taking approx: 7512 7246 7516 7245 cs with untweaked code
+7629 7357 7633 with code tweaked to get rid of Q%-V% for subroutines - looks like a small perf hit!
+

@@ -27,7 +27,7 @@
 
   198REM TODO: The name is a guess here; this is doing some sort of sprite plot operation on the
   199REM four player sprites (human/gargoyle, left/right) but I don't know what Y%=2 means yet.
-  200DEFPROClee_sprite_reset:Y%=2:FORn%=9TO12:W%=n%:CALLS%:NEXT:Y%=0:ENDPROC
+  200DEFPROClee_sprite_reset:Y%=2:FORn%=9TO12:W%=n%:CALLs_sub%:NEXT:Y%=0:ENDPROC
 
   210DEFPROCdraw_current_room:PROCclear_room
   220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
@@ -50,24 +50,24 @@
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
-  330PROCset_lee_sprite_from_lee_xy_os:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
+  330PROCset_lee_sprite_from_lee_xy_os:CALLs_sub%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
-  360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy
+  360W%=lee_sprite_num%:Y%=8:CALLq_sub%:IFX%<>0ORfalling_time%>12:PROCupdate_energy
   370IFfleece_shown%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon_and_something_with_room_5:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
-  392REM TODO: This seems to plot sprite 7 via CALL S%, but then it does something I don't
-  393REM currently know via CALL U% as well, hence "maxplutz". Sprite 7 is an instance of
+  392REM TODO: This seems to plot sprite 7 via CALL s_sub%, but then it does something I don't
+  393REM currently know via CALL u_sub% as well, hence "maxplutz". Sprite 7 is an instance of
   394REM the data at sprite_00 which seems to be a kind of "Dm"-ish shape. (I am suspecting
   395REM sprites have four frames of animation; this has "Dm" moving one pixel to right
   396REM in three different colours with a fourth frame blank, if so.) I half wonder if
   397REM sprite_00 gets patched at runtime depending on room!? (stardot "Demistifying Nightworld"
   398REM thread has screenshot/mention of this "Dm" guardian sprite, FWIW.)
   400DEFPROCplot_and_maxplutz_sprite_7(text_x%,text_y%,ch%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
-  410CALLS%:CALLU%:ENDPROC
+  410CALLs_sub%:CALLu_sub%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
   430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=10:IFday_night%=1:W%=12
@@ -88,61 +88,65 @@
   491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
   500ENDPROC
 
-  510DEFPROCadvance_sun_moon_and_something_with_room_5:W%=6:Z%=6:CALLT%:IFK%=1016:PROCtoggle_day_night
-  520IFlogical_room%=5:W%=8:Z%=6:CALLT%
+  510DEFPROCadvance_sun_moon_and_something_with_room_5:W%=6:Z%=6:CALLt_sub%:IFK%=1016:PROCtoggle_day_night
+  520IFlogical_room%=5:W%=8:Z%=6:CALLt_sub%
   530ENDPROC
 
-  540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
-  550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROClee_sprite_reset:K%=192
-  551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os_gargoyle:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
-  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
+  540DEFPROCtoggle_day_night
+  541PRINTTAB(0,0);TIME;" ";:TIME=0
+  542RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
+  550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLs_sub%:PROClee_sprite_reset:K%=192
+  551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLs_sub%:CALLu_sub%:PROCset_lee_sprite_from_lee_xy_os_gargoyle:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
+  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLs_sub%:CALLu_sub%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
 
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
-  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=2:W%=5:CALLS%:PROClee_sprite_reset:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   585REM If player is in room 10 (Ed's room J) and in the top half of the screen,
   586REM warp to room 9 (Ed's room N) - the fleece room.
-  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=2:W%=5:CALLS%:PROClee_sprite_reset:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
+  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
   595REM If player is in room 13 at a specific point on the right edge, warp to
   596REM room 7 (Ed's room H).
-  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=2:W%=5:CALLS%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=2:W%=5:CALLs_sub%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM force specific colours and if (TODO: what does this mean?) X%=7, show the fleece.
   607REM TODO: I think this shows the fleece anyway.
   610IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=7:PROCshow_fleece
   620ENDPROC
 
-  630DEFPROCshow_fleece:Y%=2:W%=6:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:fleece_shown%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
-  640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
+  630DEFPROCshow_fleece:Y%=2:W%=6:CALLs_sub%:W%=7:CALLs_sub%:RESTORE1450:score%=100:fleece_shown%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
+  640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:PROCv_sub:ENDPROC
 
   650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
   660IFdb%=6ANDJ%>lee_y_os%:Z%=9 ELSEIFdb%=6ANDJ%<lee_y_os%:Z%=3
   670IFdb%=4ANDJ%>lee_y_os%:Z%=7 ELSEIFdb%=4ANDJ%<lee_y_os%:Z%=1
-  680IFI%=1152:db%=4:X%=14:CALLU% ELSEIFI%=64:db%=6:X%=13:CALLU%
-  690CALLT%:ENDPROC
+  680IFI%=1152:db%=4:X%=14:CALLu_sub% ELSEIFI%=64:db%=6:X%=13:CALLu_sub%
+  690CALLt_sub%:ENDPROC
 
   700DEFPROCroom_type2:axm%=3:IFI%>lee_x_os%:axm%=-3
   710aym%=2:IFJ%>lee_y_os%:aym%=-4
-  720I%=I%+axm%:J%=J%+aym%:CALLS%:ENDPROC
+  720I%=I%+axm%:J%=J%+aym%:CALLs_sub%:ENDPROC
 
   730DEFPROCroom_type4:Z%=ad%(ah%):ak%=ak%+1:IFak%=40:ak%=0:ah%=ah%+1:IFah%=5:ah%=1
-  740CALLT%:ENDPROC
+  740CALLt_sub%:ENDPROC
 
   750DEFPROCroom_type3:Z%=ed%(ah%):ak%=ak%+1:IFak%=30:ak%=0:ah%=ah%+1:IFah%=7:ah%=1
-  760CALLT%:ENDPROC
+  760CALLt_sub%:ENDPROC
 
   770DEFPROCroom_type5:Z%=ed%:IFed%=6ANDI%>688:ed%=4
   780IFed%=4ANDI%<644:ed%=6
-  790CALLT%:ENDPROC
+  790CALLt_sub%:ENDPROC
 
-  800DEFPROCnew_game_init:CALLV%:PROCclear_room:VDU28,4,30,15,28,17,128,12,26:ENDPROC
+  800DEFPROCnew_game_init:PROCv_sub:PROCclear_room:VDU28,4,30,15,28,17,128,12,26:ENDPROC
   805REM TODO: The next line appears to be unreachable.
   810COLOUR3:FORn%=28TO30:PRINTTAB(1,n%)STRING$(2,CHR$(259-n%));TAB(17,n%)STRING$(2,CHR$(259-n%)):NEXT:ENDPROC
 
-  820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
+  820DEFPROCone_off_init
+  821q_sub%=Q%:s_sub%=S%:t_sub%=T%:u_sub%=U%:v_sub%=V%
+  825PROCv_sub:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
   840DEFPROCclear_room:VDU28,0,26,19,9,17,128,12,26:ENDPROC
@@ -152,15 +156,15 @@
   852REM TODO: We could preserve them more efficiently using foo%=!&70:!&70=foo%
   860s0%=?&70:s1%=?&71:s2%=?&72:s3%=?&73:?&70=aa%:?&71=bb%:?&72=226:?&73=30
   870CALL&A00:?&70=s0%:?&71=s1%:?&72=s2%:?&73=s3%
-  880IFroom_type%=2:I%=608:J%=672:W%=5:Y%=0:CALLS%:GOTO900
-  890db%=6:IFroom_type%>0:I%=291:J%=480:W%=5:Y%=0:CALLS%:IFroom_type%=1:X%=13:CALLU%
-  900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=26:CALLU%:GOTO960
-  910IFlogical_room%=5ANDscore%=90:room_type%=0:Y%=2:CALLS%:Y%=0
-  920IFroom_type%=2:X%=15:CALLU%
-  930IFroom_type%=3:X%=16:CALLU%
-  940IFroom_type%=4:X%=22:CALLU%
-  950IFroom_type%=5:Y%=2:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=19:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=27:CALLU%
-  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCplot_and_maxplutz_sprite_7(2,14,18)
+  880IFroom_type%=2:I%=608:J%=672:W%=5:Y%=0:CALLs_sub%:GOTO900
+  890db%=6:IFroom_type%>0:I%=291:J%=480:W%=5:Y%=0:CALLs_sub%:IFroom_type%=1:X%=13:CALLu_sub%
+  900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=26:CALLu_sub%:GOTO960
+  910IFlogical_room%=5ANDscore%=90:room_type%=0:Y%=2:CALLs_sub%:Y%=0
+  920IFroom_type%=2:X%=15:CALLu_sub%
+  930IFroom_type%=3:X%=16:CALLu_sub%
+  940IFroom_type%=4:X%=22:CALLu_sub%
+  950IFroom_type%=5:Y%=2:CALLs_sub%:I%=640:J%=316:Y%=0:CALLs_sub%:ed%=6:IFscore%>70ANDscore%<100:X%=19:CALLu_sub% ELSEIFroom_type%=5ANDscore%=100:X%=27:CALLu_sub%
+  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLs_sub%:X%=17:CALLu_sub%:IFitem_collected%(5)=0:PROCplot_and_maxplutz_sprite_7(2,14,18)
   970IFlogical_room%=6:PROCplot_and_maxplutz_sprite_7(18,15,21):PROCplot_and_maxplutz_sprite_7(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
@@ -172,12 +176,12 @@
  1050IFlogical_room%=14:PROCplot_and_maxplutz_sprite_7(8,20,21):PROCplot_and_maxplutz_sprite_7(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCplot_and_maxplutz_sprite_7(12,25,17)
  1060IFlogical_room%=12:PROCplot_and_maxplutz_sprite_7(1,15,20):PROCplot_and_maxplutz_sprite_7(1,18,20):PROCplot_and_maxplutz_sprite_7(1,21,20)
  1070IFlogical_room%=13:PROCplot_and_maxplutz_sprite_7(7,21,23):PROCplot_and_maxplutz_sprite_7(12,21,23)
- 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLS%:X%=17:CALLU%:IFday_night%=1:Y%=2:CALLS%
+ 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLs_sub%:X%=17:CALLu_sub%:IFday_night%=1:Y%=2:CALLs_sub%
  1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCplot_and_maxplutz_sprite_7(18,24,17)
  1100ENDPROC
 
  1110DEFPROCchange_room:IFlogical_room%=10ANDlee_y_os%<228:PROCwin:game_ended%=1:ENDPROC
- 1120W%=5:Y%=2:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
+ 1120W%=5:Y%=2:CALLs_sub%:FORn%=9TO12:W%=n%:CALLs_sub%:NEXT
  1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
  1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type%:NEXT:IFscore%=100:room_type%=2
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
@@ -195,10 +199,10 @@
  1240ENDPROC
 
  1250DEFPROChide_fleece:IFlogical_room%<>5:ENDPROC
- 1260IFscore%<90:ENDPROC ELSEW%=7:Y%=2:CALLS%:ENDPROC
+ 1260IFscore%<90:ENDPROC ELSEW%=7:Y%=2:CALLs_sub%:ENDPROC
 
  1270DEFPROCrestore_fleece:IFlogical_room%<>5:ENDPROC
- 1280IFscore%<90:ENDPROC ELSEW%=7:X%=17:CALLS%:CALLU%:ENDPROC
+ 1280IFscore%<90:ENDPROC ELSEW%=7:X%=17:CALLs_sub%:CALLu_sub%:ENDPROC
 
  1290DEFPROCwarp_effect:VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
@@ -213,15 +217,15 @@
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
- 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:fleece_shown%=0:m%=0:room_type%=3
+ 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLs_sub%:CALLu_sub%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:fleece_shown%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
  1390DEFPROCreset_note_count:RESTORE1300:note_count%=0:ENDPROC
 
- 1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLS%:VDU5:B$="WAITING":REPEATA$=INKEY$(0):GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C"
- 1405FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFfleece_shown%=0:Y%=0:CALLS%
+ 1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLs_sub%:VDU5:B$="WAITING":REPEATA$=INKEY$(0):GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C"
+ 1405FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFfleece_shown%=0:Y%=0:CALLs_sub%
  1410SOUND1,6,30,3:*FX15,1
  1420ENDPROC
 
@@ -232,15 +236,21 @@
  1449REM colour sequence for day/night transition
  1450DATA7,6,3,5,1,2,4,0
 
- 1460DEFPROCgame_over:W%=6:Y%=2:CALLS%:IFwon%=0:score%=score%-1:IFscore%=-1:score%=0
+ 1460DEFPROCgame_over:W%=6:Y%=2:CALLs_sub%:IFwon%=0:score%=score%-1:IFscore%=-1:score%=0
  1470PROCstop_sound:pw%=1000:on%=2:IFwon%=1ORuw%=1:GOTO1490
- 1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=lee_sprite_num%:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
+ 1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=lee_sprite_num%:Y%=on%:rr%=on%:on%=0:CALLs_sub%:IFrr%=0:on%=2:NEXT ELSENEXT
  1490VDU19,1,1;0;19,2,6;0;19,3,7;0;17,3:s$=STR$score%+"%":PROCclear_room:PRINTTAB(5,16);:VDU232,233,234,235,32,32,238,239,235,240,5
  1491GCOL0,2:FORn%=416TO412STEP-4:MOVE544,n%:PRINTs$:NEXT:VDU4:PROCdelay(14000):COLOUR1:PRINTTAB(energy_major%,5)CHR$246:ENDPROC
 
  1500DEFPROCwin:won%=1:PROCstop_sound:VDU19,1,1;0;19,2,3;0;19,3,6;0;:PROCclear_room:COLOUR2:PRINTTAB(6,16);:VDU232,233,234,235,32,235,242,245,5:GCOL0,1:a$=CHR$10+STRING$(12,CHR$8):FORn%=416TO412STEP-4:MOVE256,n%
  1505REM TODO: Fix typo ("COMMING")?
  1510PRINT"INNER  WORLD"+a$+"COMMING SOON":NEXT:PROCdelay(13000):VDU4:ENDPROC
+
+ 1600DEF PROCv_sub
+ 1610save_q%=Q%:save_r%=R%:save_s%=S%:save_t%=T%:save_u%=U%:save_v%=V%
+ 1620CALLv_sub%
+ 1630Q%=save_q%:R%=save_r%:S%=save_s%:T%=save_t%:U%=save_u%:V%=save_v%
+ 1640ENDPROC
 
  2000REM Sprite slot 6 is used for the sun/moon
 
