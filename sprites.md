@@ -16,8 +16,8 @@ The 0-based physical sprite numbers shown here aren't really used by the game it
 | 9 &46C0  |      17 | ![](img/sprite-09-0.png) ![](img/sprite-09-1.png) ![](img/sprite-09-2.png) ![](img/sprite-09-3.png) | ![](img/sprite-09-anim.gif) | Fleece/MacGuffin/unused/Prism |
 | 10 &4780 |      18 | ![](img/sprite-10-0.png) ![](img/sprite-10-1.png) ![](img/sprite-10-2.png) ![](img/sprite-10-3.png) | ![](img/sprite-10-anim.gif) | Health pickup |
 | 11 &4840 |      19 | ![](img/sprite-11-0.png) ![](img/sprite-11-1.png) ![](img/sprite-11-2.png) ![](img/sprite-11-3.png) | ![](img/sprite-11-anim.gif) | Veil of Ambiguity |
-| 12 &4900 |      20 | ![](img/sprite-12-0.png) ![](img/sprite-12-1.png) ![](img/sprite-12-2.png) ![](img/sprite-12-3.png) | ![](img/sprite-12-anim.gif) | Wall enemy, left |
-| 13 &49C0 |      21 | ![](img/sprite-13-0.png) ![](img/sprite-13-1.png) ![](img/sprite-13-2.png) ![](img/sprite-13-3.png) | ![](img/sprite-13-anim.gif) | Wall enemy, right |
+| 12 &4900 |      20 | ![](img/sprite-12-0.png) ![](img/sprite-12-1.png) ![](img/sprite-12-2.png) ![](img/sprite-12-3.png) | ![](img/sprite-12-anim.gif) | Wall enemy, right |
+| 13 &49C0 |      21 | ![](img/sprite-13-0.png) ![](img/sprite-13-1.png) ![](img/sprite-13-2.png) ![](img/sprite-13-3.png) | ![](img/sprite-13-anim.gif) | Wall enemy, left |
 | 14 &4A80 |      22 | ![](img/sprite-14-0.png) ![](img/sprite-14-1.png) ![](img/sprite-14-2.png) ![](img/sprite-14-3.png) | ![](img/sprite-14-anim.gif) | Eye enemy |
 | 15 &4B40 |      23 | ![](img/sprite-15-0.png) ![](img/sprite-15-1.png) ![](img/sprite-15-2.png) ![](img/sprite-15-3.png) | ![](img/sprite-15-anim.gif) | Statue |
 | 16 &4C00 |      24 | ![](img/sprite-16-0.png) ![](img/sprite-16-1.png) ![](img/sprite-16-2.png) ![](img/sprite-16-3.png) | ![](img/sprite-16-anim.gif) | Sun |
