@@ -17,6 +17,7 @@ Maybe tweak the random colours for each room
 - e.g. maybe disallow a few "really intense" combinations (like white+{yellow,cyan} for the two colours used in the walls)
 - maybe disallow yellow+white or white+cyan both being in the palette at the same time?!
 - maybe have some static per-room colours instead of them being completely random (e.g. taken from Ed's map)
+- maybe remember the random colours for each room the first time you enter it, so that within a single game the colours are consistent??
 
 Maybe use interrupts to allow different colours (fixed? or just "differently random to the room") in the header/footer regions
 
