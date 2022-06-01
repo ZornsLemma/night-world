@@ -21,6 +21,7 @@ Maybe tweak the random colours for each room
 Maybe use interrupts to allow different colours (fixed? or just "differently random to the room") in the header/footer regions
 
 Produce a single version that works on BBC and Electron
+- worth bearing this in mind in general, as some tweaks (e.g. interrupts to allow different colours) would not play nice with Electron compatibility (but we could in principle build two variants and put them on the same disc, rather than having nearly all common code)
 
 Ideally the game will work if put on tape (probably easy, and not that important, but would be nice)
 
