@@ -239,7 +239,6 @@
  2015REM TODO: Assume upper case for now. "Q" for quiet game does this...
  2020key$=GET$
  2030UNTIL key$>="A" AND key$<="N"
- 2031REMPROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=2:CALLS%:REM hide player sprite
  2050RESTORE 2500
  2060FOR n%=1 TO ASC(key$)-64:READ phys_room%,lee_x_os%,lee_y_os%:NEXT
  2200PROCchange_room2
@@ -248,7 +247,7 @@
  2215VDU 5:W%=6:REM restore state
  2220ENDPROC
  2221REM FWIW lower part of room A would be 1142,316
- 2500DATA 12,1120,576,7,392,256,2,72,244,1,1194,672,3,24,636,4,24,636,5,24,444,9,984,704,17,280,700,16,1194,252,18,24,668,19,500,500,20,500,500,14,500,500
+ 2500DATA 12,1120,576,7,392,256,2,72,244,1,1194,672,3,24,636,4,24,636,5,24,444,9,984,704,17,280,700,16,1194,252,18,24,668,19,24,444,20,84,412,14,68,416
 
 
 32000*TAPE
