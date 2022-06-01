@@ -55,13 +55,6 @@
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
-  392REM TODO: This seems to plot sprite 7 via CALL S%, but then it does something I don't
-  393REM currently know via CALL U% as well, hence "maxplutz". Sprite 7 is an instance of
-  394REM the data at sprite_00 which seems to be a kind of "Dm"-ish shape. (I am suspecting
-  395REM sprites have four frames of animation; this has "Dm" moving one pixel to right
-  396REM in three different colours with a fourth frame blank, if so.) I half wonder if
-  397REM sprite_00 gets patched at runtime depending on room!? (stardot "Demistifying Nightworld"
-  398REM thread has screenshot/mention of this "Dm" guardian sprite, FWIW.)
   400DEFPROCupdate_sprite_slot_7_and_show(text_x%,text_y%,ch%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
 
