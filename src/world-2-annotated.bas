@@ -181,7 +181,8 @@
  1200ENDPROC
  1210IFfalling_time%>1:SOUND1,11,energy_minor%,2:GOTO1230
  1220IFroom_type%=2ANDday_night%=1ANDX%=5:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,energy_minor%,2 ELSEIFX%=7:SOUND1,8,energy_minor%,4 ELSESOUND1,12,energy_minor%,5
- 1230energy_minor%=energy_minor%-1:IFenergy_minor%=0:energy_minor%=25
+ 1230energy_minor%=energy_minor%-1
+ 1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:game_ended%=1
  1240ENDPROC
 
  1250DEFPROChide_fleece:IFlogical_room%<>5:ENDPROC
