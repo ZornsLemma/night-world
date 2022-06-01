@@ -33,3 +33,6 @@ MODE 2 version using 16K of sideways RAM?
 - perhaps also with a NuLA version?
 
 Perhaps remove the energy drain when you touch the objects you have to collect?
+
+Actually remove the prisms from the room when you collect them?
+Show the prisms somewhere on the screen after you've collected them, so you know how many you have? (wihtout an explicit "n/4" as it's maybe a little spoilery - nothing in the instructions says "4 prisms")
