@@ -1,6 +1,6 @@
    0IFPAGE>&E00:GOTO32000
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
-   40ONERROR:VDU4:uw%=1:GOTO100
+   40REMONERROR:VDU4:uw%=1:GOTO100
    50won%=0:score%=13:uw%=0:energy_major%=10
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
@@ -46,7 +46,8 @@
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,lee_y_os%,12 ELSEIFINKEY-56PROCpause
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
-  330PROCset_lee_sprite_from_lee_xy_os:CALLS%:IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
+  330PROCset_lee_sprite_from_lee_xy_os:CALLS%
+  335IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
@@ -160,8 +161,10 @@
  1100ENDPROC
 
  1110DEFPROCchange_room:IFlogical_room%=10ANDlee_y_os%<228:PROCwin:game_ended%=1:ENDPROC
- 1120W%=5:Y%=2:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
  1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
+ 1122PROCchange_room2:ENDPROC
+ 1124DEFPROCchange_room2
+ 1127W%=5:Y%=2:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
  1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type%:NEXT:IFscore%=100:room_type%=2
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
  1150PROCdraw_current_room:ENDPROC
@@ -195,7 +198,7 @@
  1331REPEATREADnote_pitch%,note_duration%:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351energy_major%=16:energy_minor%=10:logical_room%=8:i%=0:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
+ 1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:ng%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
@@ -204,7 +207,10 @@
 
  1390DEFPROCreset_note_count:RESTORE1300:note_count%=0:ENDPROC
 
- 1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLS%:VDU5:B$="WAITING":REPEATA$=INKEY$(0):GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFng%=0:Y%=0:CALLS%
+ 1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLS%:VDU5:B$="WAITING":*FX15,1
+ 1402REPEAT:A$=INKEY$(0)
+ 1403IF ?&9FE<>0 AND A$="W":PROCwarp
+ 1405GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFng%=0:Y%=0:CALLS%
  1410SOUND1,6,30,3:*FX15,1
  1420ENDPROC
 
@@ -224,6 +230,25 @@
  1500DEFPROCwin:won%=1:PROCstop_sound:VDU19,1,1;0;19,2,3;0;19,3,6;0;:PROCclear_room:COLOUR2:PRINTTAB(6,16);:VDU232,233,234,235,32,235,242,245,5:GCOL0,1:a$=CHR$10+STRING$(12,CHR$8):FORn%=416TO412STEP-4:MOVE256,n%
  1505REM TODO: Fix typo ("COMMING")?
  1510PRINT"INNER  WORLD"+a$+"COMMING SOON":NEXT:PROCdelay(13000):VDU4:ENDPROC
+
+ 2000DEFPROCwarp
+ 2003VDU 4
+ 2005PRINTTAB(0,20);"Warp to? (A-N)";
+ 2006REPEAT
+ 2010*FX15,1
+ 2015REM TODO: Assume upper case for now. "Q" for quiet game does this...
+ 2020key$=GET$
+ 2030UNTIL key$>="A" AND key$<="N"
+ 2031REMPROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=2:CALLS%:REM hide player sprite
+ 2050RESTORE 2500
+ 2060FOR n%=1 TO ASC(key$)-64:READ phys_room%,lee_x_os%,lee_y_os%:NEXT
+ 2200PROCchange_room2
+ 2205PROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=1:CALLS%:REM show player sprite
+ 2210PROCreset_note_count:REM Must do this because we moved DATA pointer
+ 2215VDU 5
+ 2220ENDPROC
+ 2500DATA 12,1120,576,7,392,256,2,72,244,1,500,500,3,500,500,4,500,500,5,500,500,9,500,500,17,500,500,16,500,500,18,500,500,19,500,500,20,500,500,14,500,500
+
 
 32000*TAPE
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M

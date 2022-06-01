@@ -21,10 +21,11 @@ PRINT'TAB(2)"Created by Game Systems. (C) ALLIGATA"''TAB(13)"ˆPRESS ANY KEY";:A=
 CLS:PRINTTAB(0,0);:VDU130,157,141,133:PRINTTAB(15,0)"NIGHTWORLD":PRINTTAB(0,1);:VDU129,157,141,132:PRINTTAB(15,1)"NIGHTWORLD"
 PRINTTAB(R%);CHR$131;R$
 ?&9FF=0:REM infinite health? 0=no, 1=yes
+?&9FE=0:REM arbitrary warp? 0=no, 1=yes
 PRINT'" Would you like to cheat?";
 IF NOT FNyes THEN GOTO 1000
-PRINT'" Infinite health?";
-IF FNyes THEN ?&9FF=1
+PRINT'" Infinite health?";:IF FNyes THEN ?&9FF=1
+PRINT'" Allow warp to any room?";:IF FNyes THEN ?&9FE=1:PRINT " Press W to warp when paused."
 PRINT'TAB(7);:VDU136:PRINT"PRESS ANY KEY TO CONTINUE";
 A=GET:*FX15,0
 1000MODE4:VDU23;8202;0;0;0;19,1,0;0;23,255,60,66,153,145,153,66,60,0:D$=CHR$10+STRING$(12,CHR$8):W$="NIGHT  WORLD"+D$+" "+CHR$255+" ALLIGATA "+D$+" CREATED BY "+D$+"    D.M.    "+D$+"GAME SYSTEMS"
