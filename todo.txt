@@ -36,3 +36,5 @@ Perhaps remove the energy drain when you touch the objects you have to collect?
 
 Actually remove the prisms from the room when you collect them?
 Show the prisms somewhere on the screen after you've collected them, so you know how many you have? (wihtout an explicit "n/4" as it's maybe a little spoilery - nothing in the instructions says "4 prisms")
+
+Don't do two separate "jump_time%=jump_time%+1" in PROCjump - inefficient
