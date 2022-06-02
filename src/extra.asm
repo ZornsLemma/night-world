@@ -5,7 +5,8 @@ sound_channel_2_buffer_number = 6
 ri_q = &444
 
 minor_frame_interval = 12 ; TODO!?
-major_frame_interval = 255 ; TODO!?
+major_frame_interval = 3 ; TODO!?
+assert minor_frame_interval * major_frame_interval = 36 ; TODO: 35 better?
 
     ; TODO: This address range is Master-only, but it will do to experiment without
     ; starting to reassemble World1c to free up space there.
@@ -14,7 +15,7 @@ major_frame_interval = 255 ; TODO!?
 .start
 
 .fixed_data
-.frame_count
+.frame_count ; TODO: rename minor_frame_count and similarly elsewhere?
     equb 1
 .major_frame_count
     equb 0
@@ -90,12 +91,8 @@ major_frame_interval = 255 ; TODO!?
     ; probably be assembled as part of World-1 and so can jmp/fall through
     ; straight into the "real" q_subroutine.
 .busy_wait
-    ; TODO: probably need some kind of mutex to stop this and event handler
-    ; trampling on value during updates - think carefully - don't forget the
-    ; event handler will run with interrupts disabled and it is effectively an
-    ; interrupt - we can't interrupt it, but it can interrupt us
     lda major_frame_count:bne busy_wait
-    lda #major_frame_interval:sta major_frame_count
+    sei:lda #major_frame_interval:sta major_frame_count:cli
     rts ; TODO TEMP
     jmp (ri_q)
 
