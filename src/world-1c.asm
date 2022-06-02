@@ -3,6 +3,9 @@ q_subroutine_sprite_to_check_x2 = &71
 q_subroutine_max_candidate_sprite_x2 = &70
 q_subroutine_abs_x_difference = &72
 q_subroutine_abs_y_difference = &73
+sprite_pixel_current_x = &72
+sprite_pixel_current_y = &73
+get_sprite_details_sprite_index = &7c
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -1134,7 +1137,7 @@ osbyte = &fff4
 ;     W%=&30 => A=&2F => Y=&38 => O%
 ; &511c referenced 1 time by &5046
 .get_sprite_details
-    sta screen_ptr2                                                   ; 511c: 85 7c       .|
+    sta get_sprite_details_sprite_index                               ; 511c: 85 7c       .|
     asl a                                                             ; 511e: 0a          .
     tax                                                               ; 511f: aa          .
     sta screen_ptr2+1                                                 ; 5120: 85 7d       .}
@@ -1147,7 +1150,7 @@ osbyte = &fff4
     sty l0075                                                         ; 5129: 84 75       .u
 ; Set l0076 (low) and l0078 (high) to the first resident integer
 ; variable for this sprite divided by 8, which converts from OS
-; coordinates (0-1279) to pixel coordinates (0-319). Similarly, divide
+; coordinates (0-1279) to pixel coordinates (0-159). Similarly, divide
 ; the second resident integer variable by 4 to get Y pixel coordinates
 ; (0-255) at l0077 (low) and l0079 (high).
     lda ri_a+1,y                                                      ; 512b: b9 05 04    ...
@@ -1168,13 +1171,15 @@ osbyte = &fff4
     lsr sprite_pixel_y_hi                                             ; 5149: 46 79       Fy
     ror a                                                             ; 514b: 6a          j
     sta sprite_pixel_y_lo                                             ; 514c: 85 77       .w
-    ldy screen_ptr2                                                   ; 514e: a4 7c       .|
+    ldy get_sprite_details_sprite_index                               ; 514e: a4 7c       .|
     lda sprite_pixel_coord_table_xy,x                                 ; 5150: bd 60 57    .`W
-    sta l0072                                                         ; 5153: 85 72       .r
+    sta sprite_pixel_current_x                                        ; 5153: 85 72       .r
     lda sprite_pixel_coord_table_xy+1,x                               ; 5155: bd 61 57    .aW
-    sta l0073                                                         ; 5158: 85 73       .s
+    sta sprite_pixel_current_y                                        ; 5158: 85 73       .s
+; TODO: Won't sprite_pixel_x_hi always be 0, since if it's on-screen
+; it will have been reduced to the range 0-159 after dividing by 8?
     lda sprite_pixel_x_hi                                             ; 515a: a5 78       .x
-    beq c516e                                                         ; 515c: f0 10       ..
+    beq sprite_pixel_x_hi_zero                                        ; 515c: f0 10       ..
     cmp #&80                                                          ; 515e: c9 80       ..
     bcc c5182                                                         ; 5160: 90 20       .
     bcs c519d                                                         ; 5162: b0 39       .9
@@ -1182,13 +1187,14 @@ osbyte = &fff4
 .c5164
     lda sprite_pixel_y_hi                                             ; 5164: a5 79       .y
     beq c51b8                                                         ; 5166: f0 50       .P
+; TODO: cmp #&80 redundant? we just did LDA which will have set N
     cmp #&80                                                          ; 5168: c9 80       ..
     bcc c51cb                                                         ; 516a: 90 5f       ._
     bcs c51e5                                                         ; 516c: b0 77       .w
 ; &516e referenced 1 time by &515c
-.c516e
+.sprite_pixel_x_hi_zero
     lda sprite_pixel_x_lo                                             ; 516e: a5 76       .v
-    cmp l55f8                                                         ; 5170: cd f8 55    ..U
+    cmp constant_2                                                    ; 5170: cd f8 55    ..U
     bcc c519d                                                         ; 5173: 90 28       .(
     cmp constant_96                                                   ; 5175: cd f9 55    ..U
     beq c517c                                                         ; 5178: f0 02       ..
@@ -1200,7 +1206,7 @@ osbyte = &fff4
     bcc c5164                                                         ; 5180: 90 e2       ..
 ; &5182 referenced 2 times by &5160, &517a
 .c5182
-    lda sprite_pixel_coord_table_xy_end,y                             ; 5182: b9 c0 57    ..W
+    lda constant_1_per_sprite_table,y                                 ; 5182: b9 c0 57    ..W
     beq c5192                                                         ; 5185: f0 0b       ..
     cmp #1                                                            ; 5187: c9 01       ..
     beq c51ad                                                         ; 5189: f0 22       ."
@@ -1218,7 +1224,7 @@ osbyte = &fff4
     bcc c5164                                                         ; 519b: 90 c7       ..
 ; &519d referenced 2 times by &5162, &5173
 .c519d
-    lda sprite_pixel_coord_table_xy_end,y                             ; 519d: b9 c0 57    ..W
+    lda constant_1_per_sprite_table,y                                 ; 519d: b9 c0 57    ..W            ; always branch
     beq c51ad                                                         ; 51a0: f0 0b       ..
     cmp #1                                                            ; 51a2: c9 01       ..
     beq c5192                                                         ; 51a4: f0 ec       ..
@@ -1227,7 +1233,7 @@ osbyte = &fff4
     bne c5164                                                         ; 51ab: d0 b7       ..
 ; &51ad referenced 2 times by &5189, &51a0
 .c51ad
-    lda l55f8                                                         ; 51ad: ad f8 55    ..U
+    lda constant_2                                                    ; 51ad: ad f8 55    ..U
     sta sprite_pixel_coord_table_xy,x                                 ; 51b0: 9d 60 57    .`W
     sta sprite_pixel_x_lo                                             ; 51b3: 85 76       .v
     clc                                                               ; 51b5: 18          .
@@ -1248,7 +1254,7 @@ osbyte = &fff4
 
 ; &51cb referenced 2 times by &516a, &51c4
 .c51cb
-    lda sprite_pixel_coord_table_xy_end,y                             ; 51cb: b9 c0 57    ..W
+    lda constant_1_per_sprite_table,y                                 ; 51cb: b9 c0 57    ..W
     beq c51db                                                         ; 51ce: f0 0b       ..
     cmp #1                                                            ; 51d0: c9 01       ..
     beq c51f5                                                         ; 51d2: f0 21       .!
@@ -1267,7 +1273,7 @@ osbyte = &fff4
 
 ; &51e5 referenced 2 times by &516c, &51bd
 .c51e5
-    lda sprite_pixel_coord_table_xy_end,y                             ; 51e5: b9 c0 57    ..W
+    lda constant_1_per_sprite_table,y                                 ; 51e5: b9 c0 57    ..W
     beq c51f5                                                         ; 51e8: f0 0b       ..
     cmp #1                                                            ; 51ea: c9 01       ..
     beq c51db                                                         ; 51ec: f0 ed       ..
@@ -1576,7 +1582,7 @@ osbyte = &fff4
     beq c53b4                                                         ; 5383: f0 2f       ./
     cmp #&80                                                          ; 5385: c9 80       ..
     bcs c53b4                                                         ; 5387: b0 2b       .+
-    lda l55f8                                                         ; 5389: ad f8 55    ..U
+    lda constant_2                                                    ; 5389: ad f8 55    ..U
 ; &538c referenced 1 time by &53a6
 .loop_c538c
     sta sprite_pixel_coord_table_xy,y                                 ; 538c: 99 60 57    .`W
@@ -1850,7 +1856,7 @@ osbyte = &fff4
     equb &f8,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 55e5: f8 00 00... ...
     equb   0,   0,   0,   0,   0,   0,   0                            ; 55f1: 00 00 00... ...
 ; &55f8 referenced 3 times by &5170, &51ad, &5389
-.l55f8
+.constant_2
     equb 2                                                            ; 55f8: 02          .
 ; &55f9 referenced 3 times by &5175, &5192, &53a3
 .constant_96
@@ -2022,9 +2028,11 @@ osbyte = &fff4
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5789: 00 00 00... ...
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 579d: 00 00 00... ...
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                  ; 57b1: 00 00 00... ...
-; TODO: Junk data?
+; TODO: This table appears to be read-only and since every byte is 1,
+; we can probably replace accesses to it with immediate constants and
+; get rid of it.
 ; &57c0 referenced 4 times by &5182, &519d, &51cb, &51e5
-.sprite_pixel_coord_table_xy_end
+.constant_1_per_sprite_table
     equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1   ; 57c0: 01 01 01... ...
     equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1   ; 57d4: 01 01 01... ...
     equb 1, 1, 1, 1, 1, 1, 1, 1                                       ; 57e8: 01 01 01... ...
@@ -2076,7 +2084,7 @@ osbyte = &fff4
 ;     osbyte:                                          5
 ;     sprite_pixel_y_hi:                               4
 ;     ri_w:                                            4
-;     sprite_pixel_coord_table_xy_end:                 4
+;     constant_1_per_sprite_table:                     4
 ;     ri_a:                                            3
 ;     ri_a+1:                                          3
 ;     ri_b:                                            3
@@ -2091,7 +2099,7 @@ osbyte = &fff4
 ;     c53b4:                                           3
 ;     sprite_something_table_two_bytes_per_sprite:     3
 ;     sprite_something_table_two_bytes_per_sprite+1:   3
-;     l55f8:                                           3
+;     constant_2:                                      3
 ;     constant_96:                                     3
 ;     l55fa:                                           3
 ;     l55fb:                                           3
@@ -2132,7 +2140,7 @@ osbyte = &fff4
 ;     remove_sprite_from_screen:                       1
 ;     s_subroutine_rts2:                               1
 ;     get_sprite_details:                              1
-;     c516e:                                           1
+;     sprite_pixel_x_hi_zero:                          1
 ;     c517c:                                           1
 ;     c51b8:                                           1
 ;     c51c6:                                           1
@@ -2195,7 +2203,6 @@ osbyte = &fff4
 ;     c5026
 ;     c502b
 ;     c5164
-;     c516e
 ;     c517c
 ;     c5182
 ;     c5192
@@ -2243,7 +2250,6 @@ osbyte = &fff4
 ;     l0075
 ;     l0403
 ;     l0443
-;     l55f8
 ;     l55fa
 ;     l55fb
 ;     loop_c538c
@@ -2289,6 +2295,7 @@ osbyte = &fff4
     assert >sprite_23 == &4c
     assert >sprite_24 == &4c
     assert >sprite_25 == &4d
+    assert get_sprite_details_sprite_index == &7c
     assert initial_qrstuv_values-1 == &54db
     assert l0070 == &70
     assert l0071 == &71
@@ -2307,6 +2314,8 @@ osbyte = &fff4
     assert s_subroutine == &5033
     assert sprite_pixel_coord_table_xy+0 == &5760
     assert sprite_pixel_coord_table_xy+1 == &5761
+    assert sprite_pixel_current_x == &72
+    assert sprite_pixel_current_y == &73
     assert sprite_ref_addrs_be+0 == &5700
     assert sprite_ref_addrs_be+1 == &5701
     assert sprite_y_offset_within_row == &75

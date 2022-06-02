@@ -133,12 +133,25 @@ comment(0x511c, "TODO: After the initial shifts, we have set Y=A*8 and then ande
 for a in range(0x30):
     y = (a << 3) & 0x38
     comment(0x511c, "    W%%=&%02X => A=&%02X => Y=&%02X => %s%%" % (a+1, a, y, chr(ord('A')+(y/4))))
-comment(0x512b, "Set l0076 (low) and l0078 (high) to the first resident integer variable for this sprite divided by 8, which converts from OS coordinates (0-1279) to pixel coordinates (0-319). Similarly, divide the second resident integer variable by 4 to get Y pixel coordinates (0-255) at l0077 (low) and l0079 (high).")
+comment(0x512b, "Set l0076 (low) and l0078 (high) to the first resident integer variable for this sprite divided by 8, which converts from OS coordinates (0-1279) to pixel coordinates (0-159). Similarly, divide the second resident integer variable by 4 to get Y pixel coordinates (0-255) at l0077 (low) and l0079 (high).")
 # TODO: Let's just assume these addresses are single-use
 label(0x76, "sprite_pixel_x_lo")
 label(0x78, "sprite_pixel_x_hi")
 label(0x77, "sprite_pixel_y_lo")
 label(0x79, "sprite_pixel_y_hi")
+constant(0x72, "sprite_pixel_current_x")
+expr(0x5154, "sprite_pixel_current_x")
+constant(0x73, "sprite_pixel_current_y")
+expr(0x5159, "sprite_pixel_current_y")
+expr(0x514f, "get_sprite_details_sprite_index")
+expr(0x511d, "get_sprite_details_sprite_index")
+constant(0x7c, "get_sprite_details_sprite_index")
+comment(0x515a, "TODO: Won't sprite_pixel_x_hi always be 0, since if it's on-screen it will have been reduced to the range 0-159 after dividing by 8?")
+label(0x516e, "sprite_pixel_x_hi_zero")
+comment(0x5168, "TODO: cmp #&80 redundant? we just did LDA which will have set N")
+#label(0x5182, "sprite_pixel_x_hi_1_to_7f")
+comment(0x519d, "always branch", inline=True)
+label(0x55f8, "constant_2")
 
 # TODO: (for py8dis) this overrides things like "sprite_ptr+1" even outside the context region indicated. I vaguely see why this is happening, but it doesn't feel right.
 #def our_label_maker(addr, context, suggestion):
@@ -263,7 +276,7 @@ for i in range(32):
 comment(0x5760, "Table of (pixel X coordinate, pixel Y coordinate) sprite positions, two bytes per sprite")
 label(0x5760, "sprite_pixel_coord_table_xy")
 expr_label(0x5761, "sprite_pixel_coord_table_xy+1")
-label(0x5760+0x30*2, "sprite_pixel_coord_table_xy_end")
+label(0x5760+0x30*2, "constant_1_per_sprite_table")
 expr(0x54b8, "sprite_ref_addrs_be+0")
 #expr(0x54bb, "sprite_screen_and_data_addrs+2")
 expr(0x54be, "sprite_ref_addrs_be+1")
@@ -274,6 +287,6 @@ expr(0x54c9, "sprite_pixel_coord_table_xy+1")
 #expr(0x54cf, "sprite_screen_and_data_addrs+1")
 
 comment(0x4e40, "TODO: This appears to be mode 5 graphics data showing '< 1 > Load ' (just *LOAD World1c 5800 to see this), so this is almost certainly junk/a build artefact/spare space.")
-comment(0x57c0, "TODO: Junk data?")
+comment(0x57c0, "TODO: This table appears to be read-only and since every byte is 1, we can probably replace accesses to it with immediate constants and get rid of it.")
 
 go()
