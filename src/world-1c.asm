@@ -802,8 +802,13 @@ osbyte = &fff4
     sec                                                               ; 4f34: 38          8
     sbc sprite_pixel_coord_table_xy,y                                 ; 4f35: f9 60 57    .`W
 ; TODO: Isn't this BMI unreliable? What if we did 0-140=-140=116, for
-; example? Or 150-0? Wouldn't the correct test be BCC? The code may be
-; designed to work correctly regardless, I don't know yet.
+; example? Or 150-0? Wouldn't the correct test be BCC? In practice
+; this works fine for values in the range 0-159 inclusive; I wrote a
+; program to test all cases, but I have some vague flickering in my
+; brain that says this is semi-obvious if you think about it. I think
+; it might still be true the state of the carry when we're negating is
+; sometimes wrong, but maybe it's not, and at worst it will cause an
+; extra pixel of 'fuzz' in the collision detection.
     bmi q_subroutine_sprite_to_check_x_lt_candidate_x                 ; 4f38: 30 35       05
     beq q_subroutine_test_abs_x_difference                            ; 4f3a: f0 02       ..
 ; sprite to check's X co-ordinate is >= candidate sprite's X co-
