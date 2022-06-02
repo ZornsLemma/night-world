@@ -35,4 +35,30 @@
  1580.th LDA#17:JSR os%:LDA#131:JSR os%:LDA#17:JSR os%:LDA#2:JSR os%:LDA&72:JSR os%:LDA&72:JSR os%:LDA#17:JSR os%:LDA#128:JSR os%:JMP ba
  1581\ Reset &73 and bump &72
  1590.rt LDA#30:STA&73:INC&72:JMP pe
- 1600]NEXT:ENDPROC
+ \ TODO assumes BASIC 2+ - probably assemble this in beebasm eventually
+ \ TODO overflows into &B00 - OK for now as will just use Master
+.event
+DEC frame_count:BNE rts
+PHA:TXA:PHA
+LDA #50:STA frame_count
+LDX note_index
+LDA pitch,X:STA osword_7_block+4
+LDA duration,X:STA osword_7_block+6
+LDA #2:STA osword_7_block
+LDA #7:LDX #osword_7_block MOD 256:LDY #osword_7_block DIV 256:JSR &FFF1
+INC osword_7_block
+LDA #7:LDX #osword_7_block MOD 256:LDY #osword_7_block DIV 256:\JSR &FFF1
+LDX note_index:CPX #2:BNE no_wrap
+LDX #&FF
+.no_wrap
+INX
+STX note_index
+PLA:TAX:PLA
+LDY#4
+.rts RTS
+.frame_count EQUB 1 
+.osword_7_block EQUW 1:EQUW -5:EQUW 0:EQUW 0
+.note_index EQUB 0
+.pitch EQUB 52:EQUB 60:EQUB 68
+.duration EQUB 1:EQUB 1:EQUB 1
+]NEXT:?&220=event:?&221=event DIV 256:ENDPROC
