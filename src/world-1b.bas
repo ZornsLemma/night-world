@@ -40,25 +40,28 @@
 .event
 DEC frame_count:BNE rts
 PHA:TXA:PHA
-LDA #50:STA frame_count
+LDA #1:STA frame_count
+LDX #6:CLV:SEC:JSR jmp_cnpv:CPX #5:BCC dont_play
 LDX note_index
 LDA pitch,X:STA osword_7_block+4
 LDA duration,X:STA osword_7_block+6
 LDA #2:STA osword_7_block
 LDA #7:LDX #osword_7_block MOD 256:LDY #osword_7_block DIV 256:JSR &FFF1
 INC osword_7_block
-LDA #7:LDX #osword_7_block MOD 256:LDY #osword_7_block DIV 256:\JSR &FFF1
-LDX note_index:CPX #2:BNE no_wrap
+LDA #7:LDX #osword_7_block MOD 256:LDY #osword_7_block DIV 256:JSR &FFF1
+LDX note_index:CPX #3:BNE no_wrap
 LDX #&FF
 .no_wrap
 INX
 STX note_index
+.dont_play
 PLA:TAX:PLA
 LDY#4
 .rts RTS
+.jmp_cnpv JMP (&22E)
 .frame_count EQUB 1 
 .osword_7_block EQUW 1:EQUW -5:EQUW 0:EQUW 0
 .note_index EQUB 0
-.pitch EQUB 52:EQUB 60:EQUB 68
-.duration EQUB 1:EQUB 1:EQUB 1
+.pitch EQUB 52:EQUB 60:EQUB 68:EQUB 0
+.duration EQUB 2:EQUB 4:EQUB 8:EQUB 0
 ]NEXT:?&220=event:?&221=event DIV 256:ENDPROC
