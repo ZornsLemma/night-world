@@ -56,3 +56,4 @@ basic_entry = &3590
 putfile "tmp/world-1b.tok", "World-1", &1900, &8023
 save "World1c", start, pydis_end
 putfile "tmp/world-2.tok", "World-2", &1900, &8023
+putbasic "sprite-test.bas", "SprTest"

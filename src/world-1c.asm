@@ -784,7 +784,11 @@ osbyte = &fff4
 ; get away with this because Y will be (W%-1)*4=0, so it does
 ; effectively contain the loop variable 'by chance'. This isn't a big
 ; deal, but I'm noting it as may want to double-check this
-; understanding before trying to avoid the Y-A shuffle.
+; understanding before trying to avoid the Y-A shuffle. Actually I
+; think there is another bug here, if (say) W%=3 and Y%=4 on entry,
+; the loop will get stuck with A=4 and Y=2, because the increment of Y
+; will never happen because of the Y-A shuffle. As long as W%>Y% on
+; entry - which it is in the game - this can't happen.
 ; TODO: I suspect we could avoid shuffling Y into A and just do
 ; iny:iny and change some cmp to cpy
 ; &4f28 referenced 1 time by &4f64
