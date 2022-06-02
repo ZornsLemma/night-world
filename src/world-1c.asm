@@ -866,7 +866,7 @@ osbyte = &fff4
     bne q_subroutine_test_abs_y_difference                            ; 4f81: d0 d2       ..             ; always branch
 ; &4f83 referenced 1 time by &4f5b
 .q_subroutine_set_ri_x_y_z_to_something_and_rts
-    lda l0072                                                         ; 4f83: a5 72       .r
+    lda q_subroutine_abs_x_difference                                 ; 4f83: a5 72       .r
     asl a                                                             ; 4f85: 0a          .
     adc l0073                                                         ; 4f86: 65 73       es
     sta l0073                                                         ; 4f88: 85 73       .s
