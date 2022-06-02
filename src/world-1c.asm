@@ -639,6 +639,9 @@ osbyte = &fff4
     equb &65, &65, &65, &65, &77, &67, &67, &65, &65, &65, &65, &65   ; 4e1c: 65 65 65... eee
     equb   0,   0,   0,   0,   0, &11, &11, &11, &65, &65, &65, &65   ; 4e28: 00 00 00... ...
     equb &67, &67, &77, &7f, &65, &65, &65, &65, &65, &ef, &ef, &ff   ; 4e34: 67 67 77... ggw
+; TODO: This appears to be mode 5 graphics data showing '< 1 > Load '
+; (just *LOAD World1c 5800 to see this), so this is almost certainly
+; junk/a build artefact/spare space.
 .sprite_end
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 4e40: 00 00 00... ...
     equb   0,   0,   0,   0,   0, &11                                 ; 4e4c: 00 00 00... ...

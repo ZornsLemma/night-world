@@ -257,4 +257,6 @@ expr(0x54c9, "sprite_pixel_coord_table_xy+1")
 #expr(0x54cb, "sprite_screen_and_data_addrs+0")
 #expr(0x54cf, "sprite_screen_and_data_addrs+1")
 
+comment(0x4e40, "TODO: This appears to be mode 5 graphics data showing '< 1 > Load ' (just *LOAD World1c 5800 to see this), so this is almost certainly junk/a build artefact/spare space.")
+
 go()
