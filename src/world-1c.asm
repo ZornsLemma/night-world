@@ -838,7 +838,7 @@ osbyte = &fff4
     ldx #5                                                            ; 4fa6: a2 05       ..
     stx l0075                                                         ; 4fa8: 86 75       .u
     ldy #&ff                                                          ; 4faa: a0 ff       ..
-    ldx l57f0                                                         ; 4fac: ae f0 57    ..W
+    ldx r_subroutine_inkey_code_1                                     ; 4fac: ae f0 57    ..W
     lda #osbyte_inkey                                                 ; 4faf: a9 81       ..
     jsr osbyte                                                        ; 4fb1: 20 f4 ff     ..
     cpy #&1b                                                          ; 4fb4: c0 1b       ..
@@ -849,7 +849,7 @@ osbyte = &fff4
 ; &4fbd referenced 1 time by &4fb9
 .c4fbd
     lda #osbyte_inkey                                                 ; 4fbd: a9 81       ..
-    ldx l57f1                                                         ; 4fbf: ae f1 57    ..W
+    ldx r_subroutine_inkey_code_2                                     ; 4fbf: ae f1 57    ..W
     ldy #&ff                                                          ; 4fc2: a0 ff       ..
     jsr osbyte                                                        ; 4fc4: 20 f4 ff     ..
     cpy #&1b                                                          ; 4fc7: c0 1b       ..
@@ -868,7 +868,7 @@ osbyte = &fff4
 ; &4fdc referenced 1 time by &4fd4
 .c4fdc
     lda #osbyte_inkey                                                 ; 4fdc: a9 81       ..
-    ldx l57f2                                                         ; 4fde: ae f2 57    ..W
+    ldx r_subroutine_inkey_code_3                                     ; 4fde: ae f2 57    ..W
     ldy #&ff                                                          ; 4fe1: a0 ff       ..
     jsr osbyte                                                        ; 4fe3: 20 f4 ff     ..
     cpy #&1b                                                          ; 4fe6: c0 1b       ..
@@ -882,7 +882,7 @@ osbyte = &fff4
 ; &4ff4 referenced 1 time by &4feb
 .c4ff4
     lda #osbyte_inkey                                                 ; 4ff4: a9 81       ..
-    ldx l57f3                                                         ; 4ff6: ae f3 57    ..W
+    ldx r_subroutine_inkey_code_4                                     ; 4ff6: ae f3 57    ..W
     ldy #&ff                                                          ; 4ff9: a0 ff       ..
     jsr osbyte                                                        ; 4ffb: 20 f4 ff     ..
     cpy #&1b                                                          ; 4ffe: c0 1b       ..
@@ -911,7 +911,7 @@ osbyte = &fff4
     beq c5026                                                         ; 501d: f0 07       ..
 ; &501f referenced 3 times by &4fda, &5029, &502d
 .c501f
-    sta l57f4                                                         ; 501f: 8d f4 57    ..W
+    sta r_subroutine_foo                                              ; 501f: 8d f4 57    ..W
     sta ri_z                                                          ; 5022: 8d 68 04    .h.
 ; &5025 referenced 2 times by &5036, &503a
 .s_subroutine_rts
@@ -920,7 +920,7 @@ osbyte = &fff4
 ; TODO: Dead code?
 ; &5026 referenced 1 time by &501d
 .c5026
-    lda l57f4                                                         ; 5026: ad f4 57    ..W
+    lda r_subroutine_foo                                              ; 5026: ad f4 57    ..W
     bne c501f                                                         ; 5029: d0 f4       ..
 ; &502b referenced 1 time by &5017
 .c502b
@@ -1990,25 +1990,26 @@ osbyte = &fff4
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 5789: 00 00 00... ...
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0   ; 579d: 00 00 00... ...
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                  ; 57b1: 00 00 00... ...
+; TODO: Junk data?
 ; &57c0 referenced 4 times by &5182, &519d, &51cb, &51e5
 .sprite_pixel_coord_table_xy_end
     equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1   ; 57c0: 01 01 01... ...
     equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1   ; 57d4: 01 01 01... ...
     equb 1, 1, 1, 1, 1, 1, 1, 1                                       ; 57e8: 01 01 01... ...
 ; &57f0 referenced 1 time by &4fac
-.l57f0
+.r_subroutine_inkey_code_1
     equb &bd                                                          ; 57f0: bd          .
 ; &57f1 referenced 1 time by &4fbf
-.l57f1
+.r_subroutine_inkey_code_2
     equb &9e                                                          ; 57f1: 9e          .
 ; &57f2 referenced 1 time by &4fde
-.l57f2
+.r_subroutine_inkey_code_3
     equb &b7                                                          ; 57f2: b7          .
 ; &57f3 referenced 1 time by &4ff6
-.l57f3
+.r_subroutine_inkey_code_4
     equb &97                                                          ; 57f3: 97          .
 ; &57f4 referenced 2 times by &501f, &5026
-.l57f4
+.r_subroutine_foo
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0                           ; 57f4: 00 00 00... ...
 .pydis_end
 
@@ -2079,7 +2080,7 @@ osbyte = &fff4
 ;     c5346:                                           2
 ;     sprite_ref_addrs_be:                             2
 ;     sprite_ref_addrs_be+1:                           2
-;     l57f4:                                           2
+;     r_subroutine_foo:                                2
 ;     l0403:                                           1
 ;     l0443:                                           1
 ;     q_subroutine_y_loop:                             1
@@ -2145,10 +2146,10 @@ osbyte = &fff4
 ;     c54db:                                           1
 ;     screen_y_addr_table:                             1
 ;     screen_y_addr_table+1:                           1
-;     l57f0:                                           1
-;     l57f1:                                           1
-;     l57f2:                                           1
-;     l57f3:                                           1
+;     r_subroutine_inkey_code_1:                       1
+;     r_subroutine_inkey_code_2:                       1
+;     r_subroutine_inkey_code_3:                       1
+;     r_subroutine_inkey_code_4:                       1
 
 ; Automatically generated labels:
 ;     c4fbd
@@ -2214,11 +2215,6 @@ osbyte = &fff4
 ;     l55f8
 ;     l55fa
 ;     l55fb
-;     l57f0
-;     l57f1
-;     l57f2
-;     l57f3
-;     l57f4
 ;     loop_c538c
 ;     loop_c53da
 ;     loop_c549d

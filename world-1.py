@@ -108,6 +108,13 @@ comment(0x4f97, "Set X% to the 1-based logical sprite number we found a collisio
 comment(0x4f92, "Set Z% to TODO: some number indicating something about the collision. world-2.bas doesn't appear to use this, although I'm not currently absolutely certain of this.")
 comment(0x4f66, "Set X% and Y% to 0 to indicate no collision found.")
 
+# r_subroutine
+label(0x57f0, "r_subroutine_inkey_code_1")
+label(0x57f1, "r_subroutine_inkey_code_2")
+label(0x57f2, "r_subroutine_inkey_code_3")
+label(0x57f3, "r_subroutine_inkey_code_4")
+label(0x57f4, "r_subroutine_foo")
+
 # s_subroutine
 label(0x5025, "s_subroutine_rts")
 comment(0x5033, "Entered with a sprite slot number in W%.\n\nIf Y%=2 or slot W% has invalid coordinates, if the sprite is on on screen and is eor-plotted to remove it and sprite_screen_and_data_addrs updated to reflect this. This is a no-op if the sprite is not on screen.\n\nIf Y% is not 2, the sprite is eor-plotted at its new position and sprite_screen_and_data_addrs updated to reflect this. If Y% is also not 1, the sprite is eor-plotted at its old position.\n\nEffectively Y%=1 means 'show sprite', Y%=0 means 'move sprite' and Y%=2 means 'remove sprite'.")
@@ -258,5 +265,6 @@ expr(0x54c9, "sprite_pixel_coord_table_xy+1")
 #expr(0x54cf, "sprite_screen_and_data_addrs+1")
 
 comment(0x4e40, "TODO: This appears to be mode 5 graphics data showing '< 1 > Load ' (just *LOAD World1c 5800 to see this), so this is almost certainly junk/a build artefact/spare space.")
+comment(0x57c0, "TODO: Junk data?")
 
 go()
