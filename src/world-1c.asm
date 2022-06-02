@@ -1,5 +1,5 @@
 max_sprite_num = &30
-q_subroutine_ri_w_minus_1_times_2 = &71
+q_subroutine_sprite_to_check_x2 = &71
 q_subroutine_ri_y_minus_1_times_2 = &70
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
@@ -765,7 +765,7 @@ osbyte = &fff4
 ; round q_subroutine_y_loop.
     lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 4f10: b9 01 56    ..V
     beq zero_ri_x_y_and_rts                                           ; 4f13: f0 51       .Q
-    stx q_subroutine_ri_w_minus_1_times_2                             ; 4f15: 86 71       .q
+    stx q_subroutine_sprite_to_check_x2                               ; 4f15: 86 71       .q
     lda ri_y                                                          ; 4f17: ad 64 04    .d.
     beq zero_ri_x_y_and_rts                                           ; 4f1a: f0 4a       .J
     cmp #max_sprite_num+1                                             ; 4f1c: c9 31       .1
@@ -782,7 +782,7 @@ osbyte = &fff4
 ; has the *original* value of Y when it does cpy
 ; &4f28 referenced 1 time by &4f64
 .q_subroutine_y_loop
-    cmp q_subroutine_ri_w_minus_1_times_2                             ; 4f28: c5 71       .q
+    cmp q_subroutine_sprite_to_check_x2                               ; 4f28: c5 71       .q
     beq q_subroutine_y_loop_test_and_bump                             ; 4f2a: f0 31       .1
     tay                                                               ; 4f2c: a8          .
     lda #5                                                            ; 4f2d: a9 05       ..
@@ -2312,8 +2312,8 @@ osbyte = &fff4
     assert osbyte_clear_escape == &7c
     assert osbyte_inkey == &81
     assert q_subroutine == &4f00
-    assert q_subroutine_ri_w_minus_1_times_2 == &71
     assert q_subroutine_ri_y_minus_1_times_2 == &70
+    assert q_subroutine_sprite_to_check_x2 == &71
     assert r_subroutine == &4f9f
     assert s_subroutine == &5033
     assert sprite_pixel_coord_table_xy+0 == &5760
