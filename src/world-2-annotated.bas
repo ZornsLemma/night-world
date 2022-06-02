@@ -1,10 +1,11 @@
    0IFPAGE>&E00:GOTO32000
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
-   40ONERROR:VDU4:uw%=1:GOTO100
+   40REMTODOONERROR:VDU4:uw%=1:GOTO100
    50won%=0:score%=13:uw%=0:energy_major%=10
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
    80*FX200,0
+   85REM TODO: I think w% is always 0 - there is no PROCo!
    90PROCtitle_screen:PROCdraw_current_room:PROCplay:IFw%=1:PROCo
   100PROCgame_over:GOTO70
 
@@ -36,7 +37,8 @@
   250PROCdraw_room(logical_room%):ENDPROC
 
   260DEFPROCplay
-  270GCOL0,0:Y%=0:PROCset_lee_sprite_from_lee_xy_os
+  265?note_index%=0:?max_note_index%=69
+  270GCOL0,0:Y%=0:PROCset_lee_sprite_from_lee_xy_os:*FX14,4
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
   281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
   282REM when he's falling *after* a jump has finished in mid-air, and that all other
@@ -49,7 +51,6 @@
   330PROCset_lee_sprite_from_lee_xy_os:CALLS%
   335IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
-  350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
   370IFng%=0:m%=m%+1:IFm%=11:PROCm:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
@@ -76,7 +77,8 @@
   520IFlogical_room%=5:W%=8:Z%=6:CALLT%
   530ENDPROC
 
-  540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
+  540DEFPROCtoggle_day_night:*FX13,4
+  545RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
   550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROClee_sprite_reset:K%=192
   551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os_gargoyle:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
   560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
@@ -127,6 +129,7 @@
   810COLOUR3:FORn%=28TO30:PRINTTAB(1,n%)STRING$(2,CHR$(259-n%));TAB(17,n%)STRING$(2,CHR$(259-n%)):NEXT:ENDPROC
 
   820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
+  821note_index%=&ABB:max_note_index%=&ABC
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
   840DEFPROCclear_room:VDU28,0,26,19,9,17,128,12,26:ENDPROC
@@ -187,25 +190,29 @@
  1270DEFPROCrestore_fleece:IFlogical_room%<>5:ENDPROC
  1280IFscore%<90:ENDPROC ELSEW%=7:X%=17:CALLS%:CALLU%:ENDPROC
 
- 1290DEFPROCwarp_effect:VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
+ 1285REM TODO: Should we do *FX13,4 here to stop tune? Should other things do this?
+ 1290DEFPROCwarp_effect:*FX13,4
+ 1294VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
- 1299REM Background music data: (pitch, duration) pairs
+ 1299REM Background music data: (pitch, duration) pairs TODO: can be removed now
  1300DATA116,3,88,3,116,2,0,0,116,3,120,3,116,3,0,0,116,2,88,2,116,2,116,2,116,2,120,2,116,2,0,0,116,3,72,3,100,3,0,0,100,3,108,3,100,3,0,0,100,2,72,2,100,2,100,2,100,2,108,2,100,2,0,0
  1310DATA52,3,32,3,80,3,0,0,80,3,88,3,80,3,0,0,52,2,32,2,80,2,80,2,80,2,88,2,80,2,0,0,32,3,32,3,60,3,0,0,60,3,68,3,60,3,0,0,60,2,32,2,60,2,60,2,60,2,68,2,60,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
  1320DEFPROCtitle_screen:colour1%=7:colour2%=6:colour3%=1:PROCreset_note_count
  1330day_night%=0:score%=0:room_type%=0:logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
- 1331REPEATREADnote_pitch%,note_duration%:IFnote_pitch%=0:PROCdelay(220):GOTO1350
- 1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:PROCreset_note_count
- 1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
+ 1331REPEAT:REM TODO: We have lost the delays of 220 per "0" which the BASIC code had - we could just make the BASIC code play the tune (using the data in "Extra") at the title screen as it always has?
+ 1332?max_note_index%=51:*FX14,4
+ 1350REPEAT:s$=INKEY$(14):GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
- 1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
+ 1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:ng%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
- 1390DEFPROCreset_note_count:RESTORE1300:note_count%=0:ENDPROC
+ 1385REM TODO: RESTORE in next line no longer needed
+ 1390DEFPROCreset_note_count:RESTORE1300:?note_index%=0:*FX14,4
+ 1395ENDPROC
 
  1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLS%:VDU5:B$="WAITING":*FX15,1
  1402REPEAT:A$=INKEY$(0)
@@ -221,7 +228,8 @@
  1449REM colour sequence for day/night transition
  1450DATA7,6,3,5,1,2,4,0
 
- 1460DEFPROCgame_over:W%=6:Y%=2:CALLS%:IFwon%=0:score%=score%-1:IFscore%=-1:score%=0
+ 1460DEFPROCgame_over:*FX13,4
+ 1465W%=6:Y%=2:CALLS%:IFwon%=0:score%=score%-1:IFscore%=-1:score%=0
  1470PROCstop_sound:pw%=1000:on%=2:IFwon%=1ORuw%=1:GOTO1490
  1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=lee_sprite_num%:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
  1490VDU19,1,1;0;19,2,6;0;19,3,7;0;17,3:s$=STR$score%+"%":PROCclear_room:PRINTTAB(5,16);:VDU232,233,234,235,32,32,238,239,235,240,5

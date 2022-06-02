@@ -90,6 +90,8 @@ assert minor_frame_interval * major_frame_interval = 36 ; TODO: 35 better?
     ; TODO: In a final version we would have Q% set to this address and we would
     ; probably be assembled as part of World-1 and so can jmp/fall through
     ; straight into the "real" q_subroutine.
+    ; TODO: If the game ever calls this without the VSYNC event enabled, it will
+    ; hang forever. Could/should we test for this?
 .busy_wait
     lda major_frame_count:bne busy_wait
     sei:lda #major_frame_interval:sta major_frame_count:cli
