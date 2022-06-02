@@ -1,6 +1,6 @@
 max_sprite_num = &30
 q_subroutine_sprite_to_check_x2 = &71
-q_subroutine_ri_y_minus_1_times_2 = &70
+q_subroutine_max_candidate_sprite_x2 = &70
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -773,13 +773,18 @@ osbyte = &fff4
     sec                                                               ; 4f20: 38          8
     sbc #1                                                            ; 4f21: e9 01       ..
     asl a                                                             ; 4f23: 0a          .
-    sta q_subroutine_ri_y_minus_1_times_2                             ; 4f24: 85 70       .p
+    sta q_subroutine_max_candidate_sprite_x2                          ; 4f24: 85 70       .p
     lda #0                                                            ; 4f26: a9 00       ..
 ; Don't test for collision of W% with itself!
-; TODO: This is roughly a loop over Y, bumping Y by 2 each time,
-; although the end condition is complex - note that because Y
-; temporarily gets copied into A for the bump by 2, the code at &4f5d
-; has the *original* value of Y when it does cpy
+; TODO: If W%=1 on entry, the first pass round the q_subroutine_y_loop
+; will take the beq, but Y doesn't yet contain the loop variable
+; (because of our shuffling in and out of A). As it happens, we will
+; get away with this because Y will be (W%-1)*4=0, so it does
+; effectively contain the loop variable 'by chance'. This isn't a big
+; deal, but I'm noting it as may want to double-check this
+; understanding before trying to avoid the Y-A shuffle.
+; TODO: I suspect we could avoid shuffling Y into A and just do
+; iny:iny and change some cmp to cpy
 ; &4f28 referenced 1 time by &4f64
 .q_subroutine_y_loop
     cmp q_subroutine_sprite_to_check_x2                               ; 4f28: c5 71       .q
@@ -790,15 +795,21 @@ osbyte = &fff4
     lda sprite_pixel_coord_table_xy,x                                 ; 4f31: bd 60 57    .`W
     sec                                                               ; 4f34: 38          8
     sbc sprite_pixel_coord_table_xy,y                                 ; 4f35: f9 60 57    .`W
-    bmi c4f6f                                                         ; 4f38: 30 35       05
-    beq c4f3e                                                         ; 4f3a: f0 02       ..
-; sprite_pixel_coord_table_xy,x > sprite_pixel_coord_table_xy,y (TODO:
-; assuming unsigned)
+; TODO: Isn't this BMI unreliable? What if we did 0-140=-140=116, for
+; example? Or 150-0? Wouldn't the correct test be BCC? The code may be
+; designed to work correctly regardless, I don't know yet.
+    bmi q_subroutine_sprite_to_check_x_lt_candidate_x                 ; 4f38: 30 35       05
+    beq q_subroutine_test_abs_x_difference                            ; 4f3a: f0 02       ..
+; sprite to check's X co-ordinate is >= candidate sprite's X co-
+; ordinate.
     dec l0074                                                         ; 4f3c: c6 74       .t
 ; &4f3e referenced 2 times by &4f3a, &4f75
-.c4f3e
+.q_subroutine_test_abs_x_difference
     cmp #9                                                            ; 4f3e: c9 09       ..
     bcs q_subroutine_y_loop_test_and_bump                             ; 4f40: b0 1b       ..
+; abs(sprite_to_check.x - candidate_sprite.x) < 9 (TODO: subject to
+; concerns about bugs in other TODOs), so we consider the sprites to
+; be overlapping in X and we need to check Y.
     sta l0072                                                         ; 4f42: 85 72       .r
     lda sprite_pixel_coord_table_xy+1,x                               ; 4f44: bd 61 57    .aW
     sec                                                               ; 4f47: 38          8
@@ -818,7 +829,7 @@ osbyte = &fff4
     bcc q_subroutine_set_ri_x_y_z_to_something_and_rts                ; 4f5b: 90 26       .&             ; always branch
 ; &4f5d referenced 3 times by &4f2a, &4f40, &4f57
 .q_subroutine_y_loop_test_and_bump
-    cpy q_subroutine_ri_y_minus_1_times_2                             ; 4f5d: c4 70       .p
+    cpy q_subroutine_max_candidate_sprite_x2                          ; 4f5d: c4 70       .p
     beq zero_ri_x_y_and_rts                                           ; 4f5f: f0 05       ..
     tya                                                               ; 4f61: 98          .
     adc #2                                                            ; 4f62: 69 02       i.
@@ -830,12 +841,16 @@ osbyte = &fff4
     sta ri_y                                                          ; 4f6b: 8d 64 04    .d.
     rts                                                               ; 4f6e: 60          `
 
+; Set A=-A
 ; &4f6f referenced 1 time by &4f38
-.c4f6f
+.q_subroutine_sprite_to_check_x_lt_candidate_x
     eor #&ff                                                          ; 4f6f: 49 ff       I.
+; TODO: As written, don't we need a clc here? I am not convinced C
+; will always be implicitly clear (e.g. if we did 150-0 at &4f31 - N
+; would be set, but there's no borrow so C will still be set).
     adc #1                                                            ; 4f71: 69 01       i.
     inc l0074                                                         ; 4f73: e6 74       .t
-    bne c4f3e                                                         ; 4f75: d0 c7       ..
+    bne q_subroutine_test_abs_x_difference                            ; 4f75: d0 c7       ..             ; always branch
 ; &4f77 referenced 1 time by &4f4b
 .c4f77
     eor #&ff                                                          ; 4f77: 49 ff       I.
@@ -2097,7 +2112,7 @@ osbyte = &fff4
 ;     constant_96:                                      3
 ;     l55fa:                                            3
 ;     l55fb:                                            3
-;     c4f3e:                                            2
+;     q_subroutine_test_abs_x_difference:               2
 ;     c4f55:                                            2
 ;     s_subroutine_rts:                                 2
 ;     clc_jmp_sprite_core:                              2
@@ -2118,7 +2133,7 @@ osbyte = &fff4
 ;     l0403:                                            1
 ;     l0443:                                            1
 ;     q_subroutine_y_loop:                              1
-;     c4f6f:                                            1
+;     q_subroutine_sprite_to_check_x_lt_candidate_x:    1
 ;     c4f77:                                            1
 ;     q_subroutine_set_ri_x_y_z_to_something_and_rts:   1
 ;     loop_c4f9e:                                       1
@@ -2186,9 +2201,7 @@ osbyte = &fff4
 ;     l57f3:                                            1
 
 ; Automatically generated labels:
-;     c4f3e
 ;     c4f55
-;     c4f6f
 ;     c4f77
 ;     c4fbd
 ;     c4fd0
@@ -2312,7 +2325,7 @@ osbyte = &fff4
     assert osbyte_clear_escape == &7c
     assert osbyte_inkey == &81
     assert q_subroutine == &4f00
-    assert q_subroutine_ri_y_minus_1_times_2 == &70
+    assert q_subroutine_max_candidate_sprite_x2 == &70
     assert q_subroutine_sprite_to_check_x2 == &71
     assert r_subroutine == &4f9f
     assert s_subroutine == &5033
