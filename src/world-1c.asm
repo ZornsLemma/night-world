@@ -747,9 +747,9 @@ osbyte = &fff4
 ; was collided with, or 0 if nothing. The code here appears to return
 ; values in Y% and Z% but I don't think they are used by the game. W%
 ; on entry is probably the sprite we are checking for collisions with;
-; world-2.bas always sets it to the current player sprite. Y% is also
-; used to pass something in but I don't know what; world-2.bas always
-; sets it to 8.
+; world-2.bas always sets it to the current player sprite. Y% on entry
+; is the maximum 1-based sprite slot to check for collisions;
+; world-2.bas always sets it to 8.
 .q_subroutine
     lda ri_w                                                          ; 4f00: ad 5c 04    .\.
     beq q_subroutine_no_collision_found                               ; 4f03: f0 61       .a
