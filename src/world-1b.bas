@@ -1,4 +1,4 @@
-    0*LOAD World1c
+    0OSCLI "LOAD World1c":OSCLI "LOAD Extra":?&220=&C0:?&221=&A:END:REM TODO BASIC 2 ONLY
     1MODE5:VDU23;8202;0;0;0;23,224,2,43,28,97,97,28,43,2,23,225,64,212,56,134,134,56,212,64,19,1,0;0;19,2,0;0;19,3,0;0;17,0,17,130:A$=CHR$224+CHR$225:PRINTTAB(0,8)STRING$(10,A$);TAB(0,27)STRING$(10,A$)
     3VDU17,130,17,0:PRINTTAB(0,31)STRING$(20," ");:COLOUR128:PRINTTAB(0,0)CHR$11:COLOUR130:PRINTTAB(6,31);:VDU17,128
     4GCOL0,1:MOVE0,0:DRAW1276,0:DRAW1276,30:DRAW0,30:DRAW0,0
@@ -35,33 +35,4 @@
  1580.th LDA#17:JSR os%:LDA#131:JSR os%:LDA#17:JSR os%:LDA#2:JSR os%:LDA&72:JSR os%:LDA&72:JSR os%:LDA#17:JSR os%:LDA#128:JSR os%:JMP ba
  1581\ Reset &73 and bump &72
  1590.rt LDA#30:STA&73:INC&72:JMP pe
- \ TODO assumes BASIC 2+ - probably assemble this in beebasm eventually
- \ TODO overflows into &B00 - OK for now as will just use Master
-.event
-DEC frame_count:BNE rts
-PHA:TXA:PHA
-LDA #1:STA frame_count
-LDX #6:CLV:SEC:JSR jmp_cnpv:CPX #5:BCC dont_play
-LDX note_index
-LDA pitch,X:STA osword_7_block+4
-LDA duration,X:STA osword_7_block+6
-LDA #2:STA osword_7_block
-LDA #7:LDX #osword_7_block MOD 256:LDY #osword_7_block DIV 256:JSR &FFF1
-INC osword_7_block
-LDA #7:LDX #osword_7_block MOD 256:LDY #osword_7_block DIV 256:JSR &FFF1
-LDX note_index:CPX #3:BNE no_wrap
-LDX #&FF
-.no_wrap
-INX
-STX note_index
-.dont_play
-PLA:TAX:PLA
-LDY#4
-.rts RTS
-.jmp_cnpv JMP (&22E)
-.frame_count EQUB 1 
-.osword_7_block EQUW 1:EQUW -5:EQUW 0:EQUW 0
-.note_index EQUB 0
-.pitch EQUB 52:EQUB 60:EQUB 68:EQUB 0
-.duration EQUB 2:EQUB 4:EQUB 8:EQUB 0
-]NEXT:?&220=event:?&221=event DIV 256:ENDPROC
+ 1600]NEXT:ENDPROC
