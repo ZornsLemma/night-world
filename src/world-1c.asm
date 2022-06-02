@@ -2,6 +2,7 @@ max_sprite_num = &30
 q_subroutine_sprite_to_check_x2 = &71
 q_subroutine_max_candidate_sprite_x2 = &70
 q_subroutine_abs_x_difference = &72
+q_subroutine_abs_y_difference = &73
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -751,9 +752,9 @@ osbyte = &fff4
 ; sets it to 8.
 .q_subroutine
     lda ri_w                                                          ; 4f00: ad 5c 04    .\.
-    beq zero_ri_x_y_and_rts                                           ; 4f03: f0 61       .a
+    beq q_subroutine_no_collision_found                               ; 4f03: f0 61       .a
     cmp #max_sprite_num+1                                             ; 4f05: c9 31       .1
-    bcs zero_ri_x_y_and_rts                                           ; 4f07: b0 5d       .]
+    bcs q_subroutine_no_collision_found                               ; 4f07: b0 5d       .]
     sec                                                               ; 4f09: 38          8
     sbc #1                                                            ; 4f0a: e9 01       ..
     asl a                                                             ; 4f0c: 0a          .
@@ -765,12 +766,12 @@ osbyte = &fff4
 ; q_subroutine_next_candidate branch is taken on the first pass round
 ; q_subroutine_y_loop.
     lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 4f10: b9 01 56    ..V
-    beq zero_ri_x_y_and_rts                                           ; 4f13: f0 51       .Q
+    beq q_subroutine_no_collision_found                               ; 4f13: f0 51       .Q
     stx q_subroutine_sprite_to_check_x2                               ; 4f15: 86 71       .q
     lda ri_y                                                          ; 4f17: ad 64 04    .d.
-    beq zero_ri_x_y_and_rts                                           ; 4f1a: f0 4a       .J
+    beq q_subroutine_no_collision_found                               ; 4f1a: f0 4a       .J
     cmp #max_sprite_num+1                                             ; 4f1c: c9 31       .1
-    bcs zero_ri_x_y_and_rts                                           ; 4f1e: b0 46       .F
+    bcs q_subroutine_no_collision_found                               ; 4f1e: b0 46       .F
     sec                                                               ; 4f20: 38          8
     sbc #1                                                            ; 4f21: e9 01       ..
     asl a                                                             ; 4f23: 0a          .
@@ -829,17 +830,18 @@ osbyte = &fff4
     bcs q_subroutine_next_candidate                                   ; 4f57: b0 04       ..
 ; abs(sprite_to_check.y - candidate_sprite.y) < 16 (TODO: subject to
 ; concerns about bugs), so these two sprites overlap and we're done.
-    sta l0073                                                         ; 4f59: 85 73       .s
-    bcc q_subroutine_set_ri_x_y_z_to_something_and_rts                ; 4f5b: 90 26       .&             ; always branch
+    sta q_subroutine_abs_y_difference                                 ; 4f59: 85 73       .s
+    bcc q_subroutine_q_subroutine_collision_found                     ; 4f5b: 90 26       .&             ; always branch
 ; &4f5d referenced 3 times by &4f2a, &4f40, &4f57
 .q_subroutine_next_candidate
     cpy q_subroutine_max_candidate_sprite_x2                          ; 4f5d: c4 70       .p
-    beq zero_ri_x_y_and_rts                                           ; 4f5f: f0 05       ..
+    beq q_subroutine_no_collision_found                               ; 4f5f: f0 05       ..
     tya                                                               ; 4f61: 98          .
     adc #2                                                            ; 4f62: 69 02       i.
-    bne q_subroutine_y_loop                                           ; 4f64: d0 c2       ..
+    bne q_subroutine_y_loop                                           ; 4f64: d0 c2       ..             ; always branch
+; Set X% and Y% to 0 to indicate no collision found.
 ; &4f66 referenced 6 times by &4f03, &4f07, &4f13, &4f1a, &4f1e, &4f5f
-.zero_ri_x_y_and_rts
+.q_subroutine_no_collision_found
     lda #0                                                            ; 4f66: a9 00       ..
     sta ri_x                                                          ; 4f68: 8d 60 04    .`.
     sta ri_y                                                          ; 4f6b: 8d 64 04    .d.
@@ -864,32 +866,41 @@ osbyte = &fff4
     dec l0074                                                         ; 4f7d: c6 74       .t
     dec l0074                                                         ; 4f7f: c6 74       .t
     bne q_subroutine_test_abs_y_difference                            ; 4f81: d0 d2       ..             ; always branch
+; Set Y% to 35-(abs_x_difference*2)-abs_y_difference, so (roughly) Y%
+; indicates how much the sprites are overlapping - it will range from
+; 4 if both differences are as large as possible up to 35 if the two
+; sprites coincide perfectly. world-2.bas doesn't seem to use this.
 ; &4f83 referenced 1 time by &4f5b
-.q_subroutine_set_ri_x_y_z_to_something_and_rts
+.q_subroutine_q_subroutine_collision_found
     lda q_subroutine_abs_x_difference                                 ; 4f83: a5 72       .r
     asl a                                                             ; 4f85: 0a          .
-    adc l0073                                                         ; 4f86: 65 73       es
+    adc q_subroutine_abs_y_difference                                 ; 4f86: 65 73       es
     sta l0073                                                         ; 4f88: 85 73       .s
     lda #&23 ; '#'                                                    ; 4f8a: a9 23       .#
     sec                                                               ; 4f8c: 38          8
     sbc l0073                                                         ; 4f8d: e5 73       .s
     sta ri_y                                                          ; 4f8f: 8d 64 04    .d.
+; Set Z% to TODO: some number indicating something about the
+; collision. world-2.bas doesn't appear to use this, although I'm not
+; currently absolutely certain of this.
     lda l0074                                                         ; 4f92: a5 74       .t
     sta ri_z                                                          ; 4f94: 8d 68 04    .h.
+; Set X% to the 1-based logical sprite number we found a collision
+; with.
     iny                                                               ; 4f97: c8          .
     iny                                                               ; 4f98: c8          .
     tya                                                               ; 4f99: 98          .
     lsr a                                                             ; 4f9a: 4a          J
     sta ri_x                                                          ; 4f9b: 8d 60 04    .`.
 ; &4f9e referenced 1 time by &4fa4
-.loop_c4f9e
+.q_subroutine_rts
     rts                                                               ; 4f9e: 60          `
 
 ; TODO: Dead code?
 .r_subroutine
     lda ri_x                                                          ; 4f9f: ad 60 04    .`.
     cmp #4                                                            ; 4fa2: c9 04       ..
-    bcs loop_c4f9e                                                    ; 4fa4: b0 f8       ..
+    bcs q_subroutine_rts                                              ; 4fa4: b0 f8       ..
     ldx #5                                                            ; 4fa6: a2 05       ..
     stx l0075                                                         ; 4fa8: 86 75       .u
     ldy #&ff                                                          ; 4faa: a0 ff       ..
@@ -2068,142 +2079,142 @@ osbyte = &fff4
 .pydis_end
 
 ; Label references by decreasing frequency:
-;     l0070:                                           34
-;     screen_ptr:                                      26
-;     l0073:                                           19
-;     l0075:                                           17
-;     sprite_pixel_coord_table_xy:                     17
-;     l0071:                                           16
-;     l0072:                                           15
-;     sprite_pixel_coord_table_xy+1:                   15
-;     screen_ptr2:                                     14
-;     l0074:                                           12
-;     screen_ptr+1:                                    10
-;     l007e:                                           10
-;     sprite_screen_and_data_addrs+screen_addr_hi:      9
-;     sprite_pixel_x_lo:                                8
-;     ri_x:                                             7
-;     cli_rts:                                          7
-;     u_subroutine_rts:                                 7
-;     screen_ptr2+1:                                    6
-;     l007f:                                            6
-;     ri_y:                                             6
-;     zero_ri_x_y_and_rts:                              6
-;     sprite_screen_and_data_addrs+screen_addr_lo:      6
-;     sprite_screen_and_data_addrs+sprite_addr_hi:      6
-;     sprite_screen_and_data_addrs+sprite_addr_lo:      6
-;     sprite_pixel_y_lo:                                5
-;     sprite_pixel_x_hi:                                5
-;     c5164:                                            5
-;     osbyte:                                           5
-;     sprite_pixel_y_hi:                                4
-;     ri_w:                                             4
-;     sprite_pixel_coord_table_xy_end:                  4
-;     ri_a:                                             3
-;     ri_a+1:                                           3
-;     ri_b:                                             3
-;     ri_b+1:                                           3
-;     ri_z:                                             3
-;     q_subroutine_next_candidate:                      3
-;     c5002:                                            3
-;     c501f:                                            3
-;     clc_remove_sprite_from_screen:                    3
-;     c533b:                                            3
-;     c5358:                                            3
-;     c53b4:                                            3
-;     sprite_something_table_two_bytes_per_sprite:      3
-;     sprite_something_table_two_bytes_per_sprite+1:    3
-;     l55f8:                                            3
-;     constant_96:                                      3
-;     l55fa:                                            3
-;     l55fb:                                            3
-;     q_subroutine_test_abs_x_difference:               2
-;     q_subroutine_test_abs_y_difference:               2
-;     s_subroutine_rts:                                 2
-;     clc_jmp_sprite_core:                              2
-;     c5182:                                            2
-;     c5192:                                            2
-;     c519d:                                            2
-;     c51ad:                                            2
-;     c51cb:                                            2
-;     c51db:                                            2
-;     c51e5:                                            2
-;     c51f5:                                            2
-;     sprite_core:                                      2
-;     sprite_core_moving:                               2
-;     c5346:                                            2
-;     sprite_ref_addrs_be:                              2
-;     sprite_ref_addrs_be+1:                            2
-;     l57f4:                                            2
-;     l0403:                                            1
-;     l0443:                                            1
-;     q_subroutine_y_loop:                              1
-;     q_subroutine_sprite_to_check_x_lt_candidate_x:    1
-;     q_subroutine_sprite_to_check_y_lt_candidate_y:    1
-;     q_subroutine_set_ri_x_y_z_to_something_and_rts:   1
-;     loop_c4f9e:                                       1
-;     c4fbd:                                            1
-;     c4fd0:                                            1
-;     c4fdc:                                            1
-;     c4ff4:                                            1
-;     c5008:                                            1
-;     c5012:                                            1
-;     c5026:                                            1
-;     c502b:                                            1
-;     s_subroutine:                                     1
-;     remove_sprite_from_screen:                        1
-;     c511b:                                            1
-;     get_sprite_details:                               1
-;     c516e:                                            1
-;     c517c:                                            1
-;     c51b8:                                            1
-;     c51c6:                                            1
-;     sprite_core_outer_loop:                           1
-;     sprite_core_inner_loop:                           1
-;     sprite_core_screen_ptr_updated:                   1
-;     sprite_core_low_byte_wrap_handled:                1
-;     sprite_core_no_carry:                             1
-;     sprite_core_next_row:                             1
-;     sprite_core_low_byte_wrapped:                     1
-;     c5256:                                            1
-;     c5258:                                            1
-;     c528c:                                            1
-;     c5296:                                            1
-;     c529a:                                            1
-;     c529e:                                            1
-;     c52ac:                                            1
-;     c52b7:                                            1
-;     c52bd:                                            1
-;     c52cb:                                            1
-;     c52d9:                                            1
-;     c52de:                                            1
-;     c535f:                                            1
-;     c5378:                                            1
-;     c537a:                                            1
-;     t_subroutine_invalid_sprite_pixel_coord:          1
-;     loop_c538c:                                       1
-;     c539c:                                            1
-;     c53a8:                                            1
-;     c53ac:                                            1
-;     c53ba:                                            1
-;     c53be:                                            1
-;     c53c6:                                            1
-;     c53ca:                                            1
-;     loop_c53da:                                       1
-;     c53ec:                                            1
-;     c53f8:                                            1
-;     u_subroutine_ri_x_0:                              1
-;     u_subroutine_rts2:                                1
-;     loop_c549d:                                       1
-;     loop_c54a5:                                       1
-;     c54b7:                                            1
-;     c54db:                                            1
-;     screen_y_addr_table:                              1
-;     screen_y_addr_table+1:                            1
-;     l57f0:                                            1
-;     l57f1:                                            1
-;     l57f2:                                            1
-;     l57f3:                                            1
+;     l0070:                                          34
+;     screen_ptr:                                     26
+;     l0073:                                          19
+;     l0075:                                          17
+;     sprite_pixel_coord_table_xy:                    17
+;     l0071:                                          16
+;     l0072:                                          15
+;     sprite_pixel_coord_table_xy+1:                  15
+;     screen_ptr2:                                    14
+;     l0074:                                          12
+;     screen_ptr+1:                                   10
+;     l007e:                                          10
+;     sprite_screen_and_data_addrs+screen_addr_hi:     9
+;     sprite_pixel_x_lo:                               8
+;     ri_x:                                            7
+;     cli_rts:                                         7
+;     u_subroutine_rts:                                7
+;     screen_ptr2+1:                                   6
+;     l007f:                                           6
+;     ri_y:                                            6
+;     q_subroutine_no_collision_found:                 6
+;     sprite_screen_and_data_addrs+screen_addr_lo:     6
+;     sprite_screen_and_data_addrs+sprite_addr_hi:     6
+;     sprite_screen_and_data_addrs+sprite_addr_lo:     6
+;     sprite_pixel_y_lo:                               5
+;     sprite_pixel_x_hi:                               5
+;     c5164:                                           5
+;     osbyte:                                          5
+;     sprite_pixel_y_hi:                               4
+;     ri_w:                                            4
+;     sprite_pixel_coord_table_xy_end:                 4
+;     ri_a:                                            3
+;     ri_a+1:                                          3
+;     ri_b:                                            3
+;     ri_b+1:                                          3
+;     ri_z:                                            3
+;     q_subroutine_next_candidate:                     3
+;     c5002:                                           3
+;     c501f:                                           3
+;     clc_remove_sprite_from_screen:                   3
+;     c533b:                                           3
+;     c5358:                                           3
+;     c53b4:                                           3
+;     sprite_something_table_two_bytes_per_sprite:     3
+;     sprite_something_table_two_bytes_per_sprite+1:   3
+;     l55f8:                                           3
+;     constant_96:                                     3
+;     l55fa:                                           3
+;     l55fb:                                           3
+;     q_subroutine_test_abs_x_difference:              2
+;     q_subroutine_test_abs_y_difference:              2
+;     s_subroutine_rts:                                2
+;     clc_jmp_sprite_core:                             2
+;     c5182:                                           2
+;     c5192:                                           2
+;     c519d:                                           2
+;     c51ad:                                           2
+;     c51cb:                                           2
+;     c51db:                                           2
+;     c51e5:                                           2
+;     c51f5:                                           2
+;     sprite_core:                                     2
+;     sprite_core_moving:                              2
+;     c5346:                                           2
+;     sprite_ref_addrs_be:                             2
+;     sprite_ref_addrs_be+1:                           2
+;     l57f4:                                           2
+;     l0403:                                           1
+;     l0443:                                           1
+;     q_subroutine_y_loop:                             1
+;     q_subroutine_sprite_to_check_x_lt_candidate_x:   1
+;     q_subroutine_sprite_to_check_y_lt_candidate_y:   1
+;     q_subroutine_q_subroutine_collision_found:       1
+;     q_subroutine_rts:                                1
+;     c4fbd:                                           1
+;     c4fd0:                                           1
+;     c4fdc:                                           1
+;     c4ff4:                                           1
+;     c5008:                                           1
+;     c5012:                                           1
+;     c5026:                                           1
+;     c502b:                                           1
+;     s_subroutine:                                    1
+;     remove_sprite_from_screen:                       1
+;     c511b:                                           1
+;     get_sprite_details:                              1
+;     c516e:                                           1
+;     c517c:                                           1
+;     c51b8:                                           1
+;     c51c6:                                           1
+;     sprite_core_outer_loop:                          1
+;     sprite_core_inner_loop:                          1
+;     sprite_core_screen_ptr_updated:                  1
+;     sprite_core_low_byte_wrap_handled:               1
+;     sprite_core_no_carry:                            1
+;     sprite_core_next_row:                            1
+;     sprite_core_low_byte_wrapped:                    1
+;     c5256:                                           1
+;     c5258:                                           1
+;     c528c:                                           1
+;     c5296:                                           1
+;     c529a:                                           1
+;     c529e:                                           1
+;     c52ac:                                           1
+;     c52b7:                                           1
+;     c52bd:                                           1
+;     c52cb:                                           1
+;     c52d9:                                           1
+;     c52de:                                           1
+;     c535f:                                           1
+;     c5378:                                           1
+;     c537a:                                           1
+;     t_subroutine_invalid_sprite_pixel_coord:         1
+;     loop_c538c:                                      1
+;     c539c:                                           1
+;     c53a8:                                           1
+;     c53ac:                                           1
+;     c53ba:                                           1
+;     c53be:                                           1
+;     c53c6:                                           1
+;     c53ca:                                           1
+;     loop_c53da:                                      1
+;     c53ec:                                           1
+;     c53f8:                                           1
+;     u_subroutine_ri_x_0:                             1
+;     u_subroutine_rts2:                               1
+;     loop_c549d:                                      1
+;     loop_c54a5:                                      1
+;     c54b7:                                           1
+;     c54db:                                           1
+;     screen_y_addr_table:                             1
+;     screen_y_addr_table+1:                           1
+;     l57f0:                                           1
+;     l57f1:                                           1
+;     l57f2:                                           1
+;     l57f3:                                           1
 
 ; Automatically generated labels:
 ;     c4fbd
@@ -2274,7 +2285,6 @@ osbyte = &fff4
 ;     l57f2
 ;     l57f3
 ;     l57f4
-;     loop_c4f9e
 ;     loop_c538c
 ;     loop_c53da
 ;     loop_c549d
@@ -2329,6 +2339,7 @@ osbyte = &fff4
     assert osbyte_inkey == &81
     assert q_subroutine == &4f00
     assert q_subroutine_abs_x_difference == &72
+    assert q_subroutine_abs_y_difference == &73
     assert q_subroutine_max_candidate_sprite_x2 == &70
     assert q_subroutine_sprite_to_check_x2 == &71
     assert r_subroutine == &4f9f
