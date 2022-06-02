@@ -21,7 +21,7 @@ major_frame_interval = 255 ; TODO!?
 .note_index
     equb 0
 .max_note_index
-    equb tune_duration - tune_pitch
+    equb (tune_duration - tune_pitch) - 1
     skipto &ac0
 
 .event_handler
