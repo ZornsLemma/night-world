@@ -1,6 +1,7 @@
 max_sprite_num = &30
 q_subroutine_sprite_to_check_x2 = &71
 q_subroutine_max_candidate_sprite_x2 = &70
+q_subroutine_abs_x_difference = &72
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -761,8 +762,8 @@ osbyte = &fff4
     tay                                                               ; 4f0f: a8          .
 ; We have X=(W%-1)*2, Y=(W%-1)*4. X retains this value for the entire
 ; subroutine. Y's value is only used if the beq
-; q_subroutine_y_loop_test_and_bump branch is taken on the first pass
-; round q_subroutine_y_loop.
+; q_subroutine_next_candidate branch is taken on the first pass round
+; q_subroutine_y_loop.
     lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 4f10: b9 01 56    ..V
     beq zero_ri_x_y_and_rts                                           ; 4f13: f0 51       .Q
     stx q_subroutine_sprite_to_check_x2                               ; 4f15: 86 71       .q
@@ -788,7 +789,7 @@ osbyte = &fff4
 ; &4f28 referenced 1 time by &4f64
 .q_subroutine_y_loop
     cmp q_subroutine_sprite_to_check_x2                               ; 4f28: c5 71       .q
-    beq q_subroutine_y_loop_test_and_bump                             ; 4f2a: f0 31       .1
+    beq q_subroutine_next_candidate                                   ; 4f2a: f0 31       .1
     tay                                                               ; 4f2c: a8          .
     lda #5                                                            ; 4f2d: a9 05       ..
     sta l0074                                                         ; 4f2f: 85 74       .t
@@ -806,29 +807,32 @@ osbyte = &fff4
 ; &4f3e referenced 2 times by &4f3a, &4f75
 .q_subroutine_test_abs_x_difference
     cmp #9                                                            ; 4f3e: c9 09       ..
-    bcs q_subroutine_y_loop_test_and_bump                             ; 4f40: b0 1b       ..
+    bcs q_subroutine_next_candidate                                   ; 4f40: b0 1b       ..
 ; abs(sprite_to_check.x - candidate_sprite.x) < 9 (TODO: subject to
 ; concerns about bugs in other TODOs), so we consider the sprites to
 ; be overlapping in X and we need to check Y.
-    sta l0072                                                         ; 4f42: 85 72       .r
+    sta q_subroutine_abs_x_difference                                 ; 4f42: 85 72       .r
+; TODO: same concerns as for X about this not working for some values.
     lda sprite_pixel_coord_table_xy+1,x                               ; 4f44: bd 61 57    .aW
     sec                                                               ; 4f47: 38          8
     sbc sprite_pixel_coord_table_xy+1,y                               ; 4f48: f9 61 57    .aW
-    bmi c4f77                                                         ; 4f4b: 30 2a       0*
-    beq c4f55                                                         ; 4f4d: f0 06       ..
+    bmi q_subroutine_sprite_to_check_y_lt_candidate_y                 ; 4f4b: 30 2a       0*
+    beq q_subroutine_test_abs_y_difference                            ; 4f4d: f0 06       ..
 ; sprite_pixel_coord_table_xy+1,x > sprite_pixel_coord_table_xy+1,y
 ; (TODO: assuming unsigned)
     inc l0074                                                         ; 4f4f: e6 74       .t
     inc l0074                                                         ; 4f51: e6 74       .t
     inc l0074                                                         ; 4f53: e6 74       .t
 ; &4f55 referenced 2 times by &4f4d, &4f81
-.c4f55
+.q_subroutine_test_abs_y_difference
     cmp #&10                                                          ; 4f55: c9 10       ..
-    bcs q_subroutine_y_loop_test_and_bump                             ; 4f57: b0 04       ..
+    bcs q_subroutine_next_candidate                                   ; 4f57: b0 04       ..
+; abs(sprite_to_check.y - candidate_sprite.y) < 16 (TODO: subject to
+; concerns about bugs), so these two sprites overlap and we're done.
     sta l0073                                                         ; 4f59: 85 73       .s
     bcc q_subroutine_set_ri_x_y_z_to_something_and_rts                ; 4f5b: 90 26       .&             ; always branch
 ; &4f5d referenced 3 times by &4f2a, &4f40, &4f57
-.q_subroutine_y_loop_test_and_bump
+.q_subroutine_next_candidate
     cpy q_subroutine_max_candidate_sprite_x2                          ; 4f5d: c4 70       .p
     beq zero_ri_x_y_and_rts                                           ; 4f5f: f0 05       ..
     tya                                                               ; 4f61: 98          .
@@ -851,14 +855,15 @@ osbyte = &fff4
     adc #1                                                            ; 4f71: 69 01       i.
     inc l0074                                                         ; 4f73: e6 74       .t
     bne q_subroutine_test_abs_x_difference                            ; 4f75: d0 c7       ..             ; always branch
+; Set A=-A (TODO: same 'clc needed' concern as for X)
 ; &4f77 referenced 1 time by &4f4b
-.c4f77
+.q_subroutine_sprite_to_check_y_lt_candidate_y
     eor #&ff                                                          ; 4f77: 49 ff       I.
     adc #1                                                            ; 4f79: 69 01       i.
     dec l0074                                                         ; 4f7b: c6 74       .t
     dec l0074                                                         ; 4f7d: c6 74       .t
     dec l0074                                                         ; 4f7f: c6 74       .t
-    bne c4f55                                                         ; 4f81: d0 d2       ..
+    bne q_subroutine_test_abs_y_difference                            ; 4f81: d0 d2       ..             ; always branch
 ; &4f83 referenced 1 time by &4f5b
 .q_subroutine_set_ri_x_y_z_to_something_and_rts
     lda l0072                                                         ; 4f83: a5 72       .r
@@ -2099,7 +2104,7 @@ osbyte = &fff4
 ;     ri_b:                                             3
 ;     ri_b+1:                                           3
 ;     ri_z:                                             3
-;     q_subroutine_y_loop_test_and_bump:                3
+;     q_subroutine_next_candidate:                      3
 ;     c5002:                                            3
 ;     c501f:                                            3
 ;     clc_remove_sprite_from_screen:                    3
@@ -2113,7 +2118,7 @@ osbyte = &fff4
 ;     l55fa:                                            3
 ;     l55fb:                                            3
 ;     q_subroutine_test_abs_x_difference:               2
-;     c4f55:                                            2
+;     q_subroutine_test_abs_y_difference:               2
 ;     s_subroutine_rts:                                 2
 ;     clc_jmp_sprite_core:                              2
 ;     c5182:                                            2
@@ -2134,7 +2139,7 @@ osbyte = &fff4
 ;     l0443:                                            1
 ;     q_subroutine_y_loop:                              1
 ;     q_subroutine_sprite_to_check_x_lt_candidate_x:    1
-;     c4f77:                                            1
+;     q_subroutine_sprite_to_check_y_lt_candidate_y:    1
 ;     q_subroutine_set_ri_x_y_z_to_something_and_rts:   1
 ;     loop_c4f9e:                                       1
 ;     c4fbd:                                            1
@@ -2201,8 +2206,6 @@ osbyte = &fff4
 ;     l57f3:                                            1
 
 ; Automatically generated labels:
-;     c4f55
-;     c4f77
 ;     c4fbd
 ;     c4fd0
 ;     c4fdc
@@ -2325,6 +2328,7 @@ osbyte = &fff4
     assert osbyte_clear_escape == &7c
     assert osbyte_inkey == &81
     assert q_subroutine == &4f00
+    assert q_subroutine_abs_x_difference == &72
     assert q_subroutine_max_candidate_sprite_x2 == &70
     assert q_subroutine_sprite_to_check_x2 == &71
     assert r_subroutine == &4f9f
