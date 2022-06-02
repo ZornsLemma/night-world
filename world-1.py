@@ -221,11 +221,13 @@ for i in range(0x30):
     sprite_addr = get_u16_be(addr)
     if sprite_addr not in sprite_labels:
         sprite_labels[sprite_addr] = "sprite_%02d" % i
+        byte(sprite_addr, 0xc0)
         # byte(sprite_addr, n=TODO, cols=TODO)
     label(sprite_addr, sprite_labels[sprite_addr])
     byte(addr, n=2)
     expr(addr, ">%s" % sprite_labels[sprite_addr])
     expr(addr+1, "<%s" % sprite_labels[sprite_addr])
+label(0x4d80+0xc0, "sprite_end")
 #label(0x5700+0x30*2, "sprite_ref_addrs_be_end")
 comment(0x5600, "This is (TODO: probably!) a table with four bytes per sprite. The first two bytes are the little-endian screen address of the sprite (0 if it is not on screen) and the second two bytes are the big-endian address of the sprite's definition. The sprite address is the address of X-offset version 0; this does not change as the sprite moves, so it needs to be offset appropriately when plotting/unplotting.")
 annotate(0x5600, ".sprite_screen_and_data_addrs") # TODO: hacky
