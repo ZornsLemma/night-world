@@ -42,6 +42,9 @@ osbyte = &fff4
 
     org &35bc
 
+; TODO: Once we abandon py8dis, we could probably have a beebasm macro
+; which will take a single long binary number and split it up,
+; allowing the screen to be more visible in the data.
 .room_data_01
 .pydis_start
     equb %11, %11, %11, %11, %11, %11, %11, %11, %11, %11             ; 35bc: 03 03 03... ...

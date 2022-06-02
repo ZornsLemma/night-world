@@ -17,6 +17,7 @@ constant(0x30, "max_sprite_num")
 load(0x35bc, "orig/world-1c", "28ab793fefbf7fa374ab6bd3957921c7")
 
 # There is no room 0; the code at "start" lives there.
+comment(0x35bc, "TODO: Once we abandon py8dis, we could probably have a beebasm macro which will take a single long binary number and split it up, allowing the screen to be more visible in the data.")
 for i in range(1, 15):
     label(0x3508+i*180, "room_data_%02d" % i)
     # Use 10 columns because each byte represents two OS characters, so 10 bytes
