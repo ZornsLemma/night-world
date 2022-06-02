@@ -1867,28 +1867,57 @@ osbyte = &fff4
 ; plotting/unplotting.
 .sprite_screen_and_data_addrs
 ; &5600 referenced 6 times by &508c, &5098, &50e9, &5111, &5414, &54cb
-    equb 0                                                            ; 5600: 00          .
+    equb          0,          0, >sprite_00, <sprite_00               ; 5600: 00 00 40... ..@            ; sprite 0
 ; &5601 referenced 9 times by &4f10, &5091, &509d, &50ee, &5114, &5329, &541b, &5463, &54ce
-    equb 0                                                            ; 5601: 00          .
 ; &5602 referenced 6 times by &50b2, &50d6, &5108, &5439, &5457, &54ba
-    equb &40                                                          ; 5602: 40          @
 ; &5603 referenced 6 times by &50ad, &50d1, &5103, &5434, &544d, &54c0
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 5603: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 560f: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40, &c0,   0,   0, &41   ; 561b: 00 00 00... ...
-    equb &80,   0,   0, &42, &40,   0,   0, &43,   0,   0,   0, &43   ; 5627: 80 00 00... ...
-    equb &c0,   0,   0, &44, &80,   0,   0, &45, &40,   0,   0, &46   ; 5633: c0 00 00... ...
-    equb   0,   0,   0, &46, &c0,   0,   0, &47, &80,   0,   0, &48   ; 563f: 00 00 00... ...
-    equb &40,   0,   0, &49,   0,   0,   0, &49, &c0,   0,   0, &4a   ; 564b: 40 00 00... @..
-    equb &80,   0,   0, &4b, &40,   0,   0, &4c,   0,   0,   0, &4c   ; 5657: 80 00 00... ...
-    equb &c0,   0,   0, &4d, &80,   0,   0, &40,   0,   0,   0, &40   ; 5663: c0 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 566f: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 567b: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 5687: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 5693: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 569f: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0,   0,   0, &40   ; 56ab: 00 00 00... ...
-    equb   0,   0,   0, &40,   0,   0,   0, &40,   0                  ; 56b7: 00 00 00... ...
+    equb          0,          0, >sprite_00, <sprite_00               ; 5604: 00 00 40... ..@            ; sprite 1
+    equb          0,          0, >sprite_00, <sprite_00               ; 5608: 00 00 40... ..@            ; sprite 2
+    equb          0,          0, >sprite_00, <sprite_00               ; 560c: 00 00 40... ..@            ; sprite 3
+    equb          0,          0, >sprite_00, <sprite_00               ; 5610: 00 00 40... ..@            ; sprite 4
+    equb          0,          0, >sprite_00, <sprite_00               ; 5614: 00 00 40... ..@            ; sprite 5
+    equb          0,          0, >sprite_00, <sprite_00               ; 5618: 00 00 40... ..@            ; sprite 6
+    equb          0,          0, >sprite_00, <sprite_00               ; 561c: 00 00 40... ..@            ; sprite 7
+    equb          0,          0, >sprite_08, <sprite_08               ; 5620: 00 00 40... ..@            ; sprite 8
+    equb          0,          0, >sprite_09, <sprite_09               ; 5624: 00 00 41... ..A            ; sprite 9
+    equb          0,          0, >sprite_10, <sprite_10               ; 5628: 00 00 42... ..B            ; sprite 10
+    equb          0,          0, >sprite_11, <sprite_11               ; 562c: 00 00 43... ..C            ; sprite 11
+    equb          0,          0, >sprite_12, <sprite_12               ; 5630: 00 00 43... ..C            ; sprite 12
+    equb          0,          0, >sprite_13, <sprite_13               ; 5634: 00 00 44... ..D            ; sprite 13
+    equb          0,          0, >sprite_14, <sprite_14               ; 5638: 00 00 45... ..E            ; sprite 14
+    equb          0,          0, >sprite_15, <sprite_15               ; 563c: 00 00 46... ..F            ; sprite 15
+    equb          0,          0, >sprite_16, <sprite_16               ; 5640: 00 00 46... ..F            ; sprite 16
+    equb          0,          0, >sprite_17, <sprite_17               ; 5644: 00 00 47... ..G            ; sprite 17
+    equb          0,          0, >sprite_18, <sprite_18               ; 5648: 00 00 48... ..H            ; sprite 18
+    equb          0,          0, >sprite_19, <sprite_19               ; 564c: 00 00 49... ..I            ; sprite 19
+    equb          0,          0, >sprite_20, <sprite_20               ; 5650: 00 00 49... ..I            ; sprite 20
+    equb          0,          0, >sprite_21, <sprite_21               ; 5654: 00 00 4a... ..J            ; sprite 21
+    equb          0,          0, >sprite_22, <sprite_22               ; 5658: 00 00 4b... ..K            ; sprite 22
+    equb          0,          0, >sprite_23, <sprite_23               ; 565c: 00 00 4c... ..L            ; sprite 23
+    equb          0,          0, >sprite_24, <sprite_24               ; 5660: 00 00 4c... ..L            ; sprite 24
+    equb          0,          0, >sprite_25, <sprite_25               ; 5664: 00 00 4d... ..M            ; sprite 25
+    equb          0,          0, >sprite_00, <sprite_00               ; 5668: 00 00 40... ..@            ; sprite 26
+    equb          0,          0, >sprite_00, <sprite_00               ; 566c: 00 00 40... ..@            ; sprite 27
+    equb          0,          0, >sprite_00, <sprite_00               ; 5670: 00 00 40... ..@            ; sprite 28
+    equb          0,          0, >sprite_00, <sprite_00               ; 5674: 00 00 40... ..@            ; sprite 29
+    equb          0,          0, >sprite_00, <sprite_00               ; 5678: 00 00 40... ..@            ; sprite 30
+    equb          0,          0, >sprite_00, <sprite_00               ; 567c: 00 00 40... ..@            ; sprite 31
+    equb          0,          0, >sprite_00, <sprite_00               ; 5680: 00 00 40... ..@            ; sprite 32
+    equb          0,          0, >sprite_00, <sprite_00               ; 5684: 00 00 40... ..@            ; sprite 33
+    equb          0,          0, >sprite_00, <sprite_00               ; 5688: 00 00 40... ..@            ; sprite 34
+    equb          0,          0, >sprite_00, <sprite_00               ; 568c: 00 00 40... ..@            ; sprite 35
+    equb          0,          0, >sprite_00, <sprite_00               ; 5690: 00 00 40... ..@            ; sprite 36
+    equb          0,          0, >sprite_00, <sprite_00               ; 5694: 00 00 40... ..@            ; sprite 37
+    equb          0,          0, >sprite_00, <sprite_00               ; 5698: 00 00 40... ..@            ; sprite 38
+    equb          0,          0, >sprite_00, <sprite_00               ; 569c: 00 00 40... ..@            ; sprite 39
+    equb          0,          0, >sprite_00, <sprite_00               ; 56a0: 00 00 40... ..@            ; sprite 40
+    equb          0,          0, >sprite_00, <sprite_00               ; 56a4: 00 00 40... ..@            ; sprite 41
+    equb          0,          0, >sprite_00, <sprite_00               ; 56a8: 00 00 40... ..@            ; sprite 42
+    equb          0,          0, >sprite_00, <sprite_00               ; 56ac: 00 00 40... ..@            ; sprite 43
+    equb          0,          0, >sprite_00, <sprite_00               ; 56b0: 00 00 40... ..@            ; sprite 44
+    equb          0,          0, >sprite_00, <sprite_00               ; 56b4: 00 00 40... ..@            ; sprite 45
+    equb          0,          0, >sprite_00, <sprite_00               ; 56b8: 00 00 40... ..@            ; sprite 46
+    equb          0,          0, >sprite_00, <sprite_00               ; 56bc: 00 00 40... ..@            ; sprite 47
 ; &56c0 referenced 1 time by &5066
 .screen_y_addr_table
     equw &7ec0                                                        ; 56c0: c0 7e       .~

@@ -238,6 +238,13 @@ label(0x4d80+0xc0, "sprite_end")
 #label(0x5700+0x30*2, "sprite_ref_addrs_be_end")
 comment(0x5600, "This is (TODO: probably!) a table with four bytes per sprite. The first two bytes are the little-endian screen address of the sprite (0 if it is not on screen) and the second two bytes are the big-endian address of the sprite's definition. The sprite address is the address of X-offset version 0; this does not change as the sprite moves, so it needs to be offset appropriately when plotting/unplotting.")
 annotate(0x5600, ".sprite_screen_and_data_addrs") # TODO: hacky
+for i in range(48):
+    addr = 0x5600+i*4
+    byte(addr, 4)
+    sprite_addr = get_u16_be(0x5600+i*4+2)
+    expr(addr+2, ">%s" % sprite_labels[sprite_addr])
+    expr(addr+3, "<%s" % sprite_labels[sprite_addr])
+    comment(addr, "sprite %d" % i, inline=True)
 constant(0, "screen_addr_lo")
 constant(1, "screen_addr_hi")
 constant(2, "sprite_addr_hi")
