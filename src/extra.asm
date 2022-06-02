@@ -2,8 +2,10 @@ cnpv = &22e
 osword = &fff1
 event_vsync = 4
 sound_channel_2_buffer_number = 6
+ri_q = &444
 
 minor_frame_interval = 12 ; TODO!?
+major_frame_interval = 255 ; TODO!?
 
     ; TODO: This address range is Master-only, but it will do to experiment without
     ; starting to reassemble World1c to free up space there.
@@ -14,6 +16,8 @@ minor_frame_interval = 12 ; TODO!?
 .fixed_data
 .frame_count
     equb 1
+.major_frame_count
+    equb 0
 .note_index
     equb 0
 .max_note_index
@@ -25,6 +29,9 @@ minor_frame_interval = 12 ; TODO!?
     dec frame_count:bne rts
     pha:txa:pha
     lda #minor_frame_interval:sta frame_count
+    lda major_frame_count:beq dont_decrement_major_frame_count
+    dec major_frame_count
+.dont_decrement_major_frame_count
     ; Check how much free space there is in sound channel 2's buffer; we must
     ; avoid blindly adding more as we'll block here if the buffer becomes full.
     ; TODO: Do we need to be careful to keep as little as possible in the
@@ -73,6 +80,24 @@ minor_frame_interval = 12 ; TODO!?
     equb 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 3, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 0
     equb 3, 3, 3, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0
     assert (P% - tune_duration) == (tune_duration - tune_pitch)
+
+.q_wrapper
+    ; The main game loop does "CALLQ%" exactly once per game cycle, and that's
+    ; the only call to this subroutine. This is therefore a good place to add
+    ; speed regulation; we make the game loop call this wrapper and delay if
+    ; necessary before forwarding onto Q%.
+    ; TODO: In a final version we would have Q% set to this address and we would
+    ; probably be assembled as part of World-1 and so can jmp/fall through
+    ; straight into the "real" q_subroutine.
+.busy_wait
+    ; TODO: probably need some kind of mutex to stop this and event handler
+    ; trampling on value during updates - think carefully - don't forget the
+    ; event handler will run with interrupts disabled and it is effectively an
+    ; interrupt - we can't interrupt it, but it can interrupt us
+    lda major_frame_count:bne busy_wait
+    lda #major_frame_interval:sta major_frame_count
+    rts ; TODO TEMP
+    jmp (ri_q)
 
 .end
 
