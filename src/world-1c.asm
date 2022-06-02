@@ -1052,7 +1052,7 @@ osbyte = &fff4
     lda sprite_screen_and_data_addrs+screen_addr_lo,x                 ; 50e9: bd 00 56    ..V
     sta screen_ptr                                                    ; 50ec: 85 7a       .z
     lda sprite_screen_and_data_addrs+screen_addr_hi,x                 ; 50ee: bd 01 56    ..V
-    beq c511b                                                         ; 50f1: f0 28       .(
+    beq s_subroutine_rts2                                             ; 50f1: f0 28       .(
     sta screen_ptr+1                                                  ; 50f3: 85 7b       .{
     lda sprite_pixel_coord_table_xy,y                                 ; 50f5: b9 60 57    .`W
     and #3                                                            ; 50f8: 29 03       ).
@@ -1075,7 +1075,7 @@ osbyte = &fff4
     jmp sprite_core                                                   ; 5118: 4c ff 51    L.Q
 
 ; &511b referenced 1 time by &50f1
-.c511b
+.s_subroutine_rts2
     rts                                                               ; 511b: 60          `
 
 ; Entered with A=W%-1; 0<=A<=&2F
@@ -2130,7 +2130,7 @@ osbyte = &fff4
 ;     c502b:                                           1
 ;     s_subroutine:                                    1
 ;     remove_sprite_from_screen:                       1
-;     c511b:                                           1
+;     s_subroutine_rts2:                               1
 ;     get_sprite_details:                              1
 ;     c516e:                                           1
 ;     c517c:                                           1
@@ -2194,7 +2194,6 @@ osbyte = &fff4
 ;     c501f
 ;     c5026
 ;     c502b
-;     c511b
 ;     c5164
 ;     c516e
 ;     c517c
