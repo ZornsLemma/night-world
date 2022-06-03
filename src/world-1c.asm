@@ -1188,11 +1188,11 @@ osbyte = &fff4
 ; &5164 referenced 5 times by &5180, &5190, &519b, &51ab, &51b6
 .sprite_y_position_adjust_loop
     lda sprite_pixel_y_hi                                             ; 5164: a5 79       .y
-    beq c51b8                                                         ; 5166: f0 50       .P
+    beq sprite_pixel_y_hi_zero                                        ; 5166: f0 50       .P
 ; TODO: cmp #&80 redundant? we just did LDA which will have set N so
 ; we can use beq/bne instead
     cmp #&80                                                          ; 5168: c9 80       ..
-    bcc c51cb                                                         ; 516a: 90 5f       ._
+    bcc sprite_y_position_too_far_down                                ; 516a: 90 5f       ._
     bcs c51e5                                                         ; 516c: b0 77       .w
 ; &516e referenced 1 time by &515c
 .sprite_pixel_x_hi_zero
@@ -1200,10 +1200,10 @@ osbyte = &fff4
     cmp constant_2                                                    ; 5170: cd f8 55    ..U
     bcc sprite_x_position_too_far_left                                ; 5173: 90 28       .(
     cmp constant_96                                                   ; 5175: cd f9 55    ..U
-    beq sprite_x_position_adjusted                                    ; 5178: f0 02       ..
+    beq sprite_x_position_ok                                          ; 5178: f0 02       ..
     bcs sprite_x_position_too_far_right                               ; 517a: b0 06       ..
 ; &517c referenced 1 time by &5178
-.sprite_x_position_adjusted
+.sprite_x_position_ok
     sta sprite_pixel_coord_table_xy,x                                 ; 517c: 9d 60 57    .`W
     clc                                                               ; 517f: 18          .
     bcc sprite_y_position_adjust_loop                                 ; 5180: 90 e2       ..             ; always branch
@@ -1242,13 +1242,13 @@ osbyte = &fff4
     clc                                                               ; 51b5: 18          .
     bcc sprite_y_position_adjust_loop                                 ; 51b6: 90 ac       ..
 ; &51b8 referenced 1 time by &5166
-.c51b8
+.sprite_pixel_y_hi_zero
     lda sprite_pixel_y_lo                                             ; 51b8: a5 77       .w
     cmp constant_10                                                   ; 51ba: cd fa 55    ..U
     bcc c51e5                                                         ; 51bd: 90 26       .&
     cmp constant_fe                                                   ; 51bf: cd fb 55    ..U
     beq sprite_y_position_adjusted                                    ; 51c2: f0 02       ..
-    bcs c51cb                                                         ; 51c4: b0 05       ..
+    bcs sprite_y_position_too_far_down                                ; 51c4: b0 05       ..
 ; &51c6 referenced 1 time by &51c2
 .sprite_y_position_adjusted
     sta sprite_pixel_coord_table_xy+1,x                               ; 51c6: 9d 61 57    .aW
@@ -1256,7 +1256,7 @@ osbyte = &fff4
     rts                                                               ; 51ca: 60          `
 
 ; &51cb referenced 2 times by &516a, &51c4
-.c51cb
+.sprite_y_position_too_far_down
     lda constant_1_per_sprite_table,y                                 ; 51cb: b9 c0 57    ..W
     beq c51db                                                         ; 51ce: f0 0b       ..
     cmp #1                                                            ; 51d0: c9 01       ..
@@ -2114,7 +2114,7 @@ osbyte = &fff4
 ;     c5192:                                           2
 ;     sprite_x_position_too_far_left:                  2
 ;     c51ad:                                           2
-;     c51cb:                                           2
+;     sprite_y_position_too_far_down:                  2
 ;     c51db:                                           2
 ;     c51e5:                                           2
 ;     c51f5:                                           2
@@ -2144,8 +2144,8 @@ osbyte = &fff4
 ;     s_subroutine_rts2:                               1
 ;     get_sprite_details:                              1
 ;     sprite_pixel_x_hi_zero:                          1
-;     sprite_x_position_adjusted:                      1
-;     c51b8:                                           1
+;     sprite_x_position_ok:                            1
+;     sprite_pixel_y_hi_zero:                          1
 ;     sprite_y_position_adjusted:                      1
 ;     sprite_core_outer_loop:                          1
 ;     sprite_core_inner_loop:                          1
@@ -2207,8 +2207,6 @@ osbyte = &fff4
 ;     c502b
 ;     c5192
 ;     c51ad
-;     c51b8
-;     c51cb
 ;     c51db
 ;     c51e5
 ;     c51f5
