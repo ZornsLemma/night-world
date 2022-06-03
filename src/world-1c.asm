@@ -1641,7 +1641,7 @@ osbyte = &fff4
     bcs y_pixel_coord_in_a                                            ; 53c4: b0 92       ..
 ; &53c6 referenced 1 time by &53c2
 .new_y_pixel_coord_lt_0
-    dec l0072                                                         ; 53c6: c6 72       .r
+    dec t_subroutine_os_y_hi                                          ; 53c6: c6 72       .r
     bcc y_pixel_coord_in_a                                            ; 53c8: 90 8e       ..
 ; &53ca referenced 1 time by &5378
 .c53ca
@@ -1658,11 +1658,11 @@ osbyte = &fff4
 .x_pixel_coord_in_a_2
     sta sprite_pixel_coord_table_xy+1,y                               ; 53da: 99 61 57    .aW
     asl a                                                             ; 53dd: 0a          .
-    rol l0072                                                         ; 53de: 26 72       &r
+    rol t_subroutine_os_y_hi                                          ; 53de: 26 72       &r
     asl a                                                             ; 53e0: 0a          .
-    rol l0072                                                         ; 53e1: 26 72       &r
+    rol t_subroutine_os_y_hi                                          ; 53e1: 26 72       &r
     asl a                                                             ; 53e3: 0a          .
-    rol l0072                                                         ; 53e4: 26 72       &r
+    rol t_subroutine_os_y_hi                                          ; 53e4: 26 72       &r
     tax                                                               ; 53e6: aa          .
     lda l0073                                                         ; 53e7: a5 73       .s
     bne c53f8                                                         ; 53e9: d0 0d       ..

@@ -248,6 +248,10 @@ expr(0x5397, "t_subroutine_os_x_hi")
 expr(0x5399, "t_subroutine_os_x_lo")
 expr(0x53a9, "t_subroutine_os_x_hi")
 expr(0x53bb, "t_subroutine_os_y_hi")
+expr(0x53c7, "t_subroutine_os_y_hi")
+expr(0x53df, "t_subroutine_os_y_hi")
+expr(0x53e2, "t_subroutine_os_y_hi")
+expr(0x53e5, "t_subroutine_os_y_hi")
 
 # u_subroutine
 # TODO: I think I have been getting slightly mixed up with sprites. Need to tweak all comments later once this is clearer. Roughly speaking I think there are sprite "slots" (1-&30 inclusive) and sprite "images" (1-&30 inclusive). Each slot remembers what was last plotted there (using the sprite address in sprite_screen_and_data_addrs for the relevant slot).")
