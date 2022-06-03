@@ -264,6 +264,12 @@ expr(0x5279, "sprite_ptr2")
 expr(0x5263, "sprite_ptr")
 expr(0x5271, "sprite_ptr")
 expr(0x527f, "sprite_ptr")
+label(0x528c, "sprite_core_moving_screen_ptr_updated")
+label(0x52bd, "sprite_core_moving_next_row")
+label(0x52cb, "sprite_core_moving_next_row2")
+label(0x5296, "sprite_core_moving_screen_ptr2_updated")
+expr(0x5297, "sprite_ptr")
+expr(0x529b, "sprite_ptr2")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at sprite_screen_and_data_addrs[n*2] and sprite_pixel_coord_table_xy[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")

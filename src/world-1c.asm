@@ -1408,22 +1408,22 @@ osbyte = &fff4
     lda screen_ptr                                                    ; 5282: a5 7a       .z
     and #7                                                            ; 5284: 29 07       ).
     eor #7                                                            ; 5286: 49 07       I.
-    beq c52bd                                                         ; 5288: f0 33       .3
+    beq sprite_core_moving_next_row                                   ; 5288: f0 33       .3
     inc screen_ptr                                                    ; 528a: e6 7a       .z
 ; &528c referenced 1 time by &52c9
-.c528c
+.sprite_core_moving_screen_ptr_updated
     lda screen_ptr2                                                   ; 528c: a5 7c       .|
     and #7                                                            ; 528e: 29 07       ).
     eor #7                                                            ; 5290: 49 07       I.
-    beq c52cb                                                         ; 5292: f0 37       .7
+    beq sprite_core_moving_next_row2                                  ; 5292: f0 37       .7
     inc screen_ptr2                                                   ; 5294: e6 7c       .|
 ; &5296 referenced 1 time by &52d7
-.c5296
-    inc l0070                                                         ; 5296: e6 70       .p
+.sprite_core_moving_screen_ptr2_updated
+    inc sprite_ptr                                                    ; 5296: e6 70       .p
     beq c52d9                                                         ; 5298: f0 3f       .?
 ; &529a referenced 1 time by &52dc
 .c529a
-    inc l007e                                                         ; 529a: e6 7e       .~
+    inc sprite_ptr2                                                   ; 529a: e6 7e       .~
     beq c52de                                                         ; 529c: f0 40       .@
 ; &529e referenced 1 time by &52e1
 .c529e
@@ -1453,23 +1453,23 @@ osbyte = &fff4
     rts                                                               ; 52bc: 60          `
 
 ; &52bd referenced 1 time by &5288
-.c52bd
+.sprite_core_moving_next_row
     lda screen_ptr                                                    ; 52bd: a5 7a       .z
     adc #&39 ; '9'                                                    ; 52bf: 69 39       i9
     sta screen_ptr                                                    ; 52c1: 85 7a       .z
     lda screen_ptr+1                                                  ; 52c3: a5 7b       .{
     adc #1                                                            ; 52c5: 69 01       i.
     sta screen_ptr+1                                                  ; 52c7: 85 7b       .{
-    bne c528c                                                         ; 52c9: d0 c1       ..
+    bne sprite_core_moving_screen_ptr_updated                         ; 52c9: d0 c1       ..
 ; &52cb referenced 1 time by &5292
-.c52cb
+.sprite_core_moving_next_row2
     lda screen_ptr2                                                   ; 52cb: a5 7c       .|
     adc #&39 ; '9'                                                    ; 52cd: 69 39       i9
     sta screen_ptr2                                                   ; 52cf: 85 7c       .|
     lda screen_ptr2+1                                                 ; 52d1: a5 7d       .}
     adc #1                                                            ; 52d3: 69 01       i.
     sta screen_ptr2+1                                                 ; 52d5: 85 7d       .}
-    bne c5296                                                         ; 52d7: d0 bd       ..
+    bne sprite_core_moving_screen_ptr2_updated                        ; 52d7: d0 bd       ..
 ; &52d9 referenced 1 time by &5298
 .c52d9
     inc l0071                                                         ; 52d9: e6 71       .q
@@ -2158,14 +2158,14 @@ osbyte = &fff4
 ;     sprite_core_low_byte_wrapped:                    1
 ;     sprite_core_moving_outer_loop:                   1
 ;     sprite_core_moving_inner_loop:                   1
-;     c528c:                                           1
-;     c5296:                                           1
+;     sprite_core_moving_screen_ptr_updated:           1
+;     sprite_core_moving_screen_ptr2_updated:          1
 ;     c529a:                                           1
 ;     c529e:                                           1
 ;     c52ac:                                           1
 ;     c52b7:                                           1
-;     c52bd:                                           1
-;     c52cb:                                           1
+;     sprite_core_moving_next_row:                     1
+;     sprite_core_moving_next_row2:                    1
 ;     c52d9:                                           1
 ;     c52de:                                           1
 ;     c535f:                                           1
@@ -2207,14 +2207,10 @@ osbyte = &fff4
 ;     c501f
 ;     c5026
 ;     c502b
-;     c528c
-;     c5296
 ;     c529a
 ;     c529e
 ;     c52ac
 ;     c52b7
-;     c52bd
-;     c52cb
 ;     c52d9
 ;     c52de
 ;     c533b
