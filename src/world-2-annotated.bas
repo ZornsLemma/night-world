@@ -38,7 +38,7 @@
 
   260DEFPROCplay
   265?note_index%=0:?max_note_index%=69
-  270GCOL0,0:Y%=0:PROCset_lee_sprite_from_lee_xy_os:*FX14,4
+  270GCOL0,0:Y%=0:PROCset_lee_sprite_from_lee_xy_os
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
   281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
   282REM when he's falling *after* a jump has finished in mid-air, and that all other
@@ -206,8 +206,7 @@
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
- 1390DEFPROCreset_note_count:?note_index%=0:*FX14,4
- 1395ENDPROC
+ 1390DEFPROCreset_note_count:?note_index%=0:ENDPROC
 
  1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLS%:VDU5:B$="WAITING":*FX15,1
  1402REPEAT:A$=INKEY$(0)

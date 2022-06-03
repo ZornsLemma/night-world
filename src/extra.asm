@@ -1,6 +1,9 @@
 cnpv = &22e
 osword = &fff1
+osbyte= &fff4
 event_vsync = 4
+event_vsync_flag = &2c3 ; TODO: different address on Electron
+osbyte_enable_event = 14
 sound_channel_2_buffer_number = 6
 ri_q = &444
 
@@ -48,15 +51,15 @@ music_frame_interval = 12
     ; and off, which it will need to do when it's doing "effects" (e.g. day/
     ; night transition).
     ldx #sound_channel_2_buffer_number:clv:sec:jsr jmp_cnpv
-    cpx #5:bcc done ; buffer is nearly full, do nothing TODO: 5 is arbitrary
+    cpx #5:bcc done ; buffer is nearly full, do nothing TODO: 5 is arbitrary (FWIW empty buffer has 15 bytes free)
+    ; TODO: It's not a huge deal, but the way world-2.bas is poking note_index
+    ; *could* get lost if this code is executing at precisely the wrong time.
+    ; Is there a neat way to avoid this?
     ldx note_index
     lda tune_pitch,x:sta osword_7_block_pitch
     lda tune_duration,x:sta osword_7_block_duration
-    ; TODO: shorter to use a loop to do both channels? or factor sta channel...jsr osword into a subroutine?
-    lda #2:sta osword_7_block_channel
-    lda #7:ldx #<osword_7_block:ldy #>osword_7_block:jsr osword
-    inc osword_7_block_channel
-    lda #7:ldx #<osword_7_block:ldy #>osword_7_block:jsr osword
+    jsr make_sound:inc osword_7_block_channel
+    jsr make_sound:dec osword_7_block_channel
     ldx note_index:cpx max_note_index:bne not_last_note
     ldx #255
 .not_last_note
@@ -70,12 +73,15 @@ music_frame_interval = 12
 .jmp_cnpv
     jmp (cnpv)
 
+.make_sound
+    lda #7:ldx #<osword_7_block:ldy #>osword_7_block:jmp osword
+
 .music_frame_count
     equb 1
 
 .osword_7_block
 .osword_7_block_channel
-    equw 0
+    equw 2
     equw -5 ; amplitude
 .osword_7_block_pitch
     equw 0
@@ -98,21 +104,27 @@ music_frame_interval = 12
     ; the only call to this subroutine. This is therefore a good place to add
     ; speed regulation; we make the game loop call this wrapper and delay if
     ; necessary before forwarding onto Q%.
+    ;
+    ; We also take this opportunity to do *FX14,4 to enable vsync events if
+    ; they're not already enabled. This means the BASIC code doesn't need to
+    ; worry about enabling events; it just happens when it's in the main game
+    ; loop. (It still needs to disable them with *FX13,4 when it wants the
+    ; background music to stop.)
+    ;
     ; TODO: In a final version we would have Q% set to this address and we would
     ; probably be assembled as part of World-1 and so can jmp/fall through
     ; straight into the "real" q_subroutine.
-    ; TODO: If the game ever calls this without the VSYNC event enabled, it will
-    ; hang forever. Could/should we test for this? Would it in fact work nicely
-    ; to make this do *FX14,4 and *never* do it in the BASIC code? That way we
-    ; wouldn't start playing the background music "early" as I suspect we might
-    ; sometimes do. Would probably want to peek at some OS address to see if
-    ; it's enabled rather than always doing *FX14,4.
 .busy_wait
+    lda event_vsync_flag:beq event_vsync_disabled
     lda game_cycle_frame_count:bne busy_wait
     ; TODO: Don't think we need to disable interrupts or do anything else here,
     ; but think about this again to be sure.
+.reset_game_cycle_frame_interval
     lda #game_cycle_frame_interval:sta game_cycle_frame_count
     jmp (ri_q)
+.event_vsync_disabled
+    lda #osbyte_enable_event:ldx #event_vsync:jsr osbyte
+    jmp reset_game_cycle_frame_interval
 
 .end
 
