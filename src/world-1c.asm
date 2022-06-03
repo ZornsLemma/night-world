@@ -1455,35 +1455,37 @@ osbyte = &fff4
 ; &52bd referenced 1 time by &5288
 .sprite_core_moving_next_row
     lda screen_ptr                                                    ; 52bd: a5 7a       .z
-    adc #&39 ; '9'                                                    ; 52bf: 69 39       i9
+    adc #<(bytes_per_screen_line-7)                                   ; 52bf: 69 39       i9
     sta screen_ptr                                                    ; 52c1: 85 7a       .z
     lda screen_ptr+1                                                  ; 52c3: a5 7b       .{
-    adc #1                                                            ; 52c5: 69 01       i.
+    adc #>(bytes_per_screen_line-7)                                   ; 52c5: 69 01       i.
     sta screen_ptr+1                                                  ; 52c7: 85 7b       .{
     bne sprite_core_moving_screen_ptr_updated                         ; 52c9: d0 c1       ..
 ; &52cb referenced 1 time by &5292
 .sprite_core_moving_next_row2
     lda screen_ptr2                                                   ; 52cb: a5 7c       .|
-    adc #&39 ; '9'                                                    ; 52cd: 69 39       i9
+    adc #<(bytes_per_screen_line-7)                                   ; 52cd: 69 39       i9
     sta screen_ptr2                                                   ; 52cf: 85 7c       .|
     lda screen_ptr2+1                                                 ; 52d1: a5 7d       .}
-    adc #1                                                            ; 52d3: 69 01       i.
+    adc #>(bytes_per_screen_line-7)                                   ; 52d3: 69 01       i.
     sta screen_ptr2+1                                                 ; 52d5: 85 7d       .}
     bne sprite_core_moving_screen_ptr2_updated                        ; 52d7: d0 bd       ..
 ; &52d9 referenced 1 time by &5298
 .sprite_core_moving_low_byte_wrapped
-    inc l0071                                                         ; 52d9: e6 71       .q
+    inc sprite_ptr+1                                                  ; 52d9: e6 71       .q
     clc                                                               ; 52db: 18          .
     bne sprite_core_moving_low_byte_wrap_handled                      ; 52dc: d0 bc       ..
 ; &52de referenced 1 time by &529c
 .sprite_core_moving_low_byte_wrapped2
-    inc l007f                                                         ; 52de: e6 7f       ..
+    inc sprite_ptr2+1                                                 ; 52de: e6 7f       ..
     clc                                                               ; 52e0: 18          .
     bne sprite_core_moving_low_byte_wrap2_handled                     ; 52e1: d0 bb       ..
 ; Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise
 ; appears to be responsible for moving the selected sprite according
 ; to some internal rules. Set Y%=0 (move) and calls s_subroutine after
 ; moving.
+; TODO: I think there's no need for the branches to cli_rts here, we
+; could just branch to the rts.
 .t_subroutine
     lda ri_w                                                          ; 52e3: ad 5c 04    .\.
     beq cli_rts                                                       ; 52e6: f0 d3       ..
@@ -1711,10 +1713,10 @@ osbyte = &fff4
     adc l0073                                                         ; 5430: 65 73       es
     sta l0072                                                         ; 5432: 85 72       .r
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 5434: 7d 03 56    }.V
-    sta l007e                                                         ; 5437: 85 7e       .~
+    sta sprite_ptr2                                                   ; 5437: 85 7e       .~
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5439: bd 02 56    ..V
     adc #0                                                            ; 543c: 69 00       i.
-    sta l007f                                                         ; 543e: 85 7f       ..
+    sta sprite_ptr2+1                                                 ; 543e: 85 7f       ..
     lda ri_x                                                          ; 5440: ad 60 04    .`.
     sec                                                               ; 5443: 38          8
     sbc #1                                                            ; 5444: e9 01       ..
@@ -1723,11 +1725,11 @@ osbyte = &fff4
     lda l0072                                                         ; 5448: a5 72       .r
     adc sprite_ref_addrs_be+1,y                                       ; 544a: 79 01 57    y.W
     sta sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 544d: 9d 03 56    ..V
-    sta l0070                                                         ; 5450: 85 70       .p
+    sta sprite_ptr                                                    ; 5450: 85 70       .p
     lda sprite_ref_addrs_be,y                                         ; 5452: b9 00 57    ..W
     adc #0                                                            ; 5455: 69 00       i.
     sta sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 5457: 9d 02 56    ..V
-    sta l0071                                                         ; 545a: 85 71       .q
+    sta sprite_ptr+1                                                  ; 545a: 85 71       .q
     jmp sprite_core_moving                                            ; 545c: 4c 51 52    LQR
 
 ; &545f referenced 1 time by &540a
@@ -2255,6 +2257,7 @@ osbyte = &fff4
     assert <sprite_23 == &00
     assert <sprite_24 == &c0
     assert <sprite_25 == &80
+    assert >(bytes_per_screen_line-7) == &01
     assert >sprite_00 == &40
     assert >sprite_08 == &40
     assert >sprite_09 == &41

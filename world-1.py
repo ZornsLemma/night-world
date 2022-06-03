@@ -185,6 +185,7 @@ comment(0x53f6, "always branch", inline=True)
 
 # t_subroutine
 comment(0x52e3, "Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise appears to be responsible for moving the selected sprite according to some internal rules. Set Y%=0 (move) and calls s_subroutine after moving.")
+comment(0x52e3, "TODO: I think there's no need for the branches to cli_rts here, we could just branch to the rts.")
 label(0x52bb, "cli_rts")
 expr(0x52e9, "max_sprite_num+1")
 # TODO: Hack to work around over-zealous global naming of these addresses, which don't apply to t_subroutine.
@@ -222,6 +223,10 @@ comment(0x5424, "Get the sprite's X pixel coordinate and use its low two bits to
 #constant(0x72, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_48")
 #expr(0x5433, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_48")
 #expr(0x5449, "u_subroutine_sprite_pixel_coord_table_xy_y_and_3_times_48")
+expr(0x5451, "sprite_ptr")
+expr(0x545b, "sprite_ptr+1")
+expr(0x5438, "sprite_ptr2")
+expr(0x543f, "sprite_ptr2+1")
 
 # Sprite core code.
 # TODO: This is probably a good thing to focus on now - even a first glance at this makes it a lot more obvious what some other code is setting up in the zero page locations, and working back from this sprite core is probably helpful.
@@ -237,6 +242,10 @@ comment(0x524f, "always branch", inline=True)
 constant(320, "bytes_per_screen_line")
 expr(0x5241, "<(bytes_per_screen_line-7)")
 expr(0x5246, ">(bytes_per_screen_line-7)")
+expr(0x52c0, "<(bytes_per_screen_line-7)")
+expr(0x52c6, ">(bytes_per_screen_line-7)")
+expr(0x52ce, "<(bytes_per_screen_line-7)")
+expr(0x52d4, ">(bytes_per_screen_line-7)")
 label(0x5227, "sprite_core_screen_ptr_updated")
 label(0x523e, "sprite_core_next_row")
 blank(0x5251)
@@ -290,6 +299,8 @@ expr(0x5237, "sprite_ptr+1")
 expr(0x524d, "sprite_ptr+1")
 label(0x52ac, "sprite_core_moving_no_carry")
 label(0x52b7, "sprite_core_moving_no_carry2")
+expr(0x52da, "sprite_ptr+1")
+expr(0x52df, "sprite_ptr2+1")
 
 # TODO: What "data" is this, though? There's presumably a suggestion that the data at sprite_screen_and_data_addrs[n*2] and sprite_pixel_coord_table_xy[n] is related.
 comment(0x5499, "TODO: This code probably initialises some game state; if this is one-off initialisation I think it could just have been done at build time, but if it changes during gameplay it makes sense to have code to reset things when a new game starts.")
