@@ -1513,8 +1513,8 @@ osbyte = &fff4
     asl a                                                             ; 5304: 0a          .
     tax                                                               ; 5305: aa          .
 ; TODO: So for the first part at least, X=Z%*2, and we use it to
-; access the sprite_something_table_two_bytes_per_sprite table, so Z%
-; is presumably a sprite slot.
+; access the sprite_delta_coord_table_xy table, so Z% is presumably a
+; sprite slot.
     lda #0                                                            ; 5306: a9 00       ..
     sta ri_y                                                          ; 5308: 8d 64 04    .d.
     sta t_subroutine_os_x_hi                                          ; 530b: 85 70       .p
@@ -1532,16 +1532,16 @@ osbyte = &fff4
     sta t_subroutine_w_minus_1_times_8                                ; 531e: 85 76       .v
     lda sprite_pixel_coord_table_xy,y                                 ; 5320: b9 60 57    .`W
     cmp #&fe                                                          ; 5323: c9 fe       ..
-    bcs t_subroutine_invalid_sprite_pixel_coord                       ; 5325: b0 57       .W
+    bcs t_subroutine_x_pixel_coord_ge_fe                              ; 5325: b0 57       .W
     ldy t_subroutine_w_minus_1_times_4                                ; 5327: a4 7e       .~
     lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 5329: b9 01 56    ..V
     beq cli_rts                                                       ; 532c: f0 8d       ..
     ldy t_subroutine_w_minus_1_times_2                                ; 532e: a4 7f       ..
-    lda sprite_something_table_two_bytes_per_sprite,x                 ; 5330: bd c0 55    ..U
+    lda sprite_delta_coord_table_xy,x                                 ; 5330: bd c0 55    ..U
     bmi add_negative_x_offset                                         ; 5333: 30 77       0w
     clc                                                               ; 5335: 18          .
     adc sprite_pixel_coord_table_xy,y                                 ; 5336: 79 60 57    y`W
-    bcs c53a8                                                         ; 5339: b0 6d       .m
+    bcs new_x_coord_carry                                             ; 5339: b0 6d       .m
 ; &533b referenced 3 times by &537c, &53aa, &53b2
 .x_pixel_coord_in_a
     asl a                                                             ; 533b: 0a          .
@@ -1552,11 +1552,11 @@ osbyte = &fff4
     rol t_subroutine_os_x_hi                                          ; 5342: 26 70       &p
     sta t_subroutine_os_x_lo                                          ; 5344: 85 71       .q
 ; &5346 referenced 2 times by &539a, &53b8
-.c5346
+.update_y_pixel_coord
     lda sprite_pixel_coord_table_xy+1,y                               ; 5346: b9 61 57    .aW
     cmp #2                                                            ; 5349: c9 02       ..
-    bcc c53ca_indirect                                                ; 534b: 90 2b       .+
-    lda sprite_something_table_two_bytes_per_sprite+1,x               ; 534d: bd c1 55    ..U
+    bcc sprite_y_pixel_coord_lt_2_indirect                            ; 534b: 90 2b       .+
+    lda sprite_delta_coord_table_xy+1,x                               ; 534d: bd c1 55    ..U
     bmi add_negative_y_offset                                         ; 5350: 30 6c       0l
     clc                                                               ; 5352: 18          .
     adc sprite_pixel_coord_table_xy+1,y                               ; 5353: 79 61 57    yaW
@@ -1584,23 +1584,23 @@ osbyte = &fff4
     equb &60                                                          ; 5377: 60          `
 ; TODO: This is called once, via a bcc.
 ; &5378 referenced 1 time by &534b
-.c53ca_indirect
-    bcc c53ca                                                         ; 5378: 90 50       .P             ; always branch
+.sprite_y_pixel_coord_lt_2_indirect
+    bcc sprite_y_pixel_coord_lt_2                                     ; 5378: 90 50       .P             ; always branch
 ; TODO: This is called once, via a bcc.
 ; &537a referenced 1 time by &53b0
 .new_x_pixel_coord_lt_0
     dec t_subroutine_os_x_hi                                          ; 537a: c6 70       .p
     bcc x_pixel_coord_in_a                                            ; 537c: 90 bd       ..             ; always branch
 ; &537e referenced 1 time by &5325
-.t_subroutine_invalid_sprite_pixel_coord
-    beq c539c                                                         ; 537e: f0 1c       ..
-    lda sprite_something_table_two_bytes_per_sprite,x                 ; 5380: bd c0 55    ..U
-    beq c53b4                                                         ; 5383: f0 2f       ./
+.t_subroutine_x_pixel_coord_ge_fe
+    beq t_subroutine_x_pixel_coord_is_fe                              ; 537e: f0 1c       ..
+    lda sprite_delta_coord_table_xy,x                                 ; 5380: bd c0 55    ..U
+    beq update_y_pixel_coord_indirect                                 ; 5383: f0 2f       ./
     cmp #&80                                                          ; 5385: c9 80       ..
-    bcs c53b4                                                         ; 5387: b0 2b       .+
+    bcs update_y_pixel_coord_indirect                                 ; 5387: b0 2b       .+
     lda constant_2                                                    ; 5389: ad f8 55    ..U
 ; &538c referenced 1 time by &53a6
-.loop_c538c
+.new_x_pixel_coord_in_a
     sta sprite_pixel_coord_table_xy,y                                 ; 538c: 99 60 57    .`W
     asl a                                                             ; 538f: 0a          .
     rol t_subroutine_os_x_hi                                          ; 5390: 26 70       &p
@@ -1609,16 +1609,16 @@ osbyte = &fff4
     asl a                                                             ; 5395: 0a          .
     rol t_subroutine_os_x_hi                                          ; 5396: 26 70       &p
     sta t_subroutine_os_x_lo                                          ; 5398: 85 71       .q
-    bne c5346                                                         ; 539a: d0 aa       ..
+    bne update_y_pixel_coord                                          ; 539a: d0 aa       ..
 ; &539c referenced 1 time by &537e
-.c539c
-    lda sprite_something_table_two_bytes_per_sprite,x                 ; 539c: bd c0 55    ..U
+.t_subroutine_x_pixel_coord_is_fe
+    lda sprite_delta_coord_table_xy,x                                 ; 539c: bd c0 55    ..U
     cmp #&80                                                          ; 539f: c9 80       ..
-    bcc c53b4                                                         ; 53a1: 90 11       ..
+    bcc update_y_pixel_coord_indirect                                 ; 53a1: 90 11       ..
     lda constant_96                                                   ; 53a3: ad f9 55    ..U
-    bne loop_c538c                                                    ; 53a6: d0 e4       ..
+    bne new_x_pixel_coord_in_a                                        ; 53a6: d0 e4       ..
 ; &53a8 referenced 1 time by &5339
-.c53a8
+.new_x_coord_carry
     inc t_subroutine_os_x_hi                                          ; 53a8: e6 70       .p
     bne x_pixel_coord_in_a                                            ; 53aa: d0 8f       ..
 ; &53ac referenced 1 time by &5333
@@ -1628,10 +1628,10 @@ osbyte = &fff4
     bcc new_x_pixel_coord_lt_0                                        ; 53b0: 90 c8       ..
     bcs x_pixel_coord_in_a                                            ; 53b2: b0 87       ..
 ; &53b4 referenced 3 times by &5383, &5387, &53a1
-.c53b4
+.update_y_pixel_coord_indirect
     lda #1                                                            ; 53b4: a9 01       ..
     sta t_subroutine_constant_1                                       ; 53b6: 85 73       .s
-    bne c5346                                                         ; 53b8: d0 8c       ..
+    bne update_y_pixel_coord                                          ; 53b8: d0 8c       ..
 ; &53ba referenced 1 time by &5356
 .new_y_pixel_coord_gt_255
     inc t_subroutine_os_y_hi                                          ; 53ba: e6 72       .r
@@ -1647,10 +1647,10 @@ osbyte = &fff4
     dec t_subroutine_os_y_hi                                          ; 53c6: c6 72       .r
     bcc y_pixel_coord_in_a                                            ; 53c8: 90 8e       ..
 ; &53ca referenced 1 time by &5378
-.c53ca
+.sprite_y_pixel_coord_lt_2
     cmp #1                                                            ; 53ca: c9 01       ..
     beq c53ec                                                         ; 53cc: f0 1e       ..
-    lda sprite_something_table_two_bytes_per_sprite+1,x               ; 53ce: bd c1 55    ..U
+    lda sprite_delta_coord_table_xy+1,x                               ; 53ce: bd c1 55    ..U
     beq u_subroutine_rts                                              ; 53d1: f0 18       ..
     cmp #&80                                                          ; 53d3: c9 80       ..
     bcs u_subroutine_rts                                              ; 53d5: b0 14       ..
@@ -1675,7 +1675,7 @@ osbyte = &fff4
 
 ; &53ec referenced 1 time by &53cc
 .c53ec
-    lda sprite_something_table_two_bytes_per_sprite+1,x               ; 53ec: bd c1 55    ..U
+    lda sprite_delta_coord_table_xy+1,x                               ; 53ec: bd c1 55    ..U
     cmp #&80                                                          ; 53ef: c9 80       ..
     bcc u_subroutine_rts                                              ; 53f1: 90 f8       ..
     lda sprite_y_max                                                  ; 53f3: ad fb 55    ..U
@@ -1865,7 +1865,7 @@ osbyte = &fff4
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 55a8: 00 00 00... ...
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 55b4: 00 00 00... ...
 ; &55c0 referenced 3 times by &5330, &5380, &539c
-.sprite_something_table_two_bytes_per_sprite
+.sprite_delta_coord_table_xy
     equb &ff                                                          ; 55c0: ff          .
 ; &55c1 referenced 3 times by &534d, &53ce, &53ec
     equb   1,   0,   1,   1,   1, &ff,   0,   0,   0,   1,   0, &ff   ; 55c1: 01 00 01... ...
@@ -2116,9 +2116,9 @@ osbyte = &fff4
 ;     clc_remove_sprite_from_screen:                     3
 ;     x_pixel_coord_in_a:                                3
 ;     y_pixel_coord_in_a:                                3
-;     c53b4:                                             3
-;     sprite_something_table_two_bytes_per_sprite:       3
-;     sprite_something_table_two_bytes_per_sprite+1:     3
+;     update_y_pixel_coord_indirect:                     3
+;     sprite_delta_coord_table_xy:                       3
+;     sprite_delta_coord_table_xy+1:                     3
 ;     constant_2:                                        3
 ;     constant_96:                                       3
 ;     sprite_y_min:                                      3
@@ -2137,7 +2137,7 @@ osbyte = &fff4
 ;     force_sprite_y_position_to_constant_10:            2
 ;     sprite_core:                                       2
 ;     sprite_core_moving:                                2
-;     c5346:                                             2
+;     update_y_pixel_coord:                              2
 ;     sprite_ref_addrs_be:                               2
 ;     sprite_ref_addrs_be+1:                             2
 ;     r_subroutine_foo:                                  2
@@ -2184,17 +2184,17 @@ osbyte = &fff4
 ;     sprite_core_moving_low_byte_wrapped:               1
 ;     sprite_core_moving_low_byte_wrapped2:              1
 ;     set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine:   1
-;     c53ca_indirect:                                    1
+;     sprite_y_pixel_coord_lt_2_indirect:                1
 ;     new_x_pixel_coord_lt_0:                            1
-;     t_subroutine_invalid_sprite_pixel_coord:           1
-;     loop_c538c:                                        1
-;     c539c:                                             1
-;     c53a8:                                             1
+;     t_subroutine_x_pixel_coord_ge_fe:                  1
+;     new_x_pixel_coord_in_a:                            1
+;     t_subroutine_x_pixel_coord_is_fe:                  1
+;     new_x_coord_carry:                                 1
 ;     add_negative_x_offset:                             1
 ;     new_y_pixel_coord_gt_255:                          1
 ;     add_negative_y_offset:                             1
 ;     new_y_pixel_coord_lt_0:                            1
-;     c53ca:                                             1
+;     sprite_y_pixel_coord_lt_2:                         1
 ;     x_pixel_coord_in_a_2:                              1
 ;     c53ec:                                             1
 ;     c53f8:                                             1
@@ -2222,11 +2222,6 @@ osbyte = &fff4
 ;     c501f
 ;     c5026
 ;     c502b
-;     c5346
-;     c539c
-;     c53a8
-;     c53b4
-;     c53ca
 ;     c53ec
 ;     c53f8
 ;     c54db
@@ -2236,7 +2231,6 @@ osbyte = &fff4
 ;     l0075
 ;     l0403
 ;     l0443
-;     loop_c538c
     assert ('V'-'Q'+1)*4 == &18
     assert ('Z'-'A'+1)*4 == &68
     assert <(bytes_per_screen_line-7) == &39
