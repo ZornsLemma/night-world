@@ -12,6 +12,7 @@ t_subroutine_os_x_lo = &71
 t_subroutine_os_y_hi = &72
 t_subroutine_w_minus_1_times_2 = &7f
 t_subroutine_w_minus_1_times_4 = &7e
+t_subroutine_w_minus_1_times_8 = &76
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -1527,7 +1528,7 @@ osbyte = &fff4
     sta t_subroutine_w_minus_1_times_4                                ; 5319: 85 7e       .~
     and #&3f ; '?'                                                    ; 531b: 29 3f       )?
     asl a                                                             ; 531d: 0a          .
-    sta l0076                                                         ; 531e: 85 76       .v
+    sta t_subroutine_w_minus_1_times_8                                ; 531e: 85 76       .v
     lda sprite_pixel_coord_table_xy,y                                 ; 5320: b9 60 57    .`W
     cmp #&fe                                                          ; 5323: c9 fe       ..
     bcs t_subroutine_invalid_sprite_pixel_coord                       ; 5325: b0 57       .W
@@ -1568,7 +1569,7 @@ osbyte = &fff4
     tax                                                               ; 535e: aa          .
 ; &535f referenced 1 time by &53f8
 .set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
-    ldy l0076                                                         ; 535f: a4 76       .v
+    ldy t_subroutine_w_minus_1_times_8                                ; 535f: a4 76       .v
     lda t_subroutine_os_x_lo                                          ; 5361: a5 71       .q
     sta ri_a,y                                                        ; 5363: 99 04 04    ...
     lda t_subroutine_os_x_hi                                          ; 5366: a5 70       .p
@@ -2280,7 +2281,6 @@ osbyte = &fff4
     assert get_sprite_details_sprite_index == &7c
     assert initial_qrstuv_values-1 == &54db
     assert l0071 == &71
-    assert l0076 == &76
     assert l007d == &7d
     assert max_sprite_num == &30
     assert max_sprite_num+1 == &31
@@ -2312,6 +2312,7 @@ osbyte = &fff4
     assert t_subroutine_os_y_hi == &72
     assert t_subroutine_w_minus_1_times_2 == &7f
     assert t_subroutine_w_minus_1_times_4 == &7e
+    assert t_subroutine_w_minus_1_times_8 == &76
     assert u_subroutine == &53fb
     assert v_subroutine == &5499
 
