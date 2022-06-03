@@ -1505,6 +1505,9 @@ osbyte = &fff4
     sbc #1                                                            ; 5302: e9 01       ..
     asl a                                                             ; 5304: 0a          .
     tax                                                               ; 5305: aa          .
+; TODO: So for the first part at least, X=Z%*2, and we use it to
+; access the sprite_something_table_two_bytes_per_sprite table, so Z%
+; is presumably a sprite slot.
     lda #0                                                            ; 5306: a9 00       ..
     sta ri_y                                                          ; 5308: 8d 64 04    .d.
     sta l0070                                                         ; 530b: 85 70       .p
