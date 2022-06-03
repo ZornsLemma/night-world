@@ -13,6 +13,7 @@ t_subroutine_os_y_hi = &72
 t_subroutine_w_minus_1_times_2 = &7f
 t_subroutine_w_minus_1_times_4 = &7e
 t_subroutine_w_minus_1_times_8 = &76
+t_subroutine_constant_1 = &73
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -1519,7 +1520,7 @@ osbyte = &fff4
     sta t_subroutine_os_x_hi                                          ; 530b: 85 70       .p
     sta t_subroutine_os_y_hi                                          ; 530d: 85 72       .r
     lda #1                                                            ; 530f: a9 01       ..
-    sta l0073                                                         ; 5311: 85 73       .s
+    sta t_subroutine_constant_1                                       ; 5311: 85 73       .s
     tya                                                               ; 5313: 98          .
     asl a                                                             ; 5314: 0a          .
     sta t_subroutine_w_minus_1_times_2                                ; 5315: 85 7f       ..
@@ -1627,7 +1628,7 @@ osbyte = &fff4
 ; &53b4 referenced 3 times by &5383, &5387, &53a1
 .c53b4
     lda #1                                                            ; 53b4: a9 01       ..
-    sta l0073                                                         ; 53b6: 85 73       .s
+    sta t_subroutine_constant_1                                       ; 53b6: 85 73       .s
     bne c5346                                                         ; 53b8: d0 8c       ..
 ; &53ba referenced 1 time by &5356
 .new_y_pixel_coord_gt_255
@@ -1664,8 +1665,8 @@ osbyte = &fff4
     asl a                                                             ; 53e3: 0a          .
     rol t_subroutine_os_y_hi                                          ; 53e4: 26 72       &r
     tax                                                               ; 53e6: aa          .
-    lda l0073                                                         ; 53e7: a5 73       .s
-    bne c53f8                                                         ; 53e9: d0 0d       ..
+    lda t_subroutine_constant_1                                       ; 53e7: a5 73       .s
+    bne c53f8                                                         ; 53e9: d0 0d       ..             ; always branch?
 ; &53eb referenced 7 times by &53d1, &53d5, &53f1, &53fe, &5402, &540e, &541e
 .u_subroutine_rts
     rts                                                               ; 53eb: 60          `
@@ -2306,6 +2307,7 @@ osbyte = &fff4
     assert sprite_ref_addrs_be+1 == &5701
     assert sprite_y_offset_within_row == &75
     assert t_subroutine == &52e3
+    assert t_subroutine_constant_1 == &73
     assert t_subroutine_os_x_hi == &70
     assert t_subroutine_os_x_lo == &71
     assert t_subroutine_os_y_hi == &72
