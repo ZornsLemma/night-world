@@ -10,7 +10,7 @@ l007d = &7d
 t_subroutine_os_x_hi = &70
 t_subroutine_os_x_lo = &71
 t_subroutine_os_y_hi = &72
-t_subroutine_os_y_lo = &73
+t_subroutine_w_minus_1_times_2 = &7f
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -1514,13 +1514,13 @@ osbyte = &fff4
 ; is presumably a sprite slot.
     lda #0                                                            ; 5306: a9 00       ..
     sta ri_y                                                          ; 5308: 8d 64 04    .d.
-    sta l0070                                                         ; 530b: 85 70       .p
-    sta l0072                                                         ; 530d: 85 72       .r
+    sta t_subroutine_os_x_hi                                          ; 530b: 85 70       .p
+    sta t_subroutine_os_y_hi                                          ; 530d: 85 72       .r
     lda #1                                                            ; 530f: a9 01       ..
     sta l0073                                                         ; 5311: 85 73       .s
     tya                                                               ; 5313: 98          .
     asl a                                                             ; 5314: 0a          .
-    sta l007f                                                         ; 5315: 85 7f       ..
+    sta t_subroutine_w_minus_1_times_2                                ; 5315: 85 7f       ..
     tay                                                               ; 5317: a8          .
     asl a                                                             ; 5318: 0a          .
     sta l007e                                                         ; 5319: 85 7e       .~
@@ -1533,7 +1533,7 @@ osbyte = &fff4
     ldy l007e                                                         ; 5327: a4 7e       .~
     lda sprite_screen_and_data_addrs+screen_addr_hi,y                 ; 5329: b9 01 56    ..V
     beq cli_rts                                                       ; 532c: f0 8d       ..
-    ldy l007f                                                         ; 532e: a4 7f       ..
+    ldy t_subroutine_w_minus_1_times_2                                ; 532e: a4 7f       ..
     lda sprite_something_table_two_bytes_per_sprite,x                 ; 5330: bd c0 55    ..U
     bmi c53ac                                                         ; 5333: 30 77       0w
     clc                                                               ; 5335: 18          .
@@ -2278,12 +2278,10 @@ osbyte = &fff4
     assert >sprite_25 == &4d
     assert get_sprite_details_sprite_index == &7c
     assert initial_qrstuv_values-1 == &54db
-    assert l0070 == &70
     assert l0071 == &71
     assert l0076 == &76
     assert l007d == &7d
     assert l007e == &7e
-    assert l007f == &7f
     assert max_sprite_num == &30
     assert max_sprite_num+1 == &31
     assert osbyte_clear_escape == &7c
@@ -2312,6 +2310,7 @@ osbyte = &fff4
     assert t_subroutine_os_x_hi == &70
     assert t_subroutine_os_x_lo == &71
     assert t_subroutine_os_y_hi == &72
+    assert t_subroutine_w_minus_1_times_2 == &7f
     assert u_subroutine == &53fb
     assert v_subroutine == &5499
 
