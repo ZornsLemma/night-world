@@ -1422,26 +1422,26 @@ osbyte = &fff4
     inc sprite_ptr                                                    ; 5296: e6 70       .p
     beq c52d9                                                         ; 5298: f0 3f       .?
 ; &529a referenced 1 time by &52dc
-.c529a
+.sprite_core_moving_low_byte_wrap_handled
     inc sprite_ptr2                                                   ; 529a: e6 7e       .~
     beq c52de                                                         ; 529c: f0 40       .@
 ; &529e referenced 1 time by &52e1
-.c529e
+.sprite_core_moving_low_byte_wrap2_handled
     dex                                                               ; 529e: ca          .
     bne sprite_core_moving_inner_loop                                 ; 529f: d0 b7       ..
-    lda l0070                                                         ; 52a1: a5 70       .p
+    lda sprite_ptr                                                    ; 52a1: a5 70       .p
     adc #&10                                                          ; 52a3: 69 10       i.
-    sta l0070                                                         ; 52a5: 85 70       .p
+    sta sprite_ptr                                                    ; 52a5: 85 70       .p
     bcc c52ac                                                         ; 52a7: 90 03       ..
-    inc l0071                                                         ; 52a9: e6 71       .q
+    inc sprite_ptr+1                                                  ; 52a9: e6 71       .q
     clc                                                               ; 52ab: 18          .
 ; &52ac referenced 1 time by &52a7
 .c52ac
-    lda l007e                                                         ; 52ac: a5 7e       .~
+    lda sprite_ptr2                                                   ; 52ac: a5 7e       .~
     adc #&10                                                          ; 52ae: 69 10       i.
-    sta l007e                                                         ; 52b0: 85 7e       .~
+    sta sprite_ptr2                                                   ; 52b0: 85 7e       .~
     bcc c52b7                                                         ; 52b2: 90 03       ..
-    inc l007f                                                         ; 52b4: e6 7f       ..
+    inc sprite_ptr2+1                                                 ; 52b4: e6 7f       ..
     clc                                                               ; 52b6: 18          .
 ; &52b7 referenced 1 time by &52b2
 .c52b7
@@ -1474,12 +1474,12 @@ osbyte = &fff4
 .c52d9
     inc l0071                                                         ; 52d9: e6 71       .q
     clc                                                               ; 52db: 18          .
-    bne c529a                                                         ; 52dc: d0 bc       ..
+    bne sprite_core_moving_low_byte_wrap_handled                      ; 52dc: d0 bc       ..
 ; &52de referenced 1 time by &529c
 .c52de
     inc l007f                                                         ; 52de: e6 7f       ..
     clc                                                               ; 52e0: 18          .
-    bne c529e                                                         ; 52e1: d0 bb       ..
+    bne sprite_core_moving_low_byte_wrap2_handled                     ; 52e1: d0 bb       ..
 ; Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise
 ; appears to be responsible for moving the selected sprite according
 ; to some internal rules. Set Y%=0 (move) and calls s_subroutine after
@@ -2160,8 +2160,8 @@ osbyte = &fff4
 ;     sprite_core_moving_inner_loop:                   1
 ;     sprite_core_moving_screen_ptr_updated:           1
 ;     sprite_core_moving_screen_ptr2_updated:          1
-;     c529a:                                           1
-;     c529e:                                           1
+;     sprite_core_moving_low_byte_wrap_handled:        1
+;     sprite_core_moving_low_byte_wrap2_handled:       1
 ;     c52ac:                                           1
 ;     c52b7:                                           1
 ;     sprite_core_moving_next_row:                     1
@@ -2207,8 +2207,6 @@ osbyte = &fff4
 ;     c501f
 ;     c5026
 ;     c502b
-;     c529a
-;     c529e
 ;     c52ac
 ;     c52b7
 ;     c52d9
@@ -2303,6 +2301,7 @@ osbyte = &fff4
     assert sprite_pixel_current_x == &72
     assert sprite_pixel_current_y == &73
     assert sprite_ptr == &70
+    assert sprite_ptr+1 == &71
     assert sprite_ptr2 == &7e
     assert sprite_ptr2+1 == &7f
     assert sprite_ref_addrs_be+0 == &5700
