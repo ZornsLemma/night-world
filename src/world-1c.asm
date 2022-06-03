@@ -1183,13 +1183,14 @@ osbyte = &fff4
     lda sprite_pixel_x_hi                                             ; 515a: a5 78       .x
     beq sprite_pixel_x_hi_zero                                        ; 515c: f0 10       ..
     cmp #&80                                                          ; 515e: c9 80       ..
-    bcc c5182                                                         ; 5160: 90 20       .
-    bcs c519d                                                         ; 5162: b0 39       .9
+    bcc sprite_x_position_too_far_right                               ; 5160: 90 20       .
+    bcs sprite_x_position_too_far_left                                ; 5162: b0 39       .9
 ; &5164 referenced 5 times by &5180, &5190, &519b, &51ab, &51b6
 .sprite_y_position_adjust_loop
     lda sprite_pixel_y_hi                                             ; 5164: a5 79       .y
     beq c51b8                                                         ; 5166: f0 50       .P
-; TODO: cmp #&80 redundant? we just did LDA which will have set N
+; TODO: cmp #&80 redundant? we just did LDA which will have set N so
+; we can use beq/bne instead
     cmp #&80                                                          ; 5168: c9 80       ..
     bcc c51cb                                                         ; 516a: 90 5f       ._
     bcs c51e5                                                         ; 516c: b0 77       .w
@@ -1197,17 +1198,17 @@ osbyte = &fff4
 .sprite_pixel_x_hi_zero
     lda sprite_pixel_x_lo                                             ; 516e: a5 76       .v
     cmp constant_2                                                    ; 5170: cd f8 55    ..U
-    bcc c519d                                                         ; 5173: 90 28       .(
+    bcc sprite_x_position_too_far_left                                ; 5173: 90 28       .(
     cmp constant_96                                                   ; 5175: cd f9 55    ..U
     beq sprite_x_position_adjusted                                    ; 5178: f0 02       ..
-    bcs c5182                                                         ; 517a: b0 06       ..
+    bcs sprite_x_position_too_far_right                               ; 517a: b0 06       ..
 ; &517c referenced 1 time by &5178
 .sprite_x_position_adjusted
     sta sprite_pixel_coord_table_xy,x                                 ; 517c: 9d 60 57    .`W
     clc                                                               ; 517f: 18          .
     bcc sprite_y_position_adjust_loop                                 ; 5180: 90 e2       ..             ; always branch
 ; &5182 referenced 2 times by &5160, &517a
-.c5182
+.sprite_x_position_too_far_right
     lda constant_1_per_sprite_table,y                                 ; 5182: b9 c0 57    ..W
     beq c5192                                                         ; 5185: f0 0b       ..
     cmp #1                                                            ; 5187: c9 01       ..
@@ -1225,7 +1226,7 @@ osbyte = &fff4
     clc                                                               ; 519a: 18          .
     bcc sprite_y_position_adjust_loop                                 ; 519b: 90 c7       ..
 ; &519d referenced 2 times by &5162, &5173
-.c519d
+.sprite_x_position_too_far_left
     lda constant_1_per_sprite_table,y                                 ; 519d: b9 c0 57    ..W            ; always branch
     beq c51ad                                                         ; 51a0: f0 0b       ..
     cmp #1                                                            ; 51a2: c9 01       ..
@@ -2109,9 +2110,9 @@ osbyte = &fff4
 ;     q_subroutine_test_abs_y_difference:              2
 ;     s_subroutine_rts:                                2
 ;     clc_jmp_sprite_core:                             2
-;     c5182:                                           2
+;     sprite_x_position_too_far_right:                 2
 ;     c5192:                                           2
-;     c519d:                                           2
+;     sprite_x_position_too_far_left:                  2
 ;     c51ad:                                           2
 ;     c51cb:                                           2
 ;     c51db:                                           2
@@ -2204,9 +2205,7 @@ osbyte = &fff4
 ;     c501f
 ;     c5026
 ;     c502b
-;     c5182
 ;     c5192
-;     c519d
 ;     c51ad
 ;     c51b8
 ;     c51cb

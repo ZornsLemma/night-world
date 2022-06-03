@@ -148,7 +148,7 @@ expr(0x511d, "get_sprite_details_sprite_index")
 constant(0x7c, "get_sprite_details_sprite_index")
 comment(0x515a, "TODO: Won't sprite_pixel_x_hi always be 0, since if it's on-screen it will have been reduced to the range 0-159 after dividing by 8?")
 label(0x516e, "sprite_pixel_x_hi_zero")
-comment(0x5168, "TODO: cmp #&80 redundant? we just did LDA which will have set N")
+comment(0x5168, "TODO: cmp #&80 redundant? we just did LDA which will have set N so we can use beq/bne instead")
 #label(0x5182, "sprite_pixel_x_hi_1_to_7f")
 comment(0x519d, "always branch", inline=True)
 label(0x55f8, "constant_2")
@@ -162,6 +162,8 @@ label(0x55fb, "constant_fe")
 expr(0x5121, "l007d")
 constant(0x7d, "l007d")
 comment(0x5120, "TODO: Is the value written to &7D ever used?")
+label(0x519d, "sprite_x_position_too_far_left")
+label(0x5182, "sprite_x_position_too_far_right")
 
 # TODO: (for py8dis) this overrides things like "sprite_ptr+1" even outside the context region indicated. I vaguely see why this is happening, but it doesn't feel right.
 #def our_label_maker(addr, context, suggestion):
