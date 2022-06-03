@@ -102,7 +102,11 @@ music_frame_interval = 12
     ; probably be assembled as part of World-1 and so can jmp/fall through
     ; straight into the "real" q_subroutine.
     ; TODO: If the game ever calls this without the VSYNC event enabled, it will
-    ; hang forever. Could/should we test for this?
+    ; hang forever. Could/should we test for this? Would it in fact work nicely
+    ; to make this do *FX14,4 and *never* do it in the BASIC code? That way we
+    ; wouldn't start playing the background music "early" as I suspect we might
+    ; sometimes do. Would probably want to peek at some OS address to see if
+    ; it's enabled rather than always doing *FX14,4.
 .busy_wait
     lda game_cycle_frame_count:bne busy_wait
     ; TODO: Don't think we need to disable interrupts or do anything else here,
