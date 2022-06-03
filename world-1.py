@@ -2,6 +2,13 @@ from commands import *
 from trace6502 import *
 import acorn
 
+# TODO: This is actually pretty shoddy py8dis code. In part that's the reality of
+# the iterative disassembly process, but it might be useful (as a py8dis improvement
+# exercise) to tidy this up afterwards and add suport for anything useful or fix
+# any bugs (e.g. the way some zero page locations are labelled to override over-
+# general expr_label() values, but I couldn't from a very quick try make this work
+# via a label maker using context).
+
 acorn.bbc()
 label(0x18, "basic_page_msb")
 label(0x404, "ri_a")
