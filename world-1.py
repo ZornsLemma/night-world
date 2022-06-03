@@ -152,6 +152,13 @@ comment(0x5168, "TODO: cmp #&80 redundant? we just did LDA which will have set N
 #label(0x5182, "sprite_pixel_x_hi_1_to_7f")
 comment(0x519d, "always branch", inline=True)
 label(0x55f8, "constant_2")
+label(0x5164, "sprite_y_position_adjust_loop")
+label(0x51c6, "sprite_y_position_adjusted")
+label(0x517c, "sprite_x_position_adjusted")
+comment(0x5180, "always branch", inline=True)
+comment(0x5190, "always branch", inline=True)
+label(0x55fa, "constant_10")
+label(0x55fb, "constant_fe")
 
 # TODO: (for py8dis) this overrides things like "sprite_ptr+1" even outside the context region indicated. I vaguely see why this is happening, but it doesn't feel right.
 #def our_label_maker(addr, context, suggestion):
