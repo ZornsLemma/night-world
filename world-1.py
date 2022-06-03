@@ -365,6 +365,7 @@ expr(0x54a4, "('V'-'Q'+1)*4")
 expr(0x54a9, "ri_q-1")
 label(0x54a5, "init_qrstuv_loop")
 label(0x54b7, "init_sprite_screen_and_data_addrs_loop")
+expr(0x54b2, "max_sprite_num")
 
 comment(0x4e40, "TODO: This appears to be mode 5 graphics data showing '< 1 > Load ' (just *LOAD World1c 5800 to see this), so this is almost certainly junk/a build artefact/spare space.")
 comment(0x57c0, "TODO: This table appears to be read-only and since every byte is 1, we can probably replace accesses to it with immediate constants and get rid of it.")

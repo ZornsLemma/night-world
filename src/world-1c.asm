@@ -1794,7 +1794,7 @@ osbyte = &fff4
     bne init_qrstuv_loop                                              ; 54ac: d0 f7       ..
     ldx #0                                                            ; 54ae: a2 00       ..
     clc                                                               ; 54b0: 18          .
-    ldy #&30 ; '0'                                                    ; 54b1: a0 30       .0
+    ldy #max_sprite_num                                               ; 54b1: a0 30       .0
     sty l0070                                                         ; 54b3: 84 70       .p
     ldy #0                                                            ; 54b5: a0 00       ..
 ; &54b7 referenced 1 time by &54d9
@@ -2283,6 +2283,7 @@ osbyte = &fff4
     assert l007d == &7d
     assert l007e == &7e
     assert l007f == &7f
+    assert max_sprite_num == &30
     assert max_sprite_num+1 == &31
     assert osbyte_clear_escape == &7c
     assert osbyte_inkey == &81
