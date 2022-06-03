@@ -1563,9 +1563,9 @@ osbyte = &fff4
 ; &5358 referenced 3 times by &53bc, &53c4, &53c8
 .y_pixel_coord_in_a
     asl a                                                             ; 5358: 0a          .
-    rol l0072                                                         ; 5359: 26 72       &r
+    rol t_subroutine_os_y_hi                                          ; 5359: 26 72       &r
     asl a                                                             ; 535b: 0a          .
-    rol l0072                                                         ; 535c: 26 72       &r
+    rol t_subroutine_os_y_hi                                          ; 535c: 26 72       &r
     tax                                                               ; 535e: aa          .
 ; &535f referenced 1 time by &53f8
 .set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
