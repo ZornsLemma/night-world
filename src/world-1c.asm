@@ -1626,15 +1626,15 @@ osbyte = &fff4
 ; &53ba referenced 1 time by &5356
 .new_y_pixel_coord_gt_255
     inc l0072                                                         ; 53ba: e6 72       .r
-    bne y_pixel_coord_in_a                                            ; 53bc: d0 9a       ..
+    bne y_pixel_coord_in_a                                            ; 53bc: d0 9a       ..             ; always branch
 ; &53be referenced 1 time by &5350
 .add_negative_y_offset
     clc                                                               ; 53be: 18          .
     adc sprite_pixel_coord_table_xy+1,y                               ; 53bf: 79 61 57    yaW
-    bcc c53c6                                                         ; 53c2: 90 02       ..
+    bcc new_y_pixel_coord_lt_0                                        ; 53c2: 90 02       ..
     bcs y_pixel_coord_in_a                                            ; 53c4: b0 92       ..
 ; &53c6 referenced 1 time by &53c2
-.c53c6
+.new_y_pixel_coord_lt_0
     dec l0072                                                         ; 53c6: c6 72       .r
     bcc y_pixel_coord_in_a                                            ; 53c8: 90 8e       ..
 ; &53ca referenced 1 time by &5378
@@ -1646,8 +1646,10 @@ osbyte = &fff4
     cmp #&80                                                          ; 53d3: c9 80       ..
     bcs u_subroutine_rts                                              ; 53d5: b0 14       ..
     lda sprite_y_min                                                  ; 53d7: ad fa 55    ..U
+; TODO: we are storing at sprite_pixel_coord_table_xy+1,y - the +1
+; suggests y coord, but multiply by 8 suggests x
 ; &53da referenced 1 time by &53f6
-.loop_c53da
+.x_pixel_coord_in_a_2
     sta sprite_pixel_coord_table_xy+1,y                               ; 53da: 99 61 57    .aW
     asl a                                                             ; 53dd: 0a          .
     rol l0072                                                         ; 53de: 26 72       &r
@@ -1668,7 +1670,7 @@ osbyte = &fff4
     cmp #&80                                                          ; 53ef: c9 80       ..
     bcc u_subroutine_rts                                              ; 53f1: 90 f8       ..
     lda sprite_y_max                                                  ; 53f3: ad fb 55    ..U
-    bne loop_c53da                                                    ; 53f6: d0 e2       ..             ; always branch
+    bne x_pixel_coord_in_a_2                                          ; 53f6: d0 e2       ..             ; always branch; always branch
 ; &53f8 referenced 1 time by &53e9
 .c53f8
     jmp set_ri_os_coords_and_jmp_s_subroutine                         ; 53f8: 4c 5f 53    L_S
@@ -2182,9 +2184,9 @@ osbyte = &fff4
 ;     c53ac:                                           1
 ;     new_y_pixel_coord_gt_255:                        1
 ;     add_negative_y_offset:                           1
-;     c53c6:                                           1
+;     new_y_pixel_coord_lt_0:                          1
 ;     c53ca:                                           1
-;     loop_c53da:                                      1
+;     x_pixel_coord_in_a_2:                            1
 ;     c53ec:                                           1
 ;     c53f8:                                           1
 ;     u_subroutine_ri_x_0:                             1
@@ -2217,7 +2219,6 @@ osbyte = &fff4
 ;     c53a8
 ;     c53ac
 ;     c53b4
-;     c53c6
 ;     c53ca
 ;     c53ec
 ;     c53f8
@@ -2229,7 +2230,6 @@ osbyte = &fff4
 ;     l0403
 ;     l0443
 ;     loop_c538c
-;     loop_c53da
     assert ('V'-'Q'+1)*4 == &18
     assert ('Z'-'A'+1)*4 == &68
     assert <(bytes_per_screen_line-7) == &39

@@ -222,6 +222,11 @@ label(0x533b, "x_pixel_coord_in_a")
 label(0x5378, "t_subroutine_sprite_y_position_too_far_down")
 label(0x53ba, "new_y_pixel_coord_gt_255")
 label(0x53be, "add_negative_y_offset")
+label(0x53c6, "new_y_pixel_coord_lt_0")
+comment(0x53bc, "always branch", inline=True)
+comment(0x53f6, "always branch", inline=True)
+comment(0x53da, "TODO: we are storing at sprite_pixel_coord_table_xy+1,y - the +1 suggests y coord, but multiply by 8 suggests x")
+label(0x53da, "x_pixel_coord_in_a_2")
 
 # u_subroutine
 # TODO: I think I have been getting slightly mixed up with sprites. Need to tweak all comments later once this is clearer. Roughly speaking I think there are sprite "slots" (1-&30 inclusive) and sprite "images" (1-&30 inclusive). Each slot remembers what was last plotted there (using the sprite address in sprite_screen_and_data_addrs for the relevant slot).")
