@@ -1320,15 +1320,15 @@ osbyte = &fff4
 .sprite_core_inner_loop
     ldy #0                                                            ; 5205: a0 00       ..
     lda (screen_ptr),y                                                ; 5207: b1 7a       .z
-    eor (l0070),y                                                     ; 5209: 51 70       Qp
+    eor (sprite_ptr),y                                                ; 5209: 51 70       Qp
     sta (screen_ptr),y                                                ; 520b: 91 7a       .z
     ldy #8                                                            ; 520d: a0 08       ..
     lda (screen_ptr),y                                                ; 520f: b1 7a       .z
-    eor (l0070),y                                                     ; 5211: 51 70       Qp
+    eor (sprite_ptr),y                                                ; 5211: 51 70       Qp
     sta (screen_ptr),y                                                ; 5213: 91 7a       .z
     ldy #&10                                                          ; 5215: a0 10       ..
     lda (screen_ptr),y                                                ; 5217: b1 7a       .z
-    eor (l0070),y                                                     ; 5219: 51 70       Qp
+    eor (sprite_ptr),y                                                ; 5219: 51 70       Qp
     sta (screen_ptr),y                                                ; 521b: 91 7a       .z
     lda screen_ptr                                                    ; 521d: a5 7a       .z
     and #7                                                            ; 521f: 29 07       ).
@@ -1337,17 +1337,17 @@ osbyte = &fff4
     inc screen_ptr                                                    ; 5225: e6 7a       .z
 ; &5227 referenced 1 time by &524a
 .sprite_core_screen_ptr_updated
-    inc l0070                                                         ; 5227: e6 70       .p
+    inc sprite_ptr                                                    ; 5227: e6 70       .p
     beq sprite_core_low_byte_wrapped                                  ; 5229: f0 21       .!
 ; &522b referenced 1 time by &524f
 .sprite_core_low_byte_wrap_handled
     dex                                                               ; 522b: ca          .
     bne sprite_core_inner_loop                                        ; 522c: d0 d7       ..
-    lda l0070                                                         ; 522e: a5 70       .p
+    lda sprite_ptr                                                    ; 522e: a5 70       .p
     adc #&10                                                          ; 5230: 69 10       i.
-    sta l0070                                                         ; 5232: 85 70       .p
+    sta sprite_ptr                                                    ; 5232: 85 70       .p
     bcc sprite_core_no_carry                                          ; 5234: 90 03       ..
-    inc l0071                                                         ; 5236: e6 71       .q
+    inc sprite_ptr+1                                                  ; 5236: e6 71       .q
     clc                                                               ; 5238: 18          .
 ; &5239 referenced 1 time by &5234
 .sprite_core_no_carry
@@ -1366,7 +1366,7 @@ osbyte = &fff4
     bne sprite_core_screen_ptr_updated                                ; 524a: d0 db       ..             ; always branch
 ; &524c referenced 1 time by &5229
 .sprite_core_low_byte_wrapped
-    inc l0071                                                         ; 524c: e6 71       .q
+    inc sprite_ptr+1                                                  ; 524c: e6 71       .q
     clc                                                               ; 524e: 18          .
     bne sprite_core_low_byte_wrap_handled                             ; 524f: d0 da       ..             ; always branch
 
@@ -1420,11 +1420,11 @@ osbyte = &fff4
 ; &5296 referenced 1 time by &52d7
 .sprite_core_moving_screen_ptr2_updated
     inc sprite_ptr                                                    ; 5296: e6 70       .p
-    beq c52d9                                                         ; 5298: f0 3f       .?
+    beq sprite_core_moving_low_byte_wrapped                           ; 5298: f0 3f       .?
 ; &529a referenced 1 time by &52dc
 .sprite_core_moving_low_byte_wrap_handled
     inc sprite_ptr2                                                   ; 529a: e6 7e       .~
-    beq c52de                                                         ; 529c: f0 40       .@
+    beq sprite_core_moving_low_byte_wrapped2                          ; 529c: f0 40       .@
 ; &529e referenced 1 time by &52e1
 .sprite_core_moving_low_byte_wrap2_handled
     dex                                                               ; 529e: ca          .
@@ -1432,19 +1432,19 @@ osbyte = &fff4
     lda sprite_ptr                                                    ; 52a1: a5 70       .p
     adc #&10                                                          ; 52a3: 69 10       i.
     sta sprite_ptr                                                    ; 52a5: 85 70       .p
-    bcc c52ac                                                         ; 52a7: 90 03       ..
+    bcc sprite_core_moving_no_carry                                   ; 52a7: 90 03       ..
     inc sprite_ptr+1                                                  ; 52a9: e6 71       .q
     clc                                                               ; 52ab: 18          .
 ; &52ac referenced 1 time by &52a7
-.c52ac
+.sprite_core_moving_no_carry
     lda sprite_ptr2                                                   ; 52ac: a5 7e       .~
     adc #&10                                                          ; 52ae: 69 10       i.
     sta sprite_ptr2                                                   ; 52b0: 85 7e       .~
-    bcc c52b7                                                         ; 52b2: 90 03       ..
+    bcc sprite_core_moving_no_carry2                                  ; 52b2: 90 03       ..
     inc sprite_ptr2+1                                                 ; 52b4: e6 7f       ..
     clc                                                               ; 52b6: 18          .
 ; &52b7 referenced 1 time by &52b2
-.c52b7
+.sprite_core_moving_no_carry2
     dec l0075                                                         ; 52b7: c6 75       .u
     beq sprite_core_moving_outer_loop                                 ; 52b9: f0 9b       ..
 ; &52bb referenced 7 times by &52e6, &52ea, &52f3, &52f7, &52fb, &52ff, &532c
@@ -1471,12 +1471,12 @@ osbyte = &fff4
     sta screen_ptr2+1                                                 ; 52d5: 85 7d       .}
     bne sprite_core_moving_screen_ptr2_updated                        ; 52d7: d0 bd       ..
 ; &52d9 referenced 1 time by &5298
-.c52d9
+.sprite_core_moving_low_byte_wrapped
     inc l0071                                                         ; 52d9: e6 71       .q
     clc                                                               ; 52db: 18          .
     bne sprite_core_moving_low_byte_wrap_handled                      ; 52dc: d0 bc       ..
 ; &52de referenced 1 time by &529c
-.c52de
+.sprite_core_moving_low_byte_wrapped2
     inc l007f                                                         ; 52de: e6 7f       ..
     clc                                                               ; 52e0: 18          .
     bne sprite_core_moving_low_byte_wrap2_handled                     ; 52e1: d0 bb       ..
@@ -2162,12 +2162,12 @@ osbyte = &fff4
 ;     sprite_core_moving_screen_ptr2_updated:          1
 ;     sprite_core_moving_low_byte_wrap_handled:        1
 ;     sprite_core_moving_low_byte_wrap2_handled:       1
-;     c52ac:                                           1
-;     c52b7:                                           1
+;     sprite_core_moving_no_carry:                     1
+;     sprite_core_moving_no_carry2:                    1
 ;     sprite_core_moving_next_row:                     1
 ;     sprite_core_moving_next_row2:                    1
-;     c52d9:                                           1
-;     c52de:                                           1
+;     sprite_core_moving_low_byte_wrapped:             1
+;     sprite_core_moving_low_byte_wrapped2:            1
 ;     c535f:                                           1
 ;     c5378:                                           1
 ;     c537a:                                           1
@@ -2207,10 +2207,6 @@ osbyte = &fff4
 ;     c501f
 ;     c5026
 ;     c502b
-;     c52ac
-;     c52b7
-;     c52d9
-;     c52de
 ;     c533b
 ;     c5346
 ;     c5358
