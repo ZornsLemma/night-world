@@ -1586,7 +1586,7 @@ osbyte = &fff4
     bcc c53ca                                                         ; 5378: 90 50       .P
 ; &537a referenced 1 time by &53b0
 .c537a
-    dec l0070                                                         ; 537a: c6 70       .p
+    dec t_subroutine_os_x_hi                                          ; 537a: c6 70       .p
     bcc x_pixel_coord_in_a                                            ; 537c: 90 bd       ..
 ; &537e referenced 1 time by &5325
 .t_subroutine_invalid_sprite_pixel_coord
@@ -1600,12 +1600,12 @@ osbyte = &fff4
 .loop_c538c
     sta sprite_pixel_coord_table_xy,y                                 ; 538c: 99 60 57    .`W
     asl a                                                             ; 538f: 0a          .
-    rol l0070                                                         ; 5390: 26 70       &p
+    rol t_subroutine_os_x_hi                                          ; 5390: 26 70       &p
     asl a                                                             ; 5392: 0a          .
-    rol l0070                                                         ; 5393: 26 70       &p
+    rol t_subroutine_os_x_hi                                          ; 5393: 26 70       &p
     asl a                                                             ; 5395: 0a          .
-    rol l0070                                                         ; 5396: 26 70       &p
-    sta l0071                                                         ; 5398: 85 71       .q
+    rol t_subroutine_os_x_hi                                          ; 5396: 26 70       &p
+    sta t_subroutine_os_x_lo                                          ; 5398: 85 71       .q
     bne c5346                                                         ; 539a: d0 aa       ..
 ; &539c referenced 1 time by &537e
 .c539c
@@ -1616,7 +1616,7 @@ osbyte = &fff4
     bne loop_c538c                                                    ; 53a6: d0 e4       ..
 ; &53a8 referenced 1 time by &5339
 .c53a8
-    inc l0070                                                         ; 53a8: e6 70       .p
+    inc t_subroutine_os_x_hi                                          ; 53a8: e6 70       .p
     bne x_pixel_coord_in_a                                            ; 53aa: d0 8f       ..
 ; &53ac referenced 1 time by &5333
 .c53ac
@@ -1631,7 +1631,7 @@ osbyte = &fff4
     bne c5346                                                         ; 53b8: d0 8c       ..
 ; &53ba referenced 1 time by &5356
 .new_y_pixel_coord_gt_255
-    inc l0072                                                         ; 53ba: e6 72       .r
+    inc t_subroutine_os_y_hi                                          ; 53ba: e6 72       .r
     bne y_pixel_coord_in_a                                            ; 53bc: d0 9a       ..             ; always branch
 ; &53be referenced 1 time by &5350
 .add_negative_y_offset
@@ -2280,7 +2280,6 @@ osbyte = &fff4
     assert >sprite_25 == &4d
     assert get_sprite_details_sprite_index == &7c
     assert initial_qrstuv_values-1 == &54db
-    assert l0071 == &71
     assert l007d == &7d
     assert max_sprite_num == &30
     assert max_sprite_num+1 == &31
