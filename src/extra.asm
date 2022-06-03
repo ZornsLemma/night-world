@@ -4,10 +4,8 @@ event_vsync = 4
 sound_channel_2_buffer_number = 6
 ri_q = &444
 
-minor_frame_interval = 3 ; TODO!?
-major_frame_interval = 1 ; TODO!?
-assert minor_frame_interval * major_frame_interval = 3
-; TODO: Music plays too fast, we need to do it every 12 frames - it and the game regulation can have totally independent counters, I just didn't do it like this out of a misconception
+game_cycle_frame_interval = 3 ; TODO!?
+music_frame_interval = 12
 
     ; TODO: This address range is Master-only, but it will do to experiment without
     ; starting to reassemble World1c to free up space there.
@@ -16,9 +14,9 @@ assert minor_frame_interval * major_frame_interval = 3
 .start
 
 .fixed_data
-.frame_count ; TODO: rename minor_frame_count and similarly elsewhere?
+.music_frame_count
     equb 1
-.major_frame_count
+.game_cycle_frame_count
     equb 0
 .note_index
     equb 0
@@ -30,12 +28,17 @@ assert minor_frame_interval * major_frame_interval = 3
 
 .event_handler
     ; We assume it's a VSYNC event; we won't enable anything else.
-    dec frame_count:bne rts
     pha:txa:pha
-    lda #minor_frame_interval:sta frame_count
-    lda major_frame_count:beq dont_decrement_major_frame_count
-    dec major_frame_count
-.dont_decrement_major_frame_count
+
+    ; Decrement game_cycle_frame_count, but don't go below 0.
+    lda game_cycle_frame_count:beq dont_decrement_game_cycle_frame_count
+    dec game_cycle_frame_count
+.dont_decrement_game_cycle_frame_count
+
+    ; Decrement music_cycle_frame_count; if it hits zero reset it and consider
+    ; adding more notes to the OS sound queue.
+    dec music_frame_count:bne done
+    lda #music_frame_interval:sta music_frame_count
     ; Check how much free space there is in sound channel 2's buffer; we must
     ; avoid blindly adding more as we'll block here if the buffer becomes full.
     ; TODO: Do we need to be careful to keep as little as possible in the
@@ -43,7 +46,7 @@ assert minor_frame_interval * major_frame_interval = 3
     ; and off, which it will need to do when it's doing "effects" (e.g. day/
     ; night transition).
     ldx #sound_channel_2_buffer_number:clv:sec:jsr jmp_cnpv
-    cpx #5:bcc buffer_nearly_full ; TODO: 5 is arbitrary
+    cpx #5:bcc done ; buffer is nearly full, do nothing TODO: 5 is arbitrary
     ldx note_index
     lda tune_pitch,x:sta osword_7_block_pitch
     lda tune_duration,x:sta osword_7_block_duration
@@ -56,7 +59,7 @@ assert minor_frame_interval * major_frame_interval = 3
     ldx #255
 .not_last_note
     inx:stx note_index
-.buffer_nearly_full
+.done
     ldy #event_vsync ; restore Y
     pla:tax:pla
 .rts
@@ -96,8 +99,10 @@ assert minor_frame_interval * major_frame_interval = 3
     ; TODO: If the game ever calls this without the VSYNC event enabled, it will
     ; hang forever. Could/should we test for this?
 .busy_wait
-    lda major_frame_count:bne busy_wait
-    lda #major_frame_interval:sei:sta major_frame_count:cli
+    lda game_cycle_frame_count:bne busy_wait
+    ; TODO: Don't think we need to disable interrupts or do anything else here,
+    ; but think about this again to be sure.
+    lda #game_cycle_frame_interval:sta game_cycle_frame_count
     jmp (ri_q)
 
 .end
