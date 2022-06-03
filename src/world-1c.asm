@@ -1035,10 +1035,10 @@ osbyte = &fff4
     asl a                                                             ; 50ce: 0a          .
     adc l0073                                                         ; 50cf: 65 73       es
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x                 ; 50d1: 7d 03 56    }.V
-    sta l007e                                                         ; 50d4: 85 7e       .~
+    sta sprite_ptr2                                                   ; 50d4: 85 7e       .~
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x                 ; 50d6: bd 02 56    ..V
     adc #0                                                            ; 50d9: 69 00       i.
-    sta l007f                                                         ; 50db: 85 7f       ..
+    sta sprite_ptr2+1                                                 ; 50db: 85 7f       ..
     clc                                                               ; 50dd: 18          .
     jmp sprite_core_moving                                            ; 50de: 4c 51 52    LQR
 
@@ -1380,30 +1380,30 @@ osbyte = &fff4
     sta l0075                                                         ; 5253: 85 75       .u
     sei                                                               ; 5255: 78          x
 ; &5256 referenced 1 time by &52b9
-.c5256
+.sprite_core_moving_outer_loop
     ldx #8                                                            ; 5256: a2 08       ..
 ; &5258 referenced 1 time by &529f
-.c5258
+.sprite_core_moving_inner_loop
     ldy #0                                                            ; 5258: a0 00       ..
     lda (screen_ptr2),y                                               ; 525a: b1 7c       .|
-    eor (l007e),y                                                     ; 525c: 51 7e       Q~
+    eor (sprite_ptr2),y                                               ; 525c: 51 7e       Q~
     sta (screen_ptr2),y                                               ; 525e: 91 7c       .|
     lda (screen_ptr),y                                                ; 5260: b1 7a       .z
-    eor (l0070),y                                                     ; 5262: 51 70       Qp
+    eor (sprite_ptr),y                                                ; 5262: 51 70       Qp
     sta (screen_ptr),y                                                ; 5264: 91 7a       .z
     ldy #8                                                            ; 5266: a0 08       ..
     lda (screen_ptr2),y                                               ; 5268: b1 7c       .|
-    eor (l007e),y                                                     ; 526a: 51 7e       Q~
+    eor (sprite_ptr2),y                                               ; 526a: 51 7e       Q~
     sta (screen_ptr2),y                                               ; 526c: 91 7c       .|
     lda (screen_ptr),y                                                ; 526e: b1 7a       .z
-    eor (l0070),y                                                     ; 5270: 51 70       Qp
+    eor (sprite_ptr),y                                                ; 5270: 51 70       Qp
     sta (screen_ptr),y                                                ; 5272: 91 7a       .z
     ldy #&10                                                          ; 5274: a0 10       ..
     lda (screen_ptr2),y                                               ; 5276: b1 7c       .|
-    eor (l007e),y                                                     ; 5278: 51 7e       Q~
+    eor (sprite_ptr2),y                                               ; 5278: 51 7e       Q~
     sta (screen_ptr2),y                                               ; 527a: 91 7c       .|
     lda (screen_ptr),y                                                ; 527c: b1 7a       .z
-    eor (l0070),y                                                     ; 527e: 51 70       Qp
+    eor (sprite_ptr),y                                                ; 527e: 51 70       Qp
     sta (screen_ptr),y                                                ; 5280: 91 7a       .z
     lda screen_ptr                                                    ; 5282: a5 7a       .z
     and #7                                                            ; 5284: 29 07       ).
@@ -1428,7 +1428,7 @@ osbyte = &fff4
 ; &529e referenced 1 time by &52e1
 .c529e
     dex                                                               ; 529e: ca          .
-    bne c5258                                                         ; 529f: d0 b7       ..
+    bne sprite_core_moving_inner_loop                                 ; 529f: d0 b7       ..
     lda l0070                                                         ; 52a1: a5 70       .p
     adc #&10                                                          ; 52a3: 69 10       i.
     sta l0070                                                         ; 52a5: 85 70       .p
@@ -1446,7 +1446,7 @@ osbyte = &fff4
 ; &52b7 referenced 1 time by &52b2
 .c52b7
     dec l0075                                                         ; 52b7: c6 75       .u
-    beq c5256                                                         ; 52b9: f0 9b       ..
+    beq sprite_core_moving_outer_loop                                 ; 52b9: f0 9b       ..
 ; &52bb referenced 7 times by &52e6, &52ea, &52f3, &52f7, &52fb, &52ff, &532c
 .cli_rts
     cli                                                               ; 52bb: 58          X
@@ -2156,8 +2156,8 @@ osbyte = &fff4
 ;     sprite_core_no_carry:                            1
 ;     sprite_core_next_row:                            1
 ;     sprite_core_low_byte_wrapped:                    1
-;     c5256:                                           1
-;     c5258:                                           1
+;     sprite_core_moving_outer_loop:                   1
+;     sprite_core_moving_inner_loop:                   1
 ;     c528c:                                           1
 ;     c5296:                                           1
 ;     c529a:                                           1
@@ -2207,8 +2207,6 @@ osbyte = &fff4
 ;     c501f
 ;     c5026
 ;     c502b
-;     c5256
-;     c5258
 ;     c528c
 ;     c5296
 ;     c529a
@@ -2308,6 +2306,9 @@ osbyte = &fff4
     assert sprite_pixel_coord_table_xy+1 == &5761
     assert sprite_pixel_current_x == &72
     assert sprite_pixel_current_y == &73
+    assert sprite_ptr == &70
+    assert sprite_ptr2 == &7e
+    assert sprite_ptr2+1 == &7f
     assert sprite_ref_addrs_be+0 == &5700
     assert sprite_ref_addrs_be+1 == &5701
     assert sprite_y_offset_within_row == &75
