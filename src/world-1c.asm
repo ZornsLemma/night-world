@@ -1544,12 +1544,12 @@ osbyte = &fff4
 ; &533b referenced 3 times by &537c, &53aa, &53b2
 .x_pixel_coord_in_a
     asl a                                                             ; 533b: 0a          .
-    rol l0070                                                         ; 533c: 26 70       &p
+    rol t_subroutine_os_x_hi                                          ; 533c: 26 70       &p
     asl a                                                             ; 533e: 0a          .
-    rol l0070                                                         ; 533f: 26 70       &p
+    rol t_subroutine_os_x_hi                                          ; 533f: 26 70       &p
     asl a                                                             ; 5341: 0a          .
-    rol l0070                                                         ; 5342: 26 70       &p
-    sta l0071                                                         ; 5344: 85 71       .q
+    rol t_subroutine_os_x_hi                                          ; 5342: 26 70       &p
+    sta t_subroutine_os_x_lo                                          ; 5344: 85 71       .q
 ; &5346 referenced 2 times by &539a, &53b8
 .c5346
     lda sprite_pixel_coord_table_xy+1,y                               ; 5346: b9 61 57    .aW
