@@ -216,6 +216,9 @@ label(0x537e, "t_subroutine_invalid_sprite_pixel_coord")
 label(0x55c0, "sprite_something_table_two_bytes_per_sprite")
 expr_label(0x55c1, "sprite_something_table_two_bytes_per_sprite+1")
 comment(0x5306, "TODO: So for the first part at least, X=Z%*2, and we use it to access the sprite_something_table_two_bytes_per_sprite table, so Z% is presumably a sprite slot.")
+label(0x535f, "set_ri_os_coords_and_jmp_s_subroutine")
+label(0x5358, "y_pixel_coord_in_a")
+label(0x533b, "x_pixel_coord_in_a")
 
 # u_subroutine
 # TODO: I think I have been getting slightly mixed up with sprites. Need to tweak all comments later once this is clearer. Roughly speaking I think there are sprite "slots" (1-&30 inclusive) and sprite "images" (1-&30 inclusive). Each slot remembers what was last plotted there (using the sprite address in sprite_screen_and_data_addrs for the relevant slot).")
