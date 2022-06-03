@@ -1186,7 +1186,7 @@ osbyte = &fff4
     bcc sprite_x_position_too_far_right                               ; 5160: 90 20       .
     bcs sprite_x_position_too_far_left                                ; 5162: b0 39       .9
 ; &5164 referenced 5 times by &5180, &5190, &519b, &51ab, &51b6
-.sprite_y_position_adjust_loop
+.sprite_check_y_position
     lda sprite_pixel_y_hi                                             ; 5164: a5 79       .y
     beq sprite_pixel_y_hi_zero                                        ; 5166: f0 50       .P
 ; TODO: cmp #&80 redundant? we just did LDA which will have set N so
@@ -1206,7 +1206,7 @@ osbyte = &fff4
 .sprite_x_position_ok
     sta sprite_pixel_coord_table_xy,x                                 ; 517c: 9d 60 57    .`W
     clc                                                               ; 517f: 18          .
-    bcc sprite_y_position_adjust_loop                                 ; 5180: 90 e2       ..             ; always branch
+    bcc sprite_check_y_position                                       ; 5180: 90 e2       ..             ; always branch
 ; &5182 referenced 2 times by &5160, &517a
 .sprite_x_position_too_far_right
     lda constant_1_per_sprite_table,y                                 ; 5182: b9 c0 57    ..W
@@ -1215,7 +1215,7 @@ osbyte = &fff4
     beq force_sprite_x_position_to_lhs                                ; 5189: f0 22       ."
     lda #&ff                                                          ; 518b: a9 ff       ..
     sta sprite_pixel_coord_table_xy,x                                 ; 518d: 9d 60 57    .`W
-    bne sprite_y_position_adjust_loop                                 ; 5190: d0 d2       ..             ; always branch
+    bne sprite_check_y_position                                       ; 5190: d0 d2       ..             ; always branch
 ; &5192 referenced 2 times by &5185, &51a4
 .force_sprite_x_position_to_rhs
     lda constant_96                                                   ; 5192: ad f9 55    ..U
@@ -1224,30 +1224,29 @@ osbyte = &fff4
 ; TODO: I believe this is effectively a jmp and nothing cares about
 ; the fact we've cleared carry.
     clc                                                               ; 519a: 18          .
-    bcc sprite_y_position_adjust_loop                                 ; 519b: 90 c7       ..
+    bcc sprite_check_y_position                                       ; 519b: 90 c7       ..
 ; &519d referenced 2 times by &5162, &5173
 .sprite_x_position_too_far_left
     lda constant_1_per_sprite_table,y                                 ; 519d: b9 c0 57    ..W            ; always branch
     beq force_sprite_x_position_to_lhs                                ; 51a0: f0 0b       ..
     cmp #1                                                            ; 51a2: c9 01       ..
     beq force_sprite_x_position_to_rhs                                ; 51a4: f0 ec       ..
-; TODO: I think this &fe effectively makes the sprite hidden
     lda #&fe                                                          ; 51a6: a9 fe       ..
     sta sprite_pixel_coord_table_xy,x                                 ; 51a8: 9d 60 57    .`W
-    bne sprite_y_position_adjust_loop                                 ; 51ab: d0 b7       ..             ; always branch
+    bne sprite_check_y_position                                       ; 51ab: d0 b7       ..             ; always branch
 ; &51ad referenced 2 times by &5189, &51a0
 .force_sprite_x_position_to_lhs
     lda constant_2                                                    ; 51ad: ad f8 55    ..U
     sta sprite_pixel_coord_table_xy,x                                 ; 51b0: 9d 60 57    .`W
     sta sprite_pixel_x_lo                                             ; 51b3: 85 76       .v
     clc                                                               ; 51b5: 18          .
-    bcc sprite_y_position_adjust_loop                                 ; 51b6: 90 ac       ..
+    bcc sprite_check_y_position                                       ; 51b6: 90 ac       ..
 ; &51b8 referenced 1 time by &5166
 .sprite_pixel_y_hi_zero
     lda sprite_pixel_y_lo                                             ; 51b8: a5 77       .w
-    cmp constant_10                                                   ; 51ba: cd fa 55    ..U
+    cmp sprite_y_min                                                  ; 51ba: cd fa 55    ..U
     bcc sprite_y_position_too_far_down                                ; 51bd: 90 26       .&
-    cmp constant_fe                                                   ; 51bf: cd fb 55    ..U
+    cmp sprite_y_max                                                  ; 51bf: cd fb 55    ..U
     beq sprite_y_position_adjusted                                    ; 51c2: f0 02       ..
     bcs sprite_y_position_too_far_up                                  ; 51c4: b0 05       ..
 ; &51c6 referenced 1 time by &51c2
@@ -1267,10 +1266,9 @@ osbyte = &fff4
     clc                                                               ; 51d9: 18          .
     rts                                                               ; 51da: 60          `
 
-; TODO: I think this &fe effectively makes the sprite hidden
 ; &51db referenced 2 times by &51ce, &51ec
 .force_sprite_y_position_to_constant_fe
-    lda constant_fe                                                   ; 51db: ad fb 55    ..U
+    lda sprite_y_max                                                  ; 51db: ad fb 55    ..U
     sta sprite_pixel_coord_table_xy+1,x                               ; 51de: 9d 61 57    .aW
     sta sprite_pixel_y_lo                                             ; 51e1: 85 77       .w
     clc                                                               ; 51e3: 18          .
@@ -1289,7 +1287,7 @@ osbyte = &fff4
 
 ; &51f5 referenced 2 times by &51d2, &51e8
 .force_sprite_y_position_to_constant_10
-    lda constant_10                                                   ; 51f5: ad fa 55    ..U
+    lda sprite_y_min                                                  ; 51f5: ad fa 55    ..U
     sta sprite_pixel_coord_table_xy+1,x                               ; 51f8: 9d 61 57    .aW
     sta sprite_pixel_y_lo                                             ; 51fb: 85 77       .w
     clc                                                               ; 51fd: 18          .
@@ -1643,7 +1641,7 @@ osbyte = &fff4
     beq u_subroutine_rts                                              ; 53d1: f0 18       ..
     cmp #&80                                                          ; 53d3: c9 80       ..
     bcs u_subroutine_rts                                              ; 53d5: b0 14       ..
-    lda constant_10                                                   ; 53d7: ad fa 55    ..U
+    lda sprite_y_min                                                  ; 53d7: ad fa 55    ..U
 ; &53da referenced 1 time by &53f6
 .loop_c53da
     sta sprite_pixel_coord_table_xy+1,y                               ; 53da: 99 61 57    .aW
@@ -1665,8 +1663,8 @@ osbyte = &fff4
     lda sprite_something_table_two_bytes_per_sprite+1,x               ; 53ec: bd c1 55    ..U
     cmp #&80                                                          ; 53ef: c9 80       ..
     bcc u_subroutine_rts                                              ; 53f1: 90 f8       ..
-    lda constant_fe                                                   ; 53f3: ad fb 55    ..U
-    bne loop_c53da                                                    ; 53f6: d0 e2       ..
+    lda sprite_y_max                                                  ; 53f3: ad fb 55    ..U
+    bne loop_c53da                                                    ; 53f6: d0 e2       ..             ; always branch
 ; &53f8 referenced 1 time by &53e9
 .c53f8
     jmp c535f                                                         ; 53f8: 4c 5f 53    L_S
@@ -1866,11 +1864,13 @@ osbyte = &fff4
 ; &55f9 referenced 3 times by &5175, &5192, &53a3
 .constant_96
     equb &96                                                          ; 55f9: 96          .
+; TODO: This is just a constant in this game.
 ; &55fa referenced 3 times by &51ba, &51f5, &53d7
-.constant_10
+.sprite_y_min
     equb &10                                                          ; 55fa: 10          .
+; TODO: This is just a constant in this game.
 ; &55fb referenced 3 times by &51bf, &51db, &53f3
-.constant_fe
+.sprite_y_max
     equb &fe,   0,   0,   0,   0                                      ; 55fb: fe 00 00... ...
 ; This is (TODO: probably!) a table with four bytes per sprite. The
 ; first two bytes are the little-endian screen address of the sprite
@@ -2085,7 +2085,7 @@ osbyte = &fff4
 ;     sprite_screen_and_data_addrs+sprite_addr_lo:     6
 ;     sprite_pixel_y_lo:                               5
 ;     sprite_pixel_x_hi:                               5
-;     sprite_y_position_adjust_loop:                   5
+;     sprite_check_y_position:                         5
 ;     osbyte:                                          5
 ;     sprite_pixel_y_hi:                               4
 ;     ri_w:                                            4
@@ -2106,8 +2106,8 @@ osbyte = &fff4
 ;     sprite_something_table_two_bytes_per_sprite+1:   3
 ;     constant_2:                                      3
 ;     constant_96:                                     3
-;     constant_10:                                     3
-;     constant_fe:                                     3
+;     sprite_y_min:                                    3
+;     sprite_y_max:                                    3
 ;     q_subroutine_test_abs_x_difference:              2
 ;     q_subroutine_test_abs_y_difference:              2
 ;     s_subroutine_rts:                                2
