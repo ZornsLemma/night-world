@@ -1582,9 +1582,10 @@ osbyte = &fff4
     jmp s_subroutine                                                  ; 5374: 4c 33 50    L3P
 
     equb &60                                                          ; 5377: 60          `
+; TODO: This is called once, via a bcc.
 ; &5378 referenced 1 time by &534b
 .t_subroutine_sprite_y_position_too_far_down
-    bcc c53ca                                                         ; 5378: 90 50       .P
+    bcc c53ca                                                         ; 5378: 90 50       .P             ; always branch
 ; &537a referenced 1 time by &53b0
 .c537a
     dec t_subroutine_os_x_hi                                          ; 537a: c6 70       .p
