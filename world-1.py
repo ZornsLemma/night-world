@@ -219,6 +219,9 @@ comment(0x5306, "TODO: So for the first part at least, X=Z%*2, and we use it to 
 label(0x535f, "set_ri_os_coords_and_jmp_s_subroutine")
 label(0x5358, "y_pixel_coord_in_a")
 label(0x533b, "x_pixel_coord_in_a")
+label(0x5378, "t_subroutine_sprite_y_position_too_far_down")
+label(0x53ba, "new_y_pixel_coord_gt_255")
+label(0x53be, "add_negative_y_offset")
 
 # u_subroutine
 # TODO: I think I have been getting slightly mixed up with sprites. Need to tweak all comments later once this is clearer. Roughly speaking I think there are sprite "slots" (1-&30 inclusive) and sprite "images" (1-&30 inclusive). Each slot remembers what was last plotted there (using the sprite address in sprite_screen_and_data_addrs for the relevant slot).")
