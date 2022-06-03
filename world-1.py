@@ -159,6 +159,9 @@ comment(0x5180, "always branch", inline=True)
 comment(0x5190, "always branch", inline=True)
 label(0x55fa, "constant_10")
 label(0x55fb, "constant_fe")
+expr(0x5121, "l007d")
+constant(0x7d, "l007d")
+comment(0x5120, "TODO: Is the value written to &7D ever used?")
 
 # TODO: (for py8dis) this overrides things like "sprite_ptr+1" even outside the context region indicated. I vaguely see why this is happening, but it doesn't feel right.
 #def our_label_maker(addr, context, suggestion):

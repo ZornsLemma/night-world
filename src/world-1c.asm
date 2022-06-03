@@ -6,6 +6,7 @@ q_subroutine_abs_y_difference = &73
 sprite_pixel_current_x = &72
 sprite_pixel_current_y = &73
 get_sprite_details_sprite_index = &7c
+l007d = &7d
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -1140,7 +1141,8 @@ osbyte = &fff4
     sta get_sprite_details_sprite_index                               ; 511c: 85 7c       .|
     asl a                                                             ; 511e: 0a          .
     tax                                                               ; 511f: aa          .
-    sta screen_ptr2+1                                                 ; 5120: 85 7d       .}
+; TODO: Is the value written to &7D ever used?
+    sta l007d                                                         ; 5120: 85 7d       .}
     asl a                                                             ; 5122: 0a          .
     sta l0074                                                         ; 5123: 85 74       .t
     asl a                                                             ; 5125: 0a          .
@@ -2295,6 +2297,7 @@ osbyte = &fff4
     assert l0070 == &70
     assert l0071 == &71
     assert l0076 == &76
+    assert l007d == &7d
     assert l007e == &7e
     assert l007f == &7f
     assert max_sprite_num+1 == &31
