@@ -1538,7 +1538,7 @@ osbyte = &fff4
     beq cli_rts                                                       ; 532c: f0 8d       ..
     ldy t_subroutine_w_minus_1_times_2                                ; 532e: a4 7f       ..
     lda sprite_something_table_two_bytes_per_sprite,x                 ; 5330: bd c0 55    ..U
-    bmi c53ac                                                         ; 5333: 30 77       0w
+    bmi add_negative_x_offset                                         ; 5333: 30 77       0w
     clc                                                               ; 5335: 18          .
     adc sprite_pixel_coord_table_xy,y                                 ; 5336: 79 60 57    y`W
     bcs c53a8                                                         ; 5339: b0 6d       .m
@@ -1555,7 +1555,7 @@ osbyte = &fff4
 .c5346
     lda sprite_pixel_coord_table_xy+1,y                               ; 5346: b9 61 57    .aW
     cmp #2                                                            ; 5349: c9 02       ..
-    bcc t_subroutine_sprite_y_position_too_far_down                   ; 534b: 90 2b       .+
+    bcc c53ca_indirect                                                ; 534b: 90 2b       .+
     lda sprite_something_table_two_bytes_per_sprite+1,x               ; 534d: bd c1 55    ..U
     bmi add_negative_y_offset                                         ; 5350: 30 6c       0l
     clc                                                               ; 5352: 18          .
@@ -1584,12 +1584,13 @@ osbyte = &fff4
     equb &60                                                          ; 5377: 60          `
 ; TODO: This is called once, via a bcc.
 ; &5378 referenced 1 time by &534b
-.t_subroutine_sprite_y_position_too_far_down
+.c53ca_indirect
     bcc c53ca                                                         ; 5378: 90 50       .P             ; always branch
+; TODO: This is called once, via a bcc.
 ; &537a referenced 1 time by &53b0
-.c537a
+.new_x_pixel_coord_lt_0
     dec t_subroutine_os_x_hi                                          ; 537a: c6 70       .p
-    bcc x_pixel_coord_in_a                                            ; 537c: 90 bd       ..
+    bcc x_pixel_coord_in_a                                            ; 537c: 90 bd       ..             ; always branch
 ; &537e referenced 1 time by &5325
 .t_subroutine_invalid_sprite_pixel_coord
     beq c539c                                                         ; 537e: f0 1c       ..
@@ -1621,10 +1622,10 @@ osbyte = &fff4
     inc t_subroutine_os_x_hi                                          ; 53a8: e6 70       .p
     bne x_pixel_coord_in_a                                            ; 53aa: d0 8f       ..
 ; &53ac referenced 1 time by &5333
-.c53ac
+.add_negative_x_offset
     clc                                                               ; 53ac: 18          .
     adc sprite_pixel_coord_table_xy,y                                 ; 53ad: 79 60 57    y`W
-    bcc c537a                                                         ; 53b0: 90 c8       ..
+    bcc new_x_pixel_coord_lt_0                                        ; 53b0: 90 c8       ..
     bcs x_pixel_coord_in_a                                            ; 53b2: b0 87       ..
 ; &53b4 referenced 3 times by &5383, &5387, &53a1
 .c53b4
@@ -2183,13 +2184,13 @@ osbyte = &fff4
 ;     sprite_core_moving_low_byte_wrapped:               1
 ;     sprite_core_moving_low_byte_wrapped2:              1
 ;     set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine:   1
-;     t_subroutine_sprite_y_position_too_far_down:       1
-;     c537a:                                             1
+;     c53ca_indirect:                                    1
+;     new_x_pixel_coord_lt_0:                            1
 ;     t_subroutine_invalid_sprite_pixel_coord:           1
 ;     loop_c538c:                                        1
 ;     c539c:                                             1
 ;     c53a8:                                             1
-;     c53ac:                                             1
+;     add_negative_x_offset:                             1
 ;     new_y_pixel_coord_gt_255:                          1
 ;     add_negative_y_offset:                             1
 ;     new_y_pixel_coord_lt_0:                            1
@@ -2222,10 +2223,8 @@ osbyte = &fff4
 ;     c5026
 ;     c502b
 ;     c5346
-;     c537a
 ;     c539c
 ;     c53a8
-;     c53ac
 ;     c53b4
 ;     c53ca
 ;     c53ec
