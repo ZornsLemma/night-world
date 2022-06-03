@@ -7,6 +7,10 @@ sprite_pixel_current_x = &72
 sprite_pixel_current_y = &73
 get_sprite_details_sprite_index = &7c
 l007d = &7d
+t_subroutine_os_x_hi = &70
+t_subroutine_os_x_lo = &71
+t_subroutine_os_y_hi = &72
+t_subroutine_os_y_lo = &73
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 screen_addr_lo = &00
@@ -1562,13 +1566,13 @@ osbyte = &fff4
     rol l0072                                                         ; 535c: 26 72       &r
     tax                                                               ; 535e: aa          .
 ; &535f referenced 1 time by &53f8
-.set_ri_os_coords_and_jmp_s_subroutine
+.set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
     ldy l0076                                                         ; 535f: a4 76       .v
-    lda l0071                                                         ; 5361: a5 71       .q
+    lda t_subroutine_os_x_lo                                          ; 5361: a5 71       .q
     sta ri_a,y                                                        ; 5363: 99 04 04    ...
-    lda l0070                                                         ; 5366: a5 70       .p
+    lda t_subroutine_os_x_hi                                          ; 5366: a5 70       .p
     sta ri_a+1,y                                                      ; 5368: 99 05 04    ...
-    lda l0072                                                         ; 536b: a5 72       .r
+    lda t_subroutine_os_y_hi                                          ; 536b: a5 72       .r
     sta ri_b+1,y                                                      ; 536d: 99 09 04    ...
     txa                                                               ; 5370: 8a          .
     sta ri_b,y                                                        ; 5371: 99 08 04    ...
@@ -1673,7 +1677,7 @@ osbyte = &fff4
     bne x_pixel_coord_in_a_2                                          ; 53f6: d0 e2       ..             ; always branch; always branch
 ; &53f8 referenced 1 time by &53e9
 .c53f8
-    jmp set_ri_os_coords_and_jmp_s_subroutine                         ; 53f8: 4c 5f 53    L_S
+    jmp set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine               ; 53f8: 4c 5f 53    L_S
 
 ; If X%=0 on entry, update the resident integer variables for sprite
 ; slot W% with that sprite's current OS coordinates. Otherwise, remove
@@ -2065,142 +2069,142 @@ osbyte = &fff4
 .pydis_end
 
 ; Label references by decreasing frequency:
-;     l0070:                                          34
-;     screen_ptr:                                     26
-;     l0073:                                          19
-;     l0075:                                          17
-;     sprite_pixel_coord_table_xy:                    17
-;     l0071:                                          16
-;     l0072:                                          15
-;     sprite_pixel_coord_table_xy+1:                  15
-;     screen_ptr2:                                    14
-;     l0074:                                          12
-;     screen_ptr+1:                                   10
-;     l007e:                                          10
-;     sprite_screen_and_data_addrs+screen_addr_hi:     9
-;     sprite_pixel_x_lo:                               8
-;     ri_x:                                            7
-;     cli_rts:                                         7
-;     u_subroutine_rts:                                7
-;     screen_ptr2+1:                                   6
-;     l007f:                                           6
-;     ri_y:                                            6
-;     q_subroutine_no_collision_found:                 6
-;     sprite_screen_and_data_addrs+screen_addr_lo:     6
-;     sprite_screen_and_data_addrs+sprite_addr_hi:     6
-;     sprite_screen_and_data_addrs+sprite_addr_lo:     6
-;     sprite_pixel_y_lo:                               5
-;     sprite_pixel_x_hi:                               5
-;     sprite_check_y_position:                         5
-;     osbyte:                                          5
-;     sprite_pixel_y_hi:                               4
-;     ri_w:                                            4
-;     constant_1_per_sprite_table:                     4
-;     ri_a:                                            3
-;     ri_a+1:                                          3
-;     ri_b:                                            3
-;     ri_b+1:                                          3
-;     ri_z:                                            3
-;     q_subroutine_next_candidate:                     3
-;     c5002:                                           3
-;     c501f:                                           3
-;     clc_remove_sprite_from_screen:                   3
-;     x_pixel_coord_in_a:                              3
-;     y_pixel_coord_in_a:                              3
-;     c53b4:                                           3
-;     sprite_something_table_two_bytes_per_sprite:     3
-;     sprite_something_table_two_bytes_per_sprite+1:   3
-;     constant_2:                                      3
-;     constant_96:                                     3
-;     sprite_y_min:                                    3
-;     sprite_y_max:                                    3
-;     q_subroutine_test_abs_x_difference:              2
-;     q_subroutine_test_abs_y_difference:              2
-;     s_subroutine_rts:                                2
-;     clc_jmp_sprite_core:                             2
-;     sprite_x_position_too_far_right:                 2
-;     force_sprite_x_position_to_rhs:                  2
-;     sprite_x_position_too_far_left:                  2
-;     force_sprite_x_position_to_lhs:                  2
-;     sprite_y_position_too_far_up:                    2
-;     force_sprite_y_position_to_constant_fe:          2
-;     sprite_y_position_too_far_down:                  2
-;     force_sprite_y_position_to_constant_10:          2
-;     sprite_core:                                     2
-;     sprite_core_moving:                              2
-;     c5346:                                           2
-;     sprite_ref_addrs_be:                             2
-;     sprite_ref_addrs_be+1:                           2
-;     r_subroutine_foo:                                2
-;     l0403:                                           1
-;     l0443:                                           1
-;     q_subroutine_y_loop:                             1
-;     q_subroutine_sprite_to_check_x_lt_candidate_x:   1
-;     q_subroutine_sprite_to_check_y_lt_candidate_y:   1
-;     q_subroutine_q_subroutine_collision_found:       1
-;     q_subroutine_rts:                                1
-;     c4fbd:                                           1
-;     c4fd0:                                           1
-;     c4fdc:                                           1
-;     c4ff4:                                           1
-;     c5008:                                           1
-;     c5012:                                           1
-;     c5026:                                           1
-;     c502b:                                           1
-;     s_subroutine:                                    1
-;     remove_sprite_from_screen:                       1
-;     s_subroutine_rts2:                               1
-;     get_sprite_details:                              1
-;     sprite_pixel_x_hi_zero:                          1
-;     sprite_x_position_ok:                            1
-;     sprite_pixel_y_hi_zero:                          1
-;     sprite_y_position_adjusted:                      1
-;     sprite_core_outer_loop:                          1
-;     sprite_core_inner_loop:                          1
-;     sprite_core_screen_ptr_updated:                  1
-;     sprite_core_low_byte_wrap_handled:               1
-;     sprite_core_no_carry:                            1
-;     sprite_core_next_row:                            1
-;     sprite_core_low_byte_wrapped:                    1
-;     sprite_core_moving_outer_loop:                   1
-;     sprite_core_moving_inner_loop:                   1
-;     sprite_core_moving_screen_ptr_updated:           1
-;     sprite_core_moving_screen_ptr2_updated:          1
-;     sprite_core_moving_low_byte_wrap_handled:        1
-;     sprite_core_moving_low_byte_wrap2_handled:       1
-;     sprite_core_moving_no_carry:                     1
-;     sprite_core_moving_no_carry2:                    1
-;     sprite_core_moving_next_row:                     1
-;     sprite_core_moving_next_row2:                    1
-;     sprite_core_moving_low_byte_wrapped:             1
-;     sprite_core_moving_low_byte_wrapped2:            1
-;     set_ri_os_coords_and_jmp_s_subroutine:           1
-;     t_subroutine_sprite_y_position_too_far_down:     1
-;     c537a:                                           1
-;     t_subroutine_invalid_sprite_pixel_coord:         1
-;     loop_c538c:                                      1
-;     c539c:                                           1
-;     c53a8:                                           1
-;     c53ac:                                           1
-;     new_y_pixel_coord_gt_255:                        1
-;     add_negative_y_offset:                           1
-;     new_y_pixel_coord_lt_0:                          1
-;     c53ca:                                           1
-;     x_pixel_coord_in_a_2:                            1
-;     c53ec:                                           1
-;     c53f8:                                           1
-;     u_subroutine_ri_x_0:                             1
-;     u_subroutine_rts2:                               1
-;     zero_ri_loop:                                    1
-;     init_qrstuv_loop:                                1
-;     init_sprite_screen_and_data_addrs_loop:          1
-;     c54db:                                           1
-;     screen_y_addr_table:                             1
-;     screen_y_addr_table+1:                           1
-;     r_subroutine_inkey_code_1:                       1
-;     r_subroutine_inkey_code_2:                       1
-;     r_subroutine_inkey_code_3:                       1
-;     r_subroutine_inkey_code_4:                       1
+;     l0070:                                            34
+;     screen_ptr:                                       26
+;     l0073:                                            19
+;     l0075:                                            17
+;     sprite_pixel_coord_table_xy:                      17
+;     l0071:                                            16
+;     l0072:                                            15
+;     sprite_pixel_coord_table_xy+1:                    15
+;     screen_ptr2:                                      14
+;     l0074:                                            12
+;     screen_ptr+1:                                     10
+;     l007e:                                            10
+;     sprite_screen_and_data_addrs+screen_addr_hi:       9
+;     sprite_pixel_x_lo:                                 8
+;     ri_x:                                              7
+;     cli_rts:                                           7
+;     u_subroutine_rts:                                  7
+;     screen_ptr2+1:                                     6
+;     l007f:                                             6
+;     ri_y:                                              6
+;     q_subroutine_no_collision_found:                   6
+;     sprite_screen_and_data_addrs+screen_addr_lo:       6
+;     sprite_screen_and_data_addrs+sprite_addr_hi:       6
+;     sprite_screen_and_data_addrs+sprite_addr_lo:       6
+;     sprite_pixel_y_lo:                                 5
+;     sprite_pixel_x_hi:                                 5
+;     sprite_check_y_position:                           5
+;     osbyte:                                            5
+;     sprite_pixel_y_hi:                                 4
+;     ri_w:                                              4
+;     constant_1_per_sprite_table:                       4
+;     ri_a:                                              3
+;     ri_a+1:                                            3
+;     ri_b:                                              3
+;     ri_b+1:                                            3
+;     ri_z:                                              3
+;     q_subroutine_next_candidate:                       3
+;     c5002:                                             3
+;     c501f:                                             3
+;     clc_remove_sprite_from_screen:                     3
+;     x_pixel_coord_in_a:                                3
+;     y_pixel_coord_in_a:                                3
+;     c53b4:                                             3
+;     sprite_something_table_two_bytes_per_sprite:       3
+;     sprite_something_table_two_bytes_per_sprite+1:     3
+;     constant_2:                                        3
+;     constant_96:                                       3
+;     sprite_y_min:                                      3
+;     sprite_y_max:                                      3
+;     q_subroutine_test_abs_x_difference:                2
+;     q_subroutine_test_abs_y_difference:                2
+;     s_subroutine_rts:                                  2
+;     clc_jmp_sprite_core:                               2
+;     sprite_x_position_too_far_right:                   2
+;     force_sprite_x_position_to_rhs:                    2
+;     sprite_x_position_too_far_left:                    2
+;     force_sprite_x_position_to_lhs:                    2
+;     sprite_y_position_too_far_up:                      2
+;     force_sprite_y_position_to_constant_fe:            2
+;     sprite_y_position_too_far_down:                    2
+;     force_sprite_y_position_to_constant_10:            2
+;     sprite_core:                                       2
+;     sprite_core_moving:                                2
+;     c5346:                                             2
+;     sprite_ref_addrs_be:                               2
+;     sprite_ref_addrs_be+1:                             2
+;     r_subroutine_foo:                                  2
+;     l0403:                                             1
+;     l0443:                                             1
+;     q_subroutine_y_loop:                               1
+;     q_subroutine_sprite_to_check_x_lt_candidate_x:     1
+;     q_subroutine_sprite_to_check_y_lt_candidate_y:     1
+;     q_subroutine_q_subroutine_collision_found:         1
+;     q_subroutine_rts:                                  1
+;     c4fbd:                                             1
+;     c4fd0:                                             1
+;     c4fdc:                                             1
+;     c4ff4:                                             1
+;     c5008:                                             1
+;     c5012:                                             1
+;     c5026:                                             1
+;     c502b:                                             1
+;     s_subroutine:                                      1
+;     remove_sprite_from_screen:                         1
+;     s_subroutine_rts2:                                 1
+;     get_sprite_details:                                1
+;     sprite_pixel_x_hi_zero:                            1
+;     sprite_x_position_ok:                              1
+;     sprite_pixel_y_hi_zero:                            1
+;     sprite_y_position_adjusted:                        1
+;     sprite_core_outer_loop:                            1
+;     sprite_core_inner_loop:                            1
+;     sprite_core_screen_ptr_updated:                    1
+;     sprite_core_low_byte_wrap_handled:                 1
+;     sprite_core_no_carry:                              1
+;     sprite_core_next_row:                              1
+;     sprite_core_low_byte_wrapped:                      1
+;     sprite_core_moving_outer_loop:                     1
+;     sprite_core_moving_inner_loop:                     1
+;     sprite_core_moving_screen_ptr_updated:             1
+;     sprite_core_moving_screen_ptr2_updated:            1
+;     sprite_core_moving_low_byte_wrap_handled:          1
+;     sprite_core_moving_low_byte_wrap2_handled:         1
+;     sprite_core_moving_no_carry:                       1
+;     sprite_core_moving_no_carry2:                      1
+;     sprite_core_moving_next_row:                       1
+;     sprite_core_moving_next_row2:                      1
+;     sprite_core_moving_low_byte_wrapped:               1
+;     sprite_core_moving_low_byte_wrapped2:              1
+;     set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine:   1
+;     t_subroutine_sprite_y_position_too_far_down:       1
+;     c537a:                                             1
+;     t_subroutine_invalid_sprite_pixel_coord:           1
+;     loop_c538c:                                        1
+;     c539c:                                             1
+;     c53a8:                                             1
+;     c53ac:                                             1
+;     new_y_pixel_coord_gt_255:                          1
+;     add_negative_y_offset:                             1
+;     new_y_pixel_coord_lt_0:                            1
+;     c53ca:                                             1
+;     x_pixel_coord_in_a_2:                              1
+;     c53ec:                                             1
+;     c53f8:                                             1
+;     u_subroutine_ri_x_0:                               1
+;     u_subroutine_rts2:                                 1
+;     zero_ri_loop:                                      1
+;     init_qrstuv_loop:                                  1
+;     init_sprite_screen_and_data_addrs_loop:            1
+;     c54db:                                             1
+;     screen_y_addr_table:                               1
+;     screen_y_addr_table+1:                             1
+;     r_subroutine_inkey_code_1:                         1
+;     r_subroutine_inkey_code_2:                         1
+;     r_subroutine_inkey_code_3:                         1
+;     r_subroutine_inkey_code_4:                         1
 
 ; Automatically generated labels:
 ;     c4fbd
@@ -2305,6 +2309,9 @@ osbyte = &fff4
     assert sprite_ref_addrs_be+1 == &5701
     assert sprite_y_offset_within_row == &75
     assert t_subroutine == &52e3
+    assert t_subroutine_os_x_hi == &70
+    assert t_subroutine_os_x_lo == &71
+    assert t_subroutine_os_y_hi == &72
     assert u_subroutine == &53fb
     assert v_subroutine == &5499
 
