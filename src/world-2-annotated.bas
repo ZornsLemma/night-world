@@ -51,7 +51,7 @@
   330PROCset_lee_sprite_from_lee_xy_os:CALLS%
   335IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
-  360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
+  360W%=lee_sprite_num%:Y%=8:CALLq_wrapper%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
   370IFng%=0:m%=m%+1:IFm%=11:PROCm:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
 
@@ -129,7 +129,7 @@
   810COLOUR3:FORn%=28TO30:PRINTTAB(1,n%)STRING$(2,CHR$(259-n%));TAB(17,n%)STRING$(2,CHR$(259-n%)):NEXT:ENDPROC
 
   820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
-  821note_index%=&ABB:max_note_index%=&ABC
+  821note_index%=&ABB:max_note_index%=&ABC:q_wrapper%=?&ABD+256*?&ABE
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
   840DEFPROCclear_room:VDU28,0,26,19,9,17,128,12,26:ENDPROC

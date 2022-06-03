@@ -4,9 +4,10 @@ event_vsync = 4
 sound_channel_2_buffer_number = 6
 ri_q = &444
 
-minor_frame_interval = 12 ; TODO!?
-major_frame_interval = 3 ; TODO!?
-assert minor_frame_interval * major_frame_interval = 36 ; TODO: 35 better?
+minor_frame_interval = 3 ; TODO!?
+major_frame_interval = 1 ; TODO!?
+assert minor_frame_interval * major_frame_interval = 3
+; TODO: Music plays too fast, we need to do it every 12 frames - it and the game regulation can have totally independent counters, I just didn't do it like this out of a misconception
 
     ; TODO: This address range is Master-only, but it will do to experiment without
     ; starting to reassemble World1c to free up space there.
@@ -23,6 +24,8 @@ assert minor_frame_interval * major_frame_interval = 36 ; TODO: 35 better?
     equb 0
 .max_note_index
     equb (tune_duration - tune_pitch) - 1
+.q_wrapper_addr
+    equw q_wrapper
     skipto &ac0
 
 .event_handler
@@ -94,8 +97,7 @@ assert minor_frame_interval * major_frame_interval = 36 ; TODO: 35 better?
     ; hang forever. Could/should we test for this?
 .busy_wait
     lda major_frame_count:bne busy_wait
-    sei:lda #major_frame_interval:sta major_frame_count:cli
-    rts ; TODO TEMP
+    lda #major_frame_interval:sei:sta major_frame_count:cli
     jmp (ri_q)
 
 .end
