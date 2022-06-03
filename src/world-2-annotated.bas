@@ -129,7 +129,7 @@
   810COLOUR3:FORn%=28TO30:PRINTTAB(1,n%)STRING$(2,CHR$(259-n%));TAB(17,n%)STRING$(2,CHR$(259-n%)):NEXT:ENDPROC
 
   820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
-  821note_index%=&ABB:max_note_index%=&ABC:q_wrapper%=?&ABD+256*?&ABE
+  821note_index%=&ABA:max_note_index%=&ABB:q_wrapper%=?&ABC+256*?&ABD:tune%=?&ABE+256*?&ABF
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
   840DEFPROCclear_room:VDU28,0,26,19,9,17,128,12,26:ENDPROC
@@ -194,15 +194,11 @@
  1290DEFPROCwarp_effect:*FX13,4
  1294VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
- 1299REM Background music data: (pitch, duration) pairs TODO: can be removed now
- 1300DATA116,3,88,3,116,2,0,0,116,3,120,3,116,3,0,0,116,2,88,2,116,2,116,2,116,2,120,2,116,2,0,0,116,3,72,3,100,3,0,0,100,3,108,3,100,3,0,0,100,2,72,2,100,2,100,2,100,2,108,2,100,2,0,0
- 1310DATA52,3,32,3,80,3,0,0,80,3,88,3,80,3,0,0,52,2,32,2,80,2,80,2,80,2,88,2,80,2,0,0,32,3,32,3,60,3,0,0,60,3,68,3,60,3,0,0,60,2,32,2,60,2,60,2,60,2,68,2,60,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-
- 1320DEFPROCtitle_screen:colour1%=7:colour2%=6:colour3%=1:PROCreset_note_count
+ 1320DEFPROCtitle_screen:colour1%=7:colour2%=6:colour3%=1:note_count%=0:note_offset%=0
  1330day_night%=0:score%=0:room_type%=0:logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
- 1331REPEAT:REM TODO: We have lost the delays of 220 per "0" which the BASIC code had - we could just make the BASIC code play the tune (using the data in "Extra") at the title screen as it always has?
- 1332?max_note_index%=51:*FX14,4
- 1350REPEAT:s$=INKEY$(14):GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
+ 1331REPEATnote_pitch%=?(tune%+note_offset%):note_duration%=?(tune%+70+note_offset%):note_offset%=note_offset%+1:IFnote_pitch%=0:PROCdelay(220):GOTO1350
+ 1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):note_count%=note_count%+1:IFnote_count%=52:note_count%=0:note_offset%=0
+ 1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=6:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:ng%=0:m%=0:room_type%=3
@@ -210,8 +206,7 @@
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
 
- 1385REM TODO: RESTORE in next line no longer needed
- 1390DEFPROCreset_note_count:RESTORE1300:?note_index%=0:*FX14,4
+ 1390DEFPROCreset_note_count:?note_index%=0:*FX14,4
  1395ENDPROC
 
  1400DEFPROCpause:SOUND1,4,20,3:Y%=2:W%=6:CALLS%:VDU5:B$="WAITING":*FX15,1

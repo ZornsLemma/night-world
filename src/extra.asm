@@ -14,8 +14,6 @@ music_frame_interval = 12
 .start
 
 .fixed_data
-.music_frame_count
-    equb 1
 .game_cycle_frame_count
     equb 0
 .note_index
@@ -24,6 +22,10 @@ music_frame_interval = 12
     equb (tune_duration - tune_pitch) - 1
 .q_wrapper_addr
     equw q_wrapper
+.tune_pitch_addr
+    equw tune_pitch
+
+    assert P% <= &ac0
     skipto &ac0
 
 .event_handler
@@ -67,6 +69,9 @@ music_frame_interval = 12
 
 .jmp_cnpv
     jmp (cnpv)
+
+.music_frame_count
+    equb 1
 
 .osword_7_block
 .osword_7_block_channel
