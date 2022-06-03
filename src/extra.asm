@@ -6,6 +6,7 @@ event_vsync_flag = &2c3 ; TODO: different address on Electron
 osbyte_enable_event = 14
 sound_channel_2_buffer_number = 6
 ri_q = &444
+show_frame_count = TRUE; TODO: should be off in a "final" build
 
 game_cycle_frame_interval = 3 ; TODO!?
 music_frame_interval = 12
@@ -114,9 +115,19 @@ music_frame_interval = 12
     ; TODO: In a final version we would have Q% set to this address and we would
     ; probably be assembled as part of World-1 and so can jmp/fall through
     ; straight into the "real" q_subroutine.
-.busy_wait
     lda event_vsync_flag:beq event_vsync_disabled
-    lda game_cycle_frame_count:bne busy_wait
+.busy_wait
+    lda game_cycle_frame_count
+if show_frame_count
+    ldx #7
+    eor #&ff
+.show_frame_count_loop
+    sta &5800,x
+    dex
+    bpl show_frame_count_loop
+    lda game_cycle_frame_count
+endif
+    bne busy_wait
     ; TODO: Don't think we need to disable interrupts or do anything else here,
     ; but think about this again to be sure.
 .reset_game_cycle_frame_interval
