@@ -34,10 +34,9 @@ screen_ptr2 = &007c
 l007e = &007e
 sprite_ptr2 = &007e
 l007f = &007f
-l0403 = &0403
 ri_a = &0404
 ri_b = &0408
-l0443 = &0443
+ri_q = &0444
 ri_w = &045c
 ri_x = &0460
 ri_y = &0464
@@ -1775,31 +1774,31 @@ osbyte = &fff4
 ; time, but if it changes during gameplay it makes sense to have code
 ; to reset things when a new game starts.
 .v_subroutine
-    ldx #&68 ; 'h'                                                    ; 5499: a2 68       .h
+    ldx #('Z'-'A'+1)*4                                                ; 5499: a2 68       .h
     lda #0                                                            ; 549b: a9 00       ..
 ; &549d referenced 1 time by &54a1
-.loop_c549d
-    sta l0403,x                                                       ; 549d: 9d 03 04    ...
+.zero_ri_loop
+    sta ri_a-1,x                                                      ; 549d: 9d 03 04    ...
     dex                                                               ; 54a0: ca          .
-    bne loop_c549d                                                    ; 54a1: d0 fa       ..
+    bne zero_ri_loop                                                  ; 54a1: d0 fa       ..
 ; Initialise resident integer variables Q%-V%
 ; TODO: S% at least is effectively a way for this machine code to
 ; communicate its internal addresses to the BASIC - quite a neat
 ; trick. Other variables here may well work the same way
-    ldx #&18                                                          ; 54a3: a2 18       ..
+    ldx #('V'-'Q'+1)*4                                                ; 54a3: a2 18       ..
 ; &54a5 referenced 1 time by &54ac
-.loop_c54a5
+.init_qrstuv_loop
     lda initial_qrstuv_values-1,x                                     ; 54a5: bd db 54    ..T
-    sta l0443,x                                                       ; 54a8: 9d 43 04    .C.
+    sta ri_q-1,x                                                      ; 54a8: 9d 43 04    .C.
     dex                                                               ; 54ab: ca          .
-    bne loop_c54a5                                                    ; 54ac: d0 f7       ..
+    bne init_qrstuv_loop                                              ; 54ac: d0 f7       ..
     ldx #0                                                            ; 54ae: a2 00       ..
     clc                                                               ; 54b0: 18          .
     ldy #&30 ; '0'                                                    ; 54b1: a0 30       .0
     sty l0070                                                         ; 54b3: 84 70       .p
     ldy #0                                                            ; 54b5: a0 00       ..
 ; &54b7 referenced 1 time by &54d9
-.c54b7
+.init_sprite_screen_and_data_addrs_loop
     lda sprite_ref_addrs_be+0,x                                       ; 54b7: bd 00 57    ..W
     sta sprite_screen_and_data_addrs+sprite_addr_hi,y                 ; 54ba: 99 02 56    ..V
     lda sprite_ref_addrs_be+1,x                                       ; 54bd: bd 01 57    ..W
@@ -1815,7 +1814,7 @@ osbyte = &fff4
     inx                                                               ; 54d5: e8          .
     inx                                                               ; 54d6: e8          .
     dec l0070                                                         ; 54d7: c6 70       .p
-    bne c54b7                                                         ; 54d9: d0 dc       ..
+    bne init_sprite_screen_and_data_addrs_loop                        ; 54d9: d0 dc       ..
 ; &54db referenced 1 time by &54a5
     rts                                                               ; 54db: 60          `
 
@@ -2187,9 +2186,9 @@ osbyte = &fff4
 ;     c53f8:                                           1
 ;     u_subroutine_ri_x_0:                             1
 ;     u_subroutine_rts2:                               1
-;     loop_c549d:                                      1
-;     loop_c54a5:                                      1
-;     c54b7:                                           1
+;     zero_ri_loop:                                    1
+;     init_qrstuv_loop:                                1
+;     init_sprite_screen_and_data_addrs_loop:          1
 ;     c54db:                                           1
 ;     screen_y_addr_table:                             1
 ;     screen_y_addr_table+1:                           1
@@ -2225,7 +2224,6 @@ osbyte = &fff4
 ;     c53ca
 ;     c53ec
 ;     c53f8
-;     c54b7
 ;     c54db
 ;     l0072
 ;     l0073
@@ -2235,8 +2233,8 @@ osbyte = &fff4
 ;     l0443
 ;     loop_c538c
 ;     loop_c53da
-;     loop_c549d
-;     loop_c54a5
+    assert ('V'-'Q'+1)*4 == &18
+    assert ('Z'-'A'+1)*4 == &68
     assert <(bytes_per_screen_line-7) == &39
     assert <sprite_00 == &00
     assert <sprite_08 == &c0
@@ -2294,6 +2292,8 @@ osbyte = &fff4
     assert q_subroutine_max_candidate_sprite_x2 == &70
     assert q_subroutine_sprite_to_check_x2 == &71
     assert r_subroutine == &4f9f
+    assert ri_a-1 == &0403
+    assert ri_q-1 == &0443
     assert s_subroutine == &5033
     assert sprite_pixel_coord_table_xy+0 == &5760
     assert sprite_pixel_coord_table_xy+1 == &5761
