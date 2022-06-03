@@ -165,7 +165,15 @@ constant(0x7d, "l007d")
 comment(0x5120, "TODO: Is the value written to &7D ever used?")
 label(0x519d, "sprite_x_position_too_far_left")
 label(0x5182, "sprite_x_position_too_far_right")
-label(0x51cb, "sprite_y_position_too_far_down")
+label(0x51cb, "sprite_y_position_too_far_up")
+label(0x51e5, "sprite_y_position_too_far_down")
+label(0x5192, "force_sprite_x_position_to_rhs")
+label(0x51ad, "force_sprite_x_position_to_lhs")
+label(0x51f5, "force_sprite_y_position_to_constant_10")
+comment(0x51db, "TODO: I think this &fe effectively makes the sprite hidden")
+label(0x51db, "force_sprite_y_position_to_constant_fe")
+comment(0x51a6, "TODO: I think this &fe effectively makes the sprite hidden")
+comment(0x51ab, "always branch", inline=True)
 
 # TODO: (for py8dis) this overrides things like "sprite_ptr+1" even outside the context region indicated. I vaguely see why this is happening, but it doesn't feel right.
 #def our_label_maker(addr, context, suggestion):
