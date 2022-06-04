@@ -769,12 +769,14 @@ endmacro
 ;     they're not used in practice.
 ;
 ; Sprites are considered to collide if their 8x16 pixel areas overlap; there is
-; no attempt to check the actual sprite data. TODO: There *may* be some chance
-; of off-by-one errors in the overlap checking; I am not currently sure. In
-; practice the collision detection between sprites is probably best taken as
-; "how the game is". Switching to pixel-perfect detection would stop the player
-; being harmed by the robot sentinel in the first room passing over their head
-; when they are standing on the lowest part of the upper floor, for example.
+; no attempt to check the actual sprite pixels. In practice the collision
+; detection between sprites is probably best left alone. Switching to
+; pixel-perfect detection would stop the player being harmed by the robot
+; sentinel in the first room passing over their head when they are standing on
+; the lowest part of the upper floor, for example. It's also probable
+; pixel-perfect detection would make it harder or even impossible for the player
+; to pick up objects, as they would need to actually manage to physically
+; overlap them.
 .q_subroutine
 {
 max_candidate_sprite_x2 = &70
