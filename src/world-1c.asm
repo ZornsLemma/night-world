@@ -329,17 +329,18 @@ endmacro
     room_row %11111100011000000111
     room_row %11111110011000001111
     room_row %11111111111111111111
-; TODO: This looks unused, although it's possible it's here as
-; alignment padding - probably not, because I don't think the sprites
-; are aligned even at the individual framelevel to avoid page
-; crossing.
-.something
+
+; ENHANCE: This is just junk data and could be deleted.
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0
+
+; ENHANCE: There might be a small performance improvement to be had by ensuring
+; the sprite data (at least the sprite data for any particular frame) doesn't
+; cross any page boundaries.
 .sprite_00
     equb &cc, &ee, &aa, &aa, &aa, &aa, &aa, &aa,   0,   0,   0,   0
     equb   0,   0, &ff, &aa,   0,   0,   0,   0,   0,   0, &88, &88
