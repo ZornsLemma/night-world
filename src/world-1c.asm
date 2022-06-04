@@ -703,10 +703,10 @@ endmacro
     equb &65, &65, &65, &65, &77, &67, &67, &65, &65, &65, &65, &65
     equb   0,   0,   0,   0,   0, &11, &11, &11, &65, &65, &65, &65
     equb &67, &67, &77, &7f, &65, &65, &65, &65, &65, &ef, &ef, &ff
-; TODO: This appears to be mode 5 graphics data showing '< 1 > Load '
-; (just *LOAD World1c 5800 to see this), so this is almost certainly
-; junk/a build artefact/spare space.
-.sprite_end
+
+; ENHANCE: This appears to be mode 5 graphics data showing '< 1 > Load ' (just
+; *LOAD World1c 5800 to see this), so this is almost certainly junk/a build
+; artefact/spare space.
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0, &11
     equs "3f3"
@@ -731,6 +731,7 @@ endmacro
     equs "```"
     equb &e0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0
+
 ; Based on how this is called by world-2.bas, I infer that it is a
 ; collision detection subroutine which returns with X% indicating what
 ; was collided with, or 0 if nothing. The code here appears to return
