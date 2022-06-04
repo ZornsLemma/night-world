@@ -1870,35 +1870,35 @@ osbyte = &fff4
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0   ; 55b4: 00 00 00... ...
 ; &55c0 referenced 3 times by &5330, &5380, &539c
 .sprite_delta_coord_table_xy
-    equb -1,  1                                                       ; 55c0: ff 01       ..
+    equb -1,  1                                                       ; 55c0: ff 01       ..             ; index 0
 ; &55c1 referenced 3 times by &534d, &53ce, &53ec
-    equb  0,  1                                                       ; 55c2: 00 01       ..
-    equb  1,  1                                                       ; 55c4: 01 01       ..
-    equb -1,  0                                                       ; 55c6: ff 00       ..
-    equb  0,  0                                                       ; 55c8: 00 00       ..
-    equb  1,  0                                                       ; 55ca: 01 00       ..
-    equb -1, -1                                                       ; 55cc: ff ff       ..
-    equb  0, -1                                                       ; 55ce: 00 ff       ..
-    equb  1, -1                                                       ; 55d0: 01 ff       ..
-    equb  0,  0                                                       ; 55d2: 00 00       ..
-    equb -8,  8                                                       ; 55d4: f8 08       ..
-    equb  0,  8                                                       ; 55d6: 00 08       ..
-    equb  8,  8                                                       ; 55d8: 08 08       ..
-    equb -8,  0                                                       ; 55da: f8 00       ..
-    equb  0,  0                                                       ; 55dc: 00 00       ..
-    equb  8,  0                                                       ; 55de: 08 00       ..
-    equb -8, -8                                                       ; 55e0: f8 f8       ..
-    equb  0, -8                                                       ; 55e2: 00 f8       ..
-    equb  8, -8                                                       ; 55e4: 08 f8       ..
-    equb  0,  0                                                       ; 55e6: 00 00       ..
-    equb  0,  0                                                       ; 55e8: 00 00       ..
-    equb  0,  0                                                       ; 55ea: 00 00       ..
-    equb  0,  0                                                       ; 55ec: 00 00       ..
-    equb  0,  0                                                       ; 55ee: 00 00       ..
-    equb  0,  0                                                       ; 55f0: 00 00       ..
-    equb  0,  0                                                       ; 55f2: 00 00       ..
-    equb  0,  0                                                       ; 55f4: 00 00       ..
-    equb  0,  0                                                       ; 55f6: 00 00       ..
+    equb  0,  1                                                       ; 55c2: 00 01       ..             ; index 1
+    equb  1,  1                                                       ; 55c4: 01 01       ..             ; index 2
+    equb -1,  0                                                       ; 55c6: ff 00       ..             ; index 3
+    equb  0,  0                                                       ; 55c8: 00 00       ..             ; index 4
+    equb  1,  0                                                       ; 55ca: 01 00       ..             ; index 5
+    equb -1, -1                                                       ; 55cc: ff ff       ..             ; index 6
+    equb  0, -1                                                       ; 55ce: 00 ff       ..             ; index 7
+    equb  1, -1                                                       ; 55d0: 01 ff       ..             ; index 8
+    equb  0,  0                                                       ; 55d2: 00 00       ..             ; index 9
+    equb -8,  8                                                       ; 55d4: f8 08       ..             ; index 10
+    equb  0,  8                                                       ; 55d6: 00 08       ..             ; index 11
+    equb  8,  8                                                       ; 55d8: 08 08       ..             ; index 12
+    equb -8,  0                                                       ; 55da: f8 00       ..             ; index 13
+    equb  0,  0                                                       ; 55dc: 00 00       ..             ; index 14
+    equb  8,  0                                                       ; 55de: 08 00       ..             ; index 15
+    equb -8, -8                                                       ; 55e0: f8 f8       ..             ; index 16
+    equb  0, -8                                                       ; 55e2: 00 f8       ..             ; index 17
+    equb  8, -8                                                       ; 55e4: 08 f8       ..             ; index 18
+    equb  0,  0                                                       ; 55e6: 00 00       ..             ; index 19
+    equb  0,  0                                                       ; 55e8: 00 00       ..             ; index 20
+    equb  0,  0                                                       ; 55ea: 00 00       ..             ; index 21
+    equb  0,  0                                                       ; 55ec: 00 00       ..             ; index 22
+    equb  0,  0                                                       ; 55ee: 00 00       ..             ; index 23
+    equb  0,  0                                                       ; 55f0: 00 00       ..             ; index 24
+    equb  0,  0                                                       ; 55f2: 00 00       ..             ; index 25
+    equb  0,  0                                                       ; 55f4: 00 00       ..             ; index 26
+    equb  0,  0                                                       ; 55f6: 00 00       ..             ; index 27
 ; &55f8 referenced 3 times by &5170, &51ad, &5389
 .constant_2
     equb 2                                                            ; 55f8: 02          .

@@ -212,6 +212,7 @@ for i in range(28):
             n -= 256
         return "%2d" % n
     set_formatter(0x55c0+i*2, 2, signed_formatter)
+    comment(0x55c0+i*2, "index %d" % i, inline=True)
 expr_label(0x55c1, "sprite_delta_coord_table_xy+1")
 comment(0x5306, "TODO: So for the first part at least, X=Z%*2, and we use it to access the sprite_delta_coord_table_xy table, so Z% is presumably a sprite slot.")
 label(0x535f, "set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine")
