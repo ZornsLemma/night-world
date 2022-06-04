@@ -754,6 +754,12 @@ endmacro
 ; resident integer variable can be accessed at ri_a+{0,1},y and the Y coordinate
 ; at ri_b+{0,1},y.
 
+; ENHANCE: Many of these routines check their inputs for validity (e.g. tht W%
+; is in the range 1-max_sprite_num); this is probably because they're a
+; general-purpose sprite package, but we probably don't need this checking here.
+; Probably only remove this if we're really desperate for time or space; it
+; won't cost much of either to keep it.
+
 ; Collision detection subroutine
 ;
 ; On entry:
