@@ -359,9 +359,9 @@ endmacro
 ;
 ; TODO: It might be possible/worthwhile to write a beebasm macro (it would
 ; probably need to shift P% around internally) to allow these sprites to be
-; shown in a pseudo- graphical form in the source code. It would probably be
-; best if the input was a hex number which uses 0/1/2/3 for the colours and the
-; macro did the necessary bit-twiddling internally to generate screen data..
+; shown in a pseudo-graphical form in the source code. It would probably be best
+; if the input was a hex number which uses 0/1/2/3 for the colours and the macro
+; did the necessary bit-twiddling internally to generate screen data..
 ;
 ; Final Guardian/Demon Lord
 .sprite_00
@@ -754,14 +754,27 @@ endmacro
 ; resident integer variable can be accessed at ri_a+{0,1},y and the Y coordinate
 ; at ri_b+{0,1},y.
 
-; Based on how this is called by world-2.bas, I infer that it is a
-; collision detection subroutine which returns with X% indicating what
-; was collided with, or 0 if nothing. The code here appears to return
-; values in Y% and Z% but I don't think they are used by the game. W%
-; on entry is probably the sprite we are checking for collisions with;
-; world-2.bas always sets it to the current player sprite. Y% on entry
-; is the maximum 1-based sprite slot to check for collisions;
-; world-2.bas always sets it to 8.
+; Collision detection subroutine
+;
+; On entry:
+;     W% is the sprite slot we want to check for collisions
+;         (always the player's sprite slot in practice)
+;     Y% is the maximum sprite slot to check for collisions with
+;         (always 8 in practice)
+;
+; On exit:
+;     X% is the lowest-numbered sprite slot overlapping slot W%; 0 indicates no
+;     collision.
+;     Y% and Z% are updated but I don't know exactly what the values mean and
+;     they're not used in practice.
+;
+; Sprites are considered to collide if their 8x16 pixel areas overlap; there is
+; no attempt to check the actual sprite data. TODO: There *may* be some chance
+; of off-by-one errors in the overlap checking; I am not currently sure. In
+; practice the collision detection between sprites is probably best taken as
+; "how the game is". Switching to pixel-perfect detection would stop the player
+; being harmed by the robot sentinel in the first room passing over their head
+; when they are standing on the lowest part of the upper floor, for example.
 .q_subroutine
 {
 max_candidate_sprite_x2 = &70
