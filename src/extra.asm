@@ -8,8 +8,18 @@ sound_channel_2_buffer_number = 6
 ri_q = &444
 show_frame_count = TRUE; TODO: should be off in a "final" build
 
+; TODO: I would rather stick with the OS vsync event timer if possible, but
+; given we're actually trying to reproduce the original game's speed and not
+; avoid display artefacts, it may be more accurate to use the VIA timer to
+; exactly match the "average" speed of the original code's game loop. This
+; wouldn't work on the Electron though, making a Electron "port" harder.
+
 game_cycle_frame_interval = 3 ; TODO!?
-music_frame_interval = 12
+; The original BASIC code played a note of the background music once every four
+; game cycles, so by following that we should keep approximately the same
+; playback speed, although more consistent. TODO: It is just possible that it
+; would be better to use a different interval to get the speed closer.
+music_frame_interval = game_cycle_frame_interval * 4
 
     ; TODO: This address range is Master-only, but it will do to experiment without
     ; starting to reassemble World1c to free up space there.
