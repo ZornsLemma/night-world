@@ -789,16 +789,11 @@ max_candidate_sprite_x2 = &70
 abs_x_difference = &72
 abs_y_difference = &73
 
-    lda ri_w
-    beq no_collision_found
-    cmp #max_sprite_num+1
-    bcs no_collision_found
-    sec
-    sbc #1
-    asl a
-    tax
-    asl a
-    tay
+    lda ri_w:beq no_collision_found
+    cmp #max_sprite_num+1:bcs no_collision_found
+    sec:sbc #1
+    asl a:tax
+    asl a:tay
 ; We have X=(W%-1)*2, Y=(W%-1)*4. X retains this value for the entire
 ; subroutine. Y's value is only used if the beq
 ; next_candidate branch is taken on the first pass round
