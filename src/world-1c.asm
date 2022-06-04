@@ -355,6 +355,12 @@ endmacro
 ; the sprite data (at least the sprite data for any particular frame) doesn't
 ; cross any page boundaries.
 ;
+; TODO: It might be possible/worthwhile to write a beebasm macro (it would
+; probably need to shift P% around internally) to allow these sprites to be
+; shown in a pseudo- graphical form in the source code. It would probably be
+; best if the input was a hex number which uses 0/1/2/3 for the colours and the
+; macro did the necessary bit-twiddling internally to generate screen data..
+;
 ; Final Guardian/Demon Lord
 .sprite_00
     equb &cc, &ee, &aa, &aa, &aa, &aa, &aa, &aa,   0,   0,   0,   0
