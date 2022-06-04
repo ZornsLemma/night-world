@@ -2,6 +2,9 @@ from commands import *
 from trace6502 import *
 import acorn
 
+config.set_hex_dump(False)
+config.set_label_references(False)
+
 # TODO: This is actually pretty shoddy py8dis code. In part that's the reality of
 # the iterative disassembly process, but it might be useful (as a py8dis improvement
 # exercise) to tidy this up afterwards and add suport for anything useful or fix
