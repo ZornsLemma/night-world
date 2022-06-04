@@ -38,6 +38,11 @@ screen_ptr2 = &007c
 l007e = &007e
 sprite_ptr2 = &007e
 l007f = &007f
+osbyte = &fff4
+
+; BASIC's resident integer variables @%, A%, ..., Z% (four bytes each) have
+; fixed addresses in page &4. They are used extensively to communicate between
+; BASIC and this machine code.
 ri_a = &0404
 ri_b = &0408
 ri_q = &0444
@@ -45,8 +50,6 @@ ri_w = &045c
 ri_x = &0460
 ri_y = &0464
 ri_z = &0468
-osbyte = &fff4
-
 
     org &35bc
 .pydis_start
@@ -735,7 +738,7 @@ endmacro
 ; communicate between the BASIC and machine code.
 ;
 ; OS graphics coordinates (1280x1024, origin at bottom left) are passed using
-; resident integer variables A%-P%, as follows:
+; the low 16 bits of resident integer variables A%-P%, as follows:
 ;     slots 1/ 9/17/25/33/41 use A% (X coordinate) and B% (Y coordinate)
 ;     slots 2/10/18/26/34/42 use C%/D%
 ;     slots 3/11/19/27/35/43 use E%/F%
@@ -744,7 +747,10 @@ endmacro
 ;     slots 6/14/22/30/38/46 use K%/L%
 ;     slots 7/15/23/31/39/47 use M%/N%
 ;     slots 8/16/24/32/40/48 use O%/P%
-
+;
+; The code usually calculates an offset (often in Y) so that the X coordinate
+; resident integer variable can be accessed at ri_a+{0,1},y and the Y coordinate
+; at ri_b+{0,1},y.
 
 ; Based on how this is called by world-2.bas, I infer that it is a
 ; collision detection subroutine which returns with X% indicating what
