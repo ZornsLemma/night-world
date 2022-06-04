@@ -1,8 +1,5 @@
 max_sprite_num = &30
-q_subroutine_sprite_to_check_x2 = &71
-q_subroutine_max_candidate_sprite_x2 = &70
-q_subroutine_abs_x_difference = &72
-q_subroutine_abs_y_difference = &73
+sprite_to_check_x2 = &71
 sprite_pixel_current_x = &72
 sprite_pixel_current_y = &73
 get_sprite_details_sprite_index = &7c
@@ -742,10 +739,14 @@ endmacro
 ; world-2.bas always sets it to 8.
 .q_subroutine
 {
+q_subroutine_max_candidate_sprite_x2 = &70
+q_subroutine_abs_x_difference = &72
+q_subroutine_abs_y_difference = &73
+
     lda ri_w
-    beq q_subroutine_no_collision_found
+    beq no_collision_found
     cmp #max_sprite_num+1
-    bcs q_subroutine_no_collision_found
+    bcs no_collision_found
     sec
     sbc #1
     asl a
@@ -754,22 +755,22 @@ endmacro
     tay
 ; We have X=(W%-1)*2, Y=(W%-1)*4. X retains this value for the entire
 ; subroutine. Y's value is only used if the beq
-; q_subroutine_next_candidate branch is taken on the first pass round
-; q_subroutine_y_loop.
+; next_candidate branch is taken on the first pass round
+; y_loop.
     lda sprite_screen_and_data_addrs+screen_addr_hi,y
-    beq q_subroutine_no_collision_found
-    stx q_subroutine_sprite_to_check_x2
+    beq no_collision_found
+    stx sprite_to_check_x2
     lda ri_y
-    beq q_subroutine_no_collision_found
+    beq no_collision_found
     cmp #max_sprite_num+1
-    bcs q_subroutine_no_collision_found
+    bcs no_collision_found
     sec
     sbc #1
     asl a
     sta q_subroutine_max_candidate_sprite_x2
     lda #0
 ; Don't test for collision of W% with itself!
-; TODO: If W%=1 on entry, the first pass round the q_subroutine_y_loop
+; TODO: If W%=1 on entry, the first pass round the y_loop
 ; will take the beq, but Y doesn't yet contain the loop variable
 ; (because of our shuffling in and out of A). As it happens, we will
 ; get away with this because Y will be (W%-1)*4=0, so it does
@@ -782,9 +783,9 @@ endmacro
 ; entry - which it is in the game - this can't happen.
 ; TODO: I suspect we could avoid shuffling Y into A and just do
 ; iny:iny and change some cmp to cpy
-.q_subroutine_y_loop
-    cmp q_subroutine_sprite_to_check_x2
-    beq q_subroutine_next_candidate
+.y_loop
+    cmp sprite_to_check_x2
+    beq next_candidate
     tay
     lda #5
     sta l0074
@@ -799,14 +800,14 @@ endmacro
 ; it might still be true the state of the carry when we're negating is
 ; sometimes wrong, but maybe it's not, and at worst it will cause an
 ; extra pixel of 'fuzz' in the collision detection.
-    bmi q_subroutine_sprite_to_check_x_lt_candidate_x
+    bmi sprite_to_check_x_lt_candidate_x
     beq q_subroutine_test_abs_x_difference
 ; sprite to check's X co-ordinate is >= candidate sprite's X co-
 ; ordinate.
     dec l0074
 .q_subroutine_test_abs_x_difference
     cmp #9
-    bcs q_subroutine_next_candidate
+    bcs next_candidate
 ; abs(sprite_to_check.x - candidate_sprite.x) < 9 (TODO: subject to
 ; concerns about bugs in other TODOs), so we consider the sprites to
 ; be overlapping in X and we need to check Y.
@@ -815,35 +816,35 @@ endmacro
     lda sprite_pixel_coord_table_xy+1,x
     sec
     sbc sprite_pixel_coord_table_xy+1,y
-    bmi q_subroutine_sprite_to_check_y_lt_candidate_y
-    beq q_subroutine_test_abs_y_difference
+    bmi sprite_to_check_y_lt_candidate_y
+    beq test_abs_y_difference
 ; sprite_pixel_coord_table_xy+1,x > sprite_pixel_coord_table_xy+1,y
 ; (TODO: assuming unsigned)
     inc l0074
     inc l0074
     inc l0074
-.q_subroutine_test_abs_y_difference
+.test_abs_y_difference
     cmp #&10
-    bcs q_subroutine_next_candidate
+    bcs next_candidate
 ; abs(sprite_to_check.y - candidate_sprite.y) < 16 (TODO: subject to
 ; concerns about bugs), so these two sprites overlap and we're done.
     sta q_subroutine_abs_y_difference
     bcc q_subroutine_q_subroutine_collision_found                     ; always branch
-.q_subroutine_next_candidate
+.next_candidate
     cpy q_subroutine_max_candidate_sprite_x2
-    beq q_subroutine_no_collision_found
+    beq no_collision_found
     tya
     adc #2
-    bne q_subroutine_y_loop                                           ; always branch
+    bne y_loop                                           ; always branch
 ; Set X% and Y% to 0 to indicate no collision found.
-.q_subroutine_no_collision_found
+.no_collision_found
     lda #0
     sta ri_x
     sta ri_y
     rts
 
 ; Set A=-A
-.q_subroutine_sprite_to_check_x_lt_candidate_x
+.sprite_to_check_x_lt_candidate_x
     eor #&ff
 ; TODO: As written, don't we need a clc here? I am not convinced C
 ; will always be implicitly clear (e.g. if we did 150-0 at &4f31 - N
@@ -852,13 +853,13 @@ endmacro
     inc l0074
     bne q_subroutine_test_abs_x_difference                            ; always branch
 ; Set A=-A (TODO: same 'clc needed' concern as for X)
-.q_subroutine_sprite_to_check_y_lt_candidate_y
+.sprite_to_check_y_lt_candidate_y
     eor #&ff
     adc #1
     dec l0074
     dec l0074
     dec l0074
-    bne q_subroutine_test_abs_y_difference                            ; always branch
+    bne test_abs_y_difference                            ; always branch
 ; Set Y% to 35-(abs_x_difference*2)-abs_y_difference, so (roughly) Y%
 ; indicates how much the sprites are overlapping - it will range from
 ; 4 if both differences are as large as possible up to 35 if the two
@@ -2039,103 +2040,6 @@ endmacro
 .r_subroutine_foo
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 .pydis_end
-
-; Automatically generated labels:
-;     c4fbd
-;     c4fd0
-;     c4fdc
-;     c4ff4
-;     c5002
-;     c5008
-;     c5012
-;     c501f
-;     c5026
-;     c502b
-;     c53ec
-;     c53f8
-;     l0072
-;     l0073
-;     l0074
-;     l0075
-    assert ('V'-'Q'+1)*4 == &18
-    assert ('Z'-'A'+1)*4 == &68
-    assert <(bytes_per_screen_line-7) == &39
-    assert <sprite_00 == &00
-    assert <sprite_08 == &c0
-    assert <sprite_09 == &80
-    assert <sprite_10 == &40
-    assert <sprite_11 == &00
-    assert <sprite_12 == &c0
-    assert <sprite_13 == &80
-    assert <sprite_14 == &40
-    assert <sprite_15 == &00
-    assert <sprite_16 == &c0
-    assert <sprite_17 == &80
-    assert <sprite_18 == &40
-    assert <sprite_19 == &00
-    assert <sprite_20 == &c0
-    assert <sprite_21 == &80
-    assert <sprite_22 == &40
-    assert <sprite_23 == &00
-    assert <sprite_24 == &c0
-    assert <sprite_25 == &80
-    assert >(bytes_per_screen_line-7) == &01
-    assert >sprite_00 == &40
-    assert >sprite_08 == &40
-    assert >sprite_09 == &41
-    assert >sprite_10 == &42
-    assert >sprite_11 == &43
-    assert >sprite_12 == &43
-    assert >sprite_13 == &44
-    assert >sprite_14 == &45
-    assert >sprite_15 == &46
-    assert >sprite_16 == &46
-    assert >sprite_17 == &47
-    assert >sprite_18 == &48
-    assert >sprite_19 == &49
-    assert >sprite_20 == &49
-    assert >sprite_21 == &4a
-    assert >sprite_22 == &4b
-    assert >sprite_23 == &4c
-    assert >sprite_24 == &4c
-    assert >sprite_25 == &4d
-    assert get_sprite_details_sprite_index == &7c
-    assert initial_qrstuv_values-1 == &54db
-    assert l007d == &7d
-    assert max_sprite_num == &30
-    assert max_sprite_num+1 == &31
-    assert osbyte_clear_escape == &7c
-    assert osbyte_inkey == &81
-    assert q_subroutine == &4f00
-    assert q_subroutine_abs_x_difference == &72
-    assert q_subroutine_abs_y_difference == &73
-    assert q_subroutine_max_candidate_sprite_x2 == &70
-    assert q_subroutine_sprite_to_check_x2 == &71
-    assert r_subroutine == &4f9f
-    assert ri_a-1 == &0403
-    assert ri_q-1 == &0443
-    assert s_subroutine == &5033
-    assert sprite_pixel_coord_table_xy+0 == &5760
-    assert sprite_pixel_coord_table_xy+1 == &5761
-    assert sprite_pixel_current_x == &72
-    assert sprite_pixel_current_y == &73
-    assert sprite_ptr == &70
-    assert sprite_ptr+1 == &71
-    assert sprite_ptr2 == &7e
-    assert sprite_ptr2+1 == &7f
-    assert sprite_ref_addrs_be+0 == &5700
-    assert sprite_ref_addrs_be+1 == &5701
-    assert sprite_y_offset_within_row == &75
-    assert t_subroutine == &52e3
-    assert t_subroutine_constant_1 == &73
-    assert t_subroutine_os_x_hi == &70
-    assert t_subroutine_os_x_lo == &71
-    assert t_subroutine_os_y_hi == &72
-    assert t_subroutine_w_minus_1_times_2 == &7f
-    assert t_subroutine_w_minus_1_times_4 == &7e
-    assert t_subroutine_w_minus_1_times_8 == &76
-    assert u_subroutine == &53fb
-    assert v_subroutine == &5499
 
 MAKE_IMAGE =? FALSE
 if not(MAKE_IMAGE)
