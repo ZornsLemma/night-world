@@ -739,9 +739,9 @@ endmacro
 ; world-2.bas always sets it to 8.
 .q_subroutine
 {
-q_subroutine_max_candidate_sprite_x2 = &70
-q_subroutine_abs_x_difference = &72
-q_subroutine_abs_y_difference = &73
+max_candidate_sprite_x2 = &70
+abs_x_difference = &72
+abs_y_difference = &73
 
     lda ri_w
     beq no_collision_found
@@ -767,7 +767,7 @@ q_subroutine_abs_y_difference = &73
     sec
     sbc #1
     asl a
-    sta q_subroutine_max_candidate_sprite_x2
+    sta max_candidate_sprite_x2
     lda #0
 ; Don't test for collision of W% with itself!
 ; TODO: If W%=1 on entry, the first pass round the y_loop
@@ -801,17 +801,17 @@ q_subroutine_abs_y_difference = &73
 ; sometimes wrong, but maybe it's not, and at worst it will cause an
 ; extra pixel of 'fuzz' in the collision detection.
     bmi sprite_to_check_x_lt_candidate_x
-    beq q_subroutine_test_abs_x_difference
+    beq test_abs_x_difference
 ; sprite to check's X co-ordinate is >= candidate sprite's X co-
 ; ordinate.
     dec l0074
-.q_subroutine_test_abs_x_difference
+.test_abs_x_difference
     cmp #9
     bcs next_candidate
 ; abs(sprite_to_check.x - candidate_sprite.x) < 9 (TODO: subject to
 ; concerns about bugs in other TODOs), so we consider the sprites to
 ; be overlapping in X and we need to check Y.
-    sta q_subroutine_abs_x_difference
+    sta abs_x_difference
 ; TODO: same concerns as for X about this not working for some values.
     lda sprite_pixel_coord_table_xy+1,x
     sec
@@ -828,10 +828,10 @@ q_subroutine_abs_y_difference = &73
     bcs next_candidate
 ; abs(sprite_to_check.y - candidate_sprite.y) < 16 (TODO: subject to
 ; concerns about bugs), so these two sprites overlap and we're done.
-    sta q_subroutine_abs_y_difference
-    bcc q_subroutine_q_subroutine_collision_found                     ; always branch
+    sta abs_y_difference
+    bcc collision_found                     ; always branch
 .next_candidate
-    cpy q_subroutine_max_candidate_sprite_x2
+    cpy max_candidate_sprite_x2
     beq no_collision_found
     tya
     adc #2
@@ -851,7 +851,7 @@ q_subroutine_abs_y_difference = &73
 ; would be set, but there's no borrow so C will still be set).
     adc #1
     inc l0074
-    bne q_subroutine_test_abs_x_difference                            ; always branch
+    bne test_abs_x_difference                            ; always branch
 ; Set A=-A (TODO: same 'clc needed' concern as for X)
 .sprite_to_check_y_lt_candidate_y
     eor #&ff
@@ -864,10 +864,10 @@ q_subroutine_abs_y_difference = &73
 ; indicates how much the sprites are overlapping - it will range from
 ; 4 if both differences are as large as possible up to 35 if the two
 ; sprites coincide perfectly. world-2.bas doesn't seem to use this.
-.q_subroutine_q_subroutine_collision_found
-    lda q_subroutine_abs_x_difference
+.collision_found
+    lda abs_x_difference
     asl a
-    adc q_subroutine_abs_y_difference
+    adc abs_y_difference
     sta l0073
     lda #&23 ; '#'
     sec
