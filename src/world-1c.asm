@@ -338,9 +338,24 @@ endmacro
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0
 
+; Each sprite has four frames, each of which occupies 24 bytes, for a total of
+; 192 bytes per sprite. The frames are pre-shifted versions of the sprite for
+; the four different X offsets within a byte of mode 5 screen memory. Many
+; sprites are animated "for free" by changing the design for each frame. Sprite
+; 9 has four conceptually unrelated sprites in its different frames; the game
+; makes sure to display these only at the appropriate offset. Sprites are
+; nominally 8x16 pixels, but the sprite data is actually 12x16 pixels to allow
+; for black (= transparent) pixels to accomodate the appropriate X offset.
+;
+; The sprite numbers used in these labels are 0-based logical numbers, as
+; defined by the table at sprite_ref_addrs_be. TODO: Would it make more sense to
+; use physical numbering, or to use our sprite names?
+;
 ; ENHANCE: There might be a small performance improvement to be had by ensuring
 ; the sprite data (at least the sprite data for any particular frame) doesn't
 ; cross any page boundaries.
+;
+; Final Guardian/Demon Lord
 .sprite_00
     equb &cc, &ee, &aa, &aa, &aa, &aa, &aa, &aa,   0,   0,   0,   0
     equb   0,   0, &ff, &aa,   0,   0,   0,   0,   0,   0, &88, &88
@@ -358,6 +373,7 @@ endmacro
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
+; Human, facing right
 .sprite_08
     equb   3,   3, &17, &33, &33, &12, &21, &43,   8, &0c, &80, &88
     equb   0,   8,   8,   8,   0,   0,   0,   0,   0,   0,   0,   0
@@ -375,6 +391,7 @@ endmacro
     equb &66, &25, &a5, &25,   0,   8,   0,   0,   0,   0,   0,   0
     equb &11,   0,   0,   0,   0, &10, &10,   0, &16,   7, &70, &16
     equb &0f, &0d, &81,   0, &88,   0,   0,   0,   8,   8,   8, &c0
+; Human, facing left
 .sprite_09
     equb   0,   1,   0,   0,   0,   0,   0,   0, &0e, &0e, &c7, &ee
     equb &66, &4a, &2c, &1e,   0,   0,   0,   0,   0,   0,   0,   0
@@ -392,6 +409,7 @@ endmacro
     equb   0,   1,   1,   1, &0c, &0c, &8e, &cc, &cc, &84, &a4, &94
     equb   0,   0,   0,   0,   0,   0,   0,   0, &32,   1, &10, &10
     equb   3,   3,   3, &60, &1d, &0c, &c0, &0c, &0e, &16, &30,   0
+; Gargoyle, facing right
 .sprite_10
     equb   4, &0e,   7,   3,   7,   7, &1e, &16, &40, &80, &e0, &b4
     equb &a4, &f0, &c0, &c8,   0,   0,   0,   0,   0,   0,   0,   0
@@ -409,6 +427,7 @@ endmacro
     equb &16, &12, &30, &31, &80,   0, &c0, &68, &68, &c0, &80, &80
     equb   0,   0,   0,   0,   0,   0,   0,   0, &35, &35, &16, &16
     equb &30, &30, &60,   4, &80,   8, &80, &80, &80, &c0, &40,   4
+; Gargoyle, facing left
 .sprite_11
     equb &10,   0, &30, &61, &21, &70, &10, &10,   1, &83, &87, &86
     equb &87, &87, &c3, &cb,   0,   8,   0,   0,   0,   0,   8,   0
@@ -426,6 +445,7 @@ endmacro
     equb &d2, &70, &30, &31,   0,   4, &0c,   8, &0c,   8, &80, &80
     equb   0,   0,   0,   0,   0,   0,   0,   0, &31, &13, &30, &30
     equb &30, &70, &40,   4, &84, &84, &0c, &0c, &80, &80, &c0,   4
+; Harpy, facing right
 .sprite_12
     equb   0,   0,   0,   0,   8, &7f, &ff, &ff,   0,   0,   0,   0
     equb &0e, &af, &0f, &0e,   0,   0,   0,   0,   0,   0,   8,   0
@@ -443,6 +463,7 @@ endmacro
     equb &ef, &ff, &6f, &0f,   0,   0,   0,   0, &0c, &4e, &0f, &0c
     equb   0,   0,   0,   0,   0,   0,   0,   0,   3,   1,   0,   0
     equb   0,   0,   0,   0,   8,   8, &0e,   6,   0,   0,   0,   0
+; Harpy, facing left
 .sprite_13
     equb   0,   0,   0,   0,   3, &27, &0f,   3,   0,   0,   0,   0
     equb   8, &ff, &7f, &7f,   0,   0,   0,   0,   8,   8, &88, &88
@@ -460,6 +481,7 @@ endmacro
     equb   7, &5f, &0f,   7,   0,   0,   0,   0, &ff, &ef, &cf, &0e
     equb   0,   0,   0,   0,   0,   0,   0,   0,   3,   3, &0e, &0c
     equb   0,   0,   0,   0,   8,   0,   0,   0,   0,   0,   0,   0
+; Winged creature
 .sprite_14
     equb &10, &10,   1, &16,   7, &0f, &0d,   9, &40, &c0, &84, &c3
     equb &87, &0f, &0d, &0c,   0,   0,   0,   0,   0,   8,   8,   8
@@ -477,6 +499,7 @@ endmacro
     equb &1e,   7,   3,   3, &80, &80,   0, &87, &0f, &0c,   8,   8
     equb   0,   0,   0,   0,   0,   0,   0,   0,   6,   4,   4,   6
     equb   4,   0,   0,   0, &0c,   4, &0c,   4,   0,   0,   0,   0
+; Robot sentinel
 .sprite_15
     equb   0, &33, &21, &77, &25, &ff, &88, &8b,   0, &ee, &a4, &ff
     equb &a4, &ff, &88, &8b,   0,   0,   0,   0,   0, &88, &88, &88
@@ -494,6 +517,7 @@ endmacro
     equb &a5, &ff, &22, &2e,   0, &cc, &84, &ee, &a4, &ff, &33, &3f
     equb   0, &11,   0,   0,   0,   0,   0,   0, &2e, &ff, &a5, &ff
     equb &25, &77,   0,   0, &3f, &ff, &a4, &ee, &84, &cc,   0,   0
+; Fleece/MacGuffin/unused/prism
 .sprite_16
     equb   0,   0,   0,   0,   0,   0, &11, &22,   0,   0,   0,   0
     equb   0,   0, &44, &22,   0,   0,   0,   0,   0,   0,   0,   0
@@ -511,6 +535,7 @@ endmacro
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0, &11, &11, &33, &23, &76
     equb &47, &fc, &8f, &ff,   0, &88, &88, &cc, &4c, &e6, &2e, &ff
+; Health pickup
 .sprite_17
     equb   0,   0, &11, &36, &35, &3c, &2c, &2c,   0,   0, &c4, &eb
     equb &e5, &e9, &a1, &a1,   0,   0,   0,   0,   0,   8,   8,   8
@@ -528,6 +553,7 @@ endmacro
     equb &7a, &79, &58, &58,   0,   0, &88, &c6, &ca, &c3, &43, &43
     equb   1,   1,   0,   0,   0,   0,   0,   0, &78, &78, &78, &3c
     equb &16, &30,   0,   0, &c3, &c3, &c2, &86, &0c, &80,   0,   0
+; Veil of Ambiguity
 .sprite_18
     equb   8,   8,   8, &0a,   2,   2,   2,   0, &0a, &0a, &0a,   8
     equb   8,   2,   2,   2,   0,   0,   0,   0,   0,   0,   0,   0
@@ -545,6 +571,7 @@ endmacro
     equb   0,   0,   0,   0,   2,   2,   2, &0a, &0a,   8,   8,   0
     equb   1,   1,   1,   1,   0,   0,   1,   1,   2,   2,   2,   2
     equb   2,   2,   2,   0,   2,   2, &0a, &0a,   2,   2,   8,   8
+; Wall enemy, facing right
 .sprite_19
     equb   0, &30, &61, &c3, &c3, &f0, &f1, &f1,   0, &c0, &48, &2c
     equb &2c, &3c, &f0, &71,   0,   0,   0,   0,   0,   0,   0,   0
@@ -562,6 +589,7 @@ endmacro
     equb &87, &e1, &f2, &e2,   0, &80, &80, &48, &48, &68, &e0, &e2
     equb &10, &10, &10, &10, &10, &10, &10,   0, &c0, &c0, &80, &d5
     equb &f1, &f0, &f0, &f0, &aa,   0,   0, &22, &60, &e0, &c0, &c0
+; Wall enemy, facing left
 .sprite_20
     equb   0, &10, &10, &21, &21, &61, &70, &74,   0, &e0, &3c, &1e
     equb &1e, &78, &f4, &74,   0,   0,   0, &80, &80, &80, &80, &80
@@ -579,6 +607,7 @@ endmacro
     equb &43, &c3, &f0, &e8,   0, &c0, &68, &3c, &3c, &f0, &f8, &f8
     equb   0,   0,   0,   0,   0,   0,   0,   0, &aa,   0,   0, &99
     equb &d1, &f0, &70, &70, &70, &70, &30, &74, &f0, &f0, &f0, &e0
+; Eye enemy
 .sprite_21
     equb   0,   0, &10, &51, &73, &67, &cf, &8f,   0,   0, &40, &dc
     equb &fe, &3f, &1f, &8f,   0,   0,   0,   0,   0,   0, &88, &88
@@ -596,6 +625,7 @@ endmacro
     equb &77, &ff, &ff, &ff,   0,   0,   0, &88, &cc, &ee, &ff, &ff
     equb &11, &11,   0,   0,   0,   0,   0,   0, &ff, &ff, &f7, &f5
     equb &b1, &20,   0,   0, &ff, &ff, &ec, &e4, &a0, &80,   0,   0
+; Statue
 .sprite_22
     equb   5,   9, &19, &0d, &0e, &0f, &0f, &0f,   5,   4, &4c, &0d
     equb &0b,   7, &0f, &0f,   0,   8,   8,   8,   8,   8,   8,   8
@@ -613,6 +643,7 @@ endmacro
     equb &0d, &0e, &0f, &0f, &0a,   9, &89, &0b,   7, &0f, &0f, &0f
     equb   1,   1,   1,   1,   1,   1,   0,   0, &0f, &0f, &78, &28
     equb &28, &20, &28, &70, &0f, &0f, &c3, &83, &83, &81, &82, &c0
+; Sun
 .sprite_23
     equb &10, &30, &21, &70, &70, &b4, &f0, &b4, &c0, &e0, &e0, &f0
     equb &f0, &f0, &f0, &f0,   0,   0,   0,   0,   0, &80, &80, &80
@@ -630,6 +661,7 @@ endmacro
     equb &f0, &f0, &f0, &f0, &80, &c0, &c0, &e0, &e0, &b4, &f0, &d2
     equb &10, &10, &10,   0,   0,   0,   0,   0, &f0, &f0, &f0, &f0
     equb &f0, &61, &70, &30, &d2, &f0, &b4, &a4, &68, &c0, &c0, &80
+; Moon
 .sprite_24
     equb   0, &11, &33, &77, &77, &dd, &ff, &ff,   0, &cc, &ee, &77
     equb &77, &ff, &dd, &dd,   0,   0,   0,   0,   0, &88, &88, &88
@@ -647,6 +679,7 @@ endmacro
     equb &ee, &ff, &ff, &ff,   0, &88, &cc, &ee, &ee, &ff, &bb, &ff
     equb &11, &11, &11,   0,   0,   0,   0,   0, &ee, &66, &ff, &ff
     equb &ff, &77, &33,   0, &ff, &ff, &bb, &aa, &ee, &cc, &88,   0
+; Veil of More Ambiguity
 .sprite_25
     equb &ff, &df, &df, &ca, &ca, &ca, &ca, &ca, &6d, &65, &65, &65
     equb &65, &65, &65, &65,   0,   0,   0,   0,   0,   0,   0,   0
