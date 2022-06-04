@@ -40,6 +40,7 @@ for i in range(1, 15):
     set_formatter(0x3508+i*180, 180, custom_binary_formatter)
 
 label(0x3508+15*180, "something") # TODO: bad name, just to mark end of room data
+comment(0x3508+15*180, "TODO: This looks unused, although it's possible it's here as alignment padding - probably not, because I don't think the sprites are aligned even at the individual framelevel to avoid page crossing.")
 
 comment(0x5499, "Zero resident integer variables A%-Z%")
 comment(0x54a3, "Initialise resident integer variables Q%-V%")
