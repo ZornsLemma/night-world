@@ -741,6 +741,7 @@ endmacro
 ; is the maximum 1-based sprite slot to check for collisions;
 ; world-2.bas always sets it to 8.
 .q_subroutine
+{
     lda ri_w
     beq q_subroutine_no_collision_found
     cmp #max_sprite_num+1
@@ -883,8 +884,9 @@ endmacro
     tya
     lsr a
     sta ri_x
-.q_subroutine_rts
+.^q_subroutine_rts
     rts
+}
 
 ; TODO: Dead code?
 .r_subroutine
