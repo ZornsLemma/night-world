@@ -13,10 +13,6 @@ t_subroutine_w_minus_1_times_8 = &76
 t_subroutine_constant_1 = &73
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
-screen_addr_lo = &00
-screen_addr_hi = &01
-sprite_addr_hi = &02
-sprite_addr_lo = &03
 osbyte_inkey = &81
 osbyte_clear_escape = &7c
 
@@ -1859,62 +1855,67 @@ abs_y_difference = &73
 ; TODO: This is just a constant in this game.
 .sprite_y_max
     equb &fe,   0,   0,   0,   0
-; This is (TODO: probably!) a table with four bytes per sprite. The
-; first two bytes are the little-endian screen address of the sprite
-; (0 if it is not on screen) and the second two bytes are the big-
-; endian address of the sprite's definition. The sprite address is the
-; address of X-offset version 0; this does not change as the sprite
-; moves, so it needs to be offset appropriately when
-; plotting/unplotting.
+
+; This table has four bytes per sprite slot; the following constants are used to
+; indicate which byte is being accessed. We have a screen address where the
+; sprite is currently shown (TODO: SEMI-GUESS the high byte is 0 if the sprite
+; is not on screen) and the sprite image associated with the slot. Note that the
+; sprite address is stored in big-endian format; this doesn't really make any
+; difference, it's just slightly unconventional.
+screen_addr_lo = 0
+screen_addr_hi = 1
+sprite_addr_hi = 2
+sprite_addr_lo = 3
 .sprite_screen_and_data_addrs
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 0
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 1
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 2
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 3
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 4
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 5
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 6
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 7
-    equb          0,          0, >sprite_08, <sprite_08               ; sprite 8
-    equb          0,          0, >sprite_09, <sprite_09               ; sprite 9
-    equb          0,          0, >sprite_10, <sprite_10               ; sprite 10
-    equb          0,          0, >sprite_11, <sprite_11               ; sprite 11
-    equb          0,          0, >sprite_12, <sprite_12               ; sprite 12
-    equb          0,          0, >sprite_13, <sprite_13               ; sprite 13
-    equb          0,          0, >sprite_14, <sprite_14               ; sprite 14
-    equb          0,          0, >sprite_15, <sprite_15               ; sprite 15
-    equb          0,          0, >sprite_16, <sprite_16               ; sprite 16
-    equb          0,          0, >sprite_17, <sprite_17               ; sprite 17
-    equb          0,          0, >sprite_18, <sprite_18               ; sprite 18
-    equb          0,          0, >sprite_19, <sprite_19               ; sprite 19
-    equb          0,          0, >sprite_20, <sprite_20               ; sprite 20
-    equb          0,          0, >sprite_21, <sprite_21               ; sprite 21
-    equb          0,          0, >sprite_22, <sprite_22               ; sprite 22
-    equb          0,          0, >sprite_23, <sprite_23               ; sprite 23
-    equb          0,          0, >sprite_24, <sprite_24               ; sprite 24
-    equb          0,          0, >sprite_25, <sprite_25               ; sprite 25
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 26
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 27
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 28
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 29
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 30
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 31
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 32
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 33
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 34
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 35
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 36
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 37
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 38
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 39
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 40
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 41
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 42
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 43
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 44
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 45
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 46
-    equb          0,          0, >sprite_00, <sprite_00               ; sprite 47
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 0
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 1
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 2
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 3
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 4
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 5
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 6
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 7
+    equb 0, 0, >sprite_08, <sprite_08 ; sprite 8
+    equb 0, 0, >sprite_09, <sprite_09 ; sprite 9
+    equb 0, 0, >sprite_10, <sprite_10 ; sprite 10
+    equb 0, 0, >sprite_11, <sprite_11 ; sprite 11
+    equb 0, 0, >sprite_12, <sprite_12 ; sprite 12
+    equb 0, 0, >sprite_13, <sprite_13 ; sprite 13
+    equb 0, 0, >sprite_14, <sprite_14 ; sprite 14
+    equb 0, 0, >sprite_15, <sprite_15 ; sprite 15
+    equb 0, 0, >sprite_16, <sprite_16 ; sprite 16
+    equb 0, 0, >sprite_17, <sprite_17 ; sprite 17
+    equb 0, 0, >sprite_18, <sprite_18 ; sprite 18
+    equb 0, 0, >sprite_19, <sprite_19 ; sprite 19
+    equb 0, 0, >sprite_20, <sprite_20 ; sprite 20
+    equb 0, 0, >sprite_21, <sprite_21 ; sprite 21
+    equb 0, 0, >sprite_22, <sprite_22 ; sprite 22
+    equb 0, 0, >sprite_23, <sprite_23 ; sprite 23
+    equb 0, 0, >sprite_24, <sprite_24 ; sprite 24
+    equb 0, 0, >sprite_25, <sprite_25 ; sprite 25
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 26
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 27
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 28
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 29
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 30
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 31
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 32
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 33
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 34
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 35
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 36
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 37
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 38
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 39
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 40
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 41
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 42
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 43
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 44
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 45
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 46
+    equb 0, 0, >sprite_00, <sprite_00 ; sprite 47
+
 .screen_y_addr_table
     equw &7ec0
     equw &7d80
