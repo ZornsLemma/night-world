@@ -1273,7 +1273,6 @@ overlap_direction = &74
     sta sprite_pixel_y_lo
     clc
     rts
-}
 
 ; Sprite plot routine. EORs a 3-byte (12 pixel) wide sprite onto the
 ; screen, writing data starting at the address pointed to by
@@ -1344,12 +1343,17 @@ overlap_direction = &74
     inc sprite_ptr+1
     clc
     bne sprite_core_low_byte_wrap_handled                             ; always branch
-}
+} ; end sprite_core scope
+} ; end s_subroutine scope
 
 ; TODO: This looks like an 'alternate version' of sprite_core? I
 ; haven't been over the code properly yet, but I suspect it is a
 ; 'erase at old location, replot immediately at new location' variant,
 ; to handle moving sprites more efficiently.
+; ENHANCE: This label is actually only used by u_subroutine, so if we rearranged
+; the code it could fall within u_subroutine's scope. This might not really
+; clarify things all that much though, although I have done it for sprite_core
+; because the existing code layout made that possible.
 .sprite_core_moving
 {
     lda #1
