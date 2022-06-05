@@ -1041,8 +1041,8 @@ overlap_direction = &74
     asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073 ; we know carry is clear after asl a
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x
-    sta l0070
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta l0071
+    sta sprite_ptr
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
     lda ri_y:cmp #1:beq clc_jmp_sprite_core
     lda screen_ptr2+1:beq clc_jmp_sprite_core
     lda l0072:and #3
