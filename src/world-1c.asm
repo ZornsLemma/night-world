@@ -1017,16 +1017,11 @@ overlap_direction = &74
     txa:and #7:eor #7:sta sprite_y_offset_within_row
     lda screen_row_addr_table,y:clc:adc sprite_y_offset_within_row:sta screen_ptr
     lda screen_row_addr_table+1,y:adc #0:sta screen_ptr+1
-    lda #0:sta l0073
-    lda sprite_pixel_x_lo
-    asl a
-    rol l0073
+    lda #0:sta l0073:lda sprite_pixel_x_lo
+    asl a:rol l0073
     and #&f8
-    adc screen_ptr
-    sta screen_ptr
-    lda screen_ptr+1
-    adc l0073
-    sta screen_ptr+1
+    adc screen_ptr:sta screen_ptr ; we know carry is clear after rol l0073
+    lda screen_ptr+1:adc l0073:sta screen_ptr+1
     ldx l0074
     lda sprite_screen_and_data_addrs+screen_addr_lo,x
     sta screen_ptr2
