@@ -1917,7 +1917,7 @@ sprite_addr_lo = 3
 
 ; Lookup table of the start addresses of character rows in screen memory. This
 ; is in descending order because we use an origin at the bottom left, whereas
-; screen memory addresses have row 0 at the top..
+; screen memory addresses have row 0 at the top.
 ; ENHANCE: If we're really desperate for space, we probably don't need all 32
 ; entries here.
 .screen_row_addr_table
