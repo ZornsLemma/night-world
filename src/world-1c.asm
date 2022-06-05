@@ -779,6 +779,11 @@ endmacro
 ; pixel-perfect detection would make it harder or even impossible for the player
 ; to pick up objects, as they would need to actually manage to physically
 ; overlap them.
+;
+; ENHANCE: This is a general-purpose routine, but in practice we could bake-in
+; some behaviour which is appropriate for our purposes (e.g. hardcode 8 instead
+; of reading Y%, don't worry about the possibility of W% not being on screen as
+; it's always the player sprite).
 .q_subroutine
 {
 max_candidate_sprite_x2 = &70
@@ -790,39 +795,24 @@ abs_y_difference = &73
     sec:sbc #1
     asl a:tax
     asl a:tay
-; We have X=(W%-1)*2, Y=(W%-1)*4. X retains this value for the entire
-; subroutine. Y's value is only used if the beq
-; next_candidate branch is taken on the first pass round
-; y_loop.
-    lda sprite_screen_and_data_addrs+screen_addr_hi,y
-    beq no_collision_found
+    ; If sprite slot W% is not on screen, it can't have any collisions.
+    lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq no_collision_found
     stx sprite_to_check_x2
-    lda ri_y
-    beq no_collision_found
-    cmp #max_sprite_num+1
-    bcs no_collision_found
-    sec
-    sbc #1
-    asl a
-    sta max_candidate_sprite_x2
+    lda ri_y:beq no_collision_found
+    cmp #max_sprite_num+1:bcs no_collision_found
+    sec:sbc #1
+    asl a:sta max_candidate_sprite_x2
+    ; Loop over all the candidate sprites and see if any are overlapping W%.
+    ; TODO: I think the code for the following loop is needlessly fiddly about
+    ; shuffling a value back between A and Y. In practice this works, but I
+    ; think it introduces some theoretical bugs (e.g. if we're entered with
+    ; W%=3 and Y%=4, this loop will get stuck with A=4 and Y=2). It would
+    ; probably be simpler and more correct to keep the loop index in Y and
+    ; just increment it with iny:iny. Do think about this before changing it
+    ; as it's possible there's a subtlety here I'm overlooking.
     lda #0
-; Don't test for collision of W% with itself!
-; TODO: If W%=1 on entry, the first pass round the y_loop
-; will take the beq, but Y doesn't yet contain the loop variable
-; (because of our shuffling in and out of A). As it happens, we will
-; get away with this because Y will be (W%-1)*4=0, so it does
-; effectively contain the loop variable 'by chance'. This isn't a big
-; deal, but I'm noting it as may want to double-check this
-; understanding before trying to avoid the Y-A shuffle. Actually I
-; think there is another bug here, if (say) W%=3 and Y%=4 on entry,
-; the loop will get stuck with A=4 and Y=2, because the increment of Y
-; will never happen because of the Y-A shuffle. As long as W%>Y% on
-; entry - which it is in the game - this can't happen.
-; TODO: I suspect we could avoid shuffling Y into A and just do
-; iny:iny and change some cmp to cpy
 .y_loop
-    cmp sprite_to_check_x2
-    beq next_candidate
+    cmp sprite_to_check_x2:beq next_candidate ; W% can't collide with itself
     tay
     lda #5
     sta l0074
