@@ -990,6 +990,7 @@ overlap_direction = &74
     clc
     jmp remove_sprite_from_screen
 
+; TODO: WRITE NEW SUBROUTINE COMMENT IN STYLE OF Q_SUBROUTINE ONE
 ; Entered with a sprite slot number in W%.
 ; 
 ; If Y%=2 or slot W% has invalid coordinates, if the sprite is on on
@@ -1004,41 +1005,19 @@ overlap_direction = &74
 ; Effectively Y%=1 means 'show sprite', Y%=0 means 'move sprite' and
 ; Y%=2 means 'remove sprite'.
 .^s_subroutine
-    lda ri_w
-    beq r_subroutine_rts
-    cmp #&31 ; '1'
-    bcs r_subroutine_rts
-    sec
-    sbc #1
-    ldx ri_y
-    cpx #2
-    beq clc_remove_sprite_from_screen
+    lda ri_w:beq r_subroutine_rts
+    cmp #max_sprite_num+1:bcs r_subroutine_rts
+    sec:sbc #1
+    ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
     jsr get_sprite_details
-    lda sprite_pixel_coord_table_xy,x
-    cmp #&fe
-    bcs clc_remove_sprite_from_screen
-    lda sprite_pixel_coord_table_xy+1,x
-    cmp #2
-    bcc clc_remove_sprite_from_screen
-    lda sprite_pixel_y_lo
-    tax
-    lsr a
-    lsr a
-    and #&fe
-    tay
-    txa
-    and #7
-    eor #7
-    sta sprite_y_offset_within_row
-    lda screen_row_addr_table,y
-    clc
-    adc sprite_y_offset_within_row
-    sta screen_ptr
-    lda screen_row_addr_table+1,y
-    adc #0
-    sta screen_ptr+1
-    lda #0
-    sta l0073
+    lda sprite_pixel_coord_table_xy,x:cmp #&fe:bcs clc_remove_sprite_from_screen
+    lda sprite_pixel_coord_table_xy+1,x:cmp #2:bcc clc_remove_sprite_from_screen
+    lda sprite_pixel_y_lo:tax
+    lsr a:lsr a:and #&fe:tay
+    txa:and #7:eor #7:sta sprite_y_offset_within_row
+    lda screen_row_addr_table,y:clc:adc sprite_y_offset_within_row:sta screen_ptr
+    lda screen_row_addr_table+1,y:adc #0:sta screen_ptr+1
+    lda #0:sta l0073
     lda sprite_pixel_x_lo
     asl a
     rol l0073
