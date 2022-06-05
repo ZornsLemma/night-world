@@ -1018,6 +1018,10 @@ overlap_direction = &74
     lda sprite_pixel_coord_table_xy+1,x:cmp #2:bcc clc_remove_sprite_from_screen
     lda sprite_pixel_y_lo:tax
     lsr a:lsr a:and #&fe:tay
+    ; Invert the low bits of the sprite's Y pixel address; this accounts for the
+    ; fact that our pixel coordinates have their origin at the bottom left, but
+    ; the bytes within a 6845 character cell in the screen memory are arranged
+    ; from the top downwards.
     txa:and #7:eor #7:sta sprite_y_offset_within_row
     lda screen_row_addr_table,y:clc:adc sprite_y_offset_within_row:sta screen_ptr
     lda screen_row_addr_table+1,y:adc #0:sta screen_ptr+1
