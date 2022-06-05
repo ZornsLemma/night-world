@@ -783,7 +783,8 @@ endmacro
 ; ENHANCE: This is a general-purpose routine, but in practice we could bake-in
 ; some behaviour which is appropriate for our purposes (e.g. hardcode 8 instead
 ; of reading Y%, don't worry about the possibility of W% not being on screen as
-; it's always the player sprite).
+; it's always the player sprite, assume W%>Y% so we don't have to worry about
+; self-collisions).
 .q_subroutine
 {
 max_candidate_sprite_x2 = &70
