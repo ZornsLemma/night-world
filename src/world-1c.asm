@@ -36,6 +36,11 @@ sprite_ptr2 = &007e
 l007f = &007f
 osbyte = &fff4
 
+; This is the conceptual width; sprite data is actually 12 pixels wide but only
+; eight adjacent columns within the sprite will be non-black.
+sprite_width_pixels = 8
+sprite_height_pixels = 16
+
 ; BASIC's resident integer variables @%, A%, ..., Z% (four bytes each) have
 ; fixed addresses in page &4. They are used extensively to communicate between
 ; BASIC and this machine code.
@@ -817,8 +822,7 @@ abs_y_difference = &73
     tay
     lda #5:sta l0074
     lda sprite_pixel_coord_table_xy,x
-    sec
-    sbc sprite_pixel_coord_table_xy,y
+    sec:sbc sprite_pixel_coord_table_xy,y
     ; TODO: This BMI feels wrong (e.g. 0-140=-140=116, so the answer will look
     ; positive when it isn't) and as though using BCS/BCC would be better. I'm
     ; not that confident about this though. I did write a program to test all
@@ -826,32 +830,31 @@ abs_y_difference = &73
     ; kinda-sorta see why it probably is fine.
     bmi negate_x_difference_and_inc_l0074
     beq test_abs_x_difference
-    dec l0074 ; set l0074=4
+    dec l0074
 .test_abs_x_difference
-    cmp #9
-    bcs next_candidate
-; abs(sprite_to_check.x - candidate_sprite.x) < 9 (TODO: subject to
-; concerns about bugs in other TODOs), so we consider the sprites to
-; be overlapping in X and we need to check Y.
+    cmp #sprite_width_pixels+1:bcs next_candidate
+    ; abs(W%'s X coord, candidate's X coord) <= sprite_width_pixels, so the two
+    ; overlap in the X dimension. Check for Y overlap now.
     sta abs_x_difference
-; TODO: same concerns as for X about this not working for some values.
     lda sprite_pixel_coord_table_xy+1,x
-    sec
-    sbc sprite_pixel_coord_table_xy+1,y
-    bmi sprite_to_check_y_lt_candidate_y
+    sec:sbc sprite_pixel_coord_table_xy+1,y
+    ; TODO: See coments on BMI above.
+    bmi negate_y_difference_and_subtract_3_from_l0074
     beq test_abs_y_difference
-; sprite_pixel_coord_table_xy+1,x > sprite_pixel_coord_table_xy+1,y
-; (TODO: assuming unsigned)
-    inc l0074
-    inc l0074
-    inc l0074
+    inc l0074:inc l0074:inc l0074
 .test_abs_y_difference
-    cmp #&10
-    bcs next_candidate
-; abs(sprite_to_check.y - candidate_sprite.y) < 16 (TODO: subject to
-; concerns about bugs), so these two sprites overlap and we're done.
+    ; TODO: "Logically" this should be cmp #sprite_height_pixels+1, shouldn't
+    ; it? In practice as noted elsewhere the code works and it's probably best
+    ; to take its behaviour as correct by definition unless a glaring flaw turns
+    ; up.
+    cmp #sprite_height_pixels:bcs next_candidate
+    ; abs(W%'s Y coord, candidate's Y coord) <= ~sprite_height_pixels, so the
+    ; two overlap in both dimensions and we've found a collision.
+    ; At this point l0074 = 5 + sign(X difference) + 3*sign(Y difference). I
+    ; believe this gives a value in the range 1-9 which indicates the X/Y
+    ; "structure" of the collision, although in practice we don't use it.
     sta abs_y_difference
-    bcc collision_found                     ; always branch
+    bcc collision_found ; always branch
 .next_candidate
     cpy max_candidate_sprite_x2
     beq no_collision_found
@@ -873,38 +876,24 @@ abs_y_difference = &73
     inc l0074
     bne test_abs_x_difference ; always branch
 ; Set A=-A (TODO: same 'clc needed' concern as for X)
-.sprite_to_check_y_lt_candidate_y
-    eor #&ff
-    adc #1
-    dec l0074
-    dec l0074
-    dec l0074
-    bne test_abs_y_difference                            ; always branch
-; Set Y% to 35-(abs_x_difference*2)-abs_y_difference, so (roughly) Y%
-; indicates how much the sprites are overlapping - it will range from
-; 4 if both differences are as large as possible up to 35 if the two
-; sprites coincide perfectly. world-2.bas doesn't seem to use this.
+.negate_y_difference_and_subtract_3_from_l0074
+    eor #&ff:adc #1 ; TODO: not sure we have carry clear here
+    dec l0074:dec l0074:dec l0074
+    bne test_abs_y_difference ; always branch
 .collision_found
-    lda abs_x_difference
-    asl a
-    adc abs_y_difference
-    sta l0073
-    lda #&23 ; '#'
-    sec
-    sbc l0073
-    sta ri_y
-; Set Z% to TODO: some number indicating something about the
-; collision. world-2.bas doesn't appear to use this, although I'm not
-; currently absolutely certain of this.
-    lda l0074
-    sta ri_z
-; Set X% to the 1-based logical sprite number we found a collision
-; with.
-    iny
-    iny
-    tya
-    lsr a
-    sta ri_x
+    ; Set Y% to 35-(abs_x_difference*2)-abs_y_difference, so it is a metric
+    ; indicating how much the sprites overlap. It will range from 4 if both
+    ; differences are as large as possible up to 35 if the two sprites coincide
+    ; perfectly. This doesn't seem to be used in practice.
+    lda abs_x_difference:asl a:adc abs_y_difference:sta l0073
+    lda #35:sec:sbc l0073:sta ri_y
+    ; Set Z% to TODO: some number indicating something about the
+    ; collision. world-2.bas doesn't appear to use this, although I'm not
+    ; currently absolutely certain of this.
+    lda l0074:sta ri_z
+    ; Set X% to the 1-based logical sprite number we found a collision
+    ; with.
+    iny:iny:tya:lsr a:sta ri_x
 .^q_subroutine_rts
     rts
 }
