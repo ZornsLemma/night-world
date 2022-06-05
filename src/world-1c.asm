@@ -1637,6 +1637,7 @@ overlap_direction = &74
 ; There are probably some subtleties here, but I think that's broadly
 ; right.
 .u_subroutine
+{
     lda ri_w
     beq t_subroutine_rts
     cmp #max_sprite_num+1
@@ -1725,6 +1726,7 @@ overlap_direction = &74
     sta ri_b+1,y
 .u_subroutine_rts2
     rts
+}
 
 ; Zero resident integer variables A%-Z%
 ; TODO: This code probably initialises some game state; if this is
@@ -1732,6 +1734,7 @@ overlap_direction = &74
 ; time, but if it changes during gameplay it makes sense to have code
 ; to reset things when a new game starts.
 .v_subroutine
+{
     ldx #('Z'-'A'+1)*4
     lda #0
 .zero_ri_loop
@@ -1786,7 +1789,9 @@ overlap_direction = &74
     equw u_subroutine,            0
 .initial_v_value
     equw v_subroutine,            0
-.initial_qrstuv_values_end
+}
+
+    ; ENHANCE: Junk data, can be deleted.
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb &ff,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
