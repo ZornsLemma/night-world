@@ -986,6 +986,10 @@ overlap_direction = &74
 }
 
 {
+; ENHANCE: This subroutine seems a bit over-zealous about clearing carry and
+; could probably be simplified and clarified by clearing it only when we finally
+; need it cleared.
+
 .clc_remove_sprite_from_screen
     clc
     jmp remove_sprite_from_screen
@@ -1023,47 +1027,23 @@ overlap_direction = &74
     adc screen_ptr:sta screen_ptr ; we know carry is clear after rol l0073
     lda screen_ptr+1:adc l0073:sta screen_ptr+1
     ldx l0074
-    lda sprite_screen_and_data_addrs+screen_addr_lo,x
-    sta screen_ptr2
-    lda sprite_screen_and_data_addrs+screen_addr_hi,x
-    sta screen_ptr2+1
-    lda screen_ptr
-    sta sprite_screen_and_data_addrs+screen_addr_lo,x
-    lda screen_ptr+1
-    sta sprite_screen_and_data_addrs+screen_addr_hi,x
-    lda sprite_pixel_x_lo
-    and #3
-    asl a
-    asl a
-    asl a
-    asl a
-    sta l0073
-    asl a
-    adc l0073
+    lda sprite_screen_and_data_addrs+screen_addr_lo,x:sta screen_ptr2
+    lda sprite_screen_and_data_addrs+screen_addr_hi,x:sta screen_ptr2+1
+    lda screen_ptr:sta sprite_screen_and_data_addrs+screen_addr_lo,x
+    lda screen_ptr+1:sta sprite_screen_and_data_addrs+screen_addr_hi,x
+    lda sprite_pixel_x_lo:and #3
+    asl a:asl a:asl a:asl a:sta l0073
+    asl a:adc l0073 ; we know carry is clear after asl a
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x
     sta l0070
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x
-    adc #0
-    sta l0071
-    lda ri_y
-    cmp #1
-    beq clc_jmp_sprite_core
-    lda screen_ptr2+1
-    beq clc_jmp_sprite_core
-    lda l0072
-    and #3
-    asl a
-    asl a
-    asl a
-    asl a
-    sta l0073
-    asl a
-    adc l0073
-    adc sprite_screen_and_data_addrs+sprite_addr_lo,x
-    sta sprite_ptr2
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x
-    adc #0
-    sta sprite_ptr2+1
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta l0071
+    lda ri_y:cmp #1:beq clc_jmp_sprite_core
+    lda screen_ptr2+1:beq clc_jmp_sprite_core
+    lda l0072:and #3
+    asl a:asl a:asl a:asl a:sta l0073
+    asl a:adc l0073 ; we know carry is clear after asl a
+    adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr2
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
     clc
     jmp sprite_core_moving
 
@@ -1324,10 +1304,6 @@ overlap_direction = &74
 ; haven't been over the code properly yet, but I suspect it is a
 ; 'erase at old location, replot immediately at new location' variant,
 ; to handle moving sprites more efficiently.
-; ENHANCE: This label is actually only used by u_subroutine, so if we rearranged
-; the code it could fall within u_subroutine's scope. This might not really
-; clarify things all that much though, although I have done it for sprite_core
-; because the existing code layout made that possible.
 .sprite_core_moving
 {
     lda #1
