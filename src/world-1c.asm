@@ -1456,6 +1456,7 @@ overlap_direction = &74
 ; TODO: I think there's no need for the branches to cli_rts here, we
 ; could just branch to the rts.
 .t_subroutine
+{
     lda ri_w
     beq cli_rts
     cmp #max_sprite_num+1
@@ -1540,6 +1541,7 @@ overlap_direction = &74
     sta ri_b,y
     jmp s_subroutine
 
+    ; ENHANCE: junk byte, can be deleted
     equb &60
 ; TODO: This is called once, via a bcc.
 .sprite_y_pixel_coord_lt_2_indirect
@@ -1598,9 +1600,9 @@ overlap_direction = &74
     cmp #1
     beq c53ec
     lda sprite_delta_coord_table_xy+1,x
-    beq u_subroutine_rts
+    beq t_subroutine_rts
     cmp #&80
-    bcs u_subroutine_rts
+    bcs t_subroutine_rts
     lda sprite_y_min
 ; TODO: we are storing at sprite_pixel_coord_table_xy+1,y - the +1
 ; suggests y coord, but multiply by 8 suggests x
@@ -1615,17 +1617,18 @@ overlap_direction = &74
     tax
     lda t_subroutine_constant_1
     bne c53f8                                                         ; always branch?
-.u_subroutine_rts
+.^t_subroutine_rts
     rts
 
 .c53ec
     lda sprite_delta_coord_table_xy+1,x
     cmp #&80
-    bcc u_subroutine_rts
+    bcc t_subroutine_rts
     lda sprite_y_max
     bne x_pixel_coord_in_a_2                                          ; always branch; always branch
 .c53f8
     jmp set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
+}
 
 ; If X%=0 on entry, update the resident integer variables for sprite
 ; slot W% with that sprite's current OS coordinates. Otherwise, remove
@@ -1635,15 +1638,15 @@ overlap_direction = &74
 ; right.
 .u_subroutine
     lda ri_w
-    beq u_subroutine_rts
+    beq t_subroutine_rts
     cmp #max_sprite_num+1
-    bcs u_subroutine_rts
+    bcs t_subroutine_rts
     sec
     sbc #1
     ldx ri_x
     beq u_subroutine_ri_x_0
     cpx #max_sprite_num+1
-    bcs u_subroutine_rts
+    bcs t_subroutine_rts
     asl a
     tay
     asl a
@@ -1652,7 +1655,7 @@ overlap_direction = &74
     sta screen_ptr2
     sta screen_ptr
     lda sprite_screen_and_data_addrs+screen_addr_hi,x
-    beq u_subroutine_rts
+    beq t_subroutine_rts
     sta screen_ptr2+1
     sta screen_ptr+1
 ; Get the sprite's X pixel coordinate and use its low two bits to
