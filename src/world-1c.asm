@@ -1845,12 +1845,11 @@ overlap_direction = &74
 .sprite_x_min
     equb 2
 .sprite_x_max
-    equb &96
+    equb 150
 .sprite_y_min
-    equb &10
-; TODO: This is just a constant in this game.
+    equb 16
 .sprite_y_max
-    equb &fe
+    equb 254
 
 ; ENHANCE: Junk data, can delete TODO: but check this isn't used as index 30/31
 ; of sprite_delta_coord_table first
