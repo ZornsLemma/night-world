@@ -896,8 +896,11 @@ overlap_direction = &74
     rts
 }
 
-; TODO: Dead code?
+; This seems to be keyboard-reading code which is never used in practice, so I
+; haven't attempted to fully disassemble it.
+; ENHANCE: This can obviously be removed.
 .r_subroutine
+{
     lda ri_x
     cmp #4
     bcs q_subroutine_rts
@@ -971,16 +974,17 @@ overlap_direction = &74
 .c501f
     sta r_subroutine_foo
     sta ri_z
-.s_subroutine_rts
+.^r_subroutine_rts
     rts
 
-; TODO: Dead code?
 .c5026
     lda r_subroutine_foo
     bne c501f
 .c502b
     lda l0075
     bne c501f
+}
+
 .clc_remove_sprite_from_screen
     clc
     jmp remove_sprite_from_screen
@@ -1000,9 +1004,9 @@ overlap_direction = &74
 ; Y%=2 means 'remove sprite'.
 .s_subroutine
     lda ri_w
-    beq s_subroutine_rts
+    beq r_subroutine_rts
     cmp #&31 ; '1'
-    bcs s_subroutine_rts
+    bcs r_subroutine_rts
     sec
     sbc #1
     ldx ri_y
