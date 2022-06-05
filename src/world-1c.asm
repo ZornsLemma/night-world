@@ -1988,11 +1988,12 @@ sprite_addr_lo = 3
 
 ; TODO: This table appears to be read-only and since every byte is 1,
 ; we can probably replace accesses to it with immediate constants and
-; get rid of it.
+; get rid of it. We should probably rename it to indicate its conceptual
+; purpose for now though.
 .constant_1_per_sprite_table
-    equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-    equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-    equb 1, 1, 1, 1, 1, 1
+    for i, 1, 48
+        equb 1
+    next
 
 ; ENHANCE: Dead data as r_subroutine is not used, can be removed
 .r_subroutine_inkey_code_1
