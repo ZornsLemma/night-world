@@ -985,6 +985,7 @@ overlap_direction = &74
     bne c501f
 }
 
+{
 .clc_remove_sprite_from_screen
     clc
     jmp remove_sprite_from_screen
@@ -1002,7 +1003,7 @@ overlap_direction = &74
 ; 
 ; Effectively Y%=1 means 'show sprite', Y%=0 means 'move sprite' and
 ; Y%=2 means 'remove sprite'.
-.s_subroutine
+.^s_subroutine
     lda ri_w
     beq r_subroutine_rts
     cmp #&31 ; '1'
@@ -1272,6 +1273,7 @@ overlap_direction = &74
     sta sprite_pixel_y_lo
     clc
     rts
+}
 
 ; Sprite plot routine. EORs a 3-byte (12 pixel) wide sprite onto the
 ; screen, writing data starting at the address pointed to by
