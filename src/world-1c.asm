@@ -1978,15 +1978,14 @@ sprite_addr_lo = 3
     equb >sprite_00, <sprite_00
     equb >sprite_00, <sprite_00
     equb >sprite_00, <sprite_00
+
 ; Table of (pixel X coordinate, pixel Y coordinate) sprite positions,
 ; two bytes per sprite
 .sprite_pixel_coord_table_xy
-    equb 0
-    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    for i, 1, 48
+        equb 0, 0
+    next
+
 ; TODO: This table appears to be read-only and since every byte is 1,
 ; we can probably replace accesses to it with immediate constants and
 ; get rid of it.
