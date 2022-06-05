@@ -1189,9 +1189,9 @@ overlap_direction = &74
     bcs sprite_y_position_too_far_down
 .sprite_pixel_x_hi_zero
     lda sprite_pixel_x_lo
-    cmp constant_2
+    cmp sprite_x_min
     bcc sprite_x_position_too_far_left
-    cmp constant_96
+    cmp sprite_x_max
     beq sprite_x_position_ok
     bcs sprite_x_position_too_far_right
 .sprite_x_position_ok
@@ -1207,7 +1207,7 @@ overlap_direction = &74
     sta sprite_pixel_coord_table_xy,x
     bne sprite_check_y_position                                       ; always branch
 .force_sprite_x_position_to_rhs
-    lda constant_96
+    lda sprite_x_max
     sta sprite_pixel_coord_table_xy,x
     sta sprite_pixel_x_lo
 ; TODO: I believe this is effectively a jmp and nothing cares about
@@ -1223,7 +1223,7 @@ overlap_direction = &74
     sta sprite_pixel_coord_table_xy,x
     bne sprite_check_y_position                                       ; always branch
 .force_sprite_x_position_to_lhs
-    lda constant_2
+    lda sprite_x_min
     sta sprite_pixel_coord_table_xy,x
     sta sprite_pixel_x_lo
     clc
@@ -1556,7 +1556,7 @@ overlap_direction = &74
     beq update_y_pixel_coord_indirect
     cmp #&80
     bcs update_y_pixel_coord_indirect
-    lda constant_2
+    lda sprite_x_min
 .new_x_pixel_coord_in_a
     sta sprite_pixel_coord_table_xy,y
     asl a
@@ -1571,7 +1571,7 @@ overlap_direction = &74
     lda sprite_delta_coord_table_xy,x
     cmp #&80
     bcc update_y_pixel_coord_indirect
-    lda constant_96
+    lda sprite_x_max
     bne new_x_pixel_coord_in_a
 .new_x_coord_carry
     inc t_subroutine_os_x_hi
@@ -1809,45 +1809,52 @@ overlap_direction = &74
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
+
 .sprite_delta_coord_table_xy
-    equb -1,  1                                                       ; index 0
-    equb  0,  1                                                       ; index 1
-    equb  1,  1                                                       ; index 2
-    equb -1,  0                                                       ; index 3
-    equb  0,  0                                                       ; index 4
-    equb  1,  0                                                       ; index 5
-    equb -1, -1                                                       ; index 6
-    equb  0, -1                                                       ; index 7
-    equb  1, -1                                                       ; index 8
-    equb  0,  0                                                       ; index 9
-    equb -8,  8                                                       ; index 10
-    equb  0,  8                                                       ; index 11
-    equb  8,  8                                                       ; index 12
-    equb -8,  0                                                       ; index 13
-    equb  0,  0                                                       ; index 14
-    equb  8,  0                                                       ; index 15
-    equb -8, -8                                                       ; index 16
-    equb  0, -8                                                       ; index 17
-    equb  8, -8                                                       ; index 18
-    equb  0,  0                                                       ; index 19
-    equb  0,  0                                                       ; index 20
-    equb  0,  0                                                       ; index 21
-    equb  0,  0                                                       ; index 22
-    equb  0,  0                                                       ; index 23
-    equb  0,  0                                                       ; index 24
-    equb  0,  0                                                       ; index 25
-    equb  0,  0                                                       ; index 26
-    equb  0,  0                                                       ; index 27
-.constant_2
+    equb -1,  1 ; index 0
+    equb  0,  1 ; index 1
+    equb  1,  1 ; index 2
+    equb -1,  0 ; index 3
+    equb  0,  0 ; index 4
+    equb  1,  0 ; index 5
+    equb -1, -1 ; index 6
+    equb  0, -1 ; index 7
+    equb  1, -1 ; index 8
+    equb  0,  0 ; index 9
+    equb -8,  8 ; index 10
+    equb  0,  8 ; index 11
+    equb  8,  8 ; index 12
+    equb -8,  0 ; index 13
+    equb  0,  0 ; index 14
+    equb  8,  0 ; index 15
+    equb -8, -8 ; index 16
+    equb  0, -8 ; index 17
+    equb  8, -8 ; index 18
+    equb  0,  0 ; index 19
+    equb  0,  0 ; index 20
+    equb  0,  0 ; index 21
+    equb  0,  0 ; index 22
+    equb  0,  0 ; index 23
+    equb  0,  0 ; index 24
+    equb  0,  0 ; index 25
+    equb  0,  0 ; index 26
+    equb  0,  0 ; index 27
+
+; ENHANCE: The following four values are just constants in practice, so
+; references to them can be replaced by immediate operands.
+.sprite_x_min
     equb 2
-.constant_96
+.sprite_x_max
     equb &96
-; TODO: This is just a constant in this game.
 .sprite_y_min
     equb &10
 ; TODO: This is just a constant in this game.
 .sprite_y_max
-    equb &fe,   0,   0,   0,   0
+    equb &fe
+
+; ENHANCE: Junk data, can delete TODO: but check this isn't used as index 30/31
+; of sprite_delta_coord_table first
+    equb 0, 0, 0, 0
 
 ; This table has four bytes per sprite slot; the following constants are used to
 ; indicate which byte is being accessed. We have a screen address where the
