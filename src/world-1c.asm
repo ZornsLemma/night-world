@@ -1055,11 +1055,11 @@ abs_y_difference = &73
     and #7
     eor #7
     sta sprite_y_offset_within_row
-    lda screen_y_addr_table,y
+    lda screen_row_addr_table,y
     clc
     adc sprite_y_offset_within_row
     sta screen_ptr
-    lda screen_y_addr_table+1,y
+    lda screen_row_addr_table+1,y
     adc #0
     sta screen_ptr+1
     lda #0
@@ -1916,39 +1916,16 @@ sprite_addr_lo = 3
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 46
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 47
 
-.screen_y_addr_table
-    equw &7ec0
-    equw &7d80
-    equw &7c40
-    equw &7b00
-    equw &79c0
-    equw &7880
-    equw &7740
-    equw &7600
-    equw &74c0
-    equw &7380
-    equw &7240
-    equw &7100
-    equw &6fc0
-    equw &6e80
-    equw &6d40
-    equw &6c00
-    equw &6ac0
-    equw &6980
-    equw &6840
-    equw &6700
-    equw &65c0
-    equw &6480
-    equw &6340
-    equw &6200
-    equw &60c0
-    equw &5f80
-    equw &5e40
-    equw &5d00
-    equw &5bc0
-    equw &5a80
-    equw &5940
-    equw &5800
+; Lookup table of the start addresses of character rows on the screen. This is
+; in descending order because we use an origin at the bottom left, whereas
+; screen memory addresses have row 0 at the top..
+; ENHANCE: If we're really desperate for space, we probably don't need all 32
+; entries here.
+.screen_row_addr_table
+    for y, 31, 0, -1
+        equw &5800 + y*320
+    next
+
 ; This appears to be a big-endian table of start addresses for the
 ; game sprites. TODO: This is inspired guesswork; note that the copy
 ; of this at sprite_screen_and_data_addrs+{2,3] does get tweaked
