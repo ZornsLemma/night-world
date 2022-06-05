@@ -1728,31 +1728,26 @@ overlap_direction = &74
     rts
 }
 
-; Zero resident integer variables A%-Z%
-; TODO: This code probably initialises some game state; if this is
-; one-off initialisation I think it could just have been done at build
-; time, but if it changes during gameplay it makes sense to have code
-; to reset things when a new game starts.
 .v_subroutine
 {
+    ; Zero resident integer variables A%-Z%
     ldx #('Z'-'A'+1)*4
     lda #0
 .zero_ri_loop
     sta ri_a-1,x
     dex
     bne zero_ri_loop
-; Initialise resident integer variables Q%-V%
-; TODO: S% at least is effectively a way for this machine code to
-; communicate its internal addresses to the BASIC - quite a neat
-; trick. Other variables here may well work the same way
+    ; Initialise resident integer variables Q%-V%
     ldx #('V'-'Q'+1)*4
 .init_qrstuv_loop
     lda initial_qrstuv_values-1,x
     sta ri_q-1,x
     dex
     bne init_qrstuv_loop
+    ; Initialise sprite_screen_and_data_addrs so every slot is associated with
+    ; the corresponding sprite image by default and is not on screen.
     ldx #0
-    clc
+    clc ; ENHANCE: get rid of this and do iny*4 below to increment Y
     ldy #max_sprite_num
     sty l0070
     ldy #0
@@ -1775,20 +1770,28 @@ overlap_direction = &74
     bne init_sprite_screen_and_data_addrs_loop
     rts
 
+; ENHANCE: I am actually thinking of using just a single resident integer
+; variable which points to a table of entry points. The BASIC code can then set
+; up whatever variables it chooses from that table on startup, and we will have
+; five of these resident integer variables free for re-use as whatever improves
+; performance the most. (It may well be that some of these subroutines continue
+; to be assigned to resident integer variables, but that would be entirely down
+; to the BASIC.) If I do this, I would need to make sure it's OK for
+; v_subroutine to zero all resident integer variables, or tweak it to leave some
+; alone.
 .initial_qrstuv_values
 .initial_q_value
-    equw q_subroutine,            0
-; TODO: never used?
+    equw q_subroutine, 0
 .initial_r_value
-    equw r_subroutine,            0
+    equw r_subroutine, 0
 .initial_s_value
-    equw s_subroutine,            0
+    equw s_subroutine, 0
 .initial_t_value
-    equw t_subroutine,            0
+    equw t_subroutine, 0
 .initial_u_value
-    equw u_subroutine,            0
+    equw u_subroutine, 0
 .initial_v_value
-    equw v_subroutine,            0
+    equw v_subroutine, 0
 }
 
     ; ENHANCE: Junk data, can be deleted.
