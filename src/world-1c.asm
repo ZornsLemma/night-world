@@ -1993,6 +1993,8 @@ sprite_addr_lo = 3
     equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     equb 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     equb 1, 1, 1, 1, 1, 1
+
+; ENHANCE: Dead data as r_subroutine is not used, can be removed
 .r_subroutine_inkey_code_1
     equb &bd
 .r_subroutine_inkey_code_2
@@ -2002,7 +2004,11 @@ sprite_addr_lo = 3
 .r_subroutine_inkey_code_4
     equb &97
 .r_subroutine_foo
-    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    equb 0
+
+; ENHANCE: Junk data, can be removed.
+    equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+
 .pydis_end
 
 MAKE_IMAGE =? FALSE
