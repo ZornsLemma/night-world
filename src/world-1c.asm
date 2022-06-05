@@ -1052,29 +1052,17 @@ overlap_direction = &74
     jmp sprite_core
 
 .remove_sprite_from_screen
-    asl a
-    tay
-    asl a
-    tax
-    lda sprite_screen_and_data_addrs+screen_addr_lo,x
-    sta screen_ptr
-    lda sprite_screen_and_data_addrs+screen_addr_hi,x
-    beq s_subroutine_rts2
+    ; A is the 0-based sprite slot derived from W%.
+    asl a:tay
+    asl a:tax
+    lda sprite_screen_and_data_addrs+screen_addr_lo,x:sta screen_ptr
+    lda sprite_screen_and_data_addrs+screen_addr_hi,x:beq s_subroutine_rts2
     sta screen_ptr+1
-    lda sprite_pixel_coord_table_xy,y
-    and #3
-    asl a
-    asl a
-    asl a
-    asl a
-    sta l0073
-    asl a
-    adc l0073
-    adc sprite_screen_and_data_addrs+sprite_addr_lo,x
-    sta l0070
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x
-    adc #0
-    sta l0071
+    lda sprite_pixel_coord_table_xy,y:and #3
+    asl a:asl a:asl a:asl a:sta l0073
+    asl a:adc l0073 ; we know carry is clear after asl a
+    adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
     lda #0
     sta sprite_screen_and_data_addrs+screen_addr_lo,x
     sta sprite_screen_and_data_addrs+screen_addr_hi,x
