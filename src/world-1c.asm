@@ -795,6 +795,7 @@ endmacro
 max_candidate_sprite_x2 = &70
 abs_x_difference = &72
 abs_y_difference = &73
+overlap_direction = &74
 
     lda ri_w:beq no_collision_found
     cmp #max_sprite_num+1:bcs no_collision_found
@@ -820,7 +821,7 @@ abs_y_difference = &73
 .y_loop
     cmp sprite_to_check_x2:beq next_candidate ; W% can't collide with itself
     tay
-    lda #5:sta l0074
+    lda #5:sta overlap_direction
     lda sprite_pixel_coord_table_xy,x
     sec:sbc sprite_pixel_coord_table_xy,y
     ; TODO: This BMI feels wrong (e.g. 0-140=-140=116, so the answer will look
@@ -828,9 +829,9 @@ abs_y_difference = &73
     ; not that confident about this though. I did write a program to test all
     ; the cases in the range 0-159 and in practice it works fine, and I can
     ; kinda-sorta see why it probably is fine.
-    bmi negate_x_difference_and_inc_l0074
+    bmi negate_x_difference_and_inc_overlap_direction
     beq test_abs_x_difference
-    dec l0074
+    dec overlap_direction
 .test_abs_x_difference
     cmp #sprite_width_pixels+1:bcs next_candidate
     ; abs(W%'s X coord, candidate's X coord) <= sprite_width_pixels, so the two
@@ -839,9 +840,9 @@ abs_y_difference = &73
     lda sprite_pixel_coord_table_xy+1,x
     sec:sbc sprite_pixel_coord_table_xy+1,y
     ; TODO: See coments on BMI above.
-    bmi negate_y_difference_and_subtract_3_from_l0074
+    bmi negate_y_difference_and_subtract_3_from_overlap_direction
     beq test_abs_y_difference
-    inc l0074:inc l0074:inc l0074
+    inc overlap_direction:inc overlap_direction:inc overlap_direction
 .test_abs_y_difference
     ; TODO: "Logically" this should be cmp #sprite_height_pixels+1, shouldn't
     ; it? In practice as noted elsewhere the code works and it's probably best
@@ -850,7 +851,7 @@ abs_y_difference = &73
     cmp #sprite_height_pixels:bcs next_candidate
     ; abs(W%'s Y coord, candidate's Y coord) <= ~sprite_height_pixels, so the
     ; two overlap in both dimensions and we've found a collision.
-    ; At this point l0074 = 5 + sign(X difference) + 3*sign(Y difference). I
+    ; At this point overlap_direction = 5 + sign(X difference) + 3*sign(Y difference). I
     ; believe this gives a value in the range 1-9 which indicates the X/Y
     ; "structure" of the collision, although in practice we don't use it.
     sta abs_y_difference
@@ -861,24 +862,23 @@ abs_y_difference = &73
     tya
     adc #2
     bne y_loop                                           ; always branch
-; Set X% and Y% to 0 to indicate no collision found.
 .no_collision_found
     lda #0
     sta ri_x
     sta ri_y
     rts
-; Set A=-A
-.negate_x_difference_and_inc_l0074
+.negate_x_difference_and_inc_overlap_direction
+    ; Set A=-A.
     ; TODO: I'm not convinced carry will always be clear here, which we need for
     ; this to actually be a negation. At worst this is going to introduce an
     ; off-by-one error though.
     eor #&ff:adc #1
-    inc l0074
+    inc overlap_direction
     bne test_abs_x_difference ; always branch
-; Set A=-A (TODO: same 'clc needed' concern as for X)
-.negate_y_difference_and_subtract_3_from_l0074
+.negate_y_difference_and_subtract_3_from_overlap_direction
+    ; Set A=-A.
     eor #&ff:adc #1 ; TODO: not sure we have carry clear here
-    dec l0074:dec l0074:dec l0074
+    dec overlap_direction:dec overlap_direction:dec overlap_direction
     bne test_abs_y_difference ; always branch
 .collision_found
     ; Set Y% to 35-(abs_x_difference*2)-abs_y_difference, so it is a metric
@@ -887,10 +887,8 @@ abs_y_difference = &73
     ; perfectly. This doesn't seem to be used in practice.
     lda abs_x_difference:asl a:adc abs_y_difference:sta l0073
     lda #35:sec:sbc l0073:sta ri_y
-    ; Set Z% to TODO: some number indicating something about the
-    ; collision. world-2.bas doesn't appear to use this, although I'm not
-    ; currently absolutely certain of this.
-    lda l0074:sta ri_z
+    ; Set Z% to overlap_detection. This doesn't seem to be used in practice.
+    lda overlap_direction:sta ri_z
     ; Set X% to the 1-based logical sprite number we found a collision
     ; with.
     iny:iny:tya:lsr a:sta ri_x
