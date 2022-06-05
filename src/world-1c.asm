@@ -1292,6 +1292,7 @@ overlap_direction = &74
 ; time instead of just clearing it before we need it to be clear, but
 ; I may be missing something.
 .sprite_core
+{
     lda #1
     sta l0075
 .sprite_core_outer_loop
@@ -1343,12 +1344,14 @@ overlap_direction = &74
     inc sprite_ptr+1
     clc
     bne sprite_core_low_byte_wrap_handled                             ; always branch
+}
 
 ; TODO: This looks like an 'alternate version' of sprite_core? I
 ; haven't been over the code properly yet, but I suspect it is a
 ; 'erase at old location, replot immediately at new location' variant,
 ; to handle moving sprites more efficiently.
 .sprite_core_moving
+{
     lda #1
     sta l0075
     sei
@@ -1412,7 +1415,7 @@ overlap_direction = &74
 .sprite_core_moving_no_carry2
     dec l0075
     beq sprite_core_moving_outer_loop
-.cli_rts
+.^cli_rts
     cli
     rts
 
@@ -1440,6 +1443,8 @@ overlap_direction = &74
     inc sprite_ptr2+1
     clc
     bne sprite_core_moving_low_byte_wrap2_handled
+}
+
 ; Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise
 ; appears to be responsible for moving the selected sprite according
 ; to some internal rules. Set Y%=0 (move) and calls s_subroutine after
