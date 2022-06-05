@@ -815,24 +815,18 @@ abs_y_difference = &73
 .y_loop
     cmp sprite_to_check_x2:beq next_candidate ; W% can't collide with itself
     tay
-    lda #5
-    sta l0074
+    lda #5:sta l0074
     lda sprite_pixel_coord_table_xy,x
     sec
     sbc sprite_pixel_coord_table_xy,y
-; TODO: Isn't this BMI unreliable? What if we did 0-140=-140=116, for
-; example? Or 150-0? Wouldn't the correct test be BCC? In practice
-; this works fine for values in the range 0-159 inclusive; I wrote a
-; program to test all cases, but I have some vague flickering in my
-; brain that says this is semi-obvious if you think about it. I think
-; it might still be true the state of the carry when we're negating is
-; sometimes wrong, but maybe it's not, and at worst it will cause an
-; extra pixel of 'fuzz' in the collision detection.
-    bmi sprite_to_check_x_lt_candidate_x
+    ; TODO: This BMI feels wrong (e.g. 0-140=-140=116, so the answer will look
+    ; positive when it isn't) and as though using BCS/BCC would be better. I'm
+    ; not that confident about this though. I did write a program to test all
+    ; the cases in the range 0-159 and in practice it works fine, and I can
+    ; kinda-sorta see why it probably is fine.
+    bmi negate_x_difference_and_inc_l0074
     beq test_abs_x_difference
-; sprite to check's X co-ordinate is >= candidate sprite's X co-
-; ordinate.
-    dec l0074
+    dec l0074 ; set l0074=4
 .test_abs_x_difference
     cmp #9
     bcs next_candidate
@@ -870,16 +864,14 @@ abs_y_difference = &73
     sta ri_x
     sta ri_y
     rts
-
 ; Set A=-A
-.sprite_to_check_x_lt_candidate_x
-    eor #&ff
-; TODO: As written, don't we need a clc here? I am not convinced C
-; will always be implicitly clear (e.g. if we did 150-0 at &4f31 - N
-; would be set, but there's no borrow so C will still be set).
-    adc #1
+.negate_x_difference_and_inc_l0074
+    ; TODO: I'm not convinced carry will always be clear here, which we need for
+    ; this to actually be a negation. At worst this is going to introduce an
+    ; off-by-one error though.
+    eor #&ff:adc #1
     inc l0074
-    bne test_abs_x_difference                            ; always branch
+    bne test_abs_x_difference ; always branch
 ; Set A=-A (TODO: same 'clc needed' concern as for X)
 .sprite_to_check_y_lt_candidate_y
     eor #&ff
