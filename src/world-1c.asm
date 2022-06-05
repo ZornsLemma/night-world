@@ -754,6 +754,7 @@ endmacro
 ; The code usually calculates an offset (often in Y) so that the X coordinate
 ; resident integer variable can be accessed at ri_a+{0,1},y and the Y coordinate
 ; at ri_b+{0,1},y.
+ri_coord_vars = 8
 
 ; ENHANCE: Many of these routines check their inputs for validity (e.g. that W%
 ; is in the range 1-max_sprite_num); this is probably because they're a
@@ -1076,48 +1077,34 @@ overlap_direction = &74
 .s_subroutine_rts2
     rts
 
-; Entered with A=W%-1; 0<=A<=&2F
+; On entry:
+;     A is the 0-based sprite slot derived from W%.
+;
+; On exit:
+;     TODO
 .get_sprite_details
     sta get_sprite_details_sprite_index
-    asl a
-    tax
-; TODO: Is the value written to &7D ever used?
-    sta l007d
-    asl a
-    sta l0074
-    asl a
-    and #&38 ; '8'
-    tay
-; TODO: I don't think the value written to l0075 here is ever used?
-    sty l0075
-; Set l0076 (low) and l0078 (high) to the first resident integer
-; variable for this sprite divided by 8, which converts from OS
-; coordinates (0-1279) to pixel coordinates (0-159). Similarly, divide
-; the second resident integer variable by 4 to get Y pixel coordinates
-; (0-255) at l0077 (low) and l0079 (high).
-    lda ri_a+1,y
-    sta sprite_pixel_x_hi
-    lda ri_a,y
-    lsr sprite_pixel_x_hi
-    ror a
-    lsr sprite_pixel_x_hi
-    ror a
-    lsr sprite_pixel_x_hi
-    ror a
-    sta sprite_pixel_x_lo
-    lda ri_b+1,y
-    sta sprite_pixel_y_hi
-    lda ri_b,y
-    lsr sprite_pixel_y_hi
-    ror a
-    lsr sprite_pixel_y_hi
-    ror a
-    sta sprite_pixel_y_lo
+    ; Calculate the offset of this sprite slot's coordinate resident integer
+    ; variables in Y.
+    asl a:tax:sta l007d ; TODO: Is the value written to &7D ever used?
+    asl a:sta l0074
+    asl a:and #(ri_coord_vars-1)<<3:tay:sty l0075 ; TODO: I don't think the value written to l0075 here is ever used?
+    ; Copy values from the coordinate resident integer variables into
+    ; sprite_pixel_{x,y}_{hi,lo}, scaling from OS coordinates to actual pixel
+    ; coordinates by dividing X by 8 and Y by 4.
+    lda ri_a+1,y:sta sprite_pixel_x_hi
+    lda ri_a+0,y:lsr sprite_pixel_x_hi
+    ror a:lsr sprite_pixel_x_hi
+    ror a:lsr sprite_pixel_x_hi
+    ror a:sta sprite_pixel_x_lo
+    lda ri_b+1,y:sta sprite_pixel_y_hi
+    lda ri_b+0,y:lsr sprite_pixel_y_hi
+    ror a:lsr sprite_pixel_y_hi
+    ror a:sta sprite_pixel_y_lo
     ldy get_sprite_details_sprite_index
-    lda sprite_pixel_coord_table_xy,x
-    sta sprite_pixel_current_x
-    lda sprite_pixel_coord_table_xy+1,x
-    sta sprite_pixel_current_y
+    ; Copy the current pixel coordinates into sprite_pixel_current_{x,y}.
+    lda sprite_pixel_coord_table_xy+0,x:sta sprite_pixel_current_x
+    lda sprite_pixel_coord_table_xy+1,x:sta sprite_pixel_current_y
 ; TODO: Won't sprite_pixel_x_hi always be 0, since if it's on-screen
 ; it will have been reduced to the range 0-159 after dividing by 8?
     lda sprite_pixel_x_hi
