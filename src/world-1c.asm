@@ -1916,8 +1916,8 @@ sprite_addr_lo = 3
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 46
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 47
 
-; Lookup table of the start addresses of character rows on the screen. This is
-; in descending order because we use an origin at the bottom left, whereas
+; Lookup table of the start addresses of character rows in screen memory. This
+; is in descending order because we use an origin at the bottom left, whereas
 ; screen memory addresses have row 0 at the top..
 ; ENHANCE: If we're really desperate for space, we probably don't need all 32
 ; entries here.
