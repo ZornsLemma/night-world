@@ -16,6 +16,7 @@ sprite_y_offset_within_row = &75
 osbyte_inkey = &81
 osbyte_clear_escape = &7c
 
+; TODO: Move zp vars into the most restrictive scope possible
 basic_page_msb = &0018
 l0070 = &0070
 sprite_ptr = &0070
