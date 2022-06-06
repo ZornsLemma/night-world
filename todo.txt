@@ -42,3 +42,5 @@ Show the prisms somewhere on the screen after you've collected them, so you know
 Don't do two separate "jump_time%=jump_time%+1" in PROCjump - inefficient
 
 Would it break anything visually if world-2.bas were tweaked so the player sprite always occupies the same slot? If this is visually indistinguishable, making this change would potentially simplify the game code a lot, saving space and probably speeding things up (for a start, the player OS coordinates could probably just live permanently in the relevant sprite slot variables, if they're not used by any "competing" sprite slots which share those variables)
+
+Fix the "phantom wall-eater" glitch
