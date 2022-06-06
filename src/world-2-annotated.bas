@@ -1,7 +1,7 @@
    0IFPAGE>&E00:GOTO32000
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
    30REM If we hit an error other than Escape, let's make it obvious so it can be fixed.
-   40ONERROR:VDU4:IFERR=17:uw%=1:GOTO100 ELSE REPORT:PRINT;ERL:END
+   40REM TCOONERROR:VDU4:IFERR=17:uw%=1:GOTO100 ELSE REPORT:PRINT;ERL:END
    50won%=0:score%=13:uw%=0:energy_major%=10
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
@@ -14,22 +14,24 @@
   115REM Note for the following procedures that different sprite numbers have their position
   116REM managed via different resident integer variables pairs.
 
-  120DEFPROCset_lee_sprite_from_lee_xy_os:IFday_night%=1:PROCset_lee_sprite_from_lee_xy_os_gargoyle:ENDPROC ELSEIFlee_direction%=9:A%=lee_x_os%:B%=lee_y_os%:lee_sprite_num%=9:ENDPROC
-  130C%=lee_x_os%:D%=lee_y_os%:lee_sprite_num%=10:ENDPROC
+  119REM TODO: Following is WIP simplification and does some "redundant" stuff for now
+  120DEFPROCset_lee_sprite_from_lee_xy_os
+  122lee_sprite_num%=10:C%=lee_x_os%:D%=lee_y_os%:W%=lee_sprite_num%
+  123ENDPROC
 
-  140DEFPROCset_lee_xy_os_from_lee_sprite:IFday_night%=1:PROCset_lee_xy_os_from_lee_sprite_gargoyle:ENDPROC ELSEIFlee_direction%=9:lee_x_os%=A%:lee_y_os%=B%:lee_sprite_num%=9:ENDPROC
+  140DEFPROCset_lee_xy_os_from_lee_sprite
   150lee_x_os%=C%:lee_y_os%=D%:lee_sprite_num%=10:ENDPROC
-
-  160DEFPROCset_lee_sprite_from_lee_xy_os_gargoyle:IFlee_direction%=9:E%=lee_x_os%:F%=lee_y_os%:lee_sprite_num%=11:ENDPROC
-  170G%=lee_x_os%:H%=lee_y_os%:lee_sprite_num%=12:ENDPROC
-
-  180DEFPROCset_lee_xy_os_from_lee_sprite_gargoyle:IFlee_direction%=9:lee_x_os%=E%:lee_y_os%=F%:lee_sprite_num%=11:ENDPROC
-  190lee_x_os%=G%:lee_y_os%=H%:lee_sprite_num%=12:ENDPROC
 
   198REM TODO: The name is a guess here; this is doing some sort of sprite plot operation on the
   199REM four player sprites (human/gargoyle, left/right) but I don't know what Y%=2 means yet.
-  200DEFPROClee_sprite_reset:Y%=2:FORn%=9TO12:W%=n%:CALLS%:NEXT:Y%=0:ENDPROC
-
+  200DEFPROClee_sprite_reset
+  202W%=10:Y%=2:CALLS%:Y%=0
+  203new_sprite%=lee_direction%-1+2*day_night%
+  204REM TODO: If I use CALLU% to do the update (before removing the sprite from screen; it's a no-op otherwise) I get strange behaviour, it looks like not all frames are updated.
+  205REM TODO: CALLU% should allow the update we do here for off-screen sprites (we know sprite is off screen as we just used S% to take it off screen)
+  206sprite_addr%=!(&5700+new_sprite%*2) AND &FFFF:REM actually a big-endian value
+  207?(&5600+(10-1)*4+2)=sprite_addr%MOD256:?(&5600+(10-1)*4+3)=sprite_addr%DIV256:REM so do things the wrong way round here to compensate
+  208ENDPROC
   210DEFPROCdraw_current_room:PROCclear_room
   220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
   230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFlogical_room%=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
@@ -61,11 +63,11 @@
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
-  430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=10:IFday_night%=1:W%=12
+  430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=10
   440delta_x%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
-  460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=9:IFday_night%=1:W%=11
+  460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=10
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
@@ -78,13 +80,12 @@
   530ENDPROC
 
   540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
-  550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:PROClee_sprite_reset:K%=192
-  551IFday_night%=0:day_night%=1:X%=25:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os_gargoyle:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
-  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:X%=24:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
+  550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=6:Y%=2:CALLS%:K%=192
+  551IFday_night%=0:day_night%=1:PROClee_sprite_reset:X%=25:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
+  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:PROClee_sprite_reset:X%=24:W%=6:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
 
-  575REM TODO: We need to reproduce the relevant effects for cheap warp
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
