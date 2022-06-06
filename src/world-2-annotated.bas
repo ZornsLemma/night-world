@@ -247,7 +247,10 @@
  2200PROCchange_room2
  2205PROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=1:CALLS%:REM show player sprite
  2210PROCreset_note_count:REM Must do this because we moved DATA pointer
- 2215VDU 5:W%=6:REM restore state
+ 2211VDU 5:W%=6:REM restore state
+ 2212REM Apply the same tweaks as PROCcheck_warps
+ 2213IFlogical_room%=9:Y%=2:W%=5:CALLS%:room_type%=2
+ 2214IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:REM TODO: Do we need equivalent of X%=7 case from PROCcheck_warps?
  2220ENDPROC
  2221REM FWIW lower part of room A would be 1142,316
  2500DATA 12,1120,576,7,392,256,2,72,244,1,1194,672,3,24,636,4,24,636,5,24,444,9,984,704,17,280,700,16,1194,252,18,24,668,19,24,444,20,84,412,14,68,416
