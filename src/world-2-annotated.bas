@@ -135,6 +135,7 @@
   850DEFPROCdraw_room(b1%):fb%=&3508+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
   851REM TODO: The following implies &70-&73 contain valuable persistent state.
   852REM TODO: We could preserve them more efficiently using foo%=!&70:!&70=foo%
+  853REM TODO: That said, I'm not convinced they do need preserving - double-check machine code!
   860s0%=?&70:s1%=?&71:s2%=?&72:s3%=?&73:?&70=aa%:?&71=bb%:?&72=226:?&73=30
   870CALL&A00:?&70=s0%:?&71=s1%:?&72=s2%:?&73=s3%
   880IFroom_type%=2:I%=608:J%=672:W%=5:Y%=0:CALLS%:GOTO900
