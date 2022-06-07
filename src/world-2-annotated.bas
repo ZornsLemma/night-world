@@ -1,5 +1,15 @@
-constant SLOT_SUN_MOON = 6
+constant S_OP_MOVE = 0
 constant S_OP_REMOVE = 2
+
+constant SLOT_SUN_MOON = 6
+
+constant IMAGE_WINGED_CREATURE = 15
+constant IMAGE_ROBOT = 16
+constant IMAGE_HEALTH = 18
+constant IMAGE_VEIL = 19
+constant IMAGE_EYE = 22
+constant IMAGE_VEIL2 = 26
+constant IMAGE_FINAL_GUARDIAN = 27
 
    0IFPAGE>&E00:GOTO32000
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
@@ -55,7 +65,7 @@ constant S_OP_REMOVE = 2
   340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
-  370IFathing%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
+  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
@@ -87,7 +97,6 @@ constant S_OP_REMOVE = 2
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
 
-  575REM TODO: We need to reproduce the relevant effects for cheap warp
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
@@ -99,12 +108,12 @@ constant S_OP_REMOVE = 2
   596REM room 7 (Ed's room H).
   600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=S_OP_REMOVE:W%=5:CALLS%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
-  606REM force specific colours and if (TODO: what does this mean?) X%=7, show the fleece.
+  606REM force specific colours and if (TODO: what does this mean?) X%=7, show the fleece (TODO: MacGuffin?).
   607REM TODO: I think this shows the fleece anyway.
   610IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=7:PROCshow_fleece
   620ENDPROC
 
-  630DEFPROCshow_fleece:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:athing%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
+  630DEFPROCshow_fleece:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:sun_moon_disabled%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
 
   650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
@@ -134,7 +143,9 @@ constant S_OP_REMOVE = 2
   820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
-  840DEFPROCclear_room:VDU28,0,26,19,9,17,128,12,26:ENDPROC
+  840DEFPROCclear_room
+  841Y%=S_OP_REMOVE:FORW%=0TO47:CALLS%:NEXT
+  847VDU28,0,26,19,9,17,128,12,26:ENDPROC
 
   850DEFPROCdraw_room(b1%):fb%=&3508+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
   851REM TODO: The following implies &70-&73 contain valuable persistent state.
@@ -144,13 +155,13 @@ constant S_OP_REMOVE = 2
   870CALL&A00:?&70=s0%:?&71=s1%:?&72=s2%:?&73=s3%
   880IFroom_type%=2:I%=608:J%=672:W%=5:Y%=0:CALLS%:GOTO900
   890db%=6:IFroom_type%>0:I%=291:J%=480:W%=5:Y%=0:CALLS%:IFroom_type%=1:X%=13:CALLU%
-  900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=26:CALLU%:GOTO960
-  910IFlogical_room%=5ANDscore%=90:room_type%=0:Y%=S_OP_REMOVE:CALLS%:Y%=0
-  920IFroom_type%=2:X%=15:CALLU%
-  930IFroom_type%=3:X%=16:CALLU%
-  940IFroom_type%=4:X%=22:CALLU%
-  950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=19:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=27:CALLU%
-  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,18)
+  900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=IMAGE_VEIL2:CALLU%:GOTO960
+  910IFlogical_room%=5ANDscore%=90:room_type%=0:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
+  920IFroom_type%=2:X%=IMAGE_WINGED_CREATURE:CALLU%
+  930IFroom_type%=3:X%=IMAGE_ROBOT:CALLU%
+  940IFroom_type%=4:X%=IMAGE_EYE:CALLU%
+  950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
+  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
   970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,21):PROCupdate_sprite_slot_7_and_show(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
@@ -206,7 +217,7 @@ constant S_OP_REMOVE = 2
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
- 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:athing%=0:m%=0:room_type%=3
+ 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q":*FX210,1
  1380ENDPROC
@@ -216,7 +227,7 @@ constant S_OP_REMOVE = 2
  1400DEFPROCpause:SOUND1,4,20,3:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:VDU5:B$="WAITING":*FX15,1
  1402REPEAT:A$=INKEY$(0)
  1403IF ?&9FE<>0 AND A$="W":PROCcheat_warp
- 1405GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFathing%=0:Y%=0:CALLS%
+ 1405GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFsun_moon_disabled%=0:Y%=0:CALLS%
  1410SOUND1,6,30,3:*FX15,1
  1420ENDPROC
 
@@ -238,7 +249,8 @@ constant S_OP_REMOVE = 2
  1510PRINT"INNER  WORLD"+a$+"COMMING SOON":NEXT:PROCdelay(13000):VDU4:ENDPROC
 
  2000DEFPROCcheat_warp
- 2003VDU 4
+ 2002IF score%<80:score%=80:FORcheat%=1TO4:item_collected%(cheat%)=1:NEXT:REM TODO TEMP HACK
+ 2003VDU 4:COLOUR 3
  2005PRINTTAB(2,17);" Warp to? (A-N) ";
  2006REPEAT
  2010*FX15,1
@@ -247,12 +259,10 @@ constant S_OP_REMOVE = 2
  2030UNTIL key$>="A" AND key$<="N"
  2050RESTORE 2500
  2060FOR n%=1 TO ASC(key$)-64:READ phys_room%,lee_x_os%,lee_y_os%:NEXT
- 2200PROCchange_room2
+ 2070REM Logical room 14 (Ed's room N) has some quirky behaviour; to get it right, we pretend we're passing through the warp from logical room 10 as in real gameplay.
+ 2200IF phys_room%<>14:PROCchange_room2 ELSE logical_room%=10:room_type%=4-(score%>70):lee_x_os%=1152:lee_y_os%=484:PROCcheck_warps
  2205PROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=1:CALLS%:REM show player sprite
  2210PROCreset_note_count:REM Must do this because we moved DATA pointer
- 2212REM Apply the same tweaks as PROCcheck_warps
- 2213IFlogical_room%=9:Y%=S_OP_REMOVE:W%=5:CALLS%:room_type%=2
- 2214IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:REM TODO: Do we need equivalent of X%=7 case from PROCcheck_warps?
  2219VDU 5:W%=SLOT_SUN_MOON:REM restore state
  2220ENDPROC
  2221REM FWIW lower part of room A would be 1142,316
