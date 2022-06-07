@@ -259,11 +259,11 @@ constant IMAGE_FINAL_GUARDIAN = 27
  2030UNTIL key$>="A" AND key$<="N"
  2050RESTORE 2500
  2060FOR n%=1 TO ASC(key$)-64:READ phys_room%,lee_x_os%,lee_y_os%:NEXT
- 2070REM Logical room 14 (Ed's room N) has some quirky behaviour; to get it right, we pretend we're passing through the warp from logical room 10 as in real gameplay.
+ 2070REM Logical room 14 (Ed's room N) has some tricky behaviour; to get it right, we pretend we're passing through the warp from logical room 10 as in real gameplay.
  2200IF phys_room%<>14:PROCchange_room2 ELSE logical_room%=10:room_type%=4-(score%>70):lee_x_os%=1152:lee_y_os%=484:PROCcheck_warps
  2205PROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=1:CALLS%:REM show player sprite
  2210PROCreset_note_count:REM Must do this because we moved DATA pointer
- 2219VDU 5:W%=SLOT_SUN_MOON:REM restore state
+ 2219VDU 5:IFsun_moon_disabled%=0:W%=SLOT_SUN_MOON ELSEW%=5:REM restore state - without the ELSE warping to any room with an enemy after collecting the fleece will leave the initial enemy "stuck" on the screen
  2220ENDPROC
  2221REM FWIW lower part of room A would be 1142,316
  2500DATA 12,1120,576,7,392,256,2,72,244,1,1194,672,3,24,636,4,24,636,5,24,444,9,984,704,17,280,700,16,1194,252,18,24,668,19,24,444,20,84,412,14,68,416
