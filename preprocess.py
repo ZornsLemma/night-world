@@ -1,4 +1,5 @@
 from __future__ import print_function
+import re
 import sys
 
 with open(sys.argv[1], "r") as f:
@@ -15,4 +16,12 @@ with open(sys.argv[1], "r") as f:
         else:
             for name, value in constants.items():
                 line = line.replace(name, value)
-            print(line)
+            # Replacing comment bodies allows arbitrarily long comments, which
+            # is useful when we're using line numbers and therefore can't
+            # always split long comments over multiple lines because we don't
+            # have enough space in the line number sequence. We keep the REM as
+            # a stub to avoid breaking the syntax.
+            line = re.sub(r"([0-9:])REM.*$", r"\1REM", line)
+            line = line.strip()
+            if line != "":
+                print(line)
