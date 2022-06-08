@@ -6,7 +6,6 @@ t_subroutine_os_x_lo = &71
 t_subroutine_os_y_hi = &72
 t_subroutine_w_minus_1_times_4 = &7e
 t_subroutine_w_minus_1_times_8 = &76
-t_subroutine_constant_1 = &73
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 osbyte_inkey = &81
@@ -1311,7 +1310,9 @@ next_row_adjust = bytes_per_screen_line-7
 ; just branch to the rts.
 .t_subroutine
 {
+constant_1 = &73 ; ENHANCE: just use #1 for this
 l007f = &7f
+
     lda ri_w:beq cli_rts
     cmp #max_sprite_num+1:bcs cli_rts
     sec:sbc #1:tay
@@ -1321,7 +1322,7 @@ l007f = &7f
     cmp #20:bcs cli_rts ; TODO: Note this is *>=* when writing comments at top of fn
     sec:sbc #1:asl a:tax
     lda #0:sta ri_y:sta t_subroutine_os_x_hi:sta t_subroutine_os_y_hi
-    lda #1:sta t_subroutine_constant_1
+    lda #1:sta constant_1
     tya:asl a:sta l007f
     tay:asl a:sta t_subroutine_w_minus_1_times_4
     and #(ri_coord_vars<<3)-1:asl a:sta t_subroutine_w_minus_1_times_8
@@ -1388,7 +1389,7 @@ l007f = &7f
     bcc new_x_pixel_coord_lt_0
     bcs x_pixel_coord_in_a
 .update_y_pixel_coord_indirect
-    lda #1:sta t_subroutine_constant_1
+    lda #1:sta constant_1
     bne update_y_pixel_coord ; always branch
 .new_y_pixel_coord_gt_255
     inc t_subroutine_os_y_hi
@@ -1414,7 +1415,7 @@ l007f = &7f
     asl a:rol t_subroutine_os_y_hi
     asl a:rol t_subroutine_os_y_hi
     tax
-    lda t_subroutine_constant_1
+    lda constant_1
     bne c53f8 ; TODO: always branch?
 .^t_subroutine_rts
     rts
