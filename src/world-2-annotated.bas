@@ -5,6 +5,7 @@ constant S_OP_REMOVE = 2
 constant SLOT_ENEMY = 5
 constant SLOT_SUN_MOON = 6
 constant SLOT_MISC = 7
+constant SLOT_LEE = 10
 
 constant IMAGE_HARPY_RIGHT = 13
 constant IMAGE_HARPY_LEFT = 14
@@ -49,7 +50,7 @@ constant DELTA_STEP_RIGHT = 6
   198REM TODO: The name is a guess here; this is doing some sort of sprite plot operation on the
   199REM four player sprites (human/gargoyle, left/right) but I don't know what Y%=2 means yet.
   200DEFPROClee_sprite_reset
-  202W%=10:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
+  202W%=SLOT_LEE:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
   203new_sprite%=lee_direction%-1+2*day_night%
   204REM TODO: If I use CALLU% to do the update (before removing the sprite from screen; it's a no-op otherwise) I get strange behaviour, it looks like not all frames are updated.
   205REM TODO: CALLU% should allow the update we do here for off-screen sprites (we know sprite is off screen as we just used S% to take it off screen)
@@ -88,11 +89,11 @@ constant DELTA_STEP_RIGHT = 6
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
-  430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=10
+  430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=SLOT_LEE
   440delta_x%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
-  460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=10
+  460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=SLOT_LEE
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
