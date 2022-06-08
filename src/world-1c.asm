@@ -1192,22 +1192,17 @@ l007d = &7d
     rts
 } ; end get_sprite_details scope
 
-; Sprite plot routine. EORs a 3-byte (12 pixel) wide sprite onto the
-; screen, writing data starting at the address pointed to by
-; screen_ptr and taking sprite data from the address pointed to by
-; sprite_ptr. There's provision for wrapping around onto next screen
-; character row as required and I think in principle sprites can be
-; arbitrarily many screen character rows tall; it looks as though
-; l0075 is used to control this, although in practice it is probably
-; always 1 as I can't see any entry point which would change this.
-; (The caller will have adjusted the start screen address to allow for
-; arbitrary Y pixel positioning; the sprite data itself is not
-; adjusted - I think this is obvious really but it confused me for a
-; while.)
-; 
-; There seems to be a slightly odd desire to keep carry clear all the
-; time instead of just clearing it before we need it to be clear, but
-; I may be missing something.
+; "One-shot" sprite plot routine, for showing or hiding a sprite as opposed to
+; erasing-and-replotting a sprite.
+;
+; On entry:
+;     screen_ptr points to the byte of screen memory corresponding to the top
+;     left part of the sprite.
+;
+;     sprite_ptr points to the first byte of the correct frame of the sprite's
+;     image data.
+;
+; ENHANCE: This is probably over-zealous at ensuring carry is clear.
 .sprite_core
 {
 row_index = &75
@@ -1220,7 +1215,7 @@ next_row_adjust = bytes_per_screen_line-7
     ldy # 0:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
     ldy # 8:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
     ldy #16:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
-    lda screen_ptr:and #7:eor #7:beq next_row
+    lda screen_ptr:and #7:eor #7:beq next_row ; ENHANCE: and:eor=>cmp?
     inc screen_ptr
 .screen_ptr_updated
     inc sprite_ptr:beq low_byte_wrapped
