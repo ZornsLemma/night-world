@@ -1,7 +1,5 @@
 max_sprite_num = &30
 sprite_to_check_x2 = &71
-sprite_pixel_current_x = &72
-sprite_pixel_current_y = &73
 get_sprite_details_sprite_index = &7c
 l007d = &7d
 t_subroutine_os_x_hi = &70
@@ -1086,11 +1084,15 @@ sprite_pixel_y_lo = &0077
 ;     A is the 0-based sprite slot derived from W%.
 ;
 ; On exit:
-;     sprite_pixel_{x,y}_{hi,lo}
+;     sprite_pixel_{x,y}_lo are the pixel coordinates corresponding to the
+;     slot's resident integer variable OS coordinates.
+;
 ;     TODO
 ; ENHANCE: This is probably over-zealous in ensuring carry clear on exit.
 .get_sprite_details
 {
+sprite_pixel_current_x = &72
+sprite_pixel_current_y = &73
 sprite_pixel_x_hi = &0078
 sprite_pixel_y_hi = &0079
 
