@@ -11,7 +11,6 @@ basic_page_msb = &0018
 l0070 = &0070
 sprite_ptr = &0070
 l0071 = &0071
-l0072 = &0072
 l0073 = &0073
 l0074 = &0074
 l0076 = &0076
@@ -1431,10 +1430,12 @@ slot_index_x2 = &7f
 ; right.
 .u_subroutine
 {
+l0072 = &0072
+
     lda ri_w:beq t_subroutine_rts
     cmp #max_sprite_num+1:bcs t_subroutine_rts
     sec:sbc #1
-    ldx ri_x:beq u_subroutine_ri_x_0
+    ldx ri_x:beq return_coords
     cpx #max_sprite_num+1:bcs t_subroutine_rts
     asl a:tay
     asl a:tax
@@ -1446,6 +1447,7 @@ slot_index_x2 = &7f
     ; pixel) wide sprite.
     lda sprite_pixel_coord_table_xy,y:and #3:asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073:sta l0072
+    ; ENHANCE: The values written to sprite_ptr2+{0,1} are never used.
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr2
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
     lda ri_x:sec:sbc #1:asl a:tay
@@ -1453,10 +1455,10 @@ slot_index_x2 = &7f
     lda sprite_ref_addrs_be,y:adc #0:sta sprite_screen_and_data_addrs+sprite_addr_hi,x:sta sprite_ptr+1
     jmp move_sprite
 
-.u_subroutine_ri_x_0
+.return_coords
     asl a:tax
     asl a:tay
-    lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq u_subroutine_rts2
+    lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq rts
     tya:asl a:and #(ri_coord_vars<<3)-1:tay
     lda #0:sta l0070:sta l0071
     lda sprite_pixel_coord_table_xy,x
@@ -1468,7 +1470,7 @@ slot_index_x2 = &7f
     asl a:rol l0071
     asl a:rol l0071
     sta ri_b,y:lda l0071:sta ri_b+1,y
-.u_subroutine_rts2
+.rts
     rts
 }
 
