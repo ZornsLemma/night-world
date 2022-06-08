@@ -161,12 +161,12 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   780IFed%=4ANDI%<644:ed%=6
   790CALLT%:ENDPROC
 
-  800DEFPROCnew_game_init:CALLV%:PROCclear_room:VDU28,4,30,15,28,17,128,12,26:ENDPROC
-  805REM TODO: The next line appears to be unreachable.
-  810COLOUR3:FORn%=28TO30:PRINTTAB(1,n%)STRING$(2,CHR$(259-n%));TAB(17,n%)STRING$(2,CHR$(259-n%)):NEXT:ENDPROC
+  799REM TODO: Moving this towards end of code would slightly speed up line number searching for GOTOs
+  800DEFPROCnew_game_init:CALLV%:PROCclear_room:VDU28,4,30,15,28,17,128,12,26
+  801FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
-  820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26
-  830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
+  815REM TODO: Moving this towards end of code would slightly speed up line number searching for GOTOs
+  820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26:ENDPROC
 
   840DEFPROCclear_room
   841REM Fix the "phantom wall enemy" bug by ensuring slot 7 (the general enemy slot) isn't left active from a previous room. TODO: NO, SLOT 7 IS NOT GENERAL *ENEMY*, IT'S MISC STUFF SLOT
@@ -295,26 +295,19 @@ constant DELTA_STEP_RIGHT_DOWN = 9
  2221REM FWIW lower part of room A would be 1142,316
  2500DATA 12,1120,576,7,392,256,2,72,244,1,1194,672,3,24,636,4,24,636,5,24,444,9,984,704,17,280,700,16,1194,252,18,24,668,19,24,444,20,84,412,14,68,416
 
- 2990REM TODO: Must reset this display at start of game/title screen
  3000DEFPROCshow_prisms
  3005LOCAL W%,X%,Y%
- 3006REM TODO WILL NEED TO WIPE OUT THE HALF-UP PRISMS WHEN WE GO FROM 2->3
  3007REMFORn%=1TO4:item_collected%(n%)=1:NEXT:REM TODO HACK
  3010q%=0:FOR n%=1 TO 4:q%=q%+item_collected%(n%):NEXT
- 3020P.TAB(0,0);q%;" ";:REM TODO JUST TEMP
  3025W%=SLOT_COLLECTED_PRISM:Y%=S_OP_SHOW:X%=IMAGE_FLEECE_MACGUFFIN_PRISM
  3026REMENDPROC:REM TEMP
  3030IF q%<=2 THEN F%=124:p%=q% ELSE F%=144:p%=4:REM TODO NUMBERS MADE UP
  3040FOR n%=1 TO p%
- 3045E%=1112-(n% MOD 2)*1024:REM NUMBERS MADE UP
- 3046REMGCOL0,0:MOVE E%,F%:MOVE E%+64,F%:PLOT 85,E%+64,F%-64:MOVE E%,F%-64:PLOT 85,E%,F%:GCOL0,3:REM TODO HACK TO GET A BLACK BG TEMP
- 3047REMGCOL0,0:MOVE E%,F%-32:VDU5,225,4:REM create black background for prism
+ 3045E%=1112-(n% MOD 2)*1024
  3048GCOL 0,0:MOVE E%-8,F%-24:MOVE E%+72,F%-24:PLOT 85,E%+72,F%-68:MOVE E%-8,F%-68:PLOT 85,E%-8,F%-24:REM TODO: PROCsquare()?
  3050IF n%<=q%:CALLS%:CALLU%
- 3065IF n%=2:F%=F%-40:REM TODO NUMBERS MADE UP
+ 3065IF n%=2:F%=F%-40
  3080NEXT
- 3081W%=SLOT_MISC:REM TODO TEMP
- 3085E%=500:F%=500:REM TODO TEMP
  3090ENDPROC
 
 32000*TAPE
