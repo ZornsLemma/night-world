@@ -186,7 +186,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
  1050IFlogical_room%=14:PROCupdate_sprite_slot_7_and_show(8,20,21):PROCupdate_sprite_slot_7_and_show(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCupdate_sprite_slot_7_and_show(12,25,17)
  1060IFlogical_room%=12:PROCupdate_sprite_slot_7_and_show(1,15,20):PROCupdate_sprite_slot_7_and_show(1,18,20):PROCupdate_sprite_slot_7_and_show(1,21,20)
  1070IFlogical_room%=13:PROCupdate_sprite_slot_7_and_show(7,21,23):PROCupdate_sprite_slot_7_and_show(12,21,23)
- 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLS%:X%=17:CALLU%:IFday_night%=1:Y%=S_OP_REMOVE:CALLS%
+ 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFday_night%=1:Y%=S_OP_REMOVE:CALLS%
  1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCupdate_sprite_slot_7_and_show(18,24,17)
  1100ENDPROC
 
@@ -215,7 +215,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
  1260IFscore%<90:ENDPROC ELSEW%=7:Y%=S_OP_REMOVE:CALLS%:ENDPROC
 
  1270DEFPROCrestore_fleece:IFlogical_room%<>5:ENDPROC
- 1280IFscore%<90:ENDPROC ELSEW%=7:X%=17:CALLS%:CALLU%:ENDPROC
+ 1280IFscore%<90:ENDPROC ELSEW%=7:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLS%:CALLU%:ENDPROC
 
  1290DEFPROCwarp_effect:VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
@@ -230,7 +230,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:lee_y_os%=576:lee_x_os%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
- 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
+ 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q"ORs$="q":*FX210,1
  1380ENDPROC
