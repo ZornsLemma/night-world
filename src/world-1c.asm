@@ -1431,58 +1431,26 @@ slot_index_x2 = &7f
 ; right.
 .u_subroutine
 {
-    lda ri_w
-    beq t_subroutine_rts
-    cmp #max_sprite_num+1
-    bcs t_subroutine_rts
-    sec
-    sbc #1
-    ldx ri_x
-    beq u_subroutine_ri_x_0
-    cpx #max_sprite_num+1
-    bcs t_subroutine_rts
-    asl a
-    tay
-    asl a
-    tax
-    lda sprite_screen_and_data_addrs+screen_addr_lo,x
-    sta screen_ptr2
-    sta screen_ptr
-    lda sprite_screen_and_data_addrs+screen_addr_hi,x
-    beq t_subroutine_rts
-    sta screen_ptr2+1
-    sta screen_ptr+1
-; Get the sprite's X pixel coordinate and use its low two bits to
-; select one of the four pre-shifted variants, assuming it is a two
-; character cell (8 pixel) wide sprite.
-    lda sprite_pixel_coord_table_xy,y
-    and #3
-    asl a
-    asl a
-    asl a
-    asl a
-    sta l0073
-    asl a
-    adc l0073
-    sta l0072
-    adc sprite_screen_and_data_addrs+sprite_addr_lo,x
-    sta sprite_ptr2
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x
-    adc #0
-    sta sprite_ptr2+1
-    lda ri_x
-    sec
-    sbc #1
-    asl a
-    tay
-    lda l0072
-    adc sprite_ref_addrs_be+1,y
-    sta sprite_screen_and_data_addrs+sprite_addr_lo,x
-    sta sprite_ptr
-    lda sprite_ref_addrs_be,y
-    adc #0
-    sta sprite_screen_and_data_addrs+sprite_addr_hi,x
-    sta sprite_ptr+1
+    lda ri_w:beq t_subroutine_rts
+    cmp #max_sprite_num+1:bcs t_subroutine_rts
+    sec:sbc #1
+    ldx ri_x:beq u_subroutine_ri_x_0
+    cpx #max_sprite_num+1:bcs t_subroutine_rts
+    asl a:tay
+    asl a:tax
+    lda sprite_screen_and_data_addrs+screen_addr_lo,x:sta screen_ptr2:sta screen_ptr
+    lda sprite_screen_and_data_addrs+screen_addr_hi,x:beq t_subroutine_rts
+    sta screen_ptr2+1:sta screen_ptr+1
+    ; Get the sprite's X pixel coordinate and use its low two bits to select one
+    ; of the four pre-shifted variants, assuming it is a two character cell (8
+    ; pixel) wide sprite.
+    lda sprite_pixel_coord_table_xy,y:and #3:asl a:asl a:asl a:asl a:sta l0073
+    asl a:adc l0073:sta l0072
+    adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr2
+    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
+    lda ri_x:sec:sbc #1:asl a:tay
+    lda l0072:adc sprite_ref_addrs_be+1,y:sta sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr
+    lda sprite_ref_addrs_be,y:adc #0:sta sprite_screen_and_data_addrs+sprite_addr_hi,x:sta sprite_ptr+1
     jmp move_sprite
 
 .u_subroutine_ri_x_0
@@ -1494,7 +1462,7 @@ slot_index_x2 = &7f
     beq u_subroutine_rts2
     tya
     asl a
-    and #&3f ; '?'
+    and #(ri_coord_vars<<3)-1
     tay
     lda #0
     sta l0070
