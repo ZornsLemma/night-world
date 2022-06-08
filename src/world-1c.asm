@@ -1,6 +1,8 @@
 ; TODO: The "on entry/on exit" style of documentation is perhaps unhelpful.
 ; Something a bit more free-form mixing inputs and outputs might be helpful.
 
+MAKE_IMAGE =? FALSE
+
 max_sprite_num = 48 ; 1-based
 bytes_per_screen_row = 40*8 ; 40 (6845) characters, eight bytes each
 
@@ -904,6 +906,7 @@ osbyte_clear_escape = &7c
 osbyte = &fff4
 l0075 = &0075
 
+if not(MAKE_IMAGE) ; TODO: HACKETY HACK
     lda ri_x
     cmp #4
     bcs q_subroutine_rts
@@ -974,6 +977,7 @@ l0075 = &0075
     lda l0075
     cmp #5
     beq c5026
+endif
 .c501f
     sta r_subroutine_foo
     sta ri_z
@@ -1492,9 +1496,17 @@ l0073 = &0073
     adc slot_addr_table+sprite_addr_lo,x:sta sprite_ptr2
     lda slot_addr_table+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
     lda ri_x:sec:sbc #1:asl a:tay
-    ; ENHANCE: sec:sbc will have left carry set, but we probably want it clear here.
+    ; ENHANCE: sec:sbc will have left carry set, but we probably want it clear
+    ; here. That's probably true, but I think there's a bigger problem here,
+    ; which is that we're setting a sub-frame not the "base" address in slot_addr_table.
+; TODO: HACKETY HACK
+if MAKE_IMAGE
+    lda sprite_ref_addrs_be+1,y:sta slot_addr_table+sprite_addr_lo,x:clc:adc l0072:sta sprite_ptr
+    lda sprite_ref_addrs_be+0,y:sta slot_addr_table+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
+else
     lda l0072:adc sprite_ref_addrs_be+1,y:sta slot_addr_table+sprite_addr_lo,x:sta sprite_ptr
     lda sprite_ref_addrs_be,y:adc #0:sta slot_addr_table+sprite_addr_hi,x:sta sprite_ptr+1
+endif
     jmp move_sprite
 
 .return_coords
@@ -1656,6 +1668,7 @@ screen_addr_lo = 0
 screen_addr_hi = 1
 sprite_addr_hi = 2
 sprite_addr_lo = 3
+    skipto &5600 ; TODO: hack while basic code has to patch this data
 .slot_addr_table
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 0
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 1
@@ -1809,7 +1822,6 @@ sprite_addr_lo = 3
 
 .pydis_end
 
-MAKE_IMAGE =? FALSE
 if not(MAKE_IMAGE)
     save pydis_start, pydis_end
 endif
