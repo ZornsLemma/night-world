@@ -1131,7 +1131,7 @@ overlap_direction = &74
     sta sprite_pixel_coord_table_xy,x
     clc:bcc check_y_position ; always branch
 .x_position_too_far_right
-    lda constant_1_per_sprite_table,y:beq force_x_position_to_rhs
+    lda sprite_wrap_behaviour_table,y:beq force_x_position_to_rhs
     cmp #1:beq force_x_position_to_lhs
     lda #&ff:sta sprite_pixel_coord_table_xy,x
     bne check_y_position ; always branch
@@ -1144,7 +1144,7 @@ overlap_direction = &74
     clc
     bcc check_y_position
 .x_position_too_far_left
-    lda constant_1_per_sprite_table,y                                 ; always branch
+    lda sprite_wrap_behaviour_table,y                                 ; always branch
     beq force_x_position_to_lhs
     cmp #1
     beq force_x_position_to_rhs
@@ -1170,7 +1170,7 @@ overlap_direction = &74
     rts
 
 .y_position_too_far_up
-    lda constant_1_per_sprite_table,y
+    lda sprite_wrap_behaviour_table,y
     beq force_y_position_to_constant_fe
     cmp #1
     beq force_y_position_to_constant_10
@@ -1187,7 +1187,7 @@ overlap_direction = &74
     rts
 
 .y_position_too_far_down
-    lda constant_1_per_sprite_table,y
+    lda sprite_wrap_behaviour_table,y
     beq force_y_position_to_constant_10
     cmp #1
     beq force_y_position_to_constant_fe
@@ -1915,11 +1915,14 @@ sprite_addr_lo = 3
         equb 0, 0
     next
 
-; TODO: This table appears to be read-only and since every byte is 1,
-; we can probably replace accesses to it with immediate constants and
-; get rid of it. We should probably rename it to indicate its conceptual
-; purpose for now though.
-.constant_1_per_sprite_table
+; Byte-per-sprite table which controls what happens when a sprite tries to move
+; off the edges of the screen:
+;     0 => clamp the sprite's position to the edge of the screen
+;     1 => wrap the sprite's position to the opposite screen edge
+;     2 => remove the sprite from the screen
+; ENHANCE: This is always 1 for all sprites, so we can hard-code that behaviour
+; and remove unreachable code and this table itself.
+.sprite_wrap_behaviour_table
     for i, 1, 48
         equb 1
     next
