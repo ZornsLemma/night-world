@@ -27,7 +27,7 @@ osbyte = &fff4
 sprite_width_pixels = 8
 sprite_height_pixels = 16
 
-; sprite_pixel_coord_table_xy uses the special X/Y values to indicate that a
+; slot_pixel_coord_table_xy uses the special X/Y values to indicate that a
 ; sprite is out of bounds on a particular side of the screen. These values are
 ; unambiguous because (for X) there are only 160 pixels across the screen and
 ; (for Y) the pixel coordinates run up from origin at bottom left and specify
@@ -803,7 +803,7 @@ overlap_direction = &74
     asl a:tax
     asl a:tay
     ; If sprite slot W% is not on screen, it can't have any collisions.
-    lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq no_collision_found
+    lda slot_addr_table+screen_addr_hi,y:beq no_collision_found
     stx sprite_to_check_x2
     lda ri_y:beq no_collision_found
     cmp #max_sprite_num+1:bcs no_collision_found
@@ -824,8 +824,8 @@ overlap_direction = &74
     cmp sprite_to_check_x2:beq next_candidate ; W% can't collide with itself
     tay
     lda #5:sta overlap_direction
-    lda sprite_pixel_coord_table_xy,x
-    sec:sbc sprite_pixel_coord_table_xy,y
+    lda slot_pixel_coord_table_xy,x
+    sec:sbc slot_pixel_coord_table_xy,y
     ; TODO: This BMI feels wrong (e.g. 0-140=-140=116, so the answer will look
     ; positive when it isn't) and as though using BCS/BCC would be better. I'm
     ; not that confident about this though. I did write a program to test all
@@ -839,8 +839,8 @@ overlap_direction = &74
     ; abs(W%'s X coord, candidate's X coord) <= sprite_width_pixels, so the two
     ; overlap in the X dimension. Check for Y overlap now.
     sta abs_x_difference
-    lda sprite_pixel_coord_table_xy+1,x
-    sec:sbc sprite_pixel_coord_table_xy+1,y
+    lda slot_pixel_coord_table_xy+1,x
+    sec:sbc slot_pixel_coord_table_xy+1,y
     ; TODO: See coments on BMI above.
     bmi negate_y_difference_and_subtract_3_from_overlap_direction
     beq test_abs_y_difference
@@ -1023,8 +1023,8 @@ sprite_pixel_y_lo = &0077
     sec:sbc #1
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
     jsr get_sprite_details
-    lda sprite_pixel_coord_table_xy,x:cmp #sprite_pixel_x_special_threshold:bcs clc_remove_sprite_from_screen
-    lda sprite_pixel_coord_table_xy+1,x:cmp #sprite_pixel_y_special_threshold:bcc clc_remove_sprite_from_screen
+    lda slot_pixel_coord_table_xy,x:cmp #sprite_pixel_x_special_threshold:bcs clc_remove_sprite_from_screen
+    lda slot_pixel_coord_table_xy+1,x:cmp #sprite_pixel_y_special_threshold:bcc clc_remove_sprite_from_screen
     lda sprite_pixel_y_lo:tax
     lsr a:lsr a:and #&fe:tay
     ; Invert the low bits of the sprite's Y pixel address; this accounts for the
@@ -1040,23 +1040,23 @@ sprite_pixel_y_lo = &0077
     adc screen_ptr:sta screen_ptr ; we know carry is clear after rol l0073
     lda screen_ptr+1:adc l0073:sta screen_ptr+1
     ldx l0074
-    lda sprite_screen_and_data_addrs+screen_addr_lo,x:sta screen_ptr2
-    lda sprite_screen_and_data_addrs+screen_addr_hi,x:sta screen_ptr2+1
-    lda screen_ptr:sta sprite_screen_and_data_addrs+screen_addr_lo,x
-    lda screen_ptr+1:sta sprite_screen_and_data_addrs+screen_addr_hi,x
+    lda slot_addr_table+screen_addr_lo,x:sta screen_ptr2
+    lda slot_addr_table+screen_addr_hi,x:sta screen_ptr2+1
+    lda screen_ptr:sta slot_addr_table+screen_addr_lo,x
+    lda screen_ptr+1:sta slot_addr_table+screen_addr_hi,x
     lda sprite_pixel_x_lo:and #3
     asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073 ; we know carry is clear after asl a
-    adc sprite_screen_and_data_addrs+sprite_addr_lo,x
+    adc slot_addr_table+sprite_addr_lo,x
     sta sprite_ptr
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
+    lda slot_addr_table+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
     lda ri_y:cmp #1:beq clc_jmp_plot_sprite
     lda screen_ptr2+1:beq clc_jmp_plot_sprite
     lda sprite_pixel_current_x:and #3
     asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073 ; we know carry is clear after asl a
-    adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr2
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
+    adc slot_addr_table+sprite_addr_lo,x:sta sprite_ptr2
+    lda slot_addr_table+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
     clc
     jmp move_sprite
 
@@ -1068,17 +1068,17 @@ sprite_pixel_y_lo = &0077
     ; A is the 0-based sprite slot derived from W%.
     asl a:tay
     asl a:tax
-    lda sprite_screen_and_data_addrs+screen_addr_lo,x:sta screen_ptr
-    lda sprite_screen_and_data_addrs+screen_addr_hi,x:beq s_subroutine_rts2
+    lda slot_addr_table+screen_addr_lo,x:sta screen_ptr
+    lda slot_addr_table+screen_addr_hi,x:beq s_subroutine_rts2
     sta screen_ptr+1
-    lda sprite_pixel_coord_table_xy,y:and #3
+    lda slot_pixel_coord_table_xy,y:and #3
     asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073 ; we know carry is clear after asl a
-    adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
+    adc slot_addr_table+sprite_addr_lo,x:sta sprite_ptr
+    lda slot_addr_table+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
     lda #0
-    sta sprite_screen_and_data_addrs+screen_addr_lo,x
-    sta sprite_screen_and_data_addrs+screen_addr_hi,x
+    sta slot_addr_table+screen_addr_lo,x
+    sta slot_addr_table+screen_addr_hi,x
     clc
     jmp plot_sprite
 
@@ -1094,10 +1094,10 @@ sprite_pixel_y_lo = &0077
 ;     checked, although I believe in practice they will always be in bounds.
 ;
 ;     sprite_pixel_current_{x,y} are the current pixel coordinates of the sprite
-;     from sprite_pixel_coord_table. (ENHANCE: As it happens,
+;     from slot_pixel_coord_table. (ENHANCE: As it happens,
 ;     sprite_pixel_current_y is never used.)
 ;
-;     sprite_pixel_coord_table is updated to have the values returned in
+;     slot_pixel_coord_table is updated to have the values returned in
 ;     sprite_pixel_{x,y}_lo after applying the configured wrapping behaviour for
 ;     out-of-bounds coordinates.
 ;
@@ -1130,8 +1130,8 @@ l007d = &7d
     ror a:sta sprite_pixel_y_lo
     ldy get_sprite_details_sprite_index
     ; Copy the current pixel coordinates into sprite_pixel_current_{x,y}.
-    lda sprite_pixel_coord_table_xy+0,x:sta sprite_pixel_current_x
-    lda sprite_pixel_coord_table_xy+1,x:sta sprite_pixel_current_y
+    lda slot_pixel_coord_table_xy+0,x:sta sprite_pixel_current_x
+    lda slot_pixel_coord_table_xy+1,x:sta sprite_pixel_current_y
     ; ENHANCE: It may be that we know the value's always 8-bit, because
     ; world-2.bas doesn't try to move sprites outside the screen area.
     lda sprite_pixel_x_hi:beq x_position_is_8_bit
@@ -1148,50 +1148,50 @@ l007d = &7d
     cmp sprite_x_min:bcc x_position_too_far_left
     cmp sprite_x_max:beq x_position_ok:bcs x_position_too_far_right
 .x_position_ok
-    sta sprite_pixel_coord_table_xy,x
+    sta slot_pixel_coord_table_xy,x
     clc:bcc check_y_position ; always branch
 .x_position_too_far_right
-    lda sprite_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_max
+    lda slot_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_max
     cmp #1:beq force_x_position_to_sprite_x_min
-    lda #sprite_pixel_x_pos_inf:sta sprite_pixel_coord_table_xy,x
+    lda #sprite_pixel_x_pos_inf:sta slot_pixel_coord_table_xy,x
     bne check_y_position ; always branch
 .force_x_position_to_sprite_x_max
-    lda sprite_x_max:sta sprite_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
+    lda sprite_x_max:sta slot_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
     clc:bcc check_y_position
 .x_position_too_far_left
-    lda sprite_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_min
+    lda slot_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_min
     cmp #1:beq force_x_position_to_sprite_x_max
-    lda #sprite_pixel_x_neg_inf:sta sprite_pixel_coord_table_xy,x
+    lda #sprite_pixel_x_neg_inf:sta slot_pixel_coord_table_xy,x
     bne check_y_position ; always branch
 .force_x_position_to_sprite_x_min
-    lda sprite_x_min:sta sprite_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
+    lda sprite_x_min:sta slot_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
     clc:bcc check_y_position
 .y_position_is_8_bit
     lda sprite_pixel_y_lo
     cmp sprite_y_min:bcc y_position_too_far_down
     cmp sprite_y_max:beq y_position_ok:bcs y_position_too_far_up
 .y_position_ok
-    sta sprite_pixel_coord_table_xy+1,x
+    sta slot_pixel_coord_table_xy+1,x
     clc
     rts
 .y_position_too_far_up
-    lda sprite_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_max
+    lda slot_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_max
     cmp #1:beq force_y_position_to_sprite_y_min
-    lda #sprite_pixel_y_pos_inf:sta sprite_pixel_coord_table_xy+1,x
+    lda #sprite_pixel_y_pos_inf:sta slot_pixel_coord_table_xy+1,x
     clc
     rts
 .force_y_position_to_sprite_y_max
-    lda sprite_y_max:sta sprite_pixel_coord_table_xy+1,x:sta sprite_pixel_y_lo
+    lda sprite_y_max:sta slot_pixel_coord_table_xy+1,x:sta sprite_pixel_y_lo
     clc
     rts
 .y_position_too_far_down
-    lda sprite_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_min
+    lda slot_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_min
     cmp #1:beq force_y_position_to_sprite_y_max
-    lda #sprite_pixel_y_neg_inf:sta sprite_pixel_coord_table_xy+1,x
+    lda #sprite_pixel_y_neg_inf:sta slot_pixel_coord_table_xy+1,x
     clc
     rts
 .force_y_position_to_sprite_y_min
-    lda sprite_y_min:sta sprite_pixel_coord_table_xy+1,x:sta sprite_pixel_y_lo
+    lda sprite_y_min:sta slot_pixel_coord_table_xy+1,x:sta sprite_pixel_y_lo
     clc
     rts
 } ; end get_sprite_details scope
@@ -1338,19 +1338,19 @@ slot_index_x2 = &7f
     tay:asl a:sta slot_index_x4
     and #(ri_coord_vars<<3)-1:asl a:sta ri_coord_index
     ; TODO: Write some comments about &fe and &ff and what they mean exactly - need to carefully go over all code to see about this
-    lda sprite_pixel_coord_table_xy,y:cmp #sprite_pixel_x_special_threshold:bcs t_subroutine_x_pixel_coord_is_special
-    ldy slot_index_x4:lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
+    lda slot_pixel_coord_table_xy,y:cmp #sprite_pixel_x_special_threshold:bcs t_subroutine_x_pixel_coord_is_special
+    ldy slot_index_x4:lda slot_addr_table+screen_addr_hi,y:beq cli_rts
     ldy slot_index_x2:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_delta
-    clc:adc sprite_pixel_coord_table_xy,y:bcs new_x_coord_carry
+    clc:adc slot_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
     asl a:rol os_x_hi
     asl a:rol os_x_hi
     asl a:rol os_x_hi
     sta os_x_lo
 .update_y_pixel_coord
-    lda sprite_pixel_coord_table_xy+1,y:cmp #sprite_pixel_y_special_threshold:bcc sprite_y_pixel_coord_is_special_indirect
+    lda slot_pixel_coord_table_xy+1,y:cmp #sprite_pixel_y_special_threshold:bcc sprite_y_pixel_coord_is_special_indirect
     lda sprite_delta_coord_table_xy+1,x:bmi add_negative_y_delta
-    clc:adc sprite_pixel_coord_table_xy+1,y:bcs new_y_pixel_coord_gt_255
+    clc:adc slot_pixel_coord_table_xy+1,y:bcs new_y_pixel_coord_gt_255
 .y_pixel_coord_in_a
     asl a:rol os_y_hi
     asl a:rol os_y_hi
@@ -1377,7 +1377,7 @@ slot_index_x2 = &7f
     bcs update_y_pixel_coord_indirect
     lda sprite_x_min
 .new_x_pixel_coord_in_a
-    sta sprite_pixel_coord_table_xy,y
+    sta slot_pixel_coord_table_xy,y
     asl a:rol os_x_hi
     asl a:rol os_x_hi
     asl a:rol os_x_hi
@@ -1393,7 +1393,7 @@ slot_index_x2 = &7f
     inc os_x_hi
     bne x_pixel_coord_in_a ; always branch
 .add_negative_x_delta
-    clc:adc sprite_pixel_coord_table_xy,y
+    clc:adc slot_pixel_coord_table_xy,y
     bcc new_x_pixel_coord_lt_0
     bcs x_pixel_coord_in_a
 .update_y_pixel_coord_indirect
@@ -1403,7 +1403,7 @@ slot_index_x2 = &7f
     inc os_y_hi
     bne y_pixel_coord_in_a ; always branch
 .add_negative_y_delta
-    clc:adc sprite_pixel_coord_table_xy+1,y
+    clc:adc slot_pixel_coord_table_xy+1,y
     bcc new_y_pixel_coord_lt_0
     bcs y_pixel_coord_in_a
 .new_y_pixel_coord_lt_0
@@ -1416,7 +1416,7 @@ slot_index_x2 = &7f
     bcs t_subroutine_rts
     lda sprite_y_min
 .x_pixel_coord_in_a_2
-    sta sprite_pixel_coord_table_xy+1,y
+    sta slot_pixel_coord_table_xy+1,y
     asl a:rol os_y_hi
     asl a:rol os_y_hi
     asl a:rol os_y_hi
@@ -1453,34 +1453,34 @@ l0072 = &0072
     cpx #max_sprite_num+1:bcs t_subroutine_rts
     asl a:tay
     asl a:tax
-    lda sprite_screen_and_data_addrs+screen_addr_lo,x:sta screen_ptr2:sta screen_ptr
-    lda sprite_screen_and_data_addrs+screen_addr_hi,x:beq t_subroutine_rts
+    lda slot_addr_table+screen_addr_lo,x:sta screen_ptr2:sta screen_ptr
+    lda slot_addr_table+screen_addr_hi,x:beq t_subroutine_rts
     sta screen_ptr2+1:sta screen_ptr+1
     ; Get the sprite's X pixel coordinate and use its low two bits to select one
     ; of the four pre-shifted variants, each of which occupies 48=%110000 bytes,
     ; hence the pattern of shifts and adds.
-    lda sprite_pixel_coord_table_xy,y:and #3:asl a:asl a:asl a:asl a:sta l0073
+    lda slot_pixel_coord_table_xy,y:and #3:asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073:sta l0072 ; leaves carry clear
-    adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr2
-    lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
+    adc slot_addr_table+sprite_addr_lo,x:sta sprite_ptr2
+    lda slot_addr_table+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
     lda ri_x:sec:sbc #1:asl a:tay
     ; ENHANCE: sec:sbc will have left carry set, but we probably want it clear here.
-    lda l0072:adc sprite_ref_addrs_be+1,y:sta sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr
-    lda sprite_ref_addrs_be,y:adc #0:sta sprite_screen_and_data_addrs+sprite_addr_hi,x:sta sprite_ptr+1
+    lda l0072:adc sprite_ref_addrs_be+1,y:sta slot_addr_table+sprite_addr_lo,x:sta sprite_ptr
+    lda sprite_ref_addrs_be,y:adc #0:sta slot_addr_table+sprite_addr_hi,x:sta sprite_ptr+1
     jmp move_sprite
 
 .return_coords
     asl a:tax
     asl a:tay
-    lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq rts
+    lda slot_addr_table+screen_addr_hi,y:beq rts
     tya:asl a:and #(ri_coord_vars<<3)-1:tay
     lda #0:sta l0070:sta l0071
-    lda sprite_pixel_coord_table_xy,x
+    lda slot_pixel_coord_table_xy,x
     asl a:rol l0070
     asl a:rol l0070
     asl a:rol l0070
     sta ri_a,y:lda l0070:sta ri_a+1,y
-    lda sprite_pixel_coord_table_xy+1,x
+    lda slot_pixel_coord_table_xy+1,x
     asl a:rol l0071
     asl a:rol l0071
     sta ri_b,y:lda l0071:sta ri_b+1,y
@@ -1514,23 +1514,23 @@ l0070 = &0070
 .init_qrstuv_loop
     lda initial_qrstuv_values-1,x:sta ri_q-1,x
     dex:bne init_qrstuv_loop
-    ; Initialise sprite_screen_and_data_addrs so every slot is associated with
+    ; Initialise slot_addr_table so every slot is associated with
     ; the corresponding sprite image by default and is not on screen.
     ldx #0
     clc ; ENHANCE: get rid of this and do iny*4 below to increment Y
     ldy #max_sprite_num:sty l0070
     ldy #0
-.init_sprite_screen_and_data_addrs_loop
-    lda sprite_ref_addrs_be+0,x:sta sprite_screen_and_data_addrs+sprite_addr_hi,y
-    lda sprite_ref_addrs_be+1,x:sta sprite_screen_and_data_addrs+sprite_addr_lo,y
+.init_slot_addr_table_loop
+    lda sprite_ref_addrs_be+0,x:sta slot_addr_table+sprite_addr_hi,y
+    lda sprite_ref_addrs_be+1,x:sta slot_addr_table+sprite_addr_lo,y
     lda #0
-    sta sprite_pixel_coord_table_xy+0,x
-    sta sprite_pixel_coord_table_xy+1,x
-    sta sprite_screen_and_data_addrs+screen_addr_lo,y
-    sta sprite_screen_and_data_addrs+screen_addr_hi,y
+    sta slot_pixel_coord_table_xy+0,x
+    sta slot_pixel_coord_table_xy+1,x
+    sta slot_addr_table+screen_addr_lo,y
+    sta slot_addr_table+screen_addr_hi,y
     tya:adc #4:tay
     inx:inx
-    dec l0070:bne init_sprite_screen_and_data_addrs_loop
+    dec l0070:bne init_slot_addr_table_loop
     rts
 
 ; ENHANCE: I am actually thinking of using just a single resident integer
@@ -1631,7 +1631,7 @@ screen_addr_lo = 0
 screen_addr_hi = 1
 sprite_addr_hi = 2
 sprite_addr_lo = 3
-.sprite_screen_and_data_addrs
+.slot_addr_table
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 0
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 1
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 2
@@ -1693,7 +1693,7 @@ sprite_addr_lo = 3
 
 ; This appears to be a big-endian table of start addresses for the
 ; game sprites. TODO: This is inspired guesswork; note that the copy
-; of this at sprite_screen_and_data_addrs+{2,3] does get tweaked
+; of this at slot_addr_table+{2,3] does get tweaked
 ; slightly.
 .sprite_ref_addrs_be
     equb >sprite_00, <sprite_00
@@ -1746,8 +1746,8 @@ sprite_addr_lo = 3
     equb >sprite_00, <sprite_00
 
 ; Table of (pixel X coordinate, pixel Y coordinate) sprite positions,
-; two bytes per sprite
-.sprite_pixel_coord_table_xy
+; two bytes per sprite slot.
+.slot_pixel_coord_table_xy
     for i, 1, 48
         equb 0, 0
     next
@@ -1761,7 +1761,7 @@ sprite_addr_lo = 3
 ; and remove unreachable code and this table itself. I am not actually sure we
 ; rely on the wrapping either, so it may be we can just hard-code the assumption
 ; that sprites never try to leave the screen.
-.sprite_wrap_behaviour_table
+.slot_wrap_behaviour_table
     for i, 1, 48
         equb 1
     next
