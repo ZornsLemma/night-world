@@ -17,11 +17,8 @@ sprite_ptr2 = &007e
 l007f = &007f
 
 ; This is the conceptual width; sprite data is actually 12 pixels wide but only
-; eight adjacent columns within the sprite will be non-black. TODO: Not true,
-; e.g. the harpy has nine adjacent columns. This is probably fine and doesn't
-; seriously affect my understanding, but think about it before tweaking this
-; comment/constant.
-sprite_width_pixels = 8
+; nine adjacent columns within the sprite will be non-black.
+sprite_width_pixels = 9
 sprite_height_pixels = 16
 
 ; slot_pixel_coord_table uses the special X/Y values to indicate that a
@@ -838,7 +835,9 @@ overlap_direction = &74
     beq test_abs_x_difference
     dec overlap_direction
 .test_abs_x_difference
-    cmp #sprite_width_pixels+1:bcs next_candidate
+    ; TODO: "Logically" this should be cmp #sprite_width_pixels+1, shouldn't it?
+    ; See comment on test_abs_y_difference below.
+    cmp #sprite_width_pixels:bcs next_candidate
     ; abs(W%'s X coord, candidate's X coord) <= sprite_width_pixels, so the two
     ; overlap in the X dimension. Check for Y overlap now.
     sta abs_x_difference
