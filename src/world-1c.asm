@@ -25,11 +25,7 @@ l0072 = &0072
 l0073 = &0073
 l0074 = &0074
 l0075 = &0075
-sprite_pixel_x_lo = &0076
 l0076 = &0076
-sprite_pixel_y_lo = &0077
-sprite_pixel_x_hi = &0078
-sprite_pixel_y_hi = &0079
 screen_ptr = &007a
 screen_ptr2 = &007c
 l007e = &007e
@@ -993,6 +989,9 @@ overlap_direction = &74
 }
 
 {
+sprite_pixel_x_lo = &0076
+sprite_pixel_y_lo = &0077
+
 ; ENHANCE: This subroutine seems a bit over-zealous about clearing carry and
 ; could probably be simplified and clarified by clearing it only when we finally
 ; need it cleared.
@@ -1087,10 +1086,14 @@ overlap_direction = &74
 ;     A is the 0-based sprite slot derived from W%.
 ;
 ; On exit:
+;     sprite_pixel_{x,y}_{hi,lo}
 ;     TODO
 ; ENHANCE: This is probably over-zealous in ensuring carry clear on exit.
 .get_sprite_details
 {
+sprite_pixel_x_hi = &0078
+sprite_pixel_y_hi = &0079
+
     sta get_sprite_details_sprite_index
     ; Calculate the offset of this sprite slot's coordinate resident integer
     ; variables in Y.
