@@ -1242,39 +1242,21 @@ next_row_adjust = bytes_per_screen_line-7
 ; to handle moving sprites more efficiently.
 .sprite_core_moving
 {
-l0075 = &0075
+row_index = &0075
+next_row_adjust = bytes_per_screen_line-7
 
-    lda #1
-    sta l0075
+    lda #1:sta row_index
     sei
 .sprite_core_moving_outer_loop
     ldx #8
 .sprite_core_moving_inner_loop
-    ldy #0
-    lda (screen_ptr2),y
-    eor (sprite_ptr2),y
-    sta (screen_ptr2),y
-    lda (screen_ptr),y
-    eor (sprite_ptr),y
-    sta (screen_ptr),y
-    ldy #8
-    lda (screen_ptr2),y
-    eor (sprite_ptr2),y
-    sta (screen_ptr2),y
-    lda (screen_ptr),y
-    eor (sprite_ptr),y
-    sta (screen_ptr),y
-    ldy #&10
-    lda (screen_ptr2),y
-    eor (sprite_ptr2),y
-    sta (screen_ptr2),y
-    lda (screen_ptr),y
-    eor (sprite_ptr),y
-    sta (screen_ptr),y
-    lda screen_ptr
-    and #7
-    eor #7
-    beq sprite_core_moving_next_row
+    ldy # 0:lda (screen_ptr2),y:eor (sprite_ptr2),y:sta (screen_ptr2),y
+            lda (screen_ptr ),y:eor (sprite_ptr ),y:sta (screen_ptr ),y
+    ldy # 8:lda (screen_ptr2),y:eor (sprite_ptr2),y:sta (screen_ptr2),y
+            lda (screen_ptr ),y:eor (sprite_ptr ),y:sta (screen_ptr ),y
+    ldy #16:lda (screen_ptr2),y:eor (sprite_ptr2),y:sta (screen_ptr2),y
+            lda (screen_ptr ),y:eor (sprite_ptr ),y:sta (screen_ptr ),y
+    lda screen_ptr:and #7:eor #7:beq sprite_core_moving_next_row
     inc screen_ptr
 .sprite_core_moving_screen_ptr_updated
     lda screen_ptr2
@@ -1305,20 +1287,15 @@ l0075 = &0075
     inc sprite_ptr2+1
     clc
 .sprite_core_moving_no_carry2
-    dec l0075
-    beq sprite_core_moving_outer_loop
+    dec row_index:beq sprite_core_moving_outer_loop
 .^cli_rts
     cli
     rts
 
 .sprite_core_moving_next_row
-    lda screen_ptr
-    adc #<(bytes_per_screen_line-7)
-    sta screen_ptr
-    lda screen_ptr+1
-    adc #>(bytes_per_screen_line-7)
-    sta screen_ptr+1
-    bne sprite_core_moving_screen_ptr_updated
+    lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
+    lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
+    bne sprite_core_moving_screen_ptr_updated ; always branch
 .sprite_core_moving_next_row2
     lda screen_ptr2
     adc #<(bytes_per_screen_line-7)
