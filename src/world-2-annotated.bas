@@ -118,6 +118,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   620ENDPROC
 
   630DEFPROCshow_fleece:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:sun_moon_disabled%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
+  635REM TODO: CALLV% in next line will reset all resident integer variables to 0 except the "subroutine" ones. This will be a problem if we try to persist things in them to speed the code up.
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
 
   650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680

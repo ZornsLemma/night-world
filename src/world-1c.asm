@@ -1428,6 +1428,7 @@ slot_index_x2 = &7f
 ; sprite image X%, effectively changing its appearance in place. TODO:
 ; There are probably some subtleties here, but I think that's broadly
 ; right.
+; TODO: New-style comment for subroutine
 .u_subroutine
 {
 l0072 = &0072
@@ -1474,6 +1475,17 @@ l0072 = &0072
     rts
 }
 
+; Initialisation/reset subroutine.
+;
+; On exit:
+;     Resident integer variables Q%-V% are initialised to point to the
+;     corresponding subroutines.
+;
+;     All other resident integer variable A%-Z% will be 0.
+;
+;     All sprite slots are set to refer to their corresponding sprite images and
+;     be at (0, 0) but not shown on screen (according to the internal data
+;     structures; the screen is not updated).
 .v_subroutine
 {
     ; Zero resident integer variables A%-Z%
@@ -1481,39 +1493,29 @@ l0072 = &0072
     lda #0
 .zero_ri_loop
     sta ri_a-1,x
-    dex
-    bne zero_ri_loop
+    dex:bne zero_ri_loop
     ; Initialise resident integer variables Q%-V%
     ldx #('V'-'Q'+1)*4
 .init_qrstuv_loop
-    lda initial_qrstuv_values-1,x
-    sta ri_q-1,x
-    dex
-    bne init_qrstuv_loop
+    lda initial_qrstuv_values-1,x:sta ri_q-1,x
+    dex:bne init_qrstuv_loop
     ; Initialise sprite_screen_and_data_addrs so every slot is associated with
     ; the corresponding sprite image by default and is not on screen.
     ldx #0
     clc ; ENHANCE: get rid of this and do iny*4 below to increment Y
-    ldy #max_sprite_num
-    sty l0070
+    ldy #max_sprite_num:sty l0070
     ldy #0
 .init_sprite_screen_and_data_addrs_loop
-    lda sprite_ref_addrs_be+0,x
-    sta sprite_screen_and_data_addrs+sprite_addr_hi,y
-    lda sprite_ref_addrs_be+1,x
-    sta sprite_screen_and_data_addrs+sprite_addr_lo,y
+    lda sprite_ref_addrs_be+0,x:sta sprite_screen_and_data_addrs+sprite_addr_hi,y
+    lda sprite_ref_addrs_be+1,x:sta sprite_screen_and_data_addrs+sprite_addr_lo,y
     lda #0
     sta sprite_pixel_coord_table_xy+0,x
     sta sprite_pixel_coord_table_xy+1,x
     sta sprite_screen_and_data_addrs+screen_addr_lo,y
     sta sprite_screen_and_data_addrs+screen_addr_hi,y
-    tya
-    adc #4
-    tay
-    inx
-    inx
-    dec l0070
-    bne init_sprite_screen_and_data_addrs_loop
+    tya:adc #4:tay
+    inx:inx
+    dec l0070:bne init_sprite_screen_and_data_addrs_loop
     rts
 
 ; ENHANCE: I am actually thinking of using just a single resident integer
