@@ -32,13 +32,19 @@ sprite_height_pixels = 16
 ; unambiguous because (for X) there are only 160 pixels across the screen and
 ; (for Y) the pixel coordinates run up from origin at bottom left and specify
 ; the top left corner of the sprite, so the lowest valid Y on the screen is 15.
-; TODO: Does anything actually care about this distinction?
+; TODO: Get rid of the "threshold" ones and just use the corresponding other constant?
 sprite_pixel_x_special_threshold = 254
 sprite_pixel_y_special_threshold = 2
 sprite_pixel_x_neg_inf = 254
 sprite_pixel_x_pos_inf = 255
 sprite_pixel_y_pos_inf = 0
 sprite_pixel_y_neg_inf = 1
+
+; Offsets used with the delta_table and slot_pixel_coord_table_xy tables. The s_
+; prefix is just to avoid confusion with the X and Y registers; think "s" for
+; "struct member" if it helps.
+s_x = 0
+s_y = 1
 
 ; BASIC's resident integer variables @%, A%, ..., Z% (four bytes each) have
 ; fixed addresses in page &4. They are used extensively to communicate between
@@ -1358,7 +1364,7 @@ slot_index_x2 = &7f
     lda slot_pixel_coord_table_xy,y:cmp #sprite_pixel_x_special_threshold:bcs x_pixel_coord_is_special
     ldy slot_index_x4:lda slot_addr_table+screen_addr_hi,y:beq cli_rts
     ldy slot_index_x2
-    lda delta_table,x:bmi add_negative_x_delta
+    lda delta_table+s_x,x:bmi add_negative_x_delta
     clc:adc slot_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
     asl a:rol os_x_hi
@@ -1367,7 +1373,7 @@ slot_index_x2 = &7f
     sta os_x_lo
 .update_y_pixel_coord
     lda slot_pixel_coord_table_xy+1,y:cmp #sprite_pixel_y_special_threshold:bcc y_pixel_coord_is_special_indirect
-    lda delta_table+1,x:bmi add_negative_y_delta
+    lda delta_table+s_y,x:bmi add_negative_y_delta
     clc:adc slot_pixel_coord_table_xy+1,y:bcs new_y_pixel_coord_gt_255
 .y_pixel_coord_in_a
     asl a:rol os_y_hi
@@ -1388,7 +1394,7 @@ slot_index_x2 = &7f
     bcc x_pixel_coord_in_a ; always branch
 .x_pixel_coord_is_special
     beq x_pixel_coord_is_neg_inf
-    lda delta_table,x:beq update_y_pixel_coord_indirect
+    lda delta_table+s_x,x:beq update_y_pixel_coord_indirect
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs update_y_pixel_coord_indirect
     lda sprite_x_min
@@ -1400,7 +1406,7 @@ slot_index_x2 = &7f
     sta os_x_lo
     bne update_y_pixel_coord ; TODO: always branch??
 .x_pixel_coord_is_neg_inf
-    lda delta_table,x
+    lda delta_table+s_x,x
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc update_y_pixel_coord_indirect
     lda sprite_x_max
@@ -1427,7 +1433,7 @@ slot_index_x2 = &7f
     bcc y_pixel_coord_in_a ; TODO: always branch??
 .y_pixel_coord_is_special
     cmp #sprite_pixel_y_neg_inf:beq y_pixel_coord_is_neg_inf
-    lda delta_table+1,x:beq t_subroutine_rts
+    lda delta_table+s_y,x:beq t_subroutine_rts
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs t_subroutine_rts
     lda sprite_y_min
@@ -1441,7 +1447,7 @@ slot_index_x2 = &7f
 .^t_subroutine_rts
     rts
 .y_pixel_coord_is_neg_inf
-    lda delta_table+1,x
+    lda delta_table+s_y,x
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc t_subroutine_rts
     lda sprite_y_max
