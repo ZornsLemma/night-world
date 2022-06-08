@@ -156,7 +156,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   830FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
   840DEFPROCclear_room
-  841REM Fix the "phantom wall enemy" bug by ensuring slot 7 (the general enemy slot) isn't left active from a previous room.
+  841REM Fix the "phantom wall enemy" bug by ensuring slot 7 (the general enemy slot) isn't left active from a previous room. TODO: NO, SLOT 7 IS NOT GENERAL *ENEMY*, IT'S MISC STUFF SLOT
   843Y%=S_OP_REMOVE:W%=7:CALLS%:Y%=S_OP_MOVE:REM TODO: this probably isn't necessary with current code, but with suitable tweaks to the machine code it's probably the right fix instead of following line
   844?(&5760+(7-1)*2+1)=230:REM TODO: hack to work around fact that collision detection doesn't ignore invisible sprites!?
   847VDU28,0,26,19,9,17,128,12,26:ENDPROC
