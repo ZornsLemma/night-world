@@ -4,7 +4,7 @@ The 0-based physical sprite numbers shown here aren't really used by the game it
 
 | physical | logical | frames | animation | notes |
 | --------:| -------:| ------ | --------- | ----- |
-| 0 &4000  |     1-8 | ![](img/sprite-00-0.png) ![](img/sprite-00-1.png) ![](img/sprite-00-2.png) ![](img/sprite-00-3.png) | ![](img/sprite-00-anim.gif) | Final Guardian/Demon Lord |
+| 0 &4000  |1-8, 27+ | ![](img/sprite-00-0.png) ![](img/sprite-00-1.png) ![](img/sprite-00-2.png) ![](img/sprite-00-3.png) | ![](img/sprite-00-anim.gif) | Final Guardian/Demon Lord |
 | 1 &40C0  |       9 | ![](img/sprite-01-0.png) ![](img/sprite-01-1.png) ![](img/sprite-01-2.png) ![](img/sprite-01-3.png) | ![](img/sprite-01-anim.gif) | Human, right |
 | 2 &4180  |      10 | ![](img/sprite-02-0.png) ![](img/sprite-02-1.png) ![](img/sprite-02-2.png) ![](img/sprite-02-3.png) | ![](img/sprite-02-anim.gif) | Human, left |
 | 3 &4240  |      11 | ![](img/sprite-03-0.png) ![](img/sprite-03-1.png) ![](img/sprite-03-2.png) ![](img/sprite-03-3.png) | ![](img/sprite-03-anim.gif) | Gargoyle, right |

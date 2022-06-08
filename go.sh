@@ -18,8 +18,9 @@ if [ "$USE_WORLD_2_ANNOTATED" == "0" ]; then
     basictool -t src/world-2.bas tmp/world-2.tok
     cmp orig/world-2.tok tmp/world-2.tok || (echo world-2.tok not rebuilt correctly > /dev/stderr; exit 1)
 else
+    python preprocess.py src/world-2-annotated.bas > tmp/world-2-annotated.bas
     # TODO: Do we need --pack-singles-n?
-    basictool -tp --pack-singles-n src/world-2-annotated.bas tmp/world-2.tok
+    basictool -tp --pack-singles-n tmp/world-2-annotated.bas tmp/world-2.tok
 fi
 
 

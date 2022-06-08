@@ -819,6 +819,8 @@ overlap_direction = &74
     ; probably be simpler and more correct to keep the loop index in Y and
     ; just increment it with iny:iny. Do think about this before changing it
     ; as it's possible there's a subtlety here I'm overlooking.
+    ; TODO: Am I missing something, or does this code not check to see if the
+    ; candidate is actually visible on screen?!
     lda #0
 .y_loop
     cmp sprite_to_check_x2:beq next_candidate ; W% can't collide with itself
