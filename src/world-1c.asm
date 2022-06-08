@@ -1112,39 +1112,29 @@ overlap_direction = &74
     ; Copy the current pixel coordinates into sprite_pixel_current_{x,y}.
     lda sprite_pixel_coord_table_xy+0,x:sta sprite_pixel_current_x
     lda sprite_pixel_coord_table_xy+1,x:sta sprite_pixel_current_y
-; TODO: Won't sprite_pixel_x_hi always be 0, since if it's on-screen
-; it will have been reduced to the range 0-159 after dividing by 8?
+    ; ENHANCE: It may be that we know the value's always 8-bit, because
+    ; world-2.bas doesn't try to move sprites outside the screen area.
     lda sprite_pixel_x_hi:beq x_position_is_8_bit
     cmp #&80 ; ENHANCE: just use N from the preceding lda instead to avoid this
     bcc x_position_too_far_right
     bcs x_position_too_far_left
 .check_y_position
-    lda sprite_pixel_y_hi
-    beq y_position_is_8_bit
-; TODO: cmp #&80 redundant? we just did LDA which will have set N so
-; we can use beq/bne instead
-    cmp #&80
+    lda sprite_pixel_y_hi:beq y_position_is_8_bit
+    cmp #&80 ; ENHANCE: just use N from preceding lda instead to avoid this
     bcc y_position_too_far_up
     bcs y_position_too_far_down
 .x_position_is_8_bit
     lda sprite_pixel_x_lo
-    cmp sprite_x_min
-    bcc x_position_too_far_left
-    cmp sprite_x_max
-    beq x_position_ok
-    bcs x_position_too_far_right
+    cmp sprite_x_min:bcc x_position_too_far_left
+    cmp sprite_x_max:beq x_position_ok:bcs x_position_too_far_right
 .x_position_ok
     sta sprite_pixel_coord_table_xy,x
-    clc
-    bcc check_y_position                                       ; always branch
+    clc:bcc check_y_position ; always branch
 .x_position_too_far_right
-    lda constant_1_per_sprite_table,y
-    beq force_x_position_to_rhs
-    cmp #1
-    beq force_x_position_to_lhs
-    lda #&ff
-    sta sprite_pixel_coord_table_xy,x
-    bne check_y_position                                       ; always branch
+    lda constant_1_per_sprite_table,y:beq force_x_position_to_rhs
+    cmp #1:beq force_x_position_to_lhs
+    lda #&ff:sta sprite_pixel_coord_table_xy,x
+    bne check_y_position ; always branch
 .force_x_position_to_rhs
     lda sprite_x_max
     sta sprite_pixel_coord_table_xy,x
