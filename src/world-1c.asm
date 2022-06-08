@@ -62,8 +62,8 @@ ri_z = &0468
 ; ENHANCE: Rooms are 20x18 mode 5 character cells in size. They are packed two
 ; cells to a byte; it would be possible to pack eight cells to a byte with
 ; slightly cleverer unpacking code, which would free up some extra memory. (14
-; rooms currently take 7200 bytes which would reduce to 1800 bytes, saving 5.4K
-; less any small loss for the more complex unpacking code.)
+; rooms currently take 2520 bytes which would reduce to 630 bytes, saving 1890
+; bytes less any small loss for the more complex unpacking code.)
 macro room_row n
     for i, 9, 0, -1
         equb (n >> (i*2)) and %11
