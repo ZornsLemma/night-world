@@ -1215,7 +1215,7 @@ next_row_adjust = bytes_per_screen_line-7
     ldy # 0:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
     ldy # 8:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
     ldy #16:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
-    lda screen_ptr:and #7:eor #7:beq next_row ; ENHANCE: and:eor=>cmp?
+    lda screen_ptr:and #7:eor #7:beq next_row
     inc screen_ptr
 .screen_ptr_updated
     inc sprite_ptr:beq low_byte_wrapped
