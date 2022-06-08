@@ -1240,6 +1240,7 @@ next_row_adjust = bytes_per_screen_line-7
 ; haven't been over the code properly yet, but I suspect it is a
 ; 'erase at old location, replot immediately at new location' variant,
 ; to handle moving sprites more efficiently.
+; ENHANCE: This is probably over-zealous at ensuring carry is clear.
 .sprite_core_moving
 {
 row_index = &0075
@@ -1247,67 +1248,50 @@ next_row_adjust = bytes_per_screen_line-7
 
     lda #1:sta row_index
     sei
-.gouter_loop
+.outer_loop
     ldx #8
-.ginner_loop
+.inner_loop
     ldy # 0:lda (screen_ptr2),y:eor (sprite_ptr2),y:sta (screen_ptr2),y
             lda (screen_ptr ),y:eor (sprite_ptr ),y:sta (screen_ptr ),y
     ldy # 8:lda (screen_ptr2),y:eor (sprite_ptr2),y:sta (screen_ptr2),y
             lda (screen_ptr ),y:eor (sprite_ptr ),y:sta (screen_ptr ),y
     ldy #16:lda (screen_ptr2),y:eor (sprite_ptr2),y:sta (screen_ptr2),y
             lda (screen_ptr ),y:eor (sprite_ptr ),y:sta (screen_ptr ),y
-    lda screen_ptr:and #7:eor #7:beq gnext_row
+    lda screen_ptr:and #7:eor #7:beq next_row
     inc screen_ptr
-.gscreen_ptr_updated
-    lda screen_ptr2:and #7:eor #7:beq gnext_row2
+.screen_ptr_updated
+    lda screen_ptr2:and #7:eor #7:beq next_row2
     inc screen_ptr2
-.gscreen_ptr2_updated
-    inc sprite_ptr:beq glow_byte_wrapped
-.glow_byte_wrap_handled
-    inc sprite_ptr2
-    beq glow_byte_wrapped2
-.glow_byte_wrap2_handled
-    dex
-    bne ginner_loop
-    lda sprite_ptr
-    adc #&10
-    sta sprite_ptr
-    bcc gno_carry
-    inc sprite_ptr+1
-    clc
-.gno_carry
-    lda sprite_ptr2
-    adc #&10
-    sta sprite_ptr2
-    bcc gno_carry2
-    inc sprite_ptr2+1
-    clc
-.gno_carry2
-    dec row_index:beq gouter_loop
+.screen_ptr2_updated
+    inc sprite_ptr:beq low_byte_wrapped
+.low_byte_wrap_handled
+    inc sprite_ptr2:beq low_byte_wrapped2
+.low_byte_wrap2_handled
+    dex:bne inner_loop
+    lda sprite_ptr:adc #16:sta sprite_ptr:bcc no_carry
+    inc sprite_ptr+1:clc
+.no_carry
+    lda sprite_ptr2:adc #16:sta sprite_ptr2:bcc no_carry2
+    inc sprite_ptr2+1:clc
+.no_carry2
+    dec row_index:beq outer_loop
 .^cli_rts
     cli
     rts
-
-.gnext_row
+.next_row
     lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
     lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
-    bne gscreen_ptr_updated ; always branch
-.gnext_row2
-    lda screen_ptr2
-    adc #<(bytes_per_screen_line-7)
-    sta screen_ptr2
-    lda screen_ptr2+1
-    adc #>(bytes_per_screen_line-7)
-    sta screen_ptr2+1
-    bne gscreen_ptr2_updated
-.glow_byte_wrapped
-    inc sprite_ptr+1
-    clc
-    bne glow_byte_wrap_handled
-.glow_byte_wrapped2
-    inc sprite_ptr2+1
-    clc
-    bne glow_byte_wrap2_handled
+    bne screen_ptr_updated ; always branch
+.next_row2
+    lda screen_ptr2  :adc #<(bytes_per_screen_line-7):sta screen_ptr2
+    lda screen_ptr2+1:adc #>(bytes_per_screen_line-7):sta screen_ptr2+1
+    bne screen_ptr2_updated ; always branch
+.low_byte_wrapped
+    inc sprite_ptr+1:clc
+    bne low_byte_wrap_handled ; always branch
+.low_byte_wrapped2
+    inc sprite_ptr2+1:clc
+    bne low_byte_wrap2_handled ; always branch
 }
 
 ; Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise
