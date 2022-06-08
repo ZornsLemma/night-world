@@ -8,7 +8,6 @@ osbyte_clear_escape = &7c
 
 ; TODO: Move zp vars into the most restrictive scope possible
 sprite_ptr = &0070
-l0071 = &0071
 l0073 = &0073
 l0074 = &0074
 l0076 = &0076
@@ -1465,6 +1464,7 @@ slot_index_x2 = &7f
 .u_subroutine
 {
 l0070 = &0070
+l0071 = &0071
 l0072 = &0072
 
     lda ri_w:beq t_subroutine_rts
