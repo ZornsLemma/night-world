@@ -4,6 +4,7 @@ constant S_OP_REMOVE = 2
 
 constant SLOT_ENEMY = 5
 constant SLOT_SUN_MOON = 6
+constant SLOT_MISC = 7
 
 constant IMAGE_HARPY_RIGHT = 13
 constant IMAGE_HARPY_LEFT = 14
@@ -81,7 +82,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
-  400DEFPROCupdate_sprite_slot_7_and_show(text_x%,text_y%,ch%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=ch%:W%=7:IFch%=20:M%=M%+4
+  400DEFPROCupdate_sprite_slot_7_and_show(text_x%,text_y%,ch%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=ch%:W%=SLOT_MISC:IFch%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
@@ -124,7 +125,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   610IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=7:PROCshow_fleece
   620ENDPROC
 
-  630DEFPROCshow_fleece:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=7:CALLS%:RESTORE1450:score%=100:sun_moon_disabled%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
+  630DEFPROCshow_fleece:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=SLOT_MISC:CALLS%:RESTORE1450:score%=100:sun_moon_disabled%=1:PROClee_sprite_reset:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
   635REM TODO: CALLV% in next line will reset all resident integer variables to 0 except the "subroutine" ones. This will be a problem if we try to persist things in them to speed the code up.
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
 
@@ -157,7 +158,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
 
   840DEFPROCclear_room
   841REM Fix the "phantom wall enemy" bug by ensuring slot 7 (the general enemy slot) isn't left active from a previous room. TODO: NO, SLOT 7 IS NOT GENERAL *ENEMY*, IT'S MISC STUFF SLOT
-  843Y%=S_OP_REMOVE:W%=7:CALLS%:Y%=S_OP_MOVE:REM TODO: this probably isn't necessary with current code, but with suitable tweaks to the machine code it's probably the right fix instead of following line
+  843Y%=S_OP_REMOVE:W%=SLOT_MISC:CALLS%:Y%=S_OP_MOVE:REM TODO: this probably isn't necessary with current code, but with suitable tweaks to the machine code it's probably the right fix instead of following line
   844?(&5760+(7-1)*2+1)=230:REM TODO: hack to work around fact that collision detection doesn't ignore invisible sprites!?
   847VDU28,0,26,19,9,17,128,12,26:ENDPROC
 
@@ -175,7 +176,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   930IFroom_type%=3:X%=IMAGE_ROBOT:CALLU%
   940IFroom_type%=4:X%=IMAGE_EYE:CALLU%
   950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
-  960ak%=0:ah%=1:W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
+  960ak%=0:ah%=1:W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=SLOT_MISC:M%=1035:N%=692:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
   970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,21):PROCupdate_sprite_slot_7_and_show(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
@@ -187,7 +188,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
  1050IFlogical_room%=14:PROCupdate_sprite_slot_7_and_show(8,20,21):PROCupdate_sprite_slot_7_and_show(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCupdate_sprite_slot_7_and_show(12,25,17)
  1060IFlogical_room%=12:PROCupdate_sprite_slot_7_and_show(1,15,20):PROCupdate_sprite_slot_7_and_show(1,18,20):PROCupdate_sprite_slot_7_and_show(1,21,20)
  1070IFlogical_room%=13:PROCupdate_sprite_slot_7_and_show(7,21,23):PROCupdate_sprite_slot_7_and_show(12,21,23)
- 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=7:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFday_night%=1:Y%=S_OP_REMOVE:CALLS%
+ 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=SLOT_MISC:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFday_night%=1:Y%=S_OP_REMOVE:CALLS%
  1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCupdate_sprite_slot_7_and_show(18,24,17)
  1100ENDPROC
 
@@ -213,10 +214,10 @@ constant IMAGE_FINAL_GUARDIAN = 27
  1240ENDPROC
 
  1250DEFPROChide_fleece:IFlogical_room%<>5:ENDPROC
- 1260IFscore%<90:ENDPROC ELSEW%=7:Y%=S_OP_REMOVE:CALLS%:ENDPROC
+ 1260IFscore%<90:ENDPROC ELSEW%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:ENDPROC
 
  1270DEFPROCrestore_fleece:IFlogical_room%<>5:ENDPROC
- 1280IFscore%<90:ENDPROC ELSEW%=7:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLS%:CALLU%:ENDPROC
+ 1280IFscore%<90:ENDPROC ELSEW%=SLOT_MISC:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLS%:CALLU%:ENDPROC
 
  1290DEFPROCwarp_effect:VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
