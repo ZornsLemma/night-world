@@ -2,20 +2,13 @@
 ; Something a bit more free-form mixing inputs and outputs might be helpful.
 
 max_sprite_num = 48 ; 1-based
-get_sprite_details_sprite_index = &7c
-bytes_per_screen_line = &0140
-sprite_y_offset_within_row = &75
+bytes_per_screen_row = 40*8 ; 40 (6845) characters, eight bytes each
 
 ; TODO: Move zp vars into the most restrictive scope possible
 sprite_ptr = &0070
 screen_ptr = &007a
 screen_ptr2 = &007c
 sprite_ptr2 = &007e
-
-; This is the conceptual width; sprite data is actually 12 pixels wide but only
-; nine adjacent columns within the sprite will be non-black.
-sprite_width_pixels = 9
-sprite_height_pixels = 16
 
 ; slot_pixel_coord_table uses the special X/Y values to indicate that a
 ; sprite is out of bounds on a particular side of the screen. These values are
@@ -794,6 +787,11 @@ abs_x_difference = &72
 abs_y_difference = &73
 overlap_direction = &74
 
+; This is the conceptual width; sprite data is actually 12 pixels wide but only
+; nine adjacent columns within the sprite will be non-black.
+sprite_width_pixels = 9
+sprite_height_pixels = 16
+
     lda ri_w:beq no_collision_found
     cmp #max_sprite_num+1:bcs no_collision_found
     sec:sbc #1
@@ -995,6 +993,7 @@ l0075 = &0075
 sprite_pixel_current_x = &72
 l0073 = &73
 l0074 = &0074
+sprite_y_offset_within_row = &75
 sprite_pixel_x_lo = &0076
 sprite_pixel_y_lo = &0077
 
@@ -1112,9 +1111,10 @@ sprite_pixel_current_y = &73
 sprite_pixel_x_hi = &78
 sprite_pixel_y_hi = &79
 l0075 = &75
+slot = &7c
 l007d = &7d
 
-    sta get_sprite_details_sprite_index
+    sta slot
     ; Calculate the offset of this sprite slot's coordinate resident integer
     ; variables in Y.
     asl a:tax:sta l007d ; ENHANCE: value stored is never used
@@ -1132,7 +1132,7 @@ l007d = &7d
     lda ri_b+0,y:lsr sprite_pixel_y_hi
     ror a:lsr sprite_pixel_y_hi
     ror a:sta sprite_pixel_y_lo
-    ldy get_sprite_details_sprite_index
+    ldy slot
     ; Copy the current pixel coordinates into sprite_pixel_current_{x,y}.
     lda slot_pixel_coord_table+s_x,x:sta sprite_pixel_current_x
     lda slot_pixel_coord_table+s_y,x:sta sprite_pixel_current_y
@@ -1214,7 +1214,7 @@ l007d = &7d
 .plot_sprite
 {
 row_index = &75
-next_row_adjust = bytes_per_screen_line-7
+next_row_adjust = bytes_per_screen_row-7
 
     lda #1:sta row_index
 .outer_loop
@@ -1261,7 +1261,7 @@ next_row_adjust = bytes_per_screen_line-7
 .move_sprite
 {
 row_index = &75
-next_row_adjust = bytes_per_screen_line-7
+next_row_adjust = bytes_per_screen_row-7
 
     lda #1:sta row_index
     sei
@@ -1300,8 +1300,8 @@ next_row_adjust = bytes_per_screen_line-7
     lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
     bne screen_ptr_row_wrap_handled ; always branch
 .screen_ptr2_row_wrap
-    lda screen_ptr2  :adc #<(bytes_per_screen_line-7):sta screen_ptr2
-    lda screen_ptr2+1:adc #>(bytes_per_screen_line-7):sta screen_ptr2+1
+    lda screen_ptr2  :adc #<(bytes_per_screen_row-7):sta screen_ptr2
+    lda screen_ptr2+1:adc #>(bytes_per_screen_row-7):sta screen_ptr2+1
     bne screen_ptr2_row_wrap_handled ; always branch
 .sprite_ptr_carry
     inc sprite_ptr+1:clc
