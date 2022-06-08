@@ -1,10 +1,11 @@
+; TODO: The "on entry/on exit" style of documentation is perhaps unhelpful.
+; Something a bit more free-form mixing inputs and outputs might be helpful.
+
 max_sprite_num = &30
 sprite_to_check_x2 = &71
 get_sprite_details_sprite_index = &7c
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
-osbyte_inkey = &81
-osbyte_clear_escape = &7c
 
 ; TODO: Move zp vars into the most restrictive scope possible
 sprite_ptr = &0070
@@ -15,7 +16,6 @@ screen_ptr2 = &007c
 l007e = &007e
 sprite_ptr2 = &007e
 l007f = &007f
-osbyte = &fff4
 
 ; This is the conceptual width; sprite data is actually 12 pixels wide but only
 ; eight adjacent columns within the sprite will be non-black. TODO: Not true,
@@ -907,6 +907,9 @@ overlap_direction = &74
 ; ENHANCE: This can obviously be removed.
 .r_subroutine
 {
+osbyte_inkey = &81
+osbyte_clear_escape = &7c
+osbyte = &fff4
 l0075 = &0075
 
     lda ri_x
@@ -1312,7 +1315,6 @@ next_row_adjust = bytes_per_screen_line-7
     bne sprite_ptr2_carry_handled ; always branch
 }
 
-; TODO: New-style entry/exit comment
 ; Sprite position adjustment subroutine.
 ;
 ; On entry:
@@ -1455,13 +1457,21 @@ slot_index_x2 = &7f
     jmp set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
 }
 
-; If X%=0 on entry, update the resident integer variables for sprite
-; slot W% with that sprite's current OS coordinates. Otherwise, remove
-; the existing sprite in slot W% from the screen and replace it with
-; sprite image X%, effectively changing its appearance in place. TODO:
-; There are probably some subtleties here, but I think that's broadly
-; right.
-; TODO: New-style comment for subroutine
+; Sprite update/query subroutine.
+;
+; On entry:
+;     W% is the sprite slot we want to work with.
+;
+;     X%=0 queries the sprite's current location.
+;     X%>0 is the sprite image index to associate with the sprite slot.
+;
+; On exit:
+;     If X%=0, the sprite slot's coordinate resident integer variables contain
+;     the sprite's current position.
+;
+;     If X%>0 and the sprite is visible, the sprite slot's associated image will
+;     be changed to X% on the screen and in the internal data structures. This
+;     is a no-op if the sprite is not visible.
 .u_subroutine
 {
 l0070 = &0070
@@ -1772,11 +1782,12 @@ sprite_addr_lo = 3
         equb 0, 0
     next
 
-; Byte-per-sprite table which controls what happens when a sprite tries to move
+; Byte-per-slot table which controls what happens when a sprite tries to move
 ; off the edges of the screen:
 ;     0 => clamp the sprite's position to the edge of the screen
 ;     1 => wrap the sprite's position to the opposite screen edge
-;     2 => remove the sprite from the screen
+;     2 => remove the sprite from the screen (recording which edge it left from)
+;
 ; ENHANCE: This is always 1 for all sprites, so we can hard-code that behaviour
 ; and remove unreachable code and this table itself. I am not actually sure we
 ; rely on the wrapping either, so it may be we can just hard-code the assumption
