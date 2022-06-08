@@ -4,8 +4,11 @@ constant S_OP_REMOVE = 2
 
 constant SLOT_SUN_MOON = 6
 
+constant IMAGE_HARPY_RIGHT = 13
+constant IMAGE_HARPY_LEFT = 14
 constant IMAGE_WINGED_CREATURE = 15
 constant IMAGE_ROBOT = 16
+constant IMAGE_FLEECE_MACGUFFIN_PRISM = 17
 constant IMAGE_HEALTH = 18
 constant IMAGE_VEIL = 19
 constant IMAGE_EYE = 22
@@ -127,7 +130,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
   660IFdb%=6ANDJ%>lee_y_os%:Z%=9 ELSEIFdb%=6ANDJ%<lee_y_os%:Z%=3
   670IFdb%=4ANDJ%>lee_y_os%:Z%=7 ELSEIFdb%=4ANDJ%<lee_y_os%:Z%=1
-  680IFI%=1152:db%=4:X%=14:CALLU% ELSEIFI%=64:db%=6:X%=13:CALLU%
+  680IFI%=1152:db%=4:X%=IMAGE_HARPY_LEFT:CALLU% ELSEIFI%=64:db%=6:X%=IMAGE_HARPY_RIGHT:CALLU%
   690CALLT%:ENDPROC
 
   700DEFPROCroom_type2:axm%=3:IFI%>lee_x_os%:axm%=-3
@@ -164,14 +167,14 @@ constant IMAGE_FINAL_GUARDIAN = 27
   860s0%=?&70:s1%=?&71:s2%=?&72:s3%=?&73:?&70=aa%:?&71=bb%:?&72=226:?&73=30
   870CALL&A00:?&70=s0%:?&71=s1%:?&72=s2%:?&73=s3%
   880IFroom_type%=2:I%=608:J%=672:W%=5:Y%=0:CALLS%:GOTO900
-  890db%=6:IFroom_type%>0:I%=291:J%=480:W%=5:Y%=0:CALLS%:IFroom_type%=1:X%=13:CALLU%
+  890db%=6:IFroom_type%>0:I%=291:J%=480:W%=5:Y%=0:CALLS%:IFroom_type%=1:X%=IMAGE_HARPY_RIGHT:CALLU%
   900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=IMAGE_VEIL2:CALLU%:GOTO960
   910IFlogical_room%=5ANDscore%=90:room_type%=0:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
   920IFroom_type%=2:X%=IMAGE_WINGED_CREATURE:CALLU%
   930IFroom_type%=3:X%=IMAGE_ROBOT:CALLU%
   940IFroom_type%=4:X%=IMAGE_EYE:CALLU%
   950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
-  960ak%=0:ah%=1:W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
+  960ak%=0:ah%=1:W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
   970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,21):PROCupdate_sprite_slot_7_and_show(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
