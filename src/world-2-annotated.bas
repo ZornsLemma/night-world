@@ -2,6 +2,7 @@ constant S_OP_MOVE = 0
 constant S_OP_SHOW = 1
 constant S_OP_REMOVE = 2
 
+constant SLOT_ENEMY = 5
 constant SLOT_SUN_MOON = 6
 
 constant IMAGE_HARPY_RIGHT = 13
@@ -72,7 +73,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   320sf%=lee_y_os%-66:IFscore%=100ANDPOINT(lee_x_os%,sf%)=3ANDlee_y_os%>260:MOVElee_x_os%,sf%+26:VDU5,249,4
   330PROCset_lee_sprite_from_lee_xy_os:CALLS%
   335IFlee_x_os%<24ORlee_x_os%>1194ORlee_y_os%>730ORlee_y_os%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
-  340W%=5:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
+  340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350cr%=cr%+1:IFcr%=4:cr%=0:READnote_pitch%,note_duration%:SOUND2,-5,note_pitch%,note_duration%:SOUND3,-5,note_pitch%,note_duration%:note_count%=note_count%+1:IFnote_count%=70:PROCreset_note_count
   360W%=lee_sprite_num%:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
   370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
@@ -110,13 +111,13 @@ constant IMAGE_FINAL_GUARDIAN = 27
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
-  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=S_OP_REMOVE:W%=5:CALLS%:PROClee_sprite_reset:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROClee_sprite_reset:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   585REM If player is in room 10 (Ed's room J) and in the top half of the screen,
   586REM warp to room 9 (Ed's room N) - the fleece room.
-  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=S_OP_REMOVE:W%=5:CALLS%:PROClee_sprite_reset:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
+  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROClee_sprite_reset:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
   595REM If player is in room 13 at a specific point on the right edge, warp to
   596REM room 7 (Ed's room H).
-  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=S_OP_REMOVE:W%=5:CALLS%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM force specific colours and if (TODO: what does this mean?) X%=7, show the fleece (TODO: MacGuffin?).
   607REM TODO: I think this shows the fleece anyway.
@@ -166,8 +167,8 @@ constant IMAGE_FINAL_GUARDIAN = 27
   853REM TODO: That said, I'm not convinced they do need preserving - double-check machine code!
   860s0%=?&70:s1%=?&71:s2%=?&72:s3%=?&73:?&70=aa%:?&71=bb%:?&72=226:?&73=30
   870CALL&A00:?&70=s0%:?&71=s1%:?&72=s2%:?&73=s3%
-  880IFroom_type%=2:I%=608:J%=672:W%=5:Y%=0:CALLS%:GOTO900
-  890db%=6:IFroom_type%>0:I%=291:J%=480:W%=5:Y%=0:CALLS%:IFroom_type%=1:X%=IMAGE_HARPY_RIGHT:CALLU%
+  880IFroom_type%=2:I%=608:J%=672:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:GOTO900
+  890db%=6:IFroom_type%>0:I%=291:J%=480:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:IFroom_type%=1:X%=IMAGE_HARPY_RIGHT:CALLU%
   900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=IMAGE_VEIL2:CALLU%:GOTO960
   910IFlogical_room%=5ANDscore%=90:room_type%=0:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
   920IFroom_type%=2:X%=IMAGE_WINGED_CREATURE:CALLU%
