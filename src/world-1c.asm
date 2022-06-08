@@ -1743,7 +1743,9 @@ sprite_addr_lo = 3
 ;     1 => wrap the sprite's position to the opposite screen edge
 ;     2 => remove the sprite from the screen
 ; ENHANCE: This is always 1 for all sprites, so we can hard-code that behaviour
-; and remove unreachable code and this table itself.
+; and remove unreachable code and this table itself. I am not actually sure we
+; rely on the wrapping either, so it may be we can just hard-code the assumption
+; that sprites never try to leave the screen.
 .sprite_wrap_behaviour_table
     for i, 1, 48
         equb 1
