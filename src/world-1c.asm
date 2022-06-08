@@ -1,8 +1,7 @@
 ; TODO: The "on entry/on exit" style of documentation is perhaps unhelpful.
 ; Something a bit more free-form mixing inputs and outputs might be helpful.
 
-max_sprite_num = &30
-sprite_to_check_x2 = &71
+max_sprite_num = 48 ; 1-based
 get_sprite_details_sprite_index = &7c
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
@@ -797,6 +796,7 @@ ri_coord_vars = 8
 .q_subroutine
 {
 max_candidate_sprite_x2 = &70
+slot_index_x2 = &71
 abs_x_difference = &72
 abs_y_difference = &73
 overlap_direction = &74
@@ -808,7 +808,7 @@ overlap_direction = &74
     asl a:tay
     ; If sprite slot W% is not on screen, it can't have any collisions.
     lda slot_addr_table+screen_addr_hi,y:beq no_collision_found
-    stx sprite_to_check_x2
+    stx slot_index_x2
     lda ri_y:beq no_collision_found
     cmp #max_sprite_num+1:bcs no_collision_found
     sec:sbc #1
@@ -825,7 +825,7 @@ overlap_direction = &74
     ; candidate is actually visible on screen?!
     lda #0
 .y_loop
-    cmp sprite_to_check_x2:beq next_candidate ; W% can't collide with itself
+    cmp slot_index_x2:beq next_candidate ; W% can't collide with itself
     tay
     lda #5:sta overlap_direction
     lda slot_pixel_coord_table+s_x,x:sec:sbc slot_pixel_coord_table+s_x,y
