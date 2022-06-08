@@ -4,7 +4,6 @@ get_sprite_details_sprite_index = &7c
 t_subroutine_os_x_hi = &70
 t_subroutine_os_x_lo = &71
 t_subroutine_os_y_hi = &72
-t_subroutine_w_minus_1_times_4 = &7e
 t_subroutine_w_minus_1_times_8 = &76
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
@@ -1311,6 +1310,7 @@ next_row_adjust = bytes_per_screen_line-7
 .t_subroutine
 {
 constant_1 = &73 ; ENHANCE: just use #1 for this
+l007e = &7e
 l007f = &7f
 
     lda ri_w:beq cli_rts
@@ -1324,13 +1324,11 @@ l007f = &7f
     lda #0:sta ri_y:sta t_subroutine_os_x_hi:sta t_subroutine_os_y_hi
     lda #1:sta constant_1
     tya:asl a:sta l007f
-    tay:asl a:sta t_subroutine_w_minus_1_times_4
+    tay:asl a:sta l007e
     and #(ri_coord_vars<<3)-1:asl a:sta t_subroutine_w_minus_1_times_8
     lda sprite_pixel_coord_table_xy,y:cmp #&fe:bcs t_subroutine_x_pixel_coord_ge_fe
-    ldy t_subroutine_w_minus_1_times_4
-    lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
-    ldy l007f
-    lda sprite_delta_coord_table_xy,x:bmi add_negative_x_offset
+    ldy l007e:lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
+    ldy l007f:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_offset
     clc:adc sprite_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
     asl a:rol t_subroutine_os_x_hi
