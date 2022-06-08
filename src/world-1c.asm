@@ -1088,6 +1088,7 @@ overlap_direction = &74
 ;
 ; On exit:
 ;     TODO
+; ENHANCE: This is probably over-zealous in ensuring carry clear on exit.
 .get_sprite_details
 {
     sta get_sprite_details_sprite_index
@@ -1132,7 +1133,7 @@ overlap_direction = &74
     clc:bcc check_y_position ; always branch
 .x_position_too_far_right
     lda sprite_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_max
-    cmp #1:beq force_x_psotion_to_sprite_x_min
+    cmp #1:beq force_x_position_to_sprite_x_min
     lda #&ff:sta sprite_pixel_coord_table_xy,x
     bne check_y_position ; always branch
 .force_x_position_to_sprite_x_max
@@ -1142,62 +1143,39 @@ overlap_direction = &74
     clc
     bcc check_y_position
 .x_position_too_far_left
-    lda sprite_wrap_behaviour_table,y                                 ; always branch
-    beq force_x_psotion_to_sprite_x_min
-    cmp #1
-    beq force_x_position_to_sprite_x_max
-    lda #&fe
-    sta sprite_pixel_coord_table_xy,x
-    bne check_y_position                                       ; always branch
-.force_x_psotion_to_sprite_x_min
-    lda sprite_x_min
-    sta sprite_pixel_coord_table_xy,x
-    sta sprite_pixel_x_lo
-    clc
-    bcc check_y_position
+    lda sprite_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_min
+    cmp #1:beq force_x_position_to_sprite_x_max
+    lda #&fe:sta sprite_pixel_coord_table_xy,x
+    bne check_y_position ; always branch
+.force_x_position_to_sprite_x_min
+    lda sprite_x_min:sta sprite_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
+    clc:bcc check_y_position
 .y_position_is_8_bit
     lda sprite_pixel_y_lo
-    cmp sprite_y_min
-    bcc y_position_too_far_down
-    cmp sprite_y_max
-    beq y_position_adjusted
-    bcs y_position_too_far_up
-.y_position_adjusted
+    cmp sprite_y_min:bcc y_position_too_far_down
+    cmp sprite_y_max:beq y_position_ok:bcs y_position_too_far_up
+.y_position_ok
     sta sprite_pixel_coord_table_xy+1,x
     clc
     rts
-
 .y_position_too_far_up
-    lda sprite_wrap_behaviour_table,y
-    beq force_y_position_to_constant_fe
-    cmp #1
-    beq force_y_position_to_sprite_y_min
-    lda #0
-    sta sprite_pixel_coord_table_xy+1,x
+    lda sprite_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_max
+    cmp #1:beq force_y_position_to_sprite_y_min
+    lda #0:sta sprite_pixel_coord_table_xy+1,x
     clc
     rts
-
-.force_y_position_to_constant_fe
-    lda sprite_y_max
-    sta sprite_pixel_coord_table_xy+1,x
-    sta sprite_pixel_y_lo
+.force_y_position_to_sprite_y_max
+    lda sprite_y_max:sta sprite_pixel_coord_table_xy+1,x:sta sprite_pixel_y_lo
     clc
     rts
-
 .y_position_too_far_down
-    lda sprite_wrap_behaviour_table,y
-    beq force_y_position_to_sprite_y_min
-    cmp #1
-    beq force_y_position_to_constant_fe
-    lda #1
-    sta sprite_pixel_coord_table_xy+1,x
+    lda sprite_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_min
+    cmp #1:beq force_y_position_to_sprite_y_max
+    lda #1:sta sprite_pixel_coord_table_xy+1,x
     clc
     rts
-
 .force_y_position_to_sprite_y_min
-    lda sprite_y_min
-    sta sprite_pixel_coord_table_xy+1,x
-    sta sprite_pixel_y_lo
+    lda sprite_y_min:sta sprite_pixel_coord_table_xy+1,x:sta sprite_pixel_y_lo
     clc
     rts
 } ; end get_sprite_details scope
