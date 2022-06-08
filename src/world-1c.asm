@@ -1109,7 +1109,7 @@ l007d = &7d
     sta get_sprite_details_sprite_index
     ; Calculate the offset of this sprite slot's coordinate resident integer
     ; variables in Y.
-    asl a:tax:sta l007d ; ENHANCE: stored value is never used
+    asl a:tax:sta l007d ; ENHANCE: value stored is never used
     asl a:sta l0074
     asl a:and #(ri_coord_vars-1)<<3:tay:sty l0075 ; ENHANCE: value stored is never used
     ; Copy values from the coordinate resident integer variables into
@@ -1153,10 +1153,7 @@ l007d = &7d
     bne check_y_position ; always branch
 .force_x_position_to_sprite_x_max
     lda sprite_x_max:sta sprite_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
-; TODO: I believe this is effectively a jmp and nothing cares about
-; the fact we've cleared carry.
-    clc
-    bcc check_y_position
+    clc:bcc check_y_position
 .x_position_too_far_left
     lda sprite_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_min
     cmp #1:beq force_x_position_to_sprite_x_max
