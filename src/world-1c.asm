@@ -1309,9 +1309,9 @@ os_x_hi = &70
 os_x_lo = &71
 os_y_hi = &72
 constant_1 = &73 ; ENHANCE: just use #1 for this
-l0076 = &76
-l007e = &7e
-l007f = &7f
+ri_coord_index = &76
+slot_index_x4 = &7e
+slot_index_x2 = &7f
 
     lda ri_w:beq cli_rts
     cmp #max_sprite_num+1:bcs cli_rts
@@ -1323,12 +1323,12 @@ l007f = &7f
     sec:sbc #1:asl a:tax
     lda #0:sta ri_y:sta os_x_hi:sta os_y_hi
     lda #1:sta constant_1
-    tya:asl a:sta l007f
-    tay:asl a:sta l007e
-    and #(ri_coord_vars<<3)-1:asl a:sta l0076
+    tya:asl a:sta slot_index_x2
+    tay:asl a:sta slot_index_x4
+    and #(ri_coord_vars<<3)-1:asl a:sta ri_coord_index
     lda sprite_pixel_coord_table_xy,y:cmp #&fe:bcs t_subroutine_x_pixel_coord_ge_fe
-    ldy l007e:lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
-    ldy l007f:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_delta
+    ldy slot_index_x4:lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
+    ldy slot_index_x2:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_delta
     clc:adc sprite_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
     asl a:rol os_x_hi
@@ -1344,7 +1344,7 @@ l007f = &7f
     asl a:rol os_y_hi
     tax
 .set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
-    ldy l0076
+    ldy ri_coord_index
     lda os_x_lo:sta ri_a,y
     lda os_x_hi:sta ri_a+1,y
     lda os_y_hi:sta ri_b+1,y
