@@ -1446,11 +1446,11 @@ l0072 = &0072
     ; of the four pre-shifted variants, each of which occupies 48=%110000 bytes,
     ; hence the pattern of shifts and adds.
     lda sprite_pixel_coord_table_xy,y:and #3:asl a:asl a:asl a:asl a:sta l0073
-    asl a:adc l0073:sta l0072
-    ; ENHANCE: The values written to sprite_ptr2+{0,1} are never used.
+    asl a:adc l0073:sta l0072 ; leaves carry clear
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr2
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
     lda ri_x:sec:sbc #1:asl a:tay
+    ; ENHANCE: sec:sbc will have left carry set, but we probably want it clear here.
     lda l0072:adc sprite_ref_addrs_be+1,y:sta sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr
     lda sprite_ref_addrs_be,y:adc #0:sta sprite_screen_and_data_addrs+sprite_addr_hi,x:sta sprite_ptr+1
     jmp move_sprite
