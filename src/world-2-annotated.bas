@@ -19,6 +19,8 @@ constant IMAGE_SUN = 24
 constant IMAGE_MOON = 25
 constant IMAGE_FINAL_GUARDIAN = 27
 
+constant DELTA_STEP_RIGHT = 6
+
    0IFPAGE>&E00:GOTO32000
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
    30REM If we hit an error other than Escape, let's make it obvious so it can be fixed.
@@ -98,8 +100,8 @@ constant IMAGE_FINAL_GUARDIAN = 27
   491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(lee_x_os%+32,lee_y_os%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
   500ENDPROC
 
-  510DEFPROCadvance_sun_moon:W%=SLOT_SUN_MOON:Z%=6:CALLT%:IFK%=1016:PROCtoggle_day_night
-  520IFlogical_room%=5:W%=8:Z%=6:CALLT%
+  510DEFPROCadvance_sun_moon:W%=SLOT_SUN_MOON:Z%=DELTA_STEP_RIGHT:CALLT%:IFK%=1016:PROCtoggle_day_night
+  520IFlogical_room%=5:W%=8:Z%=DELTA_STEP_RIGHT:CALLT%
   530ENDPROC
 
   540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
@@ -196,7 +198,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
  1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
  1122PROCchange_room2:ENDPROC
  1124DEFPROCchange_room2
- 1127W%=5:Y%=S_OP_REMOVE:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
+ 1127W%=SLOT_ENEMY:Y%=S_OP_REMOVE:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
  1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type%:NEXT:IFscore%=100:room_type%=2
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
  1150PROCdraw_current_room:ENDPROC
