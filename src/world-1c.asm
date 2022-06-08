@@ -1326,6 +1326,7 @@ slot_index_x2 = &7f
     tya:asl a:sta slot_index_x2
     tay:asl a:sta slot_index_x4
     and #(ri_coord_vars<<3)-1:asl a:sta ri_coord_index
+    ; TODO: Write some comments about &fe and &ff and what they mean exactly - need to carefully go over all code to see about this
     lda sprite_pixel_coord_table_xy,y:cmp #&fe:bcs t_subroutine_x_pixel_coord_ge_fe
     ldy slot_index_x4:lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
     ldy slot_index_x2:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_delta
@@ -1398,31 +1399,27 @@ slot_index_x2 = &7f
     dec os_y_hi
     bcc y_pixel_coord_in_a ; TODO: always branch??
 .sprite_y_pixel_coord_lt_2
-    cmp #1:beq c53ec
+    cmp #1:beq sprite_y_pixel_coord_is_1
     lda sprite_delta_coord_table_xy+1,x:beq t_subroutine_rts
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs t_subroutine_rts
     lda sprite_y_min
-; TODO: we are storing at sprite_pixel_coord_table_xy+1,y - the +1
-; suggests y coord, but multiply by 8 suggests x
 .x_pixel_coord_in_a_2
     sta sprite_pixel_coord_table_xy+1,y
     asl a:rol os_y_hi
     asl a:rol os_y_hi
     asl a:rol os_y_hi
     tax
-    lda constant_1
-    bne c53f8 ; TODO: always branch?
+    lda constant_1:bne set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine_indirect ; always branch
 .^t_subroutine_rts
     rts
-
-.c53ec
+.sprite_y_pixel_coord_is_1
     lda sprite_delta_coord_table_xy+1,x
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc t_subroutine_rts
     lda sprite_y_max
     bne x_pixel_coord_in_a_2 ; always branch
-.c53f8
+.set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine_indirect
     jmp set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
 }
 
