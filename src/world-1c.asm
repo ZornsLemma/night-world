@@ -1,7 +1,6 @@
 max_sprite_num = &30
 sprite_to_check_x2 = &71
 get_sprite_details_sprite_index = &7c
-l007d = &7d
 t_subroutine_os_x_hi = &70
 t_subroutine_os_x_lo = &71
 t_subroutine_os_y_hi = &72
@@ -1086,24 +1085,29 @@ sprite_pixel_y_lo = &0077
 ;
 ; On exit:
 ;     sprite_pixel_{x,y}_lo are the pixel coordinates corresponding to the
-;     slot's resident integer variable OS coordinates.
+;     slot's resident integer variable OS coordinates. These are not bounds
+;     checked, although I believe in practice they will always be in bounds.
 ;
 ;     sprite_pixel_current_{x,y} are the current pixel coordinates of the sprite
 ;     from sprite_pixel_coord_table. (ENHANCE: As it happens,
 ;     sprite_pixel_current_y is never used.)
 ;
-;     TODO
+;     sprite_pixel_coord_table is updated to have the values returned in
+;     sprite_pixel_{x,y}_lo after applying the configured wrapping behaviour for
+;     out-of-bounds coordinates.
+;
 ; ENHANCE: This is probably over-zealous in ensuring carry clear on exit.
 .get_sprite_details
 {
 sprite_pixel_current_y = &73
-sprite_pixel_x_hi = &0078
-sprite_pixel_y_hi = &0079
+sprite_pixel_x_hi = &78
+sprite_pixel_y_hi = &79
+l007d = &7d
 
     sta get_sprite_details_sprite_index
     ; Calculate the offset of this sprite slot's coordinate resident integer
     ; variables in Y.
-    asl a:tax:sta l007d ; TODO: Is the value written to &7D ever used?
+    asl a:tax:sta l007d ; ENHANCE: stored value is never used
     asl a:sta l0074
     asl a:and #(ri_coord_vars-1)<<3:tay:sty l0075 ; TODO: I don't think the value written to l0075 here is ever used?
     ; Copy values from the coordinate resident integer variables into
