@@ -1131,27 +1131,25 @@ overlap_direction = &74
     sta sprite_pixel_coord_table_xy,x
     clc:bcc check_y_position ; always branch
 .x_position_too_far_right
-    lda sprite_wrap_behaviour_table,y:beq force_x_position_to_rhs
-    cmp #1:beq force_x_position_to_lhs
+    lda sprite_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_max
+    cmp #1:beq force_x_psotion_to_sprite_x_min
     lda #&ff:sta sprite_pixel_coord_table_xy,x
     bne check_y_position ; always branch
-.force_x_position_to_rhs
-    lda sprite_x_max
-    sta sprite_pixel_coord_table_xy,x
-    sta sprite_pixel_x_lo
+.force_x_position_to_sprite_x_max
+    lda sprite_x_max:sta sprite_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
 ; TODO: I believe this is effectively a jmp and nothing cares about
 ; the fact we've cleared carry.
     clc
     bcc check_y_position
 .x_position_too_far_left
     lda sprite_wrap_behaviour_table,y                                 ; always branch
-    beq force_x_position_to_lhs
+    beq force_x_psotion_to_sprite_x_min
     cmp #1
-    beq force_x_position_to_rhs
+    beq force_x_position_to_sprite_x_max
     lda #&fe
     sta sprite_pixel_coord_table_xy,x
     bne check_y_position                                       ; always branch
-.force_x_position_to_lhs
+.force_x_psotion_to_sprite_x_min
     lda sprite_x_min
     sta sprite_pixel_coord_table_xy,x
     sta sprite_pixel_x_lo
@@ -1173,7 +1171,7 @@ overlap_direction = &74
     lda sprite_wrap_behaviour_table,y
     beq force_y_position_to_constant_fe
     cmp #1
-    beq force_y_position_to_constant_10
+    beq force_y_position_to_sprite_y_min
     lda #0
     sta sprite_pixel_coord_table_xy+1,x
     clc
@@ -1188,7 +1186,7 @@ overlap_direction = &74
 
 .y_position_too_far_down
     lda sprite_wrap_behaviour_table,y
-    beq force_y_position_to_constant_10
+    beq force_y_position_to_sprite_y_min
     cmp #1
     beq force_y_position_to_constant_fe
     lda #1
@@ -1196,7 +1194,7 @@ overlap_direction = &74
     clc
     rts
 
-.force_y_position_to_constant_10
+.force_y_position_to_sprite_y_min
     lda sprite_y_min
     sta sprite_pixel_coord_table_xy+1,x
     sta sprite_pixel_y_lo
