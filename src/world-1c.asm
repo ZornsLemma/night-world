@@ -44,7 +44,9 @@ ri_z = &0468
 ; cells to a byte; it would be possible to pack eight cells to a byte with
 ; slightly cleverer unpacking code, which would free up some extra memory. (14
 ; rooms currently take 2520 bytes which would reduce to 630 bytes, saving 1890
-; bytes less any small loss for the more complex unpacking code.)
+; bytes less any small loss for the more complex unpacking code.) Simple
+; run-length coding might also work well; we could for example just store the
+; number of bytes to the next transition, as we only have two states.
 macro room_row n
     for i, 9, 0, -1
         equb (n >> (i*2)) and %11

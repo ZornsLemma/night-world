@@ -102,6 +102,7 @@ constant DELTA_STEP_RIGHT = 6
   500ENDPROC
 
   510DEFPROCadvance_sun_moon:W%=SLOT_SUN_MOON:Z%=DELTA_STEP_RIGHT:CALLT%:IFK%=1016:PROCtoggle_day_night
+  515REM TODO: Does the next line do anything useful?
   520IFlogical_room%=5:W%=8:Z%=DELTA_STEP_RIGHT:CALLT%
   530ENDPROC
 
