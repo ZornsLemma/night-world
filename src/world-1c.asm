@@ -38,7 +38,10 @@ l007f = &007f
 osbyte = &fff4
 
 ; This is the conceptual width; sprite data is actually 12 pixels wide but only
-; eight adjacent columns within the sprite will be non-black.
+; eight adjacent columns within the sprite will be non-black. TODO: Not true,
+; e.g. the harpy has nine adjacent columns. This is probably fine and doesn't
+; seriously affect my understanding, but think about it before tweaking this
+; comment/constant.
 sprite_width_pixels = 8
 sprite_height_pixels = 16
 
