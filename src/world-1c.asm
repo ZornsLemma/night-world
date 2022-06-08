@@ -1454,37 +1454,20 @@ slot_index_x2 = &7f
     jmp move_sprite
 
 .u_subroutine_ri_x_0
-    asl a
-    tax
-    asl a
-    tay
-    lda sprite_screen_and_data_addrs+screen_addr_hi,y
-    beq u_subroutine_rts2
-    tya
-    asl a
-    and #(ri_coord_vars<<3)-1
-    tay
-    lda #0
-    sta l0070
-    sta l0071
+    asl a:tax
+    asl a:tay
+    lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq u_subroutine_rts2
+    tya:asl a:and #(ri_coord_vars<<3)-1:tay
+    lda #0:sta l0070:sta l0071
     lda sprite_pixel_coord_table_xy,x
-    asl a
-    rol l0070
-    asl a
-    rol l0070
-    asl a
-    rol l0070
-    sta ri_a,y
-    lda l0070
-    sta ri_a+1,y
+    asl a:rol l0070
+    asl a:rol l0070
+    asl a:rol l0070
+    sta ri_a,y:lda l0070:sta ri_a+1,y
     lda sprite_pixel_coord_table_xy+1,x
-    asl a
-    rol l0071
-    asl a
-    rol l0071
-    sta ri_b,y
-    lda l0071
-    sta ri_b+1,y
+    asl a:rol l0071
+    asl a:rol l0071
+    sta ri_b,y:lda l0071:sta ri_b+1,y
 .u_subroutine_rts2
     rts
 }
