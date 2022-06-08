@@ -1303,6 +1303,7 @@ next_row_adjust = bytes_per_screen_line-7
     bne sprite_ptr2_carry_handled ; always branch
 }
 
+; TODO: New-style entry/exit comment
 ; Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise
 ; appears to be responsible for moving the selected sprite according
 ; to some internal rules. Set Y%=0 (move) and calls s_subroutine after
@@ -1337,125 +1338,99 @@ next_row_adjust = bytes_per_screen_line-7
     lda sprite_delta_coord_table_xy,x:bmi add_negative_x_offset
     clc:adc sprite_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
-    asl a
-    rol t_subroutine_os_x_hi
-    asl a
-    rol t_subroutine_os_x_hi
-    asl a
-    rol t_subroutine_os_x_hi
+    asl a:rol t_subroutine_os_x_hi
+    asl a:rol t_subroutine_os_x_hi
+    asl a:rol t_subroutine_os_x_hi
     sta t_subroutine_os_x_lo
 .update_y_pixel_coord
-    lda sprite_pixel_coord_table_xy+1,y
-    cmp #2
-    bcc sprite_y_pixel_coord_lt_2_indirect
-    lda sprite_delta_coord_table_xy+1,x
-    bmi add_negative_y_offset
-    clc
-    adc sprite_pixel_coord_table_xy+1,y
-    bcs new_y_pixel_coord_gt_255
+    lda sprite_pixel_coord_table_xy+1,y:cmp #2:bcc sprite_y_pixel_coord_lt_2_indirect
+    lda sprite_delta_coord_table_xy+1,x:bmi add_negative_y_offset
+    clc:adc sprite_pixel_coord_table_xy+1,y:bcs new_y_pixel_coord_gt_255
 .y_pixel_coord_in_a
-    asl a
-    rol t_subroutine_os_y_hi
-    asl a
-    rol t_subroutine_os_y_hi
+    asl a:rol t_subroutine_os_y_hi
+    asl a:rol t_subroutine_os_y_hi
     tax
 .set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
     ldy t_subroutine_w_minus_1_times_8
-    lda t_subroutine_os_x_lo
-    sta ri_a,y
-    lda t_subroutine_os_x_hi
-    sta ri_a+1,y
-    lda t_subroutine_os_y_hi
-    sta ri_b+1,y
-    txa
-    sta ri_b,y
+    lda t_subroutine_os_x_lo:sta ri_a,y
+    lda t_subroutine_os_x_hi:sta ri_a+1,y
+    lda t_subroutine_os_y_hi:sta ri_b+1,y
+    txa:sta ri_b,y
     jmp s_subroutine
 
     ; ENHANCE: junk byte, can be deleted
     equb &60
 ; TODO: This is called once, via a bcc.
 .sprite_y_pixel_coord_lt_2_indirect
-    bcc sprite_y_pixel_coord_lt_2                                     ; always branch
+    bcc sprite_y_pixel_coord_lt_2 ; always branch
 ; TODO: This is called once, via a bcc.
 .new_x_pixel_coord_lt_0
     dec t_subroutine_os_x_hi
-    bcc x_pixel_coord_in_a                                            ; always branch
+    bcc x_pixel_coord_in_a ; always branch
 .t_subroutine_x_pixel_coord_ge_fe
     beq t_subroutine_x_pixel_coord_is_fe
-    lda sprite_delta_coord_table_xy,x
-    beq update_y_pixel_coord_indirect
-    cmp #&80
+    lda sprite_delta_coord_table_xy,x:beq update_y_pixel_coord_indirect
+    cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs update_y_pixel_coord_indirect
     lda sprite_x_min
 .new_x_pixel_coord_in_a
     sta sprite_pixel_coord_table_xy,y
-    asl a
-    rol t_subroutine_os_x_hi
-    asl a
-    rol t_subroutine_os_x_hi
-    asl a
-    rol t_subroutine_os_x_hi
+    asl a:rol t_subroutine_os_x_hi
+    asl a:rol t_subroutine_os_x_hi
+    asl a:rol t_subroutine_os_x_hi
     sta t_subroutine_os_x_lo
-    bne update_y_pixel_coord
+    bne update_y_pixel_coord ; TODO: always branch??
 .t_subroutine_x_pixel_coord_is_fe
     lda sprite_delta_coord_table_xy,x
-    cmp #&80
+    cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc update_y_pixel_coord_indirect
     lda sprite_x_max
-    bne new_x_pixel_coord_in_a
+    bne new_x_pixel_coord_in_a ; always branch
 .new_x_coord_carry
     inc t_subroutine_os_x_hi
-    bne x_pixel_coord_in_a
+    bne x_pixel_coord_in_a ; always branch
 .add_negative_x_offset
-    clc
-    adc sprite_pixel_coord_table_xy,y
+    clc:adc sprite_pixel_coord_table_xy,y
     bcc new_x_pixel_coord_lt_0
     bcs x_pixel_coord_in_a
 .update_y_pixel_coord_indirect
-    lda #1
-    sta t_subroutine_constant_1
-    bne update_y_pixel_coord
+    lda #1:sta t_subroutine_constant_1
+    bne update_y_pixel_coord ; always branch
 .new_y_pixel_coord_gt_255
     inc t_subroutine_os_y_hi
-    bne y_pixel_coord_in_a                                            ; always branch
+    bne y_pixel_coord_in_a ; always branch
 .add_negative_y_offset
-    clc
-    adc sprite_pixel_coord_table_xy+1,y
+    clc:adc sprite_pixel_coord_table_xy+1,y
     bcc new_y_pixel_coord_lt_0
     bcs y_pixel_coord_in_a
 .new_y_pixel_coord_lt_0
     dec t_subroutine_os_y_hi
-    bcc y_pixel_coord_in_a
+    bcc y_pixel_coord_in_a ; TODO: always branch??
 .sprite_y_pixel_coord_lt_2
-    cmp #1
-    beq c53ec
-    lda sprite_delta_coord_table_xy+1,x
-    beq t_subroutine_rts
-    cmp #&80
+    cmp #1:beq c53ec
+    lda sprite_delta_coord_table_xy+1,x:beq t_subroutine_rts
+    cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs t_subroutine_rts
     lda sprite_y_min
 ; TODO: we are storing at sprite_pixel_coord_table_xy+1,y - the +1
 ; suggests y coord, but multiply by 8 suggests x
 .x_pixel_coord_in_a_2
     sta sprite_pixel_coord_table_xy+1,y
-    asl a
-    rol t_subroutine_os_y_hi
-    asl a
-    rol t_subroutine_os_y_hi
-    asl a
-    rol t_subroutine_os_y_hi
+    asl a:rol t_subroutine_os_y_hi
+    asl a:rol t_subroutine_os_y_hi
+    asl a:rol t_subroutine_os_y_hi
     tax
     lda t_subroutine_constant_1
-    bne c53f8                                                         ; always branch?
+    bne c53f8 ; TODO: always branch?
 .^t_subroutine_rts
     rts
 
 .c53ec
     lda sprite_delta_coord_table_xy+1,x
-    cmp #&80
+    cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc t_subroutine_rts
     lda sprite_y_max
-    bne x_pixel_coord_in_a_2                                          ; always branch; always branch
+    bne x_pixel_coord_in_a_2 ; always branch
 .c53f8
     jmp set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
 }
