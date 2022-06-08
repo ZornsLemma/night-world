@@ -1211,58 +1211,33 @@ l007d = &7d
 .sprite_core
 {
 l0075 = &0075
+next_row_adjust = bytes_per_screen_line-7
 
-    lda #1
-    sta l0075
+    lda #1:sta l0075
 .sprite_core_outer_loop
     ldx #8
 .sprite_core_inner_loop
-    ldy #0
-    lda (screen_ptr),y
-    eor (sprite_ptr),y
-    sta (screen_ptr),y
-    ldy #8
-    lda (screen_ptr),y
-    eor (sprite_ptr),y
-    sta (screen_ptr),y
-    ldy #&10
-    lda (screen_ptr),y
-    eor (sprite_ptr),y
-    sta (screen_ptr),y
-    lda screen_ptr
-    and #7
-    eor #7
-    beq sprite_core_next_row
+    ldy # 0:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
+    ldy # 8:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
+    ldy #16:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
+    lda screen_ptr:and #7:eor #7:beq sprite_core_next_row
     inc screen_ptr
 .sprite_core_screen_ptr_updated
-    inc sprite_ptr
-    beq sprite_core_low_byte_wrapped
+    inc sprite_ptr:beq sprite_core_low_byte_wrapped
 .sprite_core_low_byte_wrap_handled
-    dex
-    bne sprite_core_inner_loop
-    lda sprite_ptr
-    adc #&10
-    sta sprite_ptr
-    bcc sprite_core_no_carry
-    inc sprite_ptr+1
-    clc
+    dex:bne sprite_core_inner_loop
+    lda sprite_ptr:adc #16:sta sprite_ptr:bcc sprite_core_no_carry
+    inc sprite_ptr+1:clc
 .sprite_core_no_carry
-    dec l0075
-    beq sprite_core_outer_loop
+    dec l0075:beq sprite_core_outer_loop
     rts
-
 .sprite_core_next_row
-    lda screen_ptr
-    adc #<(bytes_per_screen_line-7)
-    sta screen_ptr
-    lda screen_ptr+1
-    adc #1
-    sta screen_ptr+1
-    bne sprite_core_screen_ptr_updated                                ; always branch
+    lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
+    lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
+    bne sprite_core_screen_ptr_updated ; always branch
 .sprite_core_low_byte_wrapped
-    inc sprite_ptr+1
-    clc
-    bne sprite_core_low_byte_wrap_handled                             ; always branch
+    inc sprite_ptr+1:clc
+    bne sprite_core_low_byte_wrap_handled ; always branch
 } ; end sprite_core scope
 } ; end s_subroutine scope
 
