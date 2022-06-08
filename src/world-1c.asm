@@ -4,7 +4,6 @@ get_sprite_details_sprite_index = &7c
 t_subroutine_os_x_hi = &70
 t_subroutine_os_x_lo = &71
 t_subroutine_os_y_hi = &72
-t_subroutine_w_minus_1_times_8 = &76
 bytes_per_screen_line = &0140
 sprite_y_offset_within_row = &75
 osbyte_inkey = &81
@@ -1301,7 +1300,7 @@ next_row_adjust = bytes_per_screen_line-7
 }
 
 ; TODO: New-style entry/exit comment
-; Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise
+; Takes sprite slot in W%. No-op if Z% is 5, &A or >=&14. Otherwise
 ; appears to be responsible for moving the selected sprite according
 ; to some internal rules. Set Y%=0 (move) and calls s_subroutine after
 ; moving.
@@ -1310,6 +1309,7 @@ next_row_adjust = bytes_per_screen_line-7
 .t_subroutine
 {
 constant_1 = &73 ; ENHANCE: just use #1 for this
+l0076 = &76
 l007e = &7e
 l007f = &7f
 
@@ -1325,7 +1325,7 @@ l007f = &7f
     lda #1:sta constant_1
     tya:asl a:sta l007f
     tay:asl a:sta l007e
-    and #(ri_coord_vars<<3)-1:asl a:sta t_subroutine_w_minus_1_times_8
+    and #(ri_coord_vars<<3)-1:asl a:sta l0076
     lda sprite_pixel_coord_table_xy,y:cmp #&fe:bcs t_subroutine_x_pixel_coord_ge_fe
     ldy l007e:lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
     ldy l007f:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_offset
@@ -1344,15 +1344,13 @@ l007f = &7f
     asl a:rol t_subroutine_os_y_hi
     tax
 .set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine
-    ldy t_subroutine_w_minus_1_times_8
+    ldy l0076
     lda t_subroutine_os_x_lo:sta ri_a,y
     lda t_subroutine_os_x_hi:sta ri_a+1,y
     lda t_subroutine_os_y_hi:sta ri_b+1,y
     txa:sta ri_b,y
     jmp s_subroutine
-
-    ; ENHANCE: junk byte, can be deleted
-    equb &60
+    equb &60 ; ENHANCE: junk byte, can be deleted
 ; TODO: This is called once, via a bcc.
 .sprite_y_pixel_coord_lt_2_indirect
     bcc sprite_y_pixel_coord_lt_2 ; always branch
