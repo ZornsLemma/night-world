@@ -1089,6 +1089,7 @@ overlap_direction = &74
 ; On exit:
 ;     TODO
 .get_sprite_details
+{
     sta get_sprite_details_sprite_index
     ; Calculate the offset of this sprite slot's coordinate resident integer
     ; variables in Y.
@@ -1113,105 +1114,105 @@ overlap_direction = &74
     lda sprite_pixel_coord_table_xy+1,x:sta sprite_pixel_current_y
 ; TODO: Won't sprite_pixel_x_hi always be 0, since if it's on-screen
 ; it will have been reduced to the range 0-159 after dividing by 8?
-    lda sprite_pixel_x_hi
-    beq sprite_pixel_x_hi_zero
-    cmp #&80
-    bcc sprite_x_position_too_far_right
-    bcs sprite_x_position_too_far_left
-.sprite_check_y_position
+    lda sprite_pixel_x_hi:beq x_position_is_8_bit
+    cmp #&80 ; ENHANCE: just use N from the preceding lda instead to avoid this
+    bcc x_position_too_far_right
+    bcs x_position_too_far_left
+.check_y_position
     lda sprite_pixel_y_hi
-    beq sprite_pixel_y_hi_zero
+    beq y_position_is_8_bit
 ; TODO: cmp #&80 redundant? we just did LDA which will have set N so
 ; we can use beq/bne instead
     cmp #&80
-    bcc sprite_y_position_too_far_up
-    bcs sprite_y_position_too_far_down
-.sprite_pixel_x_hi_zero
+    bcc y_position_too_far_up
+    bcs y_position_too_far_down
+.x_position_is_8_bit
     lda sprite_pixel_x_lo
     cmp sprite_x_min
-    bcc sprite_x_position_too_far_left
+    bcc x_position_too_far_left
     cmp sprite_x_max
-    beq sprite_x_position_ok
-    bcs sprite_x_position_too_far_right
-.sprite_x_position_ok
+    beq x_position_ok
+    bcs x_position_too_far_right
+.x_position_ok
     sta sprite_pixel_coord_table_xy,x
     clc
-    bcc sprite_check_y_position                                       ; always branch
-.sprite_x_position_too_far_right
+    bcc check_y_position                                       ; always branch
+.x_position_too_far_right
     lda constant_1_per_sprite_table,y
-    beq force_sprite_x_position_to_rhs
+    beq force_x_position_to_rhs
     cmp #1
-    beq force_sprite_x_position_to_lhs
+    beq force_x_position_to_lhs
     lda #&ff
     sta sprite_pixel_coord_table_xy,x
-    bne sprite_check_y_position                                       ; always branch
-.force_sprite_x_position_to_rhs
+    bne check_y_position                                       ; always branch
+.force_x_position_to_rhs
     lda sprite_x_max
     sta sprite_pixel_coord_table_xy,x
     sta sprite_pixel_x_lo
 ; TODO: I believe this is effectively a jmp and nothing cares about
 ; the fact we've cleared carry.
     clc
-    bcc sprite_check_y_position
-.sprite_x_position_too_far_left
+    bcc check_y_position
+.x_position_too_far_left
     lda constant_1_per_sprite_table,y                                 ; always branch
-    beq force_sprite_x_position_to_lhs
+    beq force_x_position_to_lhs
     cmp #1
-    beq force_sprite_x_position_to_rhs
+    beq force_x_position_to_rhs
     lda #&fe
     sta sprite_pixel_coord_table_xy,x
-    bne sprite_check_y_position                                       ; always branch
-.force_sprite_x_position_to_lhs
+    bne check_y_position                                       ; always branch
+.force_x_position_to_lhs
     lda sprite_x_min
     sta sprite_pixel_coord_table_xy,x
     sta sprite_pixel_x_lo
     clc
-    bcc sprite_check_y_position
-.sprite_pixel_y_hi_zero
+    bcc check_y_position
+.y_position_is_8_bit
     lda sprite_pixel_y_lo
     cmp sprite_y_min
-    bcc sprite_y_position_too_far_down
+    bcc y_position_too_far_down
     cmp sprite_y_max
-    beq sprite_y_position_adjusted
-    bcs sprite_y_position_too_far_up
-.sprite_y_position_adjusted
+    beq y_position_adjusted
+    bcs y_position_too_far_up
+.y_position_adjusted
     sta sprite_pixel_coord_table_xy+1,x
     clc
     rts
 
-.sprite_y_position_too_far_up
+.y_position_too_far_up
     lda constant_1_per_sprite_table,y
-    beq force_sprite_y_position_to_constant_fe
+    beq force_y_position_to_constant_fe
     cmp #1
-    beq force_sprite_y_position_to_constant_10
+    beq force_y_position_to_constant_10
     lda #0
     sta sprite_pixel_coord_table_xy+1,x
     clc
     rts
 
-.force_sprite_y_position_to_constant_fe
+.force_y_position_to_constant_fe
     lda sprite_y_max
     sta sprite_pixel_coord_table_xy+1,x
     sta sprite_pixel_y_lo
     clc
     rts
 
-.sprite_y_position_too_far_down
+.y_position_too_far_down
     lda constant_1_per_sprite_table,y
-    beq force_sprite_y_position_to_constant_10
+    beq force_y_position_to_constant_10
     cmp #1
-    beq force_sprite_y_position_to_constant_fe
+    beq force_y_position_to_constant_fe
     lda #1
     sta sprite_pixel_coord_table_xy+1,x
     clc
     rts
 
-.force_sprite_y_position_to_constant_10
+.force_y_position_to_constant_10
     lda sprite_y_min
     sta sprite_pixel_coord_table_xy+1,x
     sta sprite_pixel_y_lo
     clc
     rts
+} ; end get_sprite_details scope
 
 ; Sprite plot routine. EORs a 3-byte (12 pixel) wide sprite onto the
 ; screen, writing data starting at the address pointed to by
