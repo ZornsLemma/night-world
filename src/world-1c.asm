@@ -15,9 +15,6 @@ sprite_ptr2 = &007e
 ; unambiguous because (for X) there are only 160 pixels across the screen and
 ; (for Y) the pixel coordinates run up from origin at bottom left and specify
 ; the top left corner of the sprite, so the lowest valid Y on the screen is 15.
-; TODO: Get rid of the "threshold" ones and just use the corresponding other constant?
-sprite_pixel_x_special_threshold = 254
-sprite_pixel_y_special_threshold = 2
 sprite_pixel_x_neg_inf = 254
 sprite_pixel_x_pos_inf = 255
 sprite_pixel_y_pos_inf = 0
@@ -1026,8 +1023,8 @@ sprite_pixel_y_lo = &0077
     sec:sbc #1
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
     jsr get_sprite_details
-    lda slot_pixel_coord_table+s_x,x:cmp #sprite_pixel_x_special_threshold:bcs clc_remove_sprite_from_screen
-    lda slot_pixel_coord_table+s_y,x:cmp #sprite_pixel_y_special_threshold:bcc clc_remove_sprite_from_screen
+    lda slot_pixel_coord_table+s_x,x:cmp #sprite_pixel_x_neg_inf:bcs clc_remove_sprite_from_screen
+    lda slot_pixel_coord_table+s_y,x:cmp #sprite_pixel_y_neg_inf+1:bcc clc_remove_sprite_from_screen
     lda sprite_pixel_y_lo:tax
     lsr a:lsr a:and #&fe:tay
     ; Invert the low bits of the sprite's Y pixel address; this accounts for the
@@ -1358,7 +1355,7 @@ slot_index_x2 = &7f
     tya:asl a:sta slot_index_x2
     tay:asl a:sta slot_index_x4
     and #(ri_coord_vars<<3)-1:asl a:sta ri_coord_index
-    lda slot_pixel_coord_table+s_x,y:cmp #sprite_pixel_x_special_threshold:bcs x_pixel_coord_is_special
+    lda slot_pixel_coord_table+s_x,y:cmp #sprite_pixel_x_neg_inf:bcs x_pixel_coord_is_special
     ldy slot_index_x4:lda slot_addr_table+screen_addr_hi,y:beq cli_rts
     ldy slot_index_x2
     lda delta_table+s_x,x:bmi add_negative_x_delta
@@ -1369,7 +1366,7 @@ slot_index_x2 = &7f
     asl a:rol os_x_hi
     sta os_x_lo
 .update_y_pixel_coord
-    lda slot_pixel_coord_table+s_y,y:cmp #sprite_pixel_y_special_threshold:bcc y_pixel_coord_is_special_indirect
+    lda slot_pixel_coord_table+s_y,y:cmp #sprite_pixel_y_neg_inf+1:bcc y_pixel_coord_is_special_indirect
     lda delta_table+s_y,x:bmi add_negative_y_delta
     clc:adc slot_pixel_coord_table+s_y,y:bcs new_y_pixel_coord_gt_255
 .y_pixel_coord_in_a
