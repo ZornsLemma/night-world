@@ -1218,8 +1218,8 @@ next_row_adjust = bytes_per_screen_line-7
     lda screen_ptr:and #7:eor #7:beq next_row
     inc screen_ptr
 .screen_ptr_updated
-    inc sprite_ptr:beq low_byte_wrapped
-.low_byte_wrap_handled
+    inc sprite_ptr:beq sprite_ptr_carry
+.sprite_ptr_carry_handled
     dex:bne inner_loop
     lda sprite_ptr:adc #16:sta sprite_ptr:bcc no_carry
     inc sprite_ptr+1:clc
@@ -1230,9 +1230,9 @@ next_row_adjust = bytes_per_screen_line-7
     lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
     lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
     bne screen_ptr_updated ; always branch
-.low_byte_wrapped
+.sprite_ptr_carry
     inc sprite_ptr+1:clc
-    bne low_byte_wrap_handled ; always branch
+    bne sprite_ptr_carry_handled ; always branch
 } ; end sprite_core scope
 } ; end s_subroutine scope
 
@@ -1263,10 +1263,10 @@ next_row_adjust = bytes_per_screen_line-7
     lda screen_ptr2:and #7:eor #7:beq next_row2
     inc screen_ptr2
 .screen_ptr2_updated
-    inc sprite_ptr:beq low_byte_wrapped
-.low_byte_wrap_handled
-    inc sprite_ptr2:beq low_byte_wrapped2
-.low_byte_wrap2_handled
+    inc sprite_ptr:beq sprite_ptr_carry
+.sprite_ptr_carry_handled
+    inc sprite_ptr2:beq sprite_ptr2_carry
+.sprite_ptr2_carry_handled
     dex:bne inner_loop
     lda sprite_ptr:adc #16:sta sprite_ptr:bcc no_carry
     inc sprite_ptr+1:clc
@@ -1286,12 +1286,12 @@ next_row_adjust = bytes_per_screen_line-7
     lda screen_ptr2  :adc #<(bytes_per_screen_line-7):sta screen_ptr2
     lda screen_ptr2+1:adc #>(bytes_per_screen_line-7):sta screen_ptr2+1
     bne screen_ptr2_updated ; always branch
-.low_byte_wrapped
+.sprite_ptr_carry
     inc sprite_ptr+1:clc
-    bne low_byte_wrap_handled ; always branch
-.low_byte_wrapped2
+    bne sprite_ptr_carry_handled ; always branch
+.sprite_ptr2_carry
     inc sprite_ptr2+1:clc
-    bne low_byte_wrap2_handled ; always branch
+    bne sprite_ptr2_carry_handled ; always branch
 }
 
 ; Takes sprite slot in W%. No-op if Z% is 5, &A or &14. Otherwise
