@@ -987,6 +987,7 @@ overlap_direction = &74
 }
 
 {
+sprite_pixel_current_x = &72
 sprite_pixel_x_lo = &0076
 sprite_pixel_y_lo = &0077
 
@@ -1047,7 +1048,7 @@ sprite_pixel_y_lo = &0077
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
     lda ri_y:cmp #1:beq clc_jmp_sprite_core
     lda screen_ptr2+1:beq clc_jmp_sprite_core
-    lda l0072:and #3
+    lda sprite_pixel_current_x:and #3
     asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073 ; we know carry is clear after asl a
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr2
@@ -1087,11 +1088,14 @@ sprite_pixel_y_lo = &0077
 ;     sprite_pixel_{x,y}_lo are the pixel coordinates corresponding to the
 ;     slot's resident integer variable OS coordinates.
 ;
+;     sprite_pixel_current_{x,y} are the current pixel coordinates of the sprite
+;     from sprite_pixel_coord_table. (ENHANCE: As it happens,
+;     sprite_pixel_current_y is never used.)
+;
 ;     TODO
 ; ENHANCE: This is probably over-zealous in ensuring carry clear on exit.
 .get_sprite_details
 {
-sprite_pixel_current_x = &72
 sprite_pixel_current_y = &73
 sprite_pixel_x_hi = &0078
 sprite_pixel_y_hi = &0079
