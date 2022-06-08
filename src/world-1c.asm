@@ -1307,29 +1307,18 @@ next_row_adjust = bytes_per_screen_line-7
 ; appears to be responsible for moving the selected sprite according
 ; to some internal rules. Set Y%=0 (move) and calls s_subroutine after
 ; moving.
-; TODO: I think there's no need for the branches to cli_rts here, we
-; could just branch to the rts.
+; ENHANCE: I think there's no need for the branches to cli_rts here, we could
+; just branch to the rts.
 .t_subroutine
 {
-    lda ri_w
-    beq cli_rts
-    cmp #max_sprite_num+1
-    bcs cli_rts
-    sec
-    sbc #1
-    tay
-    lda ri_z
-    beq cli_rts
-    cmp #&0a
-    beq cli_rts
-    cmp #5
-    beq cli_rts
-    cmp #&14
-    bcs cli_rts
-    sec
-    sbc #1
-    asl a
-    tax
+    lda ri_w:beq cli_rts
+    cmp #max_sprite_num+1:bcs cli_rts
+    sec:sbc #1:tay
+    lda ri_z:beq cli_rts
+    cmp #&0a:beq cli_rts
+    cmp #5:beq cli_rts
+    cmp #&14:bcs cli_rts
+    sec:sbc #1:asl a:tax
 ; TODO: So for the first part at least, X=Z%*2, and we use it to
 ; access the sprite_delta_coord_table_xy table, so Z% is presumably a
 ; sprite slot.
@@ -1337,29 +1326,16 @@ next_row_adjust = bytes_per_screen_line-7
     sta ri_y
     sta t_subroutine_os_x_hi
     sta t_subroutine_os_y_hi
-    lda #1
-    sta t_subroutine_constant_1
-    tya
-    asl a
-    sta t_subroutine_w_minus_1_times_2
-    tay
-    asl a
-    sta t_subroutine_w_minus_1_times_4
-    and #&3f ; '?'
-    asl a
-    sta t_subroutine_w_minus_1_times_8
-    lda sprite_pixel_coord_table_xy,y
-    cmp #&fe
-    bcs t_subroutine_x_pixel_coord_ge_fe
+    lda #1:sta t_subroutine_constant_1
+    tya:asl a:sta t_subroutine_w_minus_1_times_2
+    tay:asl a:sta t_subroutine_w_minus_1_times_4
+    and #(ri_coord_vars<<3)-1:asl a:sta t_subroutine_w_minus_1_times_8
+    lda sprite_pixel_coord_table_xy,y:cmp #&fe:bcs t_subroutine_x_pixel_coord_ge_fe
     ldy t_subroutine_w_minus_1_times_4
-    lda sprite_screen_and_data_addrs+screen_addr_hi,y
-    beq cli_rts
+    lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
     ldy t_subroutine_w_minus_1_times_2
-    lda sprite_delta_coord_table_xy,x
-    bmi add_negative_x_offset
-    clc
-    adc sprite_pixel_coord_table_xy,y
-    bcs new_x_coord_carry
+    lda sprite_delta_coord_table_xy,x:bmi add_negative_x_offset
+    clc:adc sprite_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
     asl a
     rol t_subroutine_os_x_hi
