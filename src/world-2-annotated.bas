@@ -6,6 +6,7 @@ constant SLOT_ENEMY = 5
 constant SLOT_SUN_MOON = 6
 constant SLOT_MISC = 7
 constant SLOT_LEE = 10
+constant SLOT_COLLECTED_PRISM = 19
 
 constant IMAGE_HUMAN_RIGHT = 9
 constant IMAGE_HUMAN_LEFT = 10
@@ -207,6 +208,7 @@ constant DELTA_STEP_RIGHT_DOWN = 9
  1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
  1122PROCchange_room2:ENDPROC
  1124DEFPROCchange_room2
+ 1125REM TODO: Do we still need the following FOR loop?
  1127W%=SLOT_ENEMY:Y%=S_OP_REMOVE:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
  1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type%:NEXT:IFscore%=100:room_type%=2
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
@@ -214,7 +216,7 @@ constant DELTA_STEP_RIGHT_DOWN = 9
 
  1160DEFPROCupdate_energy_and_items:IFX%=SLOT_ENEMY:GOTO1210 ELSEIFX%=SLOT_ENEMYOR(X%=SLOT_MISCANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
  1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:this_item%=1 ELSEIFlogical_room%=7:this_item%=2 ELSEIFlogical_room%=5:this_item%=3 ELSEIFlogical_room%=14:this_item%=4 ELSEIFlogical_room%=9:this_item%=5
- 1180IFitem_collected%(this_item%)=1:GOTO1220 ELSEitem_collected%(this_item%)=1
+ 1180IFitem_collected%(this_item%)=1:GOTO1220 ELSEitem_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
  1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
  1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
@@ -292,6 +294,25 @@ constant DELTA_STEP_RIGHT_DOWN = 9
  2220ENDPROC
  2221REM FWIW lower part of room A would be 1142,316
  2500DATA 12,1120,576,7,392,256,2,72,244,1,1194,672,3,24,636,4,24,636,5,24,444,9,984,704,17,280,700,16,1194,252,18,24,668,19,24,444,20,84,412,14,68,416
+
+ 2990REM TODO: Must reset this display at start of game/title screen
+ 3000DEFPROCshow_prisms
+ 3005LOCAL W%,X%,Y%
+ 3006REM TODO WILL NEED TO WIPE OUT THE HALF-UP PRISMS WHEN WE GO FROM 2->3
+ 3010q%=0:FOR n%=1 TO 4:q%=q%+item_collected%(n%):NEXT
+ 3020P.TAB(0,0);q%;" ";:REM TODO JUST TEMP
+ 3025W%=SLOT_COLLECTED_PRISM:Y%=S_OP_SHOW:X%=IMAGE_FLEECE_MACGUFFIN_PRISM
+ 3026REMENDPROC:REM TEMP
+ 3030IF q%<=2 THEN F%=112 ELSE F%=128:REM TODO NUMBERS MADE UP
+ 3040FOR n%=1 TO q%
+ 3045E%=1176-(n% MOD 2)*1088:REM NUMBERS MADE UP
+ 3046GCOL0,0:MOVE E%,F%:MOVE E%+64,F%:PLOT 85,E%+64,F%-64:MOVE E%,F%-64:PLOT 85,E%,F%:GCOL0,3:REM TODO HACK TO GET A BLACK BG TEMP
+ 3050CALLS%:CALLU%
+ 3065IF n%=2:F%=F%+64:REM TODO NUMBERS MADE UP
+ 3080NEXT
+ 3081W%=SLOT_MISC:REM TODO TEMP
+ 3085E%=500:F%=500:REM TODO TEMP
+ 3090ENDPROC
 
 32000*TAPE
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M
