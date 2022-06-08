@@ -7,8 +7,6 @@ osbyte_inkey = &81
 osbyte_clear_escape = &7c
 
 ; TODO: Move zp vars into the most restrictive scope possible
-basic_page_msb = &0018
-l0070 = &0070
 sprite_ptr = &0070
 l0071 = &0071
 l0073 = &0073
@@ -1445,6 +1443,7 @@ slot_index_x2 = &7f
 ; TODO: New-style comment for subroutine
 .u_subroutine
 {
+l0070 = &0070
 l0072 = &0072
 
     lda ri_w:beq t_subroutine_rts
@@ -1502,6 +1501,8 @@ l0072 = &0072
 ;     structures; the screen is not updated).
 .v_subroutine
 {
+l0070 = &0070
+
     ; Zero resident integer variables A%-Z%
     ldx #('Z'-'A'+1)*4
     lda #0
