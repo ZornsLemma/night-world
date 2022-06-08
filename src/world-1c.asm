@@ -1215,9 +1215,9 @@ next_row_adjust = bytes_per_screen_line-7
     ldy # 0:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
     ldy # 8:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
     ldy #16:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
-    lda screen_ptr:and #7:eor #7:beq next_row
+    lda screen_ptr:and #7:eor #7:beq screen_ptr_row_wrap
     inc screen_ptr
-.screen_ptr_updated
+.screen_ptr_row_wrap_handled
     inc sprite_ptr:beq sprite_ptr_carry
 .sprite_ptr_carry_handled
     dex:bne inner_loop
@@ -1226,10 +1226,10 @@ next_row_adjust = bytes_per_screen_line-7
 .no_carry
     dec row_index:beq outer_loop
     rts
-.next_row
+.screen_ptr_row_wrap
     lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
     lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
-    bne screen_ptr_updated ; always branch
+    bne screen_ptr_row_wrap_handled ; always branch
 .sprite_ptr_carry
     inc sprite_ptr+1:clc
     bne sprite_ptr_carry_handled ; always branch
@@ -1243,7 +1243,7 @@ next_row_adjust = bytes_per_screen_line-7
 ; ENHANCE: This is probably over-zealous at ensuring carry is clear.
 .sprite_core_moving
 {
-row_index = &0075
+row_index = &75
 next_row_adjust = bytes_per_screen_line-7
 
     lda #1:sta row_index
@@ -1257,12 +1257,12 @@ next_row_adjust = bytes_per_screen_line-7
             lda (screen_ptr ),y:eor (sprite_ptr ),y:sta (screen_ptr ),y
     ldy #16:lda (screen_ptr2),y:eor (sprite_ptr2),y:sta (screen_ptr2),y
             lda (screen_ptr ),y:eor (sprite_ptr ),y:sta (screen_ptr ),y
-    lda screen_ptr:and #7:eor #7:beq next_row
+    lda screen_ptr:and #7:eor #7:beq screen_ptr_row_wrap
     inc screen_ptr
-.screen_ptr_updated
-    lda screen_ptr2:and #7:eor #7:beq next_row2
+.screen_ptr_row_wrap_handled
+    lda screen_ptr2:and #7:eor #7:beq screen_ptr2_row_wrap
     inc screen_ptr2
-.screen_ptr2_updated
+.screen_ptr2_row_wrap_handled
     inc sprite_ptr:beq sprite_ptr_carry
 .sprite_ptr_carry_handled
     inc sprite_ptr2:beq sprite_ptr2_carry
@@ -1278,14 +1278,14 @@ next_row_adjust = bytes_per_screen_line-7
 .^cli_rts
     cli
     rts
-.next_row
+.screen_ptr_row_wrap
     lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
     lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
-    bne screen_ptr_updated ; always branch
-.next_row2
+    bne screen_ptr_row_wrap_handled ; always branch
+.screen_ptr2_row_wrap
     lda screen_ptr2  :adc #<(bytes_per_screen_line-7):sta screen_ptr2
     lda screen_ptr2+1:adc #>(bytes_per_screen_line-7):sta screen_ptr2+1
-    bne screen_ptr2_updated ; always branch
+    bne screen_ptr2_row_wrap_handled ; always branch
 .sprite_ptr_carry
     inc sprite_ptr+1:clc
     bne sprite_ptr_carry_handled ; always branch
