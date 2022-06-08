@@ -1308,10 +1308,19 @@ next_row_adjust = bytes_per_screen_line-7
 }
 
 ; TODO: New-style entry/exit comment
-; Takes sprite slot in W%. No-op if Z% is 5, &A or >=&14. Otherwise
-; appears to be responsible for moving the selected sprite according
-; to some internal rules. Set Y%=0 (move) and calls s_subroutine after
-; moving.
+; Sprite position adjustment subroutine.
+;
+; On entry:
+;     W% is the sprite slot we want to work with.
+;
+;     Z% specifies the entry in delta_table to apply to the sprite's current
+;     position.
+;
+; On exit:
+;     No-op if slot W% isn't on screen. Otherwise the sprite's position has been
+;     updated both on screen and in the internal data structures according to
+;     Z%.
+;
 ; ENHANCE: I think there's no need for the branches to cli_rts here, we could
 ; just branch to the rts.
 .t_subroutine
@@ -1328,9 +1337,11 @@ slot_index_x2 = &7f
     cmp #max_sprite_num+1:bcs cli_rts
     sec:sbc #1:tay
     lda ri_z:beq cli_rts
+    ; delta_table entries at (1-based) offsets 10 and 5 are no-ops; special case these,
+    ; presumably for speed. ENHANCE: Do we actually benefit from this in practice?
     cmp #10:beq cli_rts
     cmp #5:beq cli_rts
-    cmp #20:bcs cli_rts ; TODO: Note this is *>=* when writing comments at top of fn
+    cmp #20:bcs cli_rts ; invalid Z% values are also no-ops
     sec:sbc #1:asl a:tax
     lda #0:sta ri_y:sta os_x_hi:sta os_y_hi
     lda #1:sta constant_1
@@ -1340,7 +1351,8 @@ slot_index_x2 = &7f
     ; TODO: Write some comments about &fe and &ff and what they mean exactly - need to carefully go over all code to see about this
     lda slot_pixel_coord_table_xy,y:cmp #sprite_pixel_x_special_threshold:bcs t_subroutine_x_pixel_coord_is_special
     ldy slot_index_x4:lda slot_addr_table+screen_addr_hi,y:beq cli_rts
-    ldy slot_index_x2:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_delta
+    ldy slot_index_x2
+    lda delta_table,x:bmi add_negative_x_delta
     clc:adc slot_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
     asl a:rol os_x_hi
@@ -1349,7 +1361,7 @@ slot_index_x2 = &7f
     sta os_x_lo
 .update_y_pixel_coord
     lda slot_pixel_coord_table_xy+1,y:cmp #sprite_pixel_y_special_threshold:bcc sprite_y_pixel_coord_is_special_indirect
-    lda sprite_delta_coord_table_xy+1,x:bmi add_negative_y_delta
+    lda delta_table+1,x:bmi add_negative_y_delta
     clc:adc slot_pixel_coord_table_xy+1,y:bcs new_y_pixel_coord_gt_255
 .y_pixel_coord_in_a
     asl a:rol os_y_hi
@@ -1372,7 +1384,7 @@ slot_index_x2 = &7f
     bcc x_pixel_coord_in_a ; always branch
 .t_subroutine_x_pixel_coord_is_special
     beq t_subroutine_x_pixel_coord_is_fe
-    lda sprite_delta_coord_table_xy,x:beq update_y_pixel_coord_indirect
+    lda delta_table,x:beq update_y_pixel_coord_indirect
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs update_y_pixel_coord_indirect
     lda sprite_x_min
@@ -1384,7 +1396,7 @@ slot_index_x2 = &7f
     sta os_x_lo
     bne update_y_pixel_coord ; TODO: always branch??
 .t_subroutine_x_pixel_coord_is_fe
-    lda sprite_delta_coord_table_xy,x
+    lda delta_table,x
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc update_y_pixel_coord_indirect
     lda sprite_x_max
@@ -1411,7 +1423,7 @@ slot_index_x2 = &7f
     bcc y_pixel_coord_in_a ; TODO: always branch??
 .sprite_y_pixel_coord_is_special
     cmp #1:beq sprite_y_pixel_coord_is_1
-    lda sprite_delta_coord_table_xy+1,x:beq t_subroutine_rts
+    lda delta_table+1,x:beq t_subroutine_rts
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs t_subroutine_rts
     lda sprite_y_min
@@ -1425,7 +1437,7 @@ slot_index_x2 = &7f
 .^t_subroutine_rts
     rts
 .sprite_y_pixel_coord_is_1
-    lda sprite_delta_coord_table_xy+1,x
+    lda delta_table+1,x
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc t_subroutine_rts
     lda sprite_y_max
@@ -1576,7 +1588,7 @@ l0070 = &0070
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
 
-.sprite_delta_coord_table_xy
+.delta_table
     equb -1,  1 ; index 0
     equb  0,  1 ; index 1
     equb  1,  1 ; index 2
@@ -1597,14 +1609,11 @@ l0070 = &0070
     equb  0, -8 ; index 17
     equb  8, -8 ; index 18
     equb  0,  0 ; index 19
-    equb  0,  0 ; index 20
-    equb  0,  0 ; index 21
-    equb  0,  0 ; index 22
-    equb  0,  0 ; index 23
-    equb  0,  0 ; index 24
-    equb  0,  0 ; index 25
-    equb  0,  0 ; index 26
-    equb  0,  0 ; index 27
+
+; ENHANCE: Junk data, can delete.
+    for i, 0, 15
+        equb 0
+    next
 
 ; ENHANCE: The following four values are just constants in practice, so
 ; references to them can be replaced by immediate operands.
