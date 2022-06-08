@@ -1046,19 +1046,19 @@ sprite_pixel_y_lo = &0077
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x
     sta sprite_ptr
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr+1
-    lda ri_y:cmp #1:beq clc_jmp_sprite_core
-    lda screen_ptr2+1:beq clc_jmp_sprite_core
+    lda ri_y:cmp #1:beq clc_jmp_plot_sprite
+    lda screen_ptr2+1:beq clc_jmp_plot_sprite
     lda sprite_pixel_current_x:and #3
     asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073 ; we know carry is clear after asl a
     adc sprite_screen_and_data_addrs+sprite_addr_lo,x:sta sprite_ptr2
     lda sprite_screen_and_data_addrs+sprite_addr_hi,x:adc #0:sta sprite_ptr2+1
     clc
-    jmp sprite_core_moving
+    jmp move_sprite
 
-.clc_jmp_sprite_core
+.clc_jmp_plot_sprite
     clc
-    jmp sprite_core
+    jmp plot_sprite
 
 .remove_sprite_from_screen
     ; A is the 0-based sprite slot derived from W%.
@@ -1076,7 +1076,7 @@ sprite_pixel_y_lo = &0077
     sta sprite_screen_and_data_addrs+screen_addr_lo,x
     sta sprite_screen_and_data_addrs+screen_addr_hi,x
     clc
-    jmp sprite_core
+    jmp plot_sprite
 
 .s_subroutine_rts2
     rts
@@ -1203,7 +1203,7 @@ l007d = &7d
 ;     image data.
 ;
 ; ENHANCE: This is probably over-zealous at ensuring carry is clear.
-.sprite_core
+.plot_sprite
 {
 row_index = &75
 next_row_adjust = bytes_per_screen_line-7
@@ -1233,15 +1233,24 @@ next_row_adjust = bytes_per_screen_line-7
 .sprite_ptr_carry
     inc sprite_ptr+1:clc
     bne sprite_ptr_carry_handled ; always branch
-} ; end sprite_core scope
+} ; end plot_sprite scope
 } ; end s_subroutine scope
 
-; TODO: This looks like an 'alternate version' of sprite_core? I
-; haven't been over the code properly yet, but I suspect it is a
-; 'erase at old location, replot immediately at new location' variant,
-; to handle moving sprites more efficiently.
+; Erase-and-replot sprite plot routine, for moving a sprite already on the
+; screen.
+;
+; On entry:
+;     screen_ptr{,2} points to the byte of screen memory corresponding to the
+;     top left part of the sprite in old/new position.
+;
+;     sprite_ptr{,2} points to the first byte of the correct frame of the
+;     sprite's old/new image data.
+;
+;     Because EOR plotting is used, this routine doesn't care whether the "no
+;     suffix" or "2 suffix" pointers correspond to the old or new position.
+;
 ; ENHANCE: This is probably over-zealous at ensuring carry is clear.
-.sprite_core_moving
+.move_sprite
 {
 row_index = &75
 next_row_adjust = bytes_per_screen_line-7
@@ -1535,7 +1544,7 @@ next_row_adjust = bytes_per_screen_line-7
     adc #0
     sta sprite_screen_and_data_addrs+sprite_addr_hi,x
     sta sprite_ptr+1
-    jmp sprite_core_moving
+    jmp move_sprite
 
 .u_subroutine_ri_x_0
     asl a
