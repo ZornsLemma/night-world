@@ -1321,6 +1321,13 @@ next_row_adjust = bytes_per_screen_line-7
 ;     updated both on screen and in the internal data structures according to
 ;     Z%.
 ;
+; ENHANCE: There appears to be some asymmetric handling of sprites which are
+; off-screen with positive/negative infinite co-ordinates; moving "further" in
+; the infinite direction causes a wrap to the opposite side of the screen,
+; moving "closer" does not cause the sprite to move back on the "same "side of
+; the screen. I suspect this isn't actually used by Night World, so could be
+; removed.
+;
 ; ENHANCE: I think there's no need for the branches to cli_rts here, we could
 ; just branch to the rts.
 .t_subroutine
@@ -1348,7 +1355,6 @@ slot_index_x2 = &7f
     tya:asl a:sta slot_index_x2
     tay:asl a:sta slot_index_x4
     and #(ri_coord_vars<<3)-1:asl a:sta ri_coord_index
-    ; TODO: Write some comments about &fe and &ff and what they mean exactly - need to carefully go over all code to see about this
     lda slot_pixel_coord_table_xy,y:cmp #sprite_pixel_x_special_threshold:bcs x_pixel_coord_is_special
     ldy slot_index_x4:lda slot_addr_table+screen_addr_hi,y:beq cli_rts
     ldy slot_index_x2
@@ -1360,7 +1366,7 @@ slot_index_x2 = &7f
     asl a:rol os_x_hi
     sta os_x_lo
 .update_y_pixel_coord
-    lda slot_pixel_coord_table_xy+1,y:cmp #sprite_pixel_y_special_threshold:bcc sprite_y_pixel_coord_is_special_indirect
+    lda slot_pixel_coord_table_xy+1,y:cmp #sprite_pixel_y_special_threshold:bcc y_pixel_coord_is_special_indirect
     lda delta_table+1,x:bmi add_negative_y_delta
     clc:adc slot_pixel_coord_table_xy+1,y:bcs new_y_pixel_coord_gt_255
 .y_pixel_coord_in_a
@@ -1375,15 +1381,13 @@ slot_index_x2 = &7f
     txa:sta ri_b,y
     jmp s_subroutine
     equb &60 ; ENHANCE: junk byte, can be deleted
-; TODO: This is called once, via a bcc.
-.sprite_y_pixel_coord_is_special_indirect
-    bcc sprite_y_pixel_coord_is_special ; always branch
-; TODO: This is called once, via a bcc.
+.y_pixel_coord_is_special_indirect
+    bcc y_pixel_coord_is_special ; always branch
 .new_x_pixel_coord_lt_0
     dec os_x_hi
     bcc x_pixel_coord_in_a ; always branch
 .x_pixel_coord_is_special
-    beq x_pixel_coord_is_fe
+    beq x_pixel_coord_is_neg_inf
     lda delta_table,x:beq update_y_pixel_coord_indirect
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs update_y_pixel_coord_indirect
@@ -1395,7 +1399,7 @@ slot_index_x2 = &7f
     asl a:rol os_x_hi
     sta os_x_lo
     bne update_y_pixel_coord ; TODO: always branch??
-.x_pixel_coord_is_fe
+.x_pixel_coord_is_neg_inf
     lda delta_table,x
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc update_y_pixel_coord_indirect
@@ -1421,8 +1425,8 @@ slot_index_x2 = &7f
 .new_y_pixel_coord_lt_0
     dec os_y_hi
     bcc y_pixel_coord_in_a ; TODO: always branch??
-.sprite_y_pixel_coord_is_special
-    cmp #1:beq sprite_y_pixel_coord_is_1
+.y_pixel_coord_is_special
+    cmp #sprite_pixel_y_neg_inf:beq y_pixel_coord_is_neg_inf
     lda delta_table+1,x:beq t_subroutine_rts
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs t_subroutine_rts
@@ -1436,7 +1440,7 @@ slot_index_x2 = &7f
     lda constant_1:bne set_ri_os_coords_y_lo_in_x_and_jmp_s_subroutine_indirect ; always branch
 .^t_subroutine_rts
     rts
-.sprite_y_pixel_coord_is_1
+.y_pixel_coord_is_neg_inf
     lda delta_table+1,x
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc t_subroutine_rts
