@@ -269,7 +269,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
  2205PROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=1:CALLS%:REM show player sprite
  2210PROCreset_note_count:REM Must do this because we moved DATA pointer
  2217REMVDU 5:IFsun_moon_disabled%=0:W%=SLOT_SUN_MOON ELSEW%=5:REM restore state - without the ELSE warping to any room with an enemy after collecting the fleece will leave the initial enemy "stuck" on the screen
- 2218VDU5:Y%=S_OP_MOVE
+ 2218VDU5:Y%=S_OP_MOVE:IF sun_moon_disabled%=0:W%=SLOT_SUN_MOON
  2220ENDPROC
  2221REM FWIW lower part of room A would be 1142,316
  2500DATA 12,1120,576,7,392,256,2,72,244,1,1194,672,3,24,636,4,24,636,5,24,444,9,984,704,17,280,700,16,1194,252,18,24,668,19,24,444,20,84,412,14,68,416
