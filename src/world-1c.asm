@@ -21,7 +21,6 @@ l0071 = &0071
 l0072 = &0072
 l0073 = &0073
 l0074 = &0074
-l0075 = &0075
 l0076 = &0076
 screen_ptr = &007a
 screen_ptr2 = &007c
@@ -901,6 +900,8 @@ overlap_direction = &74
 ; ENHANCE: This can obviously be removed.
 .r_subroutine
 {
+l0075 = &0075
+
     lda ri_x
     cmp #4
     bcs q_subroutine_rts
@@ -1102,6 +1103,7 @@ sprite_pixel_y_lo = &0077
 sprite_pixel_current_y = &73
 sprite_pixel_x_hi = &78
 sprite_pixel_y_hi = &79
+l0075 = &75
 l007d = &7d
 
     sta get_sprite_details_sprite_index
@@ -1109,7 +1111,7 @@ l007d = &7d
     ; variables in Y.
     asl a:tax:sta l007d ; ENHANCE: stored value is never used
     asl a:sta l0074
-    asl a:and #(ri_coord_vars-1)<<3:tay:sty l0075 ; TODO: I don't think the value written to l0075 here is ever used?
+    asl a:and #(ri_coord_vars-1)<<3:tay:sty l0075 ; ENHANCE: value stored is never used
     ; Copy values from the coordinate resident integer variables into
     ; sprite_pixel_{x,y}_{hi,lo}, scaling from OS coordinates to actual pixel
     ; coordinates by dividing X by 8 and Y by 4.
@@ -1211,6 +1213,8 @@ l007d = &7d
 ; I may be missing something.
 .sprite_core
 {
+l0075 = &0075
+
     lda #1
     sta l0075
 .sprite_core_outer_loop
@@ -1271,6 +1275,8 @@ l007d = &7d
 ; to handle moving sprites more efficiently.
 .sprite_core_moving
 {
+l0075 = &0075
+
     lda #1
     sta l0075
     sei
