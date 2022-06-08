@@ -95,7 +95,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
 
   540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
   550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=SLOT_SUN_MOON:Y%=S_OP_REMOVE:CALLS%:K%=192
-  551IFday_night%=0:day_night%=1:PROClee_sprite_reset:X%=25:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os_gargoyle:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
+  551IFday_night%=0:day_night%=1:PROClee_sprite_reset:X%=25:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
   560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:PROClee_sprite_reset:X%=24:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
