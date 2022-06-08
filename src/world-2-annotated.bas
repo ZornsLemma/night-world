@@ -1,4 +1,5 @@
 constant S_OP_MOVE = 0
+constant S_OP_SHOW = 1
 constant S_OP_REMOVE = 2
 
 constant SLOT_SUN_MOON = 6
@@ -9,6 +10,8 @@ constant IMAGE_HEALTH = 18
 constant IMAGE_VEIL = 19
 constant IMAGE_EYE = 22
 constant IMAGE_VEIL2 = 26
+constant IMAGE_SUN = 24
+constant IMAGE_MOON = 25
 constant IMAGE_FINAL_GUARDIAN = 27
 
    0IFPAGE>&E00:GOTO32000
@@ -96,8 +99,8 @@ constant IMAGE_FINAL_GUARDIAN = 27
 
   540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
   550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=SLOT_SUN_MOON:Y%=S_OP_REMOVE:CALLS%:K%=192
-  551IFday_night%=0:day_night%=1:PROClee_sprite_reset:X%=25:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
-  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:PROClee_sprite_reset:X%=24:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
+  551IFday_night%=0:day_night%=1:PROClee_sprite_reset:X%=IMAGE_MOON:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
+  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:PROClee_sprite_reset:X%=IMAGE_SUN:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
 
@@ -168,7 +171,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   930IFroom_type%=3:X%=IMAGE_ROBOT:CALLU%
   940IFroom_type%=4:X%=IMAGE_EYE:CALLU%
   950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
-  960ak%=0:ah%=1:W%=2:Y%=1:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
+  960ak%=0:ah%=1:W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=7:M%=1035:N%=692:CALLS%:X%=17:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
   970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,21):PROCupdate_sprite_slot_7_and_show(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
@@ -267,7 +270,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
  2060FOR n%=1 TO ASC(key$)AND&9F:READ phys_room%,lee_x_os%,lee_y_os%:NEXT
  2070REM Logical room 14 (Ed's room N) has some tricky behaviour; to get it right, we pretend we're passing through the warp from logical room 10 as in real gameplay.
  2200IF phys_room%<>14:PROCchange_room2 ELSE logical_room%=10:room_type%=4-(score%>70):lee_x_os%=1152:lee_y_os%=484:PROCcheck_warps
- 2205PROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=1:CALLS%:REM show player sprite
+ 2205PROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=S_OP_SHOW:CALLS%:REM show player sprite
  2210PROCreset_note_count:REM Must do this because we moved DATA pointer
  2218VDU5:Y%=S_OP_MOVE:IF sun_moon_disabled%=0:W%=SLOT_SUN_MOON
  2220ENDPROC
