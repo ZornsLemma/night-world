@@ -52,8 +52,6 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   140DEFPROCset_lee_xy_os_from_lee_sprite
   150lee_x_os%=C%:lee_y_os%=D%:lee_sprite_num%=10:ENDPROC
 
-  198REM TODO: The name is a guess here; this is doing some sort of sprite plot operation on the
-  199REM four player sprites (human/gargoyle, left/right) but I don't know what Y%=2 means yet.
   200DEFPROClee_sprite_reset
   202W%=SLOT_LEE:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
   203new_sprite%=lee_direction%-1+2*day_night%
