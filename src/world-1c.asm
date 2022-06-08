@@ -4,7 +4,6 @@ get_sprite_details_sprite_index = &7c
 t_subroutine_os_x_hi = &70
 t_subroutine_os_x_lo = &71
 t_subroutine_os_y_hi = &72
-t_subroutine_w_minus_1_times_2 = &7f
 t_subroutine_w_minus_1_times_4 = &7e
 t_subroutine_w_minus_1_times_8 = &76
 t_subroutine_constant_1 = &73
@@ -1110,7 +1109,7 @@ l007d = &7d
     ; Calculate the offset of this sprite slot's coordinate resident integer
     ; variables in Y.
     asl a:tax:sta l007d ; ENHANCE: value stored is never used
-    asl a:sta l0074
+    asl a:sta l0074 ; TODO: GIVE THIS A NAME AND DOCUMENT IT IN COMMENT ABOVE, IT'S USED TO RETURN VAL TO CALLER
     asl a:and #(ri_coord_vars-1)<<3:tay:sty l0075 ; ENHANCE: value stored is never used
     ; Copy values from the coordinate resident integer variables into
     ; sprite_pixel_{x,y}_{hi,lo}, scaling from OS coordinates to actual pixel
@@ -1312,29 +1311,24 @@ next_row_adjust = bytes_per_screen_line-7
 ; just branch to the rts.
 .t_subroutine
 {
+l007f = &7f
     lda ri_w:beq cli_rts
     cmp #max_sprite_num+1:bcs cli_rts
     sec:sbc #1:tay
     lda ri_z:beq cli_rts
-    cmp #&0a:beq cli_rts
+    cmp #10:beq cli_rts
     cmp #5:beq cli_rts
-    cmp #&14:bcs cli_rts
+    cmp #20:bcs cli_rts ; TODO: Note this is *>=* when writing comments at top of fn
     sec:sbc #1:asl a:tax
-; TODO: So for the first part at least, X=Z%*2, and we use it to
-; access the sprite_delta_coord_table_xy table, so Z% is presumably a
-; sprite slot.
-    lda #0
-    sta ri_y
-    sta t_subroutine_os_x_hi
-    sta t_subroutine_os_y_hi
+    lda #0:sta ri_y:sta t_subroutine_os_x_hi:sta t_subroutine_os_y_hi
     lda #1:sta t_subroutine_constant_1
-    tya:asl a:sta t_subroutine_w_minus_1_times_2
+    tya:asl a:sta l007f
     tay:asl a:sta t_subroutine_w_minus_1_times_4
     and #(ri_coord_vars<<3)-1:asl a:sta t_subroutine_w_minus_1_times_8
     lda sprite_pixel_coord_table_xy,y:cmp #&fe:bcs t_subroutine_x_pixel_coord_ge_fe
     ldy t_subroutine_w_minus_1_times_4
     lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
-    ldy t_subroutine_w_minus_1_times_2
+    ldy l007f
     lda sprite_delta_coord_table_xy,x:bmi add_negative_x_offset
     clc:adc sprite_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
