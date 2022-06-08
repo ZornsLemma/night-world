@@ -29,6 +29,19 @@ osbyte = &fff4
 sprite_width_pixels = 8
 sprite_height_pixels = 16
 
+; sprite_pixel_coord_table_xy uses the special X/Y values to indicate that a
+; sprite is out of bounds on a particular side of the screen. These values are
+; unambiguous because (for X) there are only 160 pixels across the screen and
+; (for Y) the pixel coordinates run up from origin at bottom left and specify
+; the top left corner of the sprite, so the lowest valid Y on the screen is 15.
+; TODO: Does anything actually care about this distinction?
+sprite_pixel_x_special_threshold = 254
+sprite_pixel_y_special_threshold = 2
+sprite_pixel_x_neg_inf = 254
+sprite_pixel_x_pos_inf = 255
+sprite_pixel_y_pos_inf = 0
+sprite_pixel_y_neg_inf = 1
+
 ; BASIC's resident integer variables @%, A%, ..., Z% (four bytes each) have
 ; fixed addresses in page &4. They are used extensively to communicate between
 ; BASIC and this machine code.
@@ -1012,8 +1025,8 @@ sprite_pixel_y_lo = &0077
     sec:sbc #1
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
     jsr get_sprite_details
-    lda sprite_pixel_coord_table_xy,x:cmp #&fe:bcs clc_remove_sprite_from_screen
-    lda sprite_pixel_coord_table_xy+1,x:cmp #2:bcc clc_remove_sprite_from_screen
+    lda sprite_pixel_coord_table_xy,x:cmp #sprite_pixel_x_special_threshold:bcs clc_remove_sprite_from_screen
+    lda sprite_pixel_coord_table_xy+1,x:cmp #sprite_pixel_y_special_threshold:bcc clc_remove_sprite_from_screen
     lda sprite_pixel_y_lo:tax
     lsr a:lsr a:and #&fe:tay
     ; Invert the low bits of the sprite's Y pixel address; this accounts for the
@@ -1142,7 +1155,7 @@ l007d = &7d
 .x_position_too_far_right
     lda sprite_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_max
     cmp #1:beq force_x_position_to_sprite_x_min
-    lda #&ff:sta sprite_pixel_coord_table_xy,x
+    lda #sprite_pixel_x_pos_inf:sta sprite_pixel_coord_table_xy,x
     bne check_y_position ; always branch
 .force_x_position_to_sprite_x_max
     lda sprite_x_max:sta sprite_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
@@ -1150,7 +1163,7 @@ l007d = &7d
 .x_position_too_far_left
     lda sprite_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_min
     cmp #1:beq force_x_position_to_sprite_x_max
-    lda #&fe:sta sprite_pixel_coord_table_xy,x
+    lda #sprite_pixel_x_neg_inf:sta sprite_pixel_coord_table_xy,x
     bne check_y_position ; always branch
 .force_x_position_to_sprite_x_min
     lda sprite_x_min:sta sprite_pixel_coord_table_xy,x:sta sprite_pixel_x_lo
@@ -1166,7 +1179,7 @@ l007d = &7d
 .y_position_too_far_up
     lda sprite_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_max
     cmp #1:beq force_y_position_to_sprite_y_min
-    lda #0:sta sprite_pixel_coord_table_xy+1,x
+    lda #sprite_pixel_y_pos_inf:sta sprite_pixel_coord_table_xy+1,x
     clc
     rts
 .force_y_position_to_sprite_y_max
@@ -1176,7 +1189,7 @@ l007d = &7d
 .y_position_too_far_down
     lda sprite_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_min
     cmp #1:beq force_y_position_to_sprite_y_max
-    lda #1:sta sprite_pixel_coord_table_xy+1,x
+    lda #sprite_pixel_y_neg_inf:sta sprite_pixel_coord_table_xy+1,x
     clc
     rts
 .force_y_position_to_sprite_y_min
@@ -1327,7 +1340,7 @@ slot_index_x2 = &7f
     tay:asl a:sta slot_index_x4
     and #(ri_coord_vars<<3)-1:asl a:sta ri_coord_index
     ; TODO: Write some comments about &fe and &ff and what they mean exactly - need to carefully go over all code to see about this
-    lda sprite_pixel_coord_table_xy,y:cmp #&fe:bcs t_subroutine_x_pixel_coord_ge_fe
+    lda sprite_pixel_coord_table_xy,y:cmp #sprite_pixel_x_special_threshold:bcs t_subroutine_x_pixel_coord_is_special
     ldy slot_index_x4:lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
     ldy slot_index_x2:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_delta
     clc:adc sprite_pixel_coord_table_xy,y:bcs new_x_coord_carry
@@ -1337,7 +1350,7 @@ slot_index_x2 = &7f
     asl a:rol os_x_hi
     sta os_x_lo
 .update_y_pixel_coord
-    lda sprite_pixel_coord_table_xy+1,y:cmp #2:bcc sprite_y_pixel_coord_lt_2_indirect
+    lda sprite_pixel_coord_table_xy+1,y:cmp #sprite_pixel_y_special_threshold:bcc sprite_y_pixel_coord_is_special_indirect
     lda sprite_delta_coord_table_xy+1,x:bmi add_negative_y_delta
     clc:adc sprite_pixel_coord_table_xy+1,y:bcs new_y_pixel_coord_gt_255
 .y_pixel_coord_in_a
@@ -1353,13 +1366,13 @@ slot_index_x2 = &7f
     jmp s_subroutine
     equb &60 ; ENHANCE: junk byte, can be deleted
 ; TODO: This is called once, via a bcc.
-.sprite_y_pixel_coord_lt_2_indirect
-    bcc sprite_y_pixel_coord_lt_2 ; always branch
+.sprite_y_pixel_coord_is_special_indirect
+    bcc sprite_y_pixel_coord_is_special ; always branch
 ; TODO: This is called once, via a bcc.
 .new_x_pixel_coord_lt_0
     dec os_x_hi
     bcc x_pixel_coord_in_a ; always branch
-.t_subroutine_x_pixel_coord_ge_fe
+.t_subroutine_x_pixel_coord_is_special
     beq t_subroutine_x_pixel_coord_is_fe
     lda sprite_delta_coord_table_xy,x:beq update_y_pixel_coord_indirect
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
@@ -1398,7 +1411,7 @@ slot_index_x2 = &7f
 .new_y_pixel_coord_lt_0
     dec os_y_hi
     bcc y_pixel_coord_in_a ; TODO: always branch??
-.sprite_y_pixel_coord_lt_2
+.sprite_y_pixel_coord_is_special
     cmp #1:beq sprite_y_pixel_coord_is_1
     lda sprite_delta_coord_table_xy+1,x:beq t_subroutine_rts
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
