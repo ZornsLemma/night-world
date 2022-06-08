@@ -62,7 +62,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   250PROCdraw_room(logical_room%):ENDPROC
 
   260DEFPROCplay
-  270GCOL0,0:Y%=0:PROCset_lee_sprite_from_lee_xy_os
+  270GCOL0,0:Y%=S_OP_MOVE:PROCset_lee_sprite_from_lee_xy_os
   280IFscore%=100ANDRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
   281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
   282REM when he's falling *after* a jump has finished in mid-air, and that all other
@@ -175,7 +175,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
   920IFroom_type%=2:X%=IMAGE_WINGED_CREATURE:CALLU%
   930IFroom_type%=3:X%=IMAGE_ROBOT:CALLU%
   940IFroom_type%=4:X%=IMAGE_EYE:CALLU%
-  950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=0:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
+  950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=S_OP_MOVE:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
   960ak%=0:ah%=1:W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=SLOT_MISC:M%=1035:N%=692:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
   970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,21):PROCupdate_sprite_slot_7_and_show(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
@@ -242,7 +242,7 @@ constant IMAGE_FINAL_GUARDIAN = 27
  1400DEFPROCpause:SOUND1,4,20,3:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:VDU5:B$="WAITING":*FX15,1
  1402REPEAT:A$=INKEY$(0)
  1403IF ?&9FE<>0 AND (A$="W" OR A$="w"):PROCcheat_warp
- 1405GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C"ORA$="c":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFsun_moon_disabled%=0:Y%=0:CALLS%
+ 1405GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C"ORA$="c":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFsun_moon_disabled%=0:Y%=S_OP_MOVE:CALLS%
  1410SOUND1,6,30,3:*FX15,1
  1420ENDPROC
 
