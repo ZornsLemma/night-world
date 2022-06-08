@@ -1328,7 +1328,7 @@ l007f = &7f
     and #(ri_coord_vars<<3)-1:asl a:sta l0076
     lda sprite_pixel_coord_table_xy,y:cmp #&fe:bcs t_subroutine_x_pixel_coord_ge_fe
     ldy l007e:lda sprite_screen_and_data_addrs+screen_addr_hi,y:beq cli_rts
-    ldy l007f:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_offset
+    ldy l007f:lda sprite_delta_coord_table_xy,x:bmi add_negative_x_delta
     clc:adc sprite_pixel_coord_table_xy,y:bcs new_x_coord_carry
 .x_pixel_coord_in_a
     asl a:rol t_subroutine_os_x_hi
@@ -1337,7 +1337,7 @@ l007f = &7f
     sta t_subroutine_os_x_lo
 .update_y_pixel_coord
     lda sprite_pixel_coord_table_xy+1,y:cmp #2:bcc sprite_y_pixel_coord_lt_2_indirect
-    lda sprite_delta_coord_table_xy+1,x:bmi add_negative_y_offset
+    lda sprite_delta_coord_table_xy+1,x:bmi add_negative_y_delta
     clc:adc sprite_pixel_coord_table_xy+1,y:bcs new_y_pixel_coord_gt_255
 .y_pixel_coord_in_a
     asl a:rol t_subroutine_os_y_hi
@@ -1380,7 +1380,7 @@ l007f = &7f
 .new_x_coord_carry
     inc t_subroutine_os_x_hi
     bne x_pixel_coord_in_a ; always branch
-.add_negative_x_offset
+.add_negative_x_delta
     clc:adc sprite_pixel_coord_table_xy,y
     bcc new_x_pixel_coord_lt_0
     bcs x_pixel_coord_in_a
@@ -1390,7 +1390,7 @@ l007f = &7f
 .new_y_pixel_coord_gt_255
     inc t_subroutine_os_y_hi
     bne y_pixel_coord_in_a ; always branch
-.add_negative_y_offset
+.add_negative_y_delta
     clc:adc sprite_pixel_coord_table_xy+1,y
     bcc new_y_pixel_coord_lt_0
     bcs y_pixel_coord_in_a
