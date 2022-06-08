@@ -1443,8 +1443,8 @@ l0072 = &0072
     lda sprite_screen_and_data_addrs+screen_addr_hi,x:beq t_subroutine_rts
     sta screen_ptr2+1:sta screen_ptr+1
     ; Get the sprite's X pixel coordinate and use its low two bits to select one
-    ; of the four pre-shifted variants, assuming it is a two character cell (8
-    ; pixel) wide sprite.
+    ; of the four pre-shifted variants, each of which occupies 48=%110000 bytes,
+    ; hence the pattern of shifts and adds.
     lda sprite_pixel_coord_table_xy,y:and #3:asl a:asl a:asl a:asl a:sta l0073
     asl a:adc l0073:sta l0072
     ; ENHANCE: The values written to sprite_ptr2+{0,1} are never used.
