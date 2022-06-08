@@ -192,6 +192,7 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,21):PROCupdate_sprite_slot_7_and_show(18,19,21)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
+  995REM TODO: Use constants for the image argument to PROCupdate_sprite_slot_7...
  1000IFlogical_room%=13ANDscore%=60:PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
  1010IFlogical_room%=1:PROCupdate_sprite_slot_7_and_show(9,12,23):IFitem_collected%(1)=0:PROCupdate_sprite_slot_7_and_show(2,12,17)
  1020IFlogical_room%=7:PROCupdate_sprite_slot_7_and_show(6,21,23):IFitem_collected%(2)=0:PROCupdate_sprite_slot_7_and_show(2,11,17)
@@ -297,6 +298,7 @@ constant DELTA_STEP_RIGHT_DOWN = 9
 
  3000DEFPROCshow_prisms
  3005LOCAL W%,X%,Y%
+ 3006?(&5600+(SLOT_MISC-1)*4+3)=&C0:?(&5600+(SLOT_MISC-1)*4+2)=&46:W%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:REM remove the collected prism from the room TODO: the pokes are to work around off-by-one bug in u_subroutine
  3007REMFORn%=1TO4:item_collected%(n%)=1:NEXT:REM TODO HACK
  3010q%=0:FOR n%=1 TO 4:q%=q%+item_collected%(n%):NEXT
  3025W%=SLOT_COLLECTED_PRISM:Y%=S_OP_SHOW:X%=IMAGE_FLEECE_MACGUFFIN_PRISM
