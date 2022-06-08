@@ -1349,7 +1349,7 @@ slot_index_x2 = &7f
     tay:asl a:sta slot_index_x4
     and #(ri_coord_vars<<3)-1:asl a:sta ri_coord_index
     ; TODO: Write some comments about &fe and &ff and what they mean exactly - need to carefully go over all code to see about this
-    lda slot_pixel_coord_table_xy,y:cmp #sprite_pixel_x_special_threshold:bcs t_subroutine_x_pixel_coord_is_special
+    lda slot_pixel_coord_table_xy,y:cmp #sprite_pixel_x_special_threshold:bcs x_pixel_coord_is_special
     ldy slot_index_x4:lda slot_addr_table+screen_addr_hi,y:beq cli_rts
     ldy slot_index_x2
     lda delta_table,x:bmi add_negative_x_delta
@@ -1382,8 +1382,8 @@ slot_index_x2 = &7f
 .new_x_pixel_coord_lt_0
     dec os_x_hi
     bcc x_pixel_coord_in_a ; always branch
-.t_subroutine_x_pixel_coord_is_special
-    beq t_subroutine_x_pixel_coord_is_fe
+.x_pixel_coord_is_special
+    beq x_pixel_coord_is_fe
     lda delta_table,x:beq update_y_pixel_coord_indirect
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcs update_y_pixel_coord_indirect
@@ -1395,7 +1395,7 @@ slot_index_x2 = &7f
     asl a:rol os_x_hi
     sta os_x_lo
     bne update_y_pixel_coord ; TODO: always branch??
-.t_subroutine_x_pixel_coord_is_fe
+.x_pixel_coord_is_fe
     lda delta_table,x
     cmp #&80 ; ENHANCE: use N from preceding lda to eliminate this
     bcc update_y_pixel_coord_indirect
