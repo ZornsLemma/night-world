@@ -14,7 +14,9 @@ with open(sys.argv[1], "r") as f:
             assert name not in constants
             constants[name] = value
         else:
-            for name, value in constants.items():
+            # Consider the constants with the longest names first, so we don't
+            # get things wrong if we have constants FOO and FOOBAR.
+            for name, value in sorted(constants.items(), key=lambda x: -len(x[0])):
                 line = line.replace(name, value)
             # Replacing comment bodies allows arbitrarily long comments, which
             # is useful when we're using line numbers and therefore can't
