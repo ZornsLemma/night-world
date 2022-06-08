@@ -1210,34 +1210,34 @@ l007d = &7d
 ; I may be missing something.
 .sprite_core
 {
-l0075 = &0075
+row_index = &75
 next_row_adjust = bytes_per_screen_line-7
 
-    lda #1:sta l0075
-.sprite_core_outer_loop
+    lda #1:sta row_index
+.outer_loop
     ldx #8
-.sprite_core_inner_loop
+.inner_loop
     ldy # 0:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
     ldy # 8:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
     ldy #16:lda (screen_ptr),y:eor (sprite_ptr),y:sta (screen_ptr),y
-    lda screen_ptr:and #7:eor #7:beq sprite_core_next_row
+    lda screen_ptr:and #7:eor #7:beq next_row
     inc screen_ptr
-.sprite_core_screen_ptr_updated
-    inc sprite_ptr:beq sprite_core_low_byte_wrapped
-.sprite_core_low_byte_wrap_handled
-    dex:bne sprite_core_inner_loop
-    lda sprite_ptr:adc #16:sta sprite_ptr:bcc sprite_core_no_carry
+.screen_ptr_updated
+    inc sprite_ptr:beq low_byte_wrapped
+.low_byte_wrap_handled
+    dex:bne inner_loop
+    lda sprite_ptr:adc #16:sta sprite_ptr:bcc no_carry
     inc sprite_ptr+1:clc
-.sprite_core_no_carry
-    dec l0075:beq sprite_core_outer_loop
+.no_carry
+    dec row_index:beq outer_loop
     rts
-.sprite_core_next_row
+.next_row
     lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
     lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
-    bne sprite_core_screen_ptr_updated ; always branch
-.sprite_core_low_byte_wrapped
+    bne screen_ptr_updated ; always branch
+.low_byte_wrapped
     inc sprite_ptr+1:clc
-    bne sprite_core_low_byte_wrap_handled ; always branch
+    bne low_byte_wrap_handled ; always branch
 } ; end sprite_core scope
 } ; end s_subroutine scope
 
