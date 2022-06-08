@@ -224,15 +224,15 @@ constant IMAGE_FINAL_GUARDIAN = 27
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40:cr%=0
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=24:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
- 1370PROCstop_sound:IFs$="Q":*FX210,1
+ 1370PROCstop_sound:IFs$="Q"ORs$="q":*FX210,1
  1380ENDPROC
 
  1390DEFPROCreset_note_count:RESTORE1300:note_count%=0:ENDPROC
 
  1400DEFPROCpause:SOUND1,4,20,3:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:VDU5:B$="WAITING":*FX15,1
  1402REPEAT:A$=INKEY$(0)
- 1403IF ?&9FE<>0 AND A$="W":PROCcheat_warp
- 1405GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFsun_moon_disabled%=0:Y%=0:CALLS%
+ 1403IF ?&9FE<>0 AND (A$="W" OR A$="w"):PROCcheat_warp
+ 1405GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C"ORA$="c":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFsun_moon_disabled%=0:Y%=0:CALLS%
  1410SOUND1,6,30,3:*FX15,1
  1420ENDPROC
 
@@ -259,21 +259,18 @@ constant IMAGE_FINAL_GUARDIAN = 27
  2005PRINTTAB(2,17);" Warp to? (A-N) ";
  2006REPEAT
  2010*FX15,1
- 2015REM TODO: Assume upper case for now. "Q" for quiet game does this...
  2020key$=GET$
- 2030UNTIL key$>="A" AND key$<="N"
+ 2030UNTIL (key$>="A" AND key$<="N") OR (key$>="a" AND key$<="n")
  2050RESTORE 2500
- 2060FOR n%=1 TO ASC(key$)-64:READ phys_room%,lee_x_os%,lee_y_os%:NEXT
+ 2060FOR n%=1 TO ASC(key$)AND&9F:READ phys_room%,lee_x_os%,lee_y_os%:NEXT
  2070REM Logical room 14 (Ed's room N) has some tricky behaviour; to get it right, we pretend we're passing through the warp from logical room 10 as in real gameplay.
  2200IF phys_room%<>14:PROCchange_room2 ELSE logical_room%=10:room_type%=4-(score%>70):lee_x_os%=1152:lee_y_os%=484:PROCcheck_warps
  2205PROCset_lee_sprite_from_lee_xy_os:W%=lee_sprite_num%:Y%=1:CALLS%:REM show player sprite
  2210PROCreset_note_count:REM Must do this because we moved DATA pointer
- 2217REMVDU 5:IFsun_moon_disabled%=0:W%=SLOT_SUN_MOON ELSEW%=5:REM restore state - without the ELSE warping to any room with an enemy after collecting the fleece will leave the initial enemy "stuck" on the screen
  2218VDU5:Y%=S_OP_MOVE:IF sun_moon_disabled%=0:W%=SLOT_SUN_MOON
  2220ENDPROC
  2221REM FWIW lower part of room A would be 1142,316
  2500DATA 12,1120,576,7,392,256,2,72,244,1,1194,672,3,24,636,4,24,636,5,24,444,9,984,704,17,280,700,16,1194,252,18,24,668,19,24,444,20,84,412,14,68,416
-
 
 32000*TAPE
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M
