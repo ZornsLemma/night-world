@@ -991,20 +991,21 @@ sprite_pixel_y_lo = &0077
     clc
     jmp remove_sprite_from_screen
 
-; TODO: WRITE NEW SUBROUTINE COMMENT IN STYLE OF Q_SUBROUTINE ONE
-; Entered with a sprite slot number in W%.
-; 
-; If Y%=2 or slot W% has invalid coordinates, if the sprite is on on
-; screen and is eor-plotted to remove it and
-; sprite_screen_and_data_addrs updated to reflect this. This is a no-
-; op if the sprite is not on screen.
-; 
-; If Y% is not 2, the sprite is eor-plotted at its new position and
-; sprite_screen_and_data_addrs updated to reflect this. If Y% is also
-; not 1, the sprite is eor-plotted at its old position.
-; 
-; Effectively Y%=1 means 'show sprite', Y%=0 means 'move sprite' and
-; Y%=2 means 'remove sprite'.
+; Sprite display subroutine.
+;
+; On entry:
+;     W% is the sprite slot we want to work with
+;
+;     Y% is: 0 to move an already displayed sprite
+;            1 to show a previously invisible sprite
+;            2 to remove an already displayed sprited
+;
+;     If Y% is 0 or 1, the OS coordinates for the new sprite position are taken
+;     from the pair of coordinate resident integer variables for slot W%.
+;
+; TODO: I suspect there are some subtleties around sprites not currently shown
+; or off-screen and some of those may be interesting in practice, so need to
+; investigate these aspects.
 .^s_subroutine
     lda ri_w:beq r_subroutine_rts
     cmp #max_sprite_num+1:bcs r_subroutine_rts
@@ -1751,7 +1752,7 @@ sprite_addr_lo = 3
         equb 1
     next
 
-; ENHANCE: Dead data as r_subroutine is not used, can be removed
+; ENHANCE: Dead data as r_subroutine is not used, can be removed.
 .r_subroutine_inkey_code_1
     equb &bd
 .r_subroutine_inkey_code_2
