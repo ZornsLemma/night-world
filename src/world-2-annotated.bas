@@ -7,6 +7,10 @@ constant SLOT_SUN_MOON = 6
 constant SLOT_MISC = 7
 constant SLOT_LEE = 10
 
+constant IMAGE_HUMAN_RIGHT = 9
+constant IMAGE_HUMAN_LEFT = 10
+constant IMAGE_GARGOYLE_RIGHT = 11
+constant IMAGE_GARGOLYLE_LEFT = 12
 constant IMAGE_HARPY_RIGHT = 13
 constant IMAGE_HARPY_LEFT = 14
 constant IMAGE_WINGED_CREATURE = 15
@@ -92,11 +96,11 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
-  430IFlee_direction%=9:lee_direction%=10:PROClee_sprite_reset:W%=SLOT_LEE
+  430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROClee_sprite_reset:W%=SLOT_LEE
   440delta_x%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
-  460IFlee_direction%=10:lee_direction%=9:PROClee_sprite_reset:W%=SLOT_LEE
+  460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROClee_sprite_reset:W%=SLOT_LEE
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
