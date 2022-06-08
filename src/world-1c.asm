@@ -8,13 +8,9 @@ sprite_y_offset_within_row = &75
 
 ; TODO: Move zp vars into the most restrictive scope possible
 sprite_ptr = &0070
-l0074 = &0074
-l0076 = &0076
 screen_ptr = &007a
 screen_ptr2 = &007c
-l007e = &007e
 sprite_ptr2 = &007e
-l007f = &007f
 
 ; This is the conceptual width; sprite data is actually 12 pixels wide but only
 ; nine adjacent columns within the sprite will be non-black.
@@ -998,6 +994,7 @@ l0075 = &0075
 {
 sprite_pixel_current_x = &72
 l0073 = &73
+l0074 = &0074
 sprite_pixel_x_lo = &0076
 sprite_pixel_y_lo = &0077
 
