@@ -8,7 +8,6 @@ osbyte_clear_escape = &7c
 
 ; TODO: Move zp vars into the most restrictive scope possible
 sprite_ptr = &0070
-l0073 = &0073
 l0074 = &0074
 l0076 = &0076
 screen_ptr = &007a
@@ -890,9 +889,10 @@ overlap_direction = &74
     ; Set Y% to 35-(abs_x_difference*2)-abs_y_difference, so it is a metric
     ; indicating how much the sprites overlap. It will range from 4 if both
     ; differences are as large as possible up to 35 if the two sprites coincide
-    ; perfectly. This doesn't seem to be used in practice.
-    lda abs_x_difference:asl a:adc abs_y_difference:sta l0073
-    lda #35:sec:sbc l0073:sta ri_y
+    ; perfectly. This doesn't seem to be used in practice. We corrupt
+    ; abs_y_difference in the process as we don't need it any more.
+    lda abs_x_difference:asl a:adc abs_y_difference:sta abs_y_difference
+    lda #35:sec:sbc abs_y_difference:sta ri_y
     ; Set Z% to overlap_detection. This doesn't seem to be used in practice.
     lda overlap_direction:sta ri_z
     ; Set X% to the 1-based logical sprite number we found a collision
@@ -995,6 +995,7 @@ l0075 = &0075
 
 {
 sprite_pixel_current_x = &72
+l0073 = &73
 sprite_pixel_x_lo = &0076
 sprite_pixel_y_lo = &0077
 
@@ -1466,6 +1467,7 @@ slot_index_x2 = &7f
 l0070 = &0070
 l0071 = &0071
 l0072 = &0072
+l0073 = &0073
 
     lda ri_w:beq t_subroutine_rts
     cmp #max_sprite_num+1:bcs t_subroutine_rts
