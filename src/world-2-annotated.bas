@@ -58,12 +58,8 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   150lee_x_os%=C%:lee_y_os%=D%:lee_sprite_num%=10:ENDPROC
 
   200DEFPROClee_sprite_reset
-  202W%=SLOT_LEE:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
-  203new_sprite%=lee_direction%-1+2*day_night%
-  204REM TODO: If I use CALLU% to do the update (before removing the sprite from screen; it's a no-op otherwise) I get strange behaviour, it looks like not all frames are updated.
-  205REM TODO: CALLU% should allow the update we do here for off-screen sprites (we know sprite is off screen as we just used S% to take it off screen)
-  206sprite_addr%=!(&5700+new_sprite%*2) AND &FFFF:REM actually a big-endian value
-  207?(&5600+(10-1)*4+2)=sprite_addr%MOD256:?(&5600+(10-1)*4+3)=sprite_addr%DIV256:REM so do things the wrong way round here to compensate
+  202W%=SLOT_LEE:X%=lee_direction%+2*day_night%:CALLU%
+  203Y%=S_OP_MOVE
   208ENDPROC
 
   210DEFPROCdraw_current_room:PROCclear_room
