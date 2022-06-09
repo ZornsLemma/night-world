@@ -60,7 +60,7 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   140DEFPROCset_lee_xy_os_from_lee_sprite
   150lee_x_os%=C%:lee_y_os%=D%:lee_sprite_num%=10:ENDPROC
 
-  200DEFPROClee_sprite_reset
+  200DEFPROCchange_lee_sprite
   202W%=SLOT_LEE:X%=lee_direction%+2*day_night%:CALLU%
   203Y%=S_OP_MOVE
   208ENDPROC
@@ -96,11 +96,11 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(lee_x_os%-4,lee_y_os%-8)<>0:ENDPROC
-  430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROClee_sprite_reset:W%=SLOT_LEE
+  430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite:W%=SLOT_LEE
   440delta_x%=-8:lee_x_os%=lee_x_os%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(lee_x_os%+64,lee_y_os%-8)<>0:ENDPROC
-  460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROClee_sprite_reset:W%=SLOT_LEE
+  460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite:W%=SLOT_LEE
   470delta_x%=8:lee_x_os%=lee_x_os%+8:ENDPROC
 
   480DEFPROCjump:IFPOINT(lee_x_os%+8,lee_y_os%+4)<>0ORPOINT(lee_x_os%+56,lee_y_os%+4)<>0:jumping%=0:PROCstop_sound:ENDPROC
@@ -115,8 +115,8 @@ constant DELTA_STEP_RIGHT_DOWN = 9
 
   540DEFPROCtoggle_day_night:RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
   550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=SLOT_SUN_MOON:Y%=S_OP_REMOVE:CALLS%:K%=192
-  551IFday_night%=0:day_night%=1:PROClee_sprite_reset:X%=IMAGE_MOON:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
-  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:PROClee_sprite_reset:X%=IMAGE_SUN:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
+  551IFday_night%=0:day_night%=1:PROCchange_lee_sprite:X%=IMAGE_MOON:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
+  560full_speed_jump_time_limit%=20:max_jump_time%=40:day_night%=0:PROCchange_lee_sprite:X%=IMAGE_SUN:W%=SLOT_SUN_MOON:CALLS%:CALLU%:PROCset_lee_sprite_from_lee_xy_os:PROCrestore_fleece:ENDPROC
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
 
@@ -124,19 +124,19 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
-  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROClee_sprite_reset:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  583IFlogical_room%=1ANDlee_x_os%<68:phys_room%=12:lee_x_os%=1142:lee_y_os%=316:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   585REM If player is in room 10 (Ed's room J) and in the top half of the screen,
   586REM warp to room 9 (Ed's room N) - the fleece room.
-  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROClee_sprite_reset:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
+  590IFlogical_room%=10ANDlee_x_os%>=1152ANDlee_y_os%>480:phys_room%=14:logical_room%=9:lee_x_os%=68:lee_y_os%=416:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
   595REM If player is in room 13 at a specific point on the right edge, warp to
   596REM room 7 (Ed's room H).
-  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROClee_sprite_reset:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  600IFlogical_room%=13ANDlee_x_os%>1150AND(lee_y_os%=288ORlee_y_os%=284):phys_room%=9:lee_x_os%=1148:lee_y_os%=420:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM show a lightning flash effect. If the player has collided with SLOT_MISC, it's the fleece; collect it.
   610IFlogical_room%=5ANDscore%=90ANDday_night%=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=SLOT_MISC:PROCcollect_fleece
   620ENDPROC
 
-  630DEFPROCcollect_fleece:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=SLOT_MISC:CALLS%:RESTORE1450:score%=100:sun_moon_disabled%=1:W%=lee_sprite_num%:CALLS%:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
+  630DEFPROCcollect_fleece:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=SLOT_MISC:CALLS%:RESTORE1450:score%=100:sun_moon_disabled%=1:PROCremove_lee_sprite:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
   635REM TODO: CALLV% in next line will reset all resident integer variables to 0 except the "subroutine" ones. This will be a problem if we try to persist things in them to speed the code up.
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
 
@@ -301,9 +301,8 @@ constant DELTA_STEP_RIGHT_DOWN = 9
  3005LOCAL W%,X%,Y%
  3007REMFORn%=1TO4:item_collected%(n%)=1:NEXT:REM TODO HACK
  3010q%=0:FOR n%=1 TO 4:q%=q%+item_collected%(n%):NEXT
- 3025W%=SLOT_COLLECTED_PRISM:Y%=S_OP_SHOW:X%=IMAGE_FLEECE_MACGUFFIN_PRISM
  3026REMENDPROC:REM TEMP
- 3030IF q%<=2 THEN F%=124:p%=q% ELSE F%=144:p%=4:REM TODO NUMBERS MADE UP
+ 3030IF q%<=2 THEN F%=124:p%=q% ELSE F%=144:p%=4
  3040FOR n%=1 TO p%
  3045E%=1112-(n% MOD 2)*1024
  3048GCOL 0,0:MOVE E%-8,F%-24:MOVE E%+72,F%-24:PLOT 85,E%+72,F%-68:MOVE E%-8,F%-68:PLOT 85,E%-8,F%-24:REM TODO: PROCsquare()?
@@ -311,6 +310,10 @@ constant DELTA_STEP_RIGHT_DOWN = 9
  3065IF n%=2:F%=F%-40
  3080NEXT
  3090ENDPROC
+
+ 3500DEFPROCremove_lee_sprite
+ 3510W%=SLOT_LEE:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
+ 3520ENDPROC
 
 32000*TAPE
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M
