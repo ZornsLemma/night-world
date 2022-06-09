@@ -19,6 +19,7 @@ constant IMAGE_ROBOT = 16
 constant IMAGE_FLEECE_MACGUFFIN_PRISM = 17
 constant IMAGE_HEALTH = 18
 constant IMAGE_VEIL = 19
+constant IMAGE_WALL_ENEMY_LEFT = 20
 constant IMAGE_WALL_ENEMY_RIGHT = 21
 constant IMAGE_EYE = 22
 constant IMAGE_STATUE = 23
@@ -194,10 +195,10 @@ constant DELTA_STEP_RIGHT_DOWN = 9
  1000IFlogical_room%=13ANDscore%=60:PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
  1010IFlogical_room%=1:PROCupdate_sprite_slot_7_and_show(9,12,IMAGE_STATUE):IFitem_collected%(1)=0:PROCupdate_sprite_slot_7_and_show(2,12,IMAGE_FLEECE_MACGUFFIN_PRISM)
  1020IFlogical_room%=7:PROCupdate_sprite_slot_7_and_show(6,21,IMAGE_STATUE):IFitem_collected%(2)=0:PROCupdate_sprite_slot_7_and_show(2,11,IMAGE_FLEECE_MACGUFFIN_PRISM)
- 1030IFlogical_room%=2:PROCupdate_sprite_slot_7_and_show(1,23,20)
- 1040IFlogical_room%=8:PROCupdate_sprite_slot_7_and_show(11,23,23):PROCupdate_sprite_slot_7_and_show(9,21,23):PROCupdate_sprite_slot_7_and_show(13,24,23)
- 1050IFlogical_room%=14:PROCupdate_sprite_slot_7_and_show(8,20,21):PROCupdate_sprite_slot_7_and_show(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCupdate_sprite_slot_7_and_show(12,25,17)
- 1060IFlogical_room%=12:PROCupdate_sprite_slot_7_and_show(1,15,20):PROCupdate_sprite_slot_7_and_show(1,18,20):PROCupdate_sprite_slot_7_and_show(1,21,20)
+ 1030IFlogical_room%=2:PROCupdate_sprite_slot_7_and_show(1,23,IMAGE_WALL_ENEMY_LEFT)
+ 1040IFlogical_room%=8:PROCupdate_sprite_slot_7_and_show(11,23,IMAGE_STATUE):PROCupdate_sprite_slot_7_and_show(9,21,IMAGE_STATUE):PROCupdate_sprite_slot_7_and_show(13,24,IMAGE_STATUE)
+ 1050IFlogical_room%=14:PROCupdate_sprite_slot_7_and_show(8,20,IMAGE_WALL_ENEMY_RIGHT):PROCupdate_sprite_slot_7_and_show(11,20,IMAGE_WALL_ENEMY_LEFT):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCupdate_sprite_slot_7_and_show(12,25,IMAGE_FLEECE_MACGUFFIN_PRISM)
+ 1060IFlogical_room%=12:PROCupdate_sprite_slot_7_and_show(1,15,IMAGE_WALL_ENEMY_LEFT):PROCupdate_sprite_slot_7_and_show(1,18,IMAGE_WALL_ENEMY_LEFT):PROCupdate_sprite_slot_7_and_show(1,21,IMAGE_WALL_ENEMY_LEFT)
  1070IFlogical_room%=13:PROCupdate_sprite_slot_7_and_show(7,21,23):PROCupdate_sprite_slot_7_and_show(12,21,23)
  1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=SLOT_MISC:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFday_night%=1:Y%=S_OP_REMOVE:CALLS%
  1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCupdate_sprite_slot_7_and_show(18,24,17)
