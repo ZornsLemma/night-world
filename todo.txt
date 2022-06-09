@@ -50,3 +50,5 @@ Would there be any point in an "item randomiser" which positions the prisms at r
 
 Fixes related to passage to 4th prism sealing off/collecting health before 4th prism/needing health before you can collect the fleece
 - obviously be very careful here, what the author's intentions were and what's just a bug isn't all that clear - just making a note here so this isn't forgotten accidentally
+
+Try to avoid the risk of being bitten by DFS 22.6 corrupting memory below &1900: https://stardot.org.uk/forums/viewtopic.php?f=2&t=12195
