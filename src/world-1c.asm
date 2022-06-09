@@ -49,6 +49,33 @@ else
 endif
 .pydis_start
 
+if MAKE_IMAGE
+.draw_room_subroutine
+{
+room_ptr = &70
+udg = &72
+udg_left = &73
+room_size = 180
+
+    ; The BASIC code calls this with room_ptr set to (1-based room number)*180.
+    ; Add on the correct base to get a pointer.
+    clc
+    lda room_ptr+0:adc #<(room_data_01-room_size):sta room_ptr+0
+    lda room_ptr+1:adc #>(room_data_01-room_size):sta room_ptr+1
+    ; We switch user-defined graphic every 30 double-character cells, giving a
+    ; gradient effect.
+    lda #226:sta udg
+    lda #30:sta udg_left
+.s LDY#0:.l LDA(&70),Y:CMP#0:BEQ ze:CMP#1:BEQ on:CMP#2:BEQ tw:CMP#3:BEQ th:.ba:DEC&73:LDA&73:BEQ rr:.pe:INY:TYA:CMP#180:BNE l:RTS:.rr JMP rt
+.ze LDA#32:JSR oswrch:JSR oswrch:JMP ba
+.on LDA#32:JSR oswrch:LDA#17:JSR oswrch:LDA#131:JSR oswrch:LDA#17:JSR oswrch:LDA#2:JSR oswrch:LDA&72:JSR oswrch:LDA#17:JSR oswrch:LDA#128:JSR oswrch:JMP ba
+.tw LDA#17:JSR oswrch:LDA#131:JSR oswrch:LDA#17:JSR oswrch:LDA#2:JSR oswrch:LDA&72:JSR oswrch:LDA#17:JSR oswrch:LDA#128:JSR oswrch:LDA#32:JSR oswrch:JMP ba
+.th LDA#17:JSR oswrch:LDA#131:JSR oswrch:LDA#17:JSR oswrch:LDA#2:JSR oswrch:LDA&72:JSR oswrch:LDA&72:JSR oswrch:LDA#17:JSR oswrch:LDA#128:JSR oswrch:JMP ba
+; Reset &73 and bump &72
+.rt LDA#30:STA&73:INC&72:JMP pe
+}
+endif
+
 ; ENHANCE: Rooms are 20x18 mode 5 character cells in size. They are packed two
 ; cells to a byte; it would be possible to pack eight cells to a byte with
 ; slightly cleverer unpacking code, which would free up some extra memory. (14
@@ -1616,6 +1643,7 @@ if MAKE_IMAGE
     equw t_subroutine
     equw u_subroutine
     equw v_subroutine
+    equw draw_room_subroutine
 else
 .initial_qrstuv_values
 .initial_q_value

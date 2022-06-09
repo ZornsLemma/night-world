@@ -40,6 +40,7 @@ constant R_TABLE_S = 2
 constant R_TABLE_T = 4
 constant R_TABLE_U = 6
 constant R_TABLE_V = 8
+constant R_TABLE_DRAW_ROOM = 10
 
    0IFPAGE>&E00:GOTO32000
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
@@ -180,12 +181,7 @@ constant R_TABLE_V = 8
   844?(&5760+(7-1)*2+1)=230:REM TODO: hack to work around fact that collision detection doesn't ignore invisible sprites!?
   847VDU28,0,26,19,9,17,128,12,26:ENDPROC
 
-  850DEFPROCdraw_room(b1%):fb%=&354C+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
-  851REM TODO: The following implies &70-&73 contain valuable persistent state.
-  852REM TODO: We could preserve them more efficiently using foo%=!&70:!&70=foo%
-  853REM TODO: That said, I'm not convinced they do need preserving - double-check machine code!
-  860s0%=?&70:s1%=?&71:s2%=?&72:s3%=?&73:?&70=aa%:?&71=bb%:?&72=226:?&73=30
-  870CALL&A00:?&70=s0%:?&71=s1%:?&72=s2%:?&73=s3%
+  850DEFPROCdraw_room(b1%):!&70=b1%*180:PRINTTAB(0,9);:CALLR%!R_TABLE_DRAW_ROOM
   880IFroom_type%=2:I%=608:J%=672:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:GOTO900
   890db%=6:IFroom_type%>0:I%=291:J%=480:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:IFroom_type%=1:X%=IMAGE_HARPY_RIGHT:CALLU%
   900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=IMAGE_VEIL2:CALLU%:GOTO960
