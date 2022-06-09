@@ -34,6 +34,7 @@ s_y = 1
 ri_a = &0404
 ri_b = &0408
 ri_q = &0444
+ri_r = &0448
 ri_w = &045c
 ri_x = &0460
 ri_y = &0464
@@ -1554,6 +1555,7 @@ endif
 {
 l0070 = &0070
 
+if not(MAKE_IMAGE)
     ; Zero resident integer variables A%-Z%
     ldx #('Z'-'A'+1)*4
     lda #0
@@ -1565,6 +1567,14 @@ l0070 = &0070
 .init_qrstuv_loop
     lda initial_qrstuv_values-1,x:sta ri_q-1,x
     dex:bne init_qrstuv_loop
+else
+    ; Set R% up to point to a table of entry points.
+    ldx #3
+.init_r_loop
+    lda initial_r_value,x
+    sta ri_r,x
+    dex:bpl init_r_loop
+endif
     ; Initialise slot_addr_table so every slot is associated with
     ; the corresponding sprite image by default and is not on screen.
     ldx #0
@@ -1593,15 +1603,25 @@ l0070 = &0070
 ; to the BASIC.) If I do this, I would need to make sure it's OK for
 ; v_subroutine to zero all resident integer variables, or tweak it to leave some
 ; alone.
+if MAKE_IMAGE
+; All of these values will be read as 32 bit values, but only the low 16 bits
+; will be used.
+
+.initial_r_value
+    equw r_table
+
+.r_table
+    equw q_subroutine
+    equw s_subroutine
+    equw t_subroutine
+    equw u_subroutine
+    equw v_subroutine
+else
 .initial_qrstuv_values
 .initial_q_value
     equw q_subroutine, 0
 .initial_r_value
-if MAKE_IMAGE
-    equw 0,0
-else
     equw r_subroutine, 0
-endif
 .initial_s_value
     equw s_subroutine, 0
 .initial_t_value
@@ -1610,6 +1630,7 @@ endif
     equw u_subroutine, 0
 .initial_v_value
     equw v_subroutine, 0
+endif
 }
 
 if not(MAKE_IMAGE)
