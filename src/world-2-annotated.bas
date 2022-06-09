@@ -19,7 +19,9 @@ constant IMAGE_ROBOT = 16
 constant IMAGE_FLEECE_MACGUFFIN_PRISM = 17
 constant IMAGE_HEALTH = 18
 constant IMAGE_VEIL = 19
+constant IMAGE_WALL_ENEMY_RIGHT = 21
 constant IMAGE_EYE = 22
+constant IMAGE_STATUE = 23
 constant IMAGE_VEIL2 = 26
 constant IMAGE_SUN = 24
 constant IMAGE_MOON = 25
@@ -185,13 +187,13 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   940IFroom_type%=4:X%=IMAGE_EYE:CALLU%
   950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=S_OP_MOVE:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
   960ak%=0:ah%=1:W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=SLOT_MISC:M%=1035:N%=692:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFitem_collected%(5)=0:PROCupdate_sprite_slot_7_and_show(2,14,IMAGE_HEALTH)
-  970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,21):PROCupdate_sprite_slot_7_and_show(18,19,21)
+  970IFlogical_room%=6:PROCupdate_sprite_slot_7_and_show(18,15,IMAGE_WALL_ENEMY_RIGHT):PROCupdate_sprite_slot_7_and_show(18,19,IMAGE_WALL_ENEMY_RIGHT)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
   995REM TODO: Use constants for the image argument to PROCupdate_sprite_slot_7...
  1000IFlogical_room%=13ANDscore%=60:PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
- 1010IFlogical_room%=1:PROCupdate_sprite_slot_7_and_show(9,12,23):IFitem_collected%(1)=0:PROCupdate_sprite_slot_7_and_show(2,12,17)
- 1020IFlogical_room%=7:PROCupdate_sprite_slot_7_and_show(6,21,23):IFitem_collected%(2)=0:PROCupdate_sprite_slot_7_and_show(2,11,17)
+ 1010IFlogical_room%=1:PROCupdate_sprite_slot_7_and_show(9,12,IMAGE_STATUE):IFitem_collected%(1)=0:PROCupdate_sprite_slot_7_and_show(2,12,IMAGE_FLEECE_MACGUFFIN_PRISM)
+ 1020IFlogical_room%=7:PROCupdate_sprite_slot_7_and_show(6,21,IMAGE_STATUE):IFitem_collected%(2)=0:PROCupdate_sprite_slot_7_and_show(2,11,IMAGE_FLEECE_MACGUFFIN_PRISM)
  1030IFlogical_room%=2:PROCupdate_sprite_slot_7_and_show(1,23,20)
  1040IFlogical_room%=8:PROCupdate_sprite_slot_7_and_show(11,23,23):PROCupdate_sprite_slot_7_and_show(9,21,23):PROCupdate_sprite_slot_7_and_show(13,24,23)
  1050IFlogical_room%=14:PROCupdate_sprite_slot_7_and_show(8,20,21):PROCupdate_sprite_slot_7_and_show(11,20,20):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCupdate_sprite_slot_7_and_show(12,25,17)
