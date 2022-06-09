@@ -39,7 +39,13 @@ ri_x = &0460
 ri_y = &0464
 ri_z = &0468
 
+if MAKE_IMAGE
+    assert &3600-P% < 256
+    skipto &3600
+    guard &5800
+else
     org &35bc
+endif
 .pydis_start
 
 ; ENHANCE: Rooms are 20x18 mode 5 character cells in size. They are packed two
@@ -322,6 +328,7 @@ endmacro
     room_row %11111110011000001111
     room_row %11111111111111111111
 
+if not(MAKE_IMAGE)
 ; ENHANCE: This is just junk data and could be deleted.
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -329,6 +336,7 @@ endmacro
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0
+endif
 
 ; Each sprite has four frames, each of which occupies 24 bytes, for a total of
 ; 192 bytes per sprite. The frames are pre-shifted versions of the sprite for
@@ -893,9 +901,13 @@ sprite_height_pixels = 16
     ; with.
     iny:iny:tya:lsr a:sta ri_x
 .^q_subroutine_rts
+if MAKE_IMAGE
+.^r_subroutine_rts
+endif
     rts
 }
 
+if not(MAKE_IMAGE)
 ; This seems to be keyboard-reading code which is never used in practice, so I
 ; haven't attempted to fully disassemble it.
 ; ENHANCE: This can obviously be removed.
@@ -906,7 +918,6 @@ osbyte_clear_escape = &7c
 osbyte = &fff4
 l0075 = &0075
 
-if not(MAKE_IMAGE) ; TODO: HACKETY HACK
     lda ri_x
     cmp #4
     bcs q_subroutine_rts
@@ -977,7 +988,6 @@ if not(MAKE_IMAGE) ; TODO: HACKETY HACK
     lda l0075
     cmp #5
     beq c5026
-endif
 .c501f
     sta r_subroutine_foo
     sta ri_z
@@ -991,6 +1001,7 @@ endif
     lda l0075
     bne c501f
 }
+endif
 
 {
 sprite_pixel_current_x = &72
@@ -1586,7 +1597,11 @@ l0070 = &0070
 .initial_q_value
     equw q_subroutine, 0
 .initial_r_value
+if MAKE_IMAGE
+    equw 0,0
+else
     equw r_subroutine, 0
+endif
 .initial_s_value
     equw s_subroutine, 0
 .initial_t_value
@@ -1597,6 +1612,7 @@ l0070 = &0070
     equw v_subroutine, 0
 }
 
+if not(MAKE_IMAGE)
     ; ENHANCE: Junk data, can be deleted.
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb &ff,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
@@ -1615,6 +1631,7 @@ l0070 = &0070
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
+endif
 
 .delta_table
     equb -1,  1 ; index 0
@@ -1638,10 +1655,12 @@ l0070 = &0070
     equb  8, -8 ; index 18
     equb  0,  0 ; index 19
 
+if not(MAKE_IMAGE)
 ; ENHANCE: Junk data, can delete.
     for i, 0, 15
         equb 0
     next
+endif
 
 ; ENHANCE: The following four values are just constants in practice, so
 ; references to them can be replaced by immediate operands.
@@ -1654,9 +1673,11 @@ l0070 = &0070
 .sprite_y_max
     equb 254
 
+if not(MAKE_IMAGE)
 ; ENHANCE: Junk data, can delete TODO: but check this isn't used as index 30/31
 ; of sprite_delta_coord_table first
     equb 0, 0, 0, 0
+endif
 
 ; This table has four bytes per sprite slot; the following constants are used to
 ; indicate which byte is being accessed. We have a screen address where the
@@ -1668,7 +1689,6 @@ screen_addr_lo = 0
 screen_addr_hi = 1
 sprite_addr_hi = 2
 sprite_addr_lo = 3
-    skipto &5600 ; TODO: hack while basic code has to patch this data
 .slot_addr_table
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 0
     equb 0, 0, >sprite_00, <sprite_00 ; sprite 1
@@ -1805,6 +1825,7 @@ sprite_addr_lo = 3
         equb 1
     next
 
+if not(MAKE_IMAGE)
 ; ENHANCE: Dead data as r_subroutine is not used, can be removed.
 .r_subroutine_inkey_code_1
     equb &bd
@@ -1819,6 +1840,7 @@ sprite_addr_lo = 3
 
 ; ENHANCE: Junk data, can be removed.
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+endif
 
 .pydis_end
 

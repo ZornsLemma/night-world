@@ -173,7 +173,7 @@ constant DELTA_STEP_RIGHT_DOWN = 9
   844?(&5760+(7-1)*2+1)=230:REM TODO: hack to work around fact that collision detection doesn't ignore invisible sprites!?
   847VDU28,0,26,19,9,17,128,12,26:ENDPROC
 
-  850DEFPROCdraw_room(b1%):fb%=&3508+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
+  850DEFPROCdraw_room(b1%):fb%=&354C+(180*b1%):fb$=STR$~fb%:b1$="&"+MID$(fb$,3,4):b2$="&"+MID$(fb$,1,2):aa%=EVAL(b1$):bb%=EVAL(b2$):PRINTTAB(0,9);
   851REM TODO: The following implies &70-&73 contain valuable persistent state.
   852REM TODO: We could preserve them more efficiently using foo%=!&70:!&70=foo%
   853REM TODO: That said, I'm not convinced they do need preserving - double-check machine code!
