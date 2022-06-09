@@ -46,3 +46,6 @@ Would it break anything visually if world-2.bas were tweaked so the player sprit
 Fix the "phantom wall-eater" glitch
 
 Would there be any point in an "item randomiser" which positions the prisms at random (but in a definitely winnable) locations to add replay value?
+
+Fixes related to passage to 4th prism sealing off/collecting health before 4th prism/needing health before you can collect the fleece
+- obviously be very careful here, what the author's intentions were and what's just a bug isn't all that clear - just making a note here so this isn't forgotten accidentally
