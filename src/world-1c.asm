@@ -41,6 +41,9 @@ ri_y = &0464
 ri_z = &0468
 
 if MAKE_IMAGE
+    ; TODO: Now that the room data has been shrunk, we can probably move all the
+    ; machine code up. This would require tweaking world-1c-wrapper.asm and the
+    ; CALL to it in world-1b.bas.
     assert &3600-P% < 256
     skipto &3600
     guard &5800
@@ -50,6 +53,10 @@ endif
 .pydis_start
 
 if MAKE_IMAGE
+; ENHANCE: This packs eight bits to a word, but it may be that run length
+; compression (bearing in mind we only have two states - block or no block - so
+; we can just encode the number of cells between those two transitions) would be
+; even better.
 .draw_room_subroutine
 {
 room_ptr = &70
