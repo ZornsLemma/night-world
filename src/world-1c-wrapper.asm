@@ -41,12 +41,16 @@ y_coord = &72
 ptr = &74
 line_count = &76
 current_byte = &77
+state = &78
+x_start_coord = &79
+x_coord_plus = &7b
+y_coord_minus = &7d
 
     lda #<682:sta y_coord:lda #>682:sta y_coord+1
     lda #<(text_data-1):sta ptr:lda #>(text_data-1):sta ptr+1
     lda #15:sta line_count
 .line_loop
-    lda #25:sta x_coord:lda #0:sta x_coord+1
+    lda #25:sta x_coord:lda #0:sta x_coord+1:sta state
     ldx #29
 .byte_loop
     inc ptr:bne no_carry2:inc ptr+1:.no_carry2
@@ -54,19 +58,36 @@ current_byte = &77
     ldy #8
 .bit_loop
     asl current_byte:bcc no_char
-    lda #25:jsr oswrch:lda #4:jsr oswrch
-    lda x_coord:jsr oswrch:lda x_coord+1:jsr oswrch
-    lda y_coord:jsr oswrch:lda y_coord+1:jsr oswrch
-    lda #225:jsr oswrch
+    lda state:bne already_in_state_1
+    lda #1:sta state
+    lda x_coord:sta x_start_coord:lda x_coord+1:sta x_start_coord+1
+    jmp already_in_state_1
 .no_char
+    jsr enter_state_0
+.already_in_state_1 ; TODO: poor label
     clc:lda x_coord:adc #42:sta x_coord:bcc no_carry1:inc x_coord+1:.no_carry1
     dex:beq line_end
     dey:bne bit_loop:beq byte_loop
 .line_end
+    jsr enter_state_0
     sec
     lda y_coord:sbc #32:sta y_coord
     lda y_coord+1:sbc #0:sta y_coord+1
     dec line_count:bne line_loop
+    jmp skip_enter_state_0
+
+.enter_state_0
+    lda state:beq already_in_state_0
+    lda #0:sta state
+    clc:lda x_coord:adc #56:sta x_coord_plus:lda x_coord+1:adc #0:sta x_coord_plus+1
+    sec:lda y_coord:sbc #28:sta y_coord_minus:lda y_coord+1:sbc #0:sta y_coord_minus+1
+    lda #25:jsr oswrch:lda #4:jsr oswrch:lda x_start_coord:jsr oswrch:lda x_start_coord+1:jsr oswrch:lda y_coord:jsr oswrch:lda y_coord+1:jsr oswrch
+    lda #25:jsr oswrch:lda #4:jsr oswrch:lda x_coord_plus:jsr oswrch:lda x_coord_plus+1:jsr oswrch:lda y_coord:jsr oswrch:lda y_coord+1:jsr oswrch
+    lda #25:jsr oswrch:lda #85:jsr oswrch:lda x_coord_plus:jsr oswrch:lda x_coord_plus+1:jsr oswrch:lda y_coord_minus:jsr oswrch:lda y_coord_minus+1:jsr oswrch
+.already_in_state_0
+    rts
+
+.skip_enter_state_0
 }
 
     ; Copy the banner onto the screen
