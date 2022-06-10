@@ -1280,7 +1280,8 @@ slot_index_x2 = &7f
 ;
 ;     If X%>0 and the sprite is visible, the sprite slot's associated image will
 ;     be changed to X% on the screen and in the internal data structures. This
-;     is a no-op if the sprite is not visible.
+;     is a no-op if the sprite is not visible. (In MAKE_IMAGE builds, the
+;     requirement the sprite is visible is removed.)
 .u_subroutine
 {
 l0070 = &0070
@@ -1296,8 +1297,10 @@ l0073 = &0073
     asl a:tay
     asl a:tax
     lda slot_addr_table+screen_addr_lo,x:sta screen_ptr2:sta screen_ptr
+if not(MAKE_IMAGE)
     lda slot_addr_table+screen_addr_hi,x:beq t_subroutine_rts
     sta screen_ptr2+1:sta screen_ptr+1
+endif
     ; Get the sprite's X pixel coordinate and use its low two bits to select one
     ; of the four pre-shifted variants, each of which occupies 48=%110000 bytes,
     ; hence the pattern of shifts and adds.
@@ -1316,6 +1319,12 @@ if MAKE_IMAGE
 else
     lda l0072:adc sprite_ref_addrs_be+1,y:sta slot_addr_table+sprite_addr_lo,x:sta sprite_ptr
     lda sprite_ref_addrs_be,y:adc #0:sta slot_addr_table+sprite_addr_hi,x:sta sprite_ptr+1
+endif
+if MAKE_IMAGE
+    ; Allow U% to update the sprite image associated with a slot even if it's not currently
+    ; displayed; we just don't touch the screen in this case.
+    lda slot_addr_table+screen_addr_hi,x:beq t_subroutine_rts
+    sta screen_ptr2+1:sta screen_ptr+1
 endif
     jmp move_sprite
 
