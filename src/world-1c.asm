@@ -59,6 +59,7 @@ room_size_chars = 20*18
 room_size_bytes = room_size_chars/8
 initial_udg = 226
 chars_between_transitions = 60
+vdu_right = 9
 
     ; The BASIC code calls this with room_ptr set to (1-based room number)*room_size_bytes.
     ; Add on the correct base to get a pointer.
@@ -70,12 +71,14 @@ chars_between_transitions = 60
     lda #initial_udg:sta udg
     lda #chars_between_transitions:sta chars_to_next_transition
 
+    ldx #131:ldy #2:jsr set_text_colours
+
     ldy #255
 .byte_loop
     iny:lda (room_ptr),y:ldx #7
 .bit_loop
     asl a:pha
-    lda #' ':bcc char_in_a
+    lda #vdu_right:bcc char_in_a
     lda udg
 .char_in_a
     jsr oswrch
@@ -88,7 +91,10 @@ chars_between_transitions = 60
     bmi byte_loop
 .done
     pla
-    rts
+    ldx #128:ldy #2
+.set_text_colours
+    lda #17:jsr oswrch:txa:jsr oswrch
+    lda #17:jsr oswrch:tya:jmp oswrch
 }
 endif
 
@@ -606,8 +612,10 @@ sprite_height_pixels = 16
     ; probably be simpler and more correct to keep the loop index in Y and
     ; just increment it with iny:iny. Do think about this before changing it
     ; as it's possible there's a subtlety here I'm overlooking.
-    ; TODO: Am I missing something, or does this code not check to see if the
-    ; candidate is actually visible on screen?!
+    ;
+    ; This code doesn't actually check to see if candidates are on screen; in
+    ; MAKE_IMAGE builds we work around this by setting the Y pixel coordinate to
+    ; 0 in s_subroutine when we remove a sprite from the screen.
     lda #0
 .y_loop
     cmp slot_index_x2:beq next_candidate ; W% can't collide with itself
@@ -881,6 +889,12 @@ sprite_pixel_y_lo = &0077
     lda #0
     sta slot_addr_table+screen_addr_lo,x
     sta slot_addr_table+screen_addr_hi,x
+if MAKE_IMAGE
+    ; Set the Y pixel coordinate of the sprite to 0; this will in practice stop
+    ; it being detected as a collision in q_subroutine given that is only used
+    ; to check against the player sprite.
+    sta slot_pixel_coord_table+s_y,y
+endif
     clc
     jmp plot_sprite
 
