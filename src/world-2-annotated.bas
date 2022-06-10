@@ -145,7 +145,6 @@ constant R_TABLE_DRAW_ROOM = 10
   620ENDPROC
 
   630DEFPROCcollect_fleece:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=SLOT_MISC:CALLS%:RESTORE1450:score%=100:sun_moon_disabled%=1:PROCremove_lee_sprite:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
-  635REM TODO: CALLV% in next line will reset all resident integer variables to 0 except the "subroutine" ones. This will be a problem if we try to persist things in them to speed the code up.
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
 
   650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
@@ -176,7 +175,6 @@ constant R_TABLE_DRAW_ROOM = 10
   820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26:ENDPROC
 
   840DEFPROCclear_room
-  841REM Fix the "phantom wall enemy" bug by ensuring SLOT_MISC isn't left active from a previous room. TODO NEED TO TEST THIS AGAIN WITH ALTEST TWEAKS
   843Y%=S_OP_REMOVE:W%=SLOT_MISC:CALLS%:Y%=S_OP_MOVE
   847VDU28,0,26,19,9,17,128,12,26:ENDPROC
 
@@ -193,7 +191,6 @@ constant R_TABLE_DRAW_ROOM = 10
   970IFlogical_room%=6:PROCshow_using_slot_misc(18,15,IMAGE_WALL_ENEMY_RIGHT):PROCshow_using_slot_misc(18,19,IMAGE_WALL_ENEMY_RIGHT)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
   990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
-  995REM TODO: Use constants for the image argument to PROCupdate_sprite_slot_7...
  1000IFlogical_room%=13ANDscore%=60:PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
  1010IFlogical_room%=1:PROCshow_using_slot_misc(9,12,IMAGE_STATUE):IFitem_collected%(1)=0:PROCshow_using_slot_misc(2,12,IMAGE_FLEECE_MACGUFFIN_PRISM)
  1020IFlogical_room%=7:PROCshow_using_slot_misc(6,21,IMAGE_STATUE):IFitem_collected%(2)=0:PROCshow_using_slot_misc(2,11,IMAGE_FLEECE_MACGUFFIN_PRISM)
@@ -210,8 +207,7 @@ constant R_TABLE_DRAW_ROOM = 10
  1121IFlee_y_os%>730:lee_y_os%=224:phys_room%=phys_room%-5 ELSEIFlee_y_os%<228:lee_y_os%=728:phys_room%=phys_room%+5 ELSEIFlee_x_os%>1194:lee_x_os%=24:phys_room%=phys_room%+1 ELSEIFlee_x_os%<24:lee_x_os%=1194:phys_room%=phys_room%-1
  1122PROCchange_room2:ENDPROC
  1124DEFPROCchange_room2
- 1125REM TODO: Do we still need the following FOR loop?
- 1127W%=SLOT_ENEMY:Y%=S_OP_REMOVE:CALLS%:FORn%=9TO12:W%=n%:CALLS%:NEXT
+ 1127W%=SLOT_ENEMY:Y%=S_OP_REMOVE:CALLS%:W%=lee_sprite_num%:CALLS%
  1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type%:NEXT:IFscore%=100:room_type%=2
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
  1150PROCdraw_current_room:ENDPROC
