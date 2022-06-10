@@ -10,7 +10,13 @@ osbyte_insert_buffer = 138
 
 oswrch = &ffee
 
+if not(MAKE_IMAGE)
     org &2b00
+    basic_entry = &3590
+else
+    org &2a00
+    basic_entry = &3490
+endif
 .start
 
     ; Mode 5 screen data for the banner at the top of the game screen.
@@ -23,10 +29,46 @@ oswrch = &ffee
     ; files can't be mixed and matched between the bbcmicro.co.uk version and
     ; this rearranged version anyway) we might as well stick with the original
     ; value.
-basic_entry = &3590
     assert P% <= basic_entry
     assert (basic_entry - P%) < 256
     skipto basic_entry
+
+    ; Draw the "Night World" text in the "room" region of the screen.
+    ; TODO: What if anything should we do about the VDU 19 changes?
+{
+x_coord = &70
+y_coord = &72
+ptr = &74
+line_count = &76
+current_byte = &77
+
+    lda #<682:sta y_coord:lda #>682:sta y_coord+1
+    lda #<(text_data-1):sta ptr:lda #>(text_data-1):sta ptr+1
+    lda #15:sta line_count
+.line_loop
+    lda #25:sta x_coord:lda #0:sta x_coord+1
+    ldx #29
+.byte_loop
+    inc ptr:bne no_carry2:inc ptr+1:.no_carry2
+    ldy #0:lda (ptr),y:sta current_byte
+    ldy #8
+.bit_loop
+    asl current_byte:bcc no_char
+    lda #25:jsr oswrch:lda #4:jsr oswrch
+    lda x_coord:jsr oswrch:lda x_coord+1:jsr oswrch
+    lda y_coord:jsr oswrch:lda y_coord+1:jsr oswrch
+    lda #225:jsr oswrch
+.no_char
+    clc:lda x_coord:adc #42:sta x_coord:bcc no_carry1:inc x_coord+1:.no_carry1
+    dex:beq line_end
+    dey:bne bit_loop:beq byte_loop
+.line_end
+    sec
+    lda y_coord:sbc #32:sta y_coord
+    lda y_coord+1:sbc #0:sta y_coord+1
+    dec line_count:bne line_loop
+}
+
     ; Copy the banner onto the screen
     ldx #>(banner_data_end - banner_data)
     ldy #0
@@ -45,6 +87,30 @@ basic_entry = &3590
     ; Initialise the sprite engine and set up the resident integer variables so
     ; the BASIC code can call into it.
     jmp v_subroutine
+
+macro text_row n
+    m = n << 3
+    for i, 3, 0, -1
+        equb (m >> (i*8)) and &ff
+    next
+endmacro
+
+.text_data
+    text_row %10011011101111010010111000000
+    text_row %11001001001001010010010000000
+    text_row %10101001001000011110010000000
+    text_row %10101001001011010010010001000
+    text_row %10101001001001010010000001100
+    text_row %10101001001111000000011001010
+    text_row %10011011100000001110010001001
+    text_row %10001000000000010001010001001
+    text_row %00000000001110010001010001001
+    text_row %01100101010001010001010001001
+    text_row %00100101010001011111010001001
+    text_row %00100101010001010110010001001
+    text_row %00100101010001010010010001010
+    text_row %00010101010001010001010101100
+    text_row %00001010001110010001011101000
 
     assert P% < pydis_start
     assert (pydis_start - P%) < 256
