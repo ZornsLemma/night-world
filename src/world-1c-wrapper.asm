@@ -79,13 +79,25 @@ y_coord_minus = &7d
 .enter_state_0
     lda state:beq already_in_state_0
     lda #0:sta state
-    clc:lda x_coord:adc #56:sta x_coord_plus:lda x_coord+1:adc #0:sta x_coord_plus+1
+    clc:lda x_coord:adc #56-42:sta x_coord_plus:lda x_coord+1:adc #0:sta x_coord_plus+1
     sec:lda y_coord:sbc #28:sta y_coord_minus:lda y_coord+1:sbc #0:sta y_coord_minus+1
-    lda #25:jsr oswrch:lda #4:jsr oswrch:lda x_start_coord:jsr oswrch:lda x_start_coord+1:jsr oswrch:lda y_coord:jsr oswrch:lda y_coord+1:jsr oswrch
-    lda #25:jsr oswrch:lda #4:jsr oswrch:lda x_coord_plus:jsr oswrch:lda x_coord_plus+1:jsr oswrch:lda y_coord:jsr oswrch:lda y_coord+1:jsr oswrch
-    lda #25:jsr oswrch:lda #85:jsr oswrch:lda x_coord_plus:jsr oswrch:lda x_coord_plus+1:jsr oswrch:lda y_coord_minus:jsr oswrch:lda y_coord_minus+1:jsr oswrch
+    lda #4:jsr plot:jsr emit_x_start_coord:jsr emit_y_coord
+    lda #4:jsr plot:jsr emit_x_coord_plus:jsr emit_y_coord
+    lda #85:jsr plot:jsr emit_x_coord_plus:jsr emit_y_coord_minus
+    lda #4:jsr plot:jsr emit_x_start_coord:jsr emit_y_coord_minus
+    lda #85:jsr plot:jsr emit_x_start_coord:jmp emit_y_coord
 .already_in_state_0
     rts
+.plot
+    pha:lda #25:jsr oswrch:pla:jmp oswrch
+.emit_x_start_coord
+    lda x_start_coord:jsr oswrch:lda x_start_coord+1:jmp oswrch
+.emit_y_coord
+    lda y_coord:jsr oswrch:lda y_coord+1:jmp oswrch
+.emit_x_coord_plus
+    lda x_coord_plus:jsr oswrch:lda x_coord_plus+1:jmp oswrch
+.emit_y_coord_minus
+    lda y_coord_minus:jsr oswrch:lda y_coord_minus+1:jmp oswrch
 
 .skip_enter_state_0
 }
