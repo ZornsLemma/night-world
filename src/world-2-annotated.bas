@@ -176,12 +176,11 @@ constant R_TABLE_DRAW_ROOM = 10
   820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26:ENDPROC
 
   840DEFPROCclear_room
-  841REM Fix the "phantom wall enemy" bug by ensuring slot 7 (the general enemy slot) isn't left active from a previous room. TODO: NO, SLOT 7 IS NOT GENERAL *ENEMY*, IT'S MISC STUFF SLOT
-  843Y%=S_OP_REMOVE:W%=SLOT_MISC:CALLS%:Y%=S_OP_MOVE:REM TODO: this probably isn't necessary with current code, but with suitable tweaks to the machine code it's probably the right fix instead of following line
-  844?(&5760+(7-1)*2+1)=230:REM TODO: hack to work around fact that collision detection doesn't ignore invisible sprites!?
+  841REM Fix the "phantom wall enemy" bug by ensuring SLOT_MISC isn't left active from a previous room. TODO NEED TO TEST THIS AGAIN WITH ALTEST TWEAKS
+  843Y%=S_OP_REMOVE:W%=SLOT_MISC:CALLS%:Y%=S_OP_MOVE
   847VDU28,0,26,19,9,17,128,12,26:ENDPROC
 
-  850DEFPROCdraw_room(b1%):!&70=b1%*180:PRINTTAB(0,9);:CALLR%!R_TABLE_DRAW_ROOM
+  850DEFPROCdraw_room(b1%):!&70=b1%*45:PRINTTAB(0,9);:CALLR%!R_TABLE_DRAW_ROOM
   880IFroom_type%=2:I%=608:J%=672:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:GOTO900
   890db%=6:IFroom_type%>0:I%=291:J%=480:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:IFroom_type%=1:X%=IMAGE_HARPY_RIGHT:CALLU%
   900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=IMAGE_VEIL2:CALLU%:GOTO960

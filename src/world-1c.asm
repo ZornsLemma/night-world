@@ -54,25 +54,41 @@ if MAKE_IMAGE
 {
 room_ptr = &70
 udg = &72
-udg_left = &73
-room_size = 180
+chars_to_next_transition = &73
+room_size_chars = 20*18
+room_size_bytes = room_size_chars/8
+initial_udg = 226
+chars_between_transitions = 60
 
-    ; The BASIC code calls this with room_ptr set to (1-based room number)*180.
+    ; The BASIC code calls this with room_ptr set to (1-based room number)*room_size_bytes.
     ; Add on the correct base to get a pointer.
     clc
-    lda room_ptr+0:adc #<(room_data_01-room_size):sta room_ptr+0
-    lda room_ptr+1:adc #>(room_data_01-room_size):sta room_ptr+1
-    ; We switch user-defined graphic every 30 double-character cells, giving a
-    ; gradient effect.
-    lda #226:sta udg
-    lda #30:sta udg_left
-.s LDY#0:.l LDA(&70),Y:CMP#0:BEQ ze:CMP#1:BEQ on:CMP#2:BEQ tw:CMP#3:BEQ th:.ba:DEC&73:LDA&73:BEQ rr:.pe:INY:TYA:CMP#180:BNE l:RTS:.rr JMP rt
-.ze LDA#32:JSR oswrch:JSR oswrch:JMP ba
-.on LDA#32:JSR oswrch:LDA#17:JSR oswrch:LDA#131:JSR oswrch:LDA#17:JSR oswrch:LDA#2:JSR oswrch:LDA&72:JSR oswrch:LDA#17:JSR oswrch:LDA#128:JSR oswrch:JMP ba
-.tw LDA#17:JSR oswrch:LDA#131:JSR oswrch:LDA#17:JSR oswrch:LDA#2:JSR oswrch:LDA&72:JSR oswrch:LDA#17:JSR oswrch:LDA#128:JSR oswrch:LDA#32:JSR oswrch:JMP ba
-.th LDA#17:JSR oswrch:LDA#131:JSR oswrch:LDA#17:JSR oswrch:LDA#2:JSR oswrch:LDA&72:JSR oswrch:LDA&72:JSR oswrch:LDA#17:JSR oswrch:LDA#128:JSR oswrch:JMP ba
-; Reset &73 and bump &72
-.rt LDA#30:STA&73:INC&72:JMP pe
+    lda room_ptr+0:adc #<(room_data_01-room_size_bytes):sta room_ptr+0
+    lda room_ptr+1:adc #>(room_data_01-room_size_bytes):sta room_ptr+1
+    ; We switch user-defined graphic every 60 characters, giving a gradient
+    ; effect.
+    lda #initial_udg:sta udg
+    lda #chars_between_transitions:sta chars_to_next_transition
+
+    ldy #255
+.byte_loop
+    iny:lda (room_ptr),y:ldx #7
+.bit_loop
+    asl a:pha
+    lda #' ':bcc char_in_a
+    lda udg
+.char_in_a
+    jsr oswrch
+    dec chars_to_next_transition:bne no_transition
+    inc udg:lda udg:cmp #initial_udg+(room_size_chars/chars_between_transitions):beq done
+    lda #chars_between_transitions:sta chars_to_next_transition
+.no_transition
+    pla
+    dex:bpl bit_loop
+    bmi byte_loop
+.done
+    pla
+    rts
 }
 endif
 
@@ -83,280 +99,17 @@ endif
 ; bytes less any small loss for the more complex unpacking code.) Simple
 ; run-length coding might also work well; we could for example just store the
 ; number of bytes to the next transition, as we only have two states.
+
+if not(MAKE_IMAGE)
+
 macro room_row n
     for i, 9, 0, -1
         equb (n >> (i*2)) and %11
     next
 endmacro
 
-.room_data_01
-    room_row %11111111111111111111
-    room_row %10000000000000000000
-    room_row %10000000000000000000
-    room_row %10000000000000000000
-    room_row %11111111111111111111
-    room_row %10111111111111111100
-    room_row %10010101011010101000
-    room_row %10010111111111101000
-    room_row %10010101011010101000
-    room_row %10010111011011101001
-    room_row %10010011111111001001
-    room_row %10010011011011001001
-    room_row %10011011111111011001
-    room_row %10011010011101011001
-    room_row %10001010011101010001
-    room_row %10001010011101010001
-    room_row %10001010011101010001
-    room_row %11111010011101011111
-.room_data_02
-    room_row %11111111111111111111
-    room_row %00000000000000000001
-    room_row %00000000000000000000
-    room_row %00000000000000000000
-    room_row %11110000000000000000
-    room_row %11100011011000100111
-    room_row %00000000000000000011
-    room_row %00000010001000100001
-    room_row %00000000000000000001
-    room_row %11101010001000111001
-    room_row %11000000000000010001
-    room_row %10001010001000011001
-    room_row %10000000000000010001
-    room_row %10001010001000011000
-    room_row %10000000000000010000
-    room_row %10011011011000011000
-    room_row %10000000000000010001
-    room_row %11000011111111111111
-.room_data_03
-    room_row %11111111111111111111
-    room_row %10000000000000000001
-    room_row %00000000000000000000
-    room_row %00000000000000000000
-    room_row %00000000000000000000
-    room_row %11100001100110000111
-    room_row %11111111100111111111
-    room_row %11100011100111000011
-    room_row %11000001100110000001
-    room_row %10000000100100000001
-    room_row %10000000000100000001
-    room_row %10000000000000000001
-    room_row %10000000000000000001
-    room_row %00000000000000000000
-    room_row %00000000000000000000
-    room_row %00000000000000000000
-    room_row %11001100111100110011
-    room_row %11111111111111111111
-.room_data_04
-    room_row %11111111111100000000
-    room_row %10001110111110000000
-    room_row %00000110011011000001
-    room_row %00000100010001100011
-    room_row %00000100010000111111
-    room_row %10000000000000000001
-    room_row %10000000000000000001
-    room_row %10000000000000000001
-    room_row %10000000000000000000
-    room_row %10001110111000110000
-    room_row %10000100010000011000
-    room_row %10000000000000001111
-    room_row %10000000000010000001
-    room_row %00000000000001000001
-    room_row %00000001000000100001
-    room_row %00000011100000010001
-    room_row %10000111110000000001
-    room_row %11111111111110000111
-.room_data_05
-    room_row %00000000000000000000
-    room_row %00000000000000000000
-    room_row %00000000000000000000
-    room_row %01000001100100010001
-    room_row %11100111100110111011
-    room_row %11111111111111111111
-    room_row %11011100000000000011
-    room_row %10001000000000000001
-    room_row %00001000000000000001
-    room_row %00000000111100110001
-    room_row %00000000011000000011
-    room_row %10000000001000000011
-    room_row %11000000000000000111
-    room_row %10000001000000001101
-    room_row %10100011000000000001
-    room_row %10000111000001100001
-    room_row %11001111110011110011
-    room_row %11111111111111111111
-.room_data_06
-    room_row %11000011111111111111
-    room_row %11000000000000000011
-    room_row %11000000000000000001
-    room_row %11110000000000000001
-    room_row %11100011100011000001
-    room_row %11000011000001000001
-    room_row %10000010001100000001
-    room_row %10000000001000000111
-    room_row %10000000100011000011
-    room_row %10000001100001000001
-    room_row %10000000001100000001
-    room_row %10000000000100000111
-    room_row %10000000110000000011
-    room_row %10011000100000100001
-    room_row %10111100001101100001
-    room_row %10000000000100000001
-    room_row %10000000000000000011
-    room_row %11000011111111111111
-.room_data_07
-    room_row %11111111111110000111
-    room_row %10000000000110000011
-    room_row %10000000000010000001
-    room_row %10110000000000011001
-    room_row %10000011000000001011
-    room_row %10000000001100000001
-    room_row %10000000000000000011
-    room_row %10000000000100001111
-    room_row %10001000100000000011
-    room_row %10010000010110000001
-    room_row %10010000010000010001
-    room_row %10010000010010011001
-    room_row %10010000010000000001
-    room_row %10011010110010000001
-    room_row %10001111100000000011
-    room_row %10000111000010000111
-    room_row %11000010000000011111
-    room_row %11111111111111111111
-.room_data_08
-    room_row %11000011111111111111
-    room_row %11000000000000011111
-    room_row %11000000000000001111
-    room_row %11001111100000000011
-    room_row %11000000000000000001
-    room_row %11000001100000000001
-    room_row %11100000000000100001
-    room_row %11111000100001110011
-    room_row %11111111111111111111
-    room_row %11111100010101001111
-    room_row %11110000000101000011
-    room_row %11100000000001000001
-    room_row %11100000000001000001
-    room_row %11000000010000000001
-    room_row %10000000010000000001
-    room_row %10000000010100000011
-    room_row %10000000010101001111
-    room_row %11000011111111111111
-.room_data_09
-    room_row %11111100000000111111
-    room_row %11000110100101100011
-    room_row %10000011100111000001
-    room_row %10000010100101000001
-    room_row %10000010111101010111
-    room_row %10000010011001000001
-    room_row %10000011011011011001
-    room_row %10000001111110000001
-    room_row %10000011100111011011
-    room_row %10000010000001000001
-    room_row %10000011000011000011
-    room_row %10000001100110000001
-    room_row %11000000111100000011
-    room_row %11100000011000000111
-    room_row %11110000000000001111
-    room_row %11111100000000111111
-    room_row %11111110000001111111
-    room_row %11111111000011111111
-.room_data_10
-    room_row %11111111111111111111
-    room_row %10000001110011100111
-    room_row %11111000100001000011
-    room_row %10000000000000000001
-    room_row %11110000000000000001
-    room_row %10000000000000000001
-    room_row %11100000000000000001
-    room_row %10000001110011100001
-    room_row %11000000000000001101
-    room_row %10000100000000000001
-    room_row %11000000000000000111
-    room_row %10000000000000000001
-    room_row %11000010100001000011
-    room_row %10000000110011000001
-    room_row %11100111110011111001
-    room_row %10000011100001110000
-    room_row %11100110000000011000
-    room_row %11111111111111111111
-.room_data_11
-    room_row %11000011111111111111
-    room_row %11000001000000000000
-    room_row %10000000000000000000
-    room_row %10001100000000000000
-    room_row %10000000000001100111
-    room_row %10001111000111111111
-    room_row %10000001000000000001
-    room_row %11001111100000000001
-    room_row %11000001110000000001
-    room_row %10001111111110010011
-    room_row %10000001000000000001
-    room_row %11001111000000000011
-    room_row %11000001000110011111
-    room_row %11100111100011111111
-    room_row %00000001000000000000
-    room_row %00000111110000000000
-    room_row %00000001000000000000
-    room_row %11111111111111111111
-.room_data_12
-    room_row %11111111111111111111
-    room_row %00000000000000000111
-    room_row %00000000000000000011
-    room_row %00001010000010100001
-    room_row %11000000000000000001
-    room_row %10001010000010100001
-    room_row %10000000000000000011
-    room_row %11001010000010100111
-    room_row %10000000000000000000
-    room_row %10001010101010100000
-    room_row %11000000000000000000
-    room_row %10001010101010100111
-    room_row %10000000000000000011
-    room_row %11001010000000000001
-    room_row %00000000000000000001
-    room_row %00001010000000000011
-    room_row %00000000000000000111
-    room_row %11111111111111111111
-.room_data_13
-    room_row %11111111111111111111
-    room_row %11000011000011000011
-    room_row %10000001000010000001
-    room_row %10000000000000000001
-    room_row %10000000000000000001
-    room_row %10011100110000000001
-    room_row %10000000000011000011
-    room_row %11011001100000000111
-    room_row %00000000000001100001
-    room_row %00010000000000000001
-    room_row %00000000000000110001
-    room_row %11010000000000000111
-    room_row %10000000000000000011
-    room_row %10000011100111000001
-    room_row %10000001000010000001
-    room_row %10000001000010000001
-    room_row %11000011100111000011
-    room_row %11111111111111111111
-.room_data_14
-    room_row %11111111111111111111
-    room_row %11100000011000001111
-    room_row %11000000111100000011
-    room_row %10000000011000000011
-    room_row %10000001111110000001
-    room_row %10000001111110000001
-    room_row %10000000000000000001
-    room_row %10000000000000000001
-    room_row %00000001111110110001
-    room_row %00000101111110000011
-    room_row %00000000011000000001
-    room_row %10000100011000000011
-    room_row %11000000111100110001
-    room_row %11100100011000000011
-    room_row %11110000011000000001
-    room_row %11111100011000000111
-    room_row %11111110011000001111
-    room_row %11111111111111111111
+include "src/rooms.asm"
 
-if not(MAKE_IMAGE)
 ; ENHANCE: This is just junk data and could be deleted.
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -364,6 +117,10 @@ if not(MAKE_IMAGE)
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     equb 0, 0, 0
+else
+
+include "src/rooms-packed.asm"
+
 endif
 
 ; Each sprite has four frames, each of which occupies 24 bytes, for a total of
