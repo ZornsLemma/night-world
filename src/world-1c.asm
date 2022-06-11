@@ -58,11 +58,14 @@ if MAKE_IMAGE
     music_frame_interval = game_cycle_frame_interval * 4
 
     evntv = &220
+    cnpv = &22e
+    osword = &fff1
     osbyte = &fff4
     osbyte_enable_event = 14
     event_vsync = 4
     event_vsync_flag = &2c3 ; TODO: different address on Electron
     show_frame_count = TRUE; TODO: should be off in a "final" build
+    sound_channel_2_buffer_number = 6
 endif
 
 if MAKE_IMAGE
@@ -583,17 +586,21 @@ if MAKE_IMAGE
     equb 116, 72, 100, 0, 100, 108, 100, 0, 100, 72, 100, 100, 100, 108, 100, 0
     equb 52, 32, 80, 0, 80, 88, 80, 0, 52, 32, 80, 80, 80, 88, 80, 0, 32, 32, 60
     equb 0, 60, 68, 60, 0, 60, 32, 60, 60, 60, 68, 60, 0, 0, 0, 0, 0, 0, 0
+tune_length = P% - tune_pitch
 .^tune_duration
     equb 3, 3, 2, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 3, 0, 3, 3, 3, 0
     equb 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 3, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 0
     equb 3, 3, 3, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0
-    assert (P% - tune_duration) == (tune_duration - tune_pitch)
+    assert (P% - tune_duration) == tune_length
 
 .^current_note
     equb 0
 
 .frames_left_in_game_cycle
-    equb 0
+    equb 1
+
+.frames_left_in_music_cycle
+    equb 1
 
 .^vsync_event_handler
     ; We assume it's a vsync event; we won't enable anything else.
@@ -611,10 +618,32 @@ if MAKE_IMAGE
     inc frames_left_in_game_cycle
 .dont_clamp_frames_left
 
-    ; TODO: MUSIC - REMEMBER WE'VE ONLY PRESERVED A SO FAR
-
-    ; We want to allow q_subroutine_wrapper to wait for game_cycle_frame_count vsyncs to have passed before continuing, or to continue immediately if they have already passed. For its purposes if the frame count has reached 0 it wants to continue, because
-    ; We could save a few cycles by clamping our frame count at 0; in actual gameplay terms, if we complete our processing
+    dec frames_left_in_music_cycle:bne music_cycle_not_finished
+    txa:pha:tya:pha
+    lda #music_frame_interval:sta frames_left_in_music_cycle
+    ; Check how much free space there is in sound channel 2's buffer; we must
+    ; avoid blindly adding more as we'll block here if the buffer becomes full.
+    ; TODO: Do we need to be careful to keep as little as possible in the
+    ; buffer? It depends exactly how the game turns this background music on
+    ; and off, which it will need to do when it's doing "effects" (e.g. day/
+    ; night transition).
+    ldx #sound_channel_2_buffer_number:clv:sec:jsr jmp_cnpv
+    cpx #5:bcc dont_play_note ; buffer is nearly full, do nothing TODO: 5 is arbitrary (FWIW empty buffer has 15 bytes free)
+    ; TODO: It's not a huge deal, but the way world-2.bas is poking current_note
+    ; *could* get lost if this code is executing at precisely the wrong time.
+    ; Is there a neat way to avoid this? - Actually this is probably fine, bearing in mind *this* code is atomic - but think about it from scratch
+    ldx current_note
+    lda tune_pitch,x:sta osword_7_block_pitch
+    lda tune_duration,x:sta osword_7_block_duration
+    jsr make_sound:inc osword_7_block_channel
+    jsr make_sound:dec osword_7_block_channel
+    ldx current_note:cpx #tune_length-1:bne not_last_note
+    ldx #255
+.not_last_note
+    inx:stx current_note
+.dont_play_note
+    pla:tay:pla:tax
+.music_cycle_not_finished
 
     pla:plp
     rts
@@ -622,6 +651,21 @@ if MAKE_IMAGE
 .event_vsync_disabled
     lda #osbyte_enable_event:ldx #event_vsync:jsr osbyte
     jmp reset_game_cycle_frame_interval
+
+.jmp_cnpv
+    jmp (cnpv)
+
+.make_sound
+    lda #7:ldx #<osword_7_block:ldy #>osword_7_block:jmp osword
+
+.osword_7_block
+.osword_7_block_channel
+    equw 2
+    equw -5 ; amplitude
+.osword_7_block_pitch
+    equw 0
+.osword_7_block_duration
+    equw 0
 
 ; The main game loop in BASIC calls q_subroutine exactly once per game cycle, so it's
 ; a convenient point to introduce our speed limiting. We also use this as an opportunity
