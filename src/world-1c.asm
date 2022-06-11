@@ -41,6 +41,31 @@ ri_y = &0464
 ri_z = &0468
 
 if MAKE_IMAGE
+    ; TODO: For now the OS vsync event is used; we could get more precise
+    ; control over the time per game cycle using the VIA timer in an attempt to
+    ; better match the original code's implicit performance, but I'd rather
+    ; avoid it if possible - if nothing else it will make an Electron port
+    ; harder.
+
+    ; The original game code completes a cycle roughly every 3/50th of a second,
+    ; i.e. every 6cs.
+    game_cycle_frame_interval = 3
+
+    ; The original BASIC code played a note of the background music once every four
+    ; game cycles, so by following that we should keep approximately the same
+    ; playback speed, although more consistent. TODO: It is just possible that it
+    ; would be better to use a different interval to get the speed closer.
+    music_frame_interval = game_cycle_frame_interval * 4
+
+    evntv = &220
+    osbyte = &fff4
+    osbyte_enable_event = 14
+    event_vsync = 4
+    event_vsync_flag = &2c3 ; TODO: different address on Electron
+    show_frame_count = TRUE; TODO: should be off in a "final" build
+endif
+
+if MAKE_IMAGE
     ; TODO: Now that the room data has been shrunk, we can probably move all the
     ; machine code up. This would require tweaking world-1c-wrapper.asm and the
     ; CALL to it in world-1b.bas.
@@ -550,6 +575,65 @@ endif
 ; resident integer variable can be accessed at ri_a+{0,1},y and the Y coordinate
 ; at ri_b+{0,1},y.
 ri_coord_vars = 8
+
+if MAKE_IMAGE
+{
+.frames_left_in_game_cycle
+    equb 0
+
+.^vsync_event_handler
+    ; We assume it's a vsync event; we won't enable anything else.
+    ; TODO: It's hardly a big deal, but could we get away without php:pha? OS
+    ; 1.20 at least appears to save these itself before calling EVNTV, and since
+    ; we know we're the only event handler probably nothing would care even if
+    ; the OS didn't save them.
+    php:pha
+
+    ; Decrement frames_left_in_game_cycle, clamping it at -127 (=128) so in the
+    ; (extremely unlikely) event we take that long to process a game cycle, we
+    ; won't introduce extra time waiting for the counter to hit zero.
+    dec frames_left_in_game_cycle
+    lda frames_left_in_game_cycle:cmp #127:bne dont_clamp_frames_left
+    inc frames_left_in_game_cycle
+.dont_clamp_frames_left
+
+    ; TODO: MUSIC - REMEMBER WE'VE ONLY PRESERVED A SO FAR
+
+    ; We want to allow q_subroutine_wrapper to wait for game_cycle_frame_count vsyncs to have passed before continuing, or to continue immediately if they have already passed. For its purposes if the frame count has reached 0 it wants to continue, because
+    ; We could save a few cycles by clamping our frame count at 0; in actual gameplay terms, if we complete our processing
+
+    pla:plp
+    rts
+
+.event_vsync_disabled
+    lda #osbyte_enable_event:ldx #event_vsync:jsr osbyte
+    jmp reset_game_cycle_frame_interval
+
+; The main game loop in BASIC calls q_subroutine exactly once per game cycle, so it's
+; a convenient point to introduce our speed limiting. We also use this as an opportunity
+; to enable vsync events; the BASIC code then doesn't need to worry about this, it just
+; needs to disable vsync events when it leaves the main game loop temporarily.
+.^q_subroutine_wrapper
+    lda event_vsync_flag:beq event_vsync_disabled
+
+if show_frame_count
+    ldx #7
+.show_frame_count_loop
+    lda &5800-1,x:sta &5800,x
+    dex:bne show_frame_count_loop
+endif
+
+.busy_wait
+    lda frames_left_in_game_cycle
+if show_frame_count
+    sta &5800
+endif
+    beq reset_game_cycle_frame_interval:bpl busy_wait
+.reset_game_cycle_frame_interval
+    lda #game_cycle_frame_interval:sta frames_left_in_game_cycle
+    assert P% = q_subroutine ; fall through to q_subroutine
+}
+endif
 
 ; ENHANCE: Many of these routines check their inputs for validity (e.g. that W%
 ; is in the range 1-max_sprite_num); this is probably because they're a
@@ -1382,6 +1466,12 @@ if not(MAKE_IMAGE)
     lda initial_qrstuv_values-1,x:sta ri_q-1,x
     dex:bne init_qrstuv_loop
 else
+    ; Install the vsync event handler.
+    sei
+    lda #<vsync_event_handler:sta evntv
+    lda #>vsync_event_handler:sta evntv+1
+    cli
+
     ; Set R% up to point to a table of entry points.
     ldx #3
 .init_r_loop
@@ -1425,7 +1515,11 @@ if MAKE_IMAGE
     equw r_table
 
 .r_table
+if MAKE_IMAGE
+    equw q_subroutine_wrapper
+else
     equw q_subroutine
+endif
     equw s_subroutine
     equw t_subroutine
     equw u_subroutine
