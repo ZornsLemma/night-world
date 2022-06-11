@@ -214,7 +214,7 @@ constant R_TABLE_CURRENT_NOTE = 16
  1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
  1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
- 1210IFfalling_time%>1:SOUND1,11,energy_minor%,2:GOTO1230
+ 1210IFfalling_time%>1:SOUND1,11,energy_minor%,2:GOTO1230:REM TODO FWIW removing this SOUND command helps with meeting frame deadline - don't want to actually remove the sound effect, but this *may* suggest something that can be tweaked - it may be for example that we're filling the sound before on a long fall and this blocks.
  1220IFroom_type%=2ANDday_night%=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2SOUND1,9,energy_minor%,2 ELSEIFX%=SLOT_MISC:SOUND1,8,energy_minor%,4 ELSESOUND1,12,energy_minor%,5
  1230energy_minor%=energy_minor%-1
  1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:game_ended%=1
