@@ -56,8 +56,10 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
    80*FX200,0
-   90PROCtitle_screen:PROCdraw_current_room:PROCplay:IFw%=1:PROCo
-  100PROCgame_over:GOTO70
+   90PROCtitle_screen:PROCdraw_current_room:PROCplay:*FX13,4
+   95IFw%=1:PROCo
+  100*FX13,4
+  105PROCgame_over:GOTO70
 
   110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
 
