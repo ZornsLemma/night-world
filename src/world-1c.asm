@@ -33,6 +33,7 @@ s_y = 1
 ; BASIC and this machine code.
 ri_a = &0404
 ri_b = &0408
+ri_e = &0414
 ri_q = &0444
 ri_r = &0448
 ri_w = &045c
@@ -65,6 +66,7 @@ if MAKE_IMAGE
     event_vsync = 4
     event_vsync_flag = &2c3 ; TODO: different address on Electron
     show_frame_count = TRUE; TODO: should be off in a "final" build
+    sound_channel_1_buffer_number = 5
     sound_channel_2_buffer_number = 6
 endif
 
@@ -602,6 +604,23 @@ tune_length = P% - tune_pitch
 .frames_left_in_music_cycle
     equb 1
 
+.^sound_nonblocking
+    ldx #sound_channel_1_buffer_number:clv:sec:jsr jmp_cnpv
+    cpx #0:beq rts ; do nothing if the buffer is full
+    lda ri_a:sta osword_7_block2_amplitude ; TODO: will only work for envelopes as we only set low byte
+    lda ri_b:sta osword_7_block2_pitch
+    lda ri_e:sta osword_7_block2_duration
+    lda #7:ldx #<osword_7_block2:ldy #>osword_7_block2:jmp osword
+
+.osword_7_block2 ; TODO: poor naming of the two osword_7_blocks
+    equw 1 ; channel
+.osword_7_block2_amplitude
+    equw 0
+.osword_7_block2_pitch
+    equw 0
+.osword_7_block2_duration
+    equw 0
+
 .^vsync_event_handler
     ; We assume it's a vsync event; we won't enable anything else.
     ; TODO: It's hardly a big deal, but could we get away without php:pha? OS
@@ -646,6 +665,7 @@ tune_length = P% - tune_pitch
 .music_cycle_not_finished
 
     pla:plp
+.rts
     rts
 
 .event_vsync_disabled
@@ -1582,6 +1602,7 @@ if MAKE_IMAGE
     equw tune_pitch
     equw tune_duration
     equw current_note
+    equw sound_nonblocking
 else
 .initial_qrstuv_values
 .initial_q_value
