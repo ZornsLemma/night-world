@@ -578,6 +578,20 @@ ri_coord_vars = 8
 
 if MAKE_IMAGE
 {
+.^tune_pitch
+    equb 116, 88, 116, 0, 116, 120, 116, 0, 116, 88, 116, 116, 116, 120, 116, 0
+    equb 116, 72, 100, 0, 100, 108, 100, 0, 100, 72, 100, 100, 100, 108, 100, 0
+    equb 52, 32, 80, 0, 80, 88, 80, 0, 52, 32, 80, 80, 80, 88, 80, 0, 32, 32, 60
+    equb 0, 60, 68, 60, 0, 60, 32, 60, 60, 60, 68, 60, 0, 0, 0, 0, 0, 0, 0
+.^tune_duration
+    equb 3, 3, 2, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 3, 0, 3, 3, 3, 0
+    equb 2, 2, 2, 2, 2, 2, 2, 0, 3, 3, 3, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 0
+    equb 3, 3, 3, 0, 3, 3, 3, 0, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0
+    assert (P% - tune_duration) == (tune_duration - tune_pitch)
+
+.^current_note
+    equb 0
+
 .frames_left_in_game_cycle
     equb 0
 
@@ -1515,16 +1529,15 @@ if MAKE_IMAGE
     equw r_table
 
 .r_table
-if MAKE_IMAGE
     equw q_subroutine_wrapper
-else
-    equw q_subroutine
-endif
     equw s_subroutine
     equw t_subroutine
     equw u_subroutine
     equw v_subroutine
     equw draw_room_subroutine
+    equw tune_pitch
+    equw tune_duration
+    equw current_note
 else
 .initial_qrstuv_values
 .initial_q_value
