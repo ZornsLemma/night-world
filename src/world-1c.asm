@@ -620,6 +620,12 @@ tune_length = P% - tune_pitch
 .rts ; TODO: can I re-use another rts?
     rts
 
+.^sound1
+    sta osword_7_block2_amplitude
+    stx osword_7_block2_pitch
+    sty osword_7_block2_duration
+    lda #7:ldx #<osword_7_block2:ldy #>osword_7_block2:jmp osword
+
 .osword_7_block2 ; TODO: poor naming of the two osword_7_blocks
     equw 1 ; channel
 .osword_7_block2_amplitude
@@ -1648,6 +1654,8 @@ if MAKE_IMAGE
     equw falling_time
     equw day_night
     equw lee_direction
+    equw jump_time
+    equw jump_delta_y
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1678,6 +1686,10 @@ if MAKE_IMAGE
 .^day_night
     equb 0
 .^lee_direction
+    equb 0
+.^jump_time
+    equb 0
+.^jump_delta_y
     equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
@@ -1729,7 +1741,21 @@ if MAKE_IMAGE
 .not_move_left
     ldx #-67 and &ff:jsr inkey:bne done_move_left_right:jsr move_right
 .done_move_left_right
-    lda #<310:sta ri_m:lda #>310:sta ri_m+1:rts ; TODO!
+    ; 310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
+    lda #0:sta falling_time
+    ldx #-1 and &ff:jsr inkey:bne not_jump
+    lda #1:sta jumping
+    lda #0:sta jump_time
+    lda #8:sta jump_delta_y
+    lda delta_x:sta falling_delta_x
+    lda #11:ldx ri_d:ldy #12:jsr sound1
+    jmp play_320
+.not_jump
+    ldx #-56 and &ff:jsr inkey:bne not_pause
+    lda #<256:sta ri_m:lda #>256:sta ri_m+1:rts ; TODO!
+.not_pause
+.play_320
+    lda #<320:sta ri_m:lda #>320:sta ri_m+1:rts ; TODO!
 .play_330
     lda #<330:sta ri_m:lda #>330:sta ri_m+1:rts ; TODO!
 

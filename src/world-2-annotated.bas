@@ -53,6 +53,8 @@ constant R_TABLE_FALLING_DELTA_X = 28
 constant R_TABLE_FALLING_TIME = 30
 constant R_TABLE_DAY_NIGHT = 32
 constant R_TABLE_LEE_DIRECTION = 34
+constant R_TABLE_JUMP_TIME = 36
+constant R_TABLE_JUMP_DELTA_Y = 38
 
    0IFPAGE>&E00:GOTO32000
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
@@ -83,11 +85,11 @@ constant R_TABLE_LEE_DIRECTION = 34
   250PROCdraw_room(logical_room%):ENDPROC
 
   255PROCjump:GOTO330:REM TODO TEMP
-  259ON JUNK GOTO 255,310,330:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
+  256PROCpause:GOTO320:REM TODO TEMP - MAYBE?
+  259ON JUNK GOTO 255,320,330,256:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
 
   260DEFPROCplay
   270CALLR%!R_TABLE_PLAY_270:GOTOM%
-  310PROCset8(R_TABLE_FALLING_TIME,0):IFINKEY-1PROCset8(R_TABLE_JUMPING,1):jump_time%=0:jump_delta_y%=8:PROCset8(R_TABLE_FALLING_DELTA_X,FNget8(R_TABLE_DELTA_X)):SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
   320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
   330W%=SLOT_LEE:CALLS%
   335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!R_TABLE_PLAY_270:GOTOM% ELSEIFgame_ended%=1:ENDPROC
@@ -102,8 +104,8 @@ constant R_TABLE_LEE_DIRECTION = 34
   410CALLS%:CALLU%:ENDPROC
 
   480DEFPROCjump:IFPOINT(C%+8,D%+4)<>0ORPOINT(C%+56,D%+4)<>0:PROCset8(R_TABLE_JUMPING,0):PROCset8(R_TABLE_FALLING_TIME,FNjump_terminated_falling_time):PROCstop_sound:ENDPROC
-  490jump_time%=jump_time%+1:D%=D%+jump_delta_y%:C%=C%+FNget8signed(R_TABLE_DELTA_X):jump_time%=jump_time%+1
-  491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(C%+32,D%-66)<>0:PROCset8(R_TABLE_JUMPING,0):PROCstop_sound:ENDPROC
+  490PROCset8(R_TABLE_JUMP_TIME,FNget8(R_TABLE_JUMP_TIME)+2):D%=D%+FNget8signed(R_TABLE_JUMP_DELTA_Y):C%=C%+FNget8signed(R_TABLE_DELTA_X)
+  491IFFNget8(R_TABLE_JUMP_TIME)>full_speed_jump_time_limit%:PROCset8(R_TABLE_JUMP_DELTA_Y,-4):IFFNget8(R_TABLE_JUMP_TIME)=max_jump_time%ORPOINT(C%+32,D%-66)<>0:PROCset8(R_TABLE_JUMPING,0):PROCstop_sound:ENDPROC
   500ENDPROC
 
   510DEFPROCadvance_sun_moon:W%=SLOT_SUN_MOON:Z%=DELTA_STEP_RIGHT:CALLT%:IFK%=1016:PROCtoggle_day_night
@@ -304,9 +306,9 @@ constant R_TABLE_LEE_DIRECTION = 34
 
  4000DEFFNjump_terminated_falling_time
  4010REM Credit the player with any unused "descending" time from this jump; this wouldn't count as time towards the falling damage threshold if they hadn't collided with something above them, so it seems fair to give them the same here.
- 4020jump_time%=jump_time%+2:REM this would have happened in this game cycle before testing jump_time% if we hadn't collided with something
- 4030IF jump_time%<full_speed_jump_time_limit%:jump_time%=full_speed_jump_time_limit%:REM don't credit any remaining "ascending" jump time
- 4040=(jump_time%-max_jump_time%)DIV2:REM DIV 2 because jump_time% counts up by two every game cycle
+ 4020PROCset8(R_TABLE_JUMP_TIME,FNget8(R_TABLE_JUMP_TIME)+2):REM this would have happened in this game cycle before testing jump_time% if we hadn't collided with something
+ 4030IF FNget8(R_TABLE_JUMP_TIME)<full_speed_jump_time_limit%:PROCset8(R_TABLE_JUMP_TIME,full_speed_jump_time_limit%):REM don't credit any remaining "ascending" jump time
+ 4040=(FNget8(R_TABLE_JUMP_TIME)-max_jump_time%)DIV2:REM DIV 2 because jump_time% counts up by two every game cycle
 
  5000DEF PROCset8(slot%,value%):?(R%!slot%)=value%:ENDPROC
  5010DEF FNget8(slot%):=?(R%!slot%)
