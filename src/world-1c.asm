@@ -42,30 +42,24 @@ ri_y = &0464
 ri_z = &0468
 
 if MAKE_IMAGE
-    ; TODO: For now the OS vsync event is used; we could get more precise
-    ; control over the time per game cycle using the VIA timer in an attempt to
-    ; better match the original code's implicit performance, but I'd rather
-    ; avoid it if possible - if nothing else it will make an Electron port
-    ; harder.
-
-    ; The original game code completes a cycle roughly every 3/50th of a second,
-    ; i.e. every 6cs.
-    game_cycle_frame_interval = 3
+    ; The original game code completes a cycle roughly every 0.06s.
+    game_cycle_tick_interval = 6
 
     ; The original BASIC code played a note of the background music once every four
     ; game cycles, so by following that we should keep approximately the same
     ; playback speed, although more consistent. TODO: It is just possible that it
     ; would be better to use a different interval to get the speed closer.
-    music_frame_interval = game_cycle_frame_interval * 4
+    music_tick_interval = game_cycle_tick_interval * 4
 
     evntv = &220
     cnpv = &22e
     osword = &fff1
     osbyte = &fff4
     osbyte_enable_event = 14
-    event_vsync = 4
-    event_vsync_flag = &2c3 ; TODO: different address on Electron
-    show_frame_count = TRUE; TODO: should be off in a "final" build
+    event_interval = 5
+    event_interval_flag = &2c4 ; TODO: different address on Electron
+    interval_timer = &29c ; TODO: different address on Electron - we could *probably* just use OSWORD to write this
+    show_tick_count = TRUE; TODO: should be off in a "final" build
     sound_channel_1_buffer_number = 5
     sound_channel_2_buffer_number = 6
 endif
@@ -598,10 +592,10 @@ tune_length = P% - tune_pitch
 .^current_note
     equb 0
 
-.frames_left_in_game_cycle
+.ticks_left_in_game_cycle
     equb 1
 
-.frames_left_in_music_cycle
+.ticks_left_in_music_cycle
     equb 1
 
 ; TODO: Name for this is not great, particularly with the change to discard the
@@ -614,6 +608,8 @@ tune_length = P% - tune_pitch
     lda ri_b:sta osword_7_block2_pitch
     lda ri_e:sta osword_7_block2_duration
     lda #7:ldx #<osword_7_block2:ldy #>osword_7_block2:jmp osword
+.rts ; TODO: can I re-use another rts?
+    rts
 
 .osword_7_block2 ; TODO: poor naming of the two osword_7_blocks
     equw 1 ; channel
@@ -624,25 +620,29 @@ tune_length = P% - tune_pitch
 .osword_7_block2_duration
     equw 0
 
-.^vsync_event_handler
-    ; We assume it's a vsync event; we won't enable anything else.
+.^interval_event_handler
+    ; We assume it's an interval event; we won't enable anything else.
     ; TODO: It's hardly a big deal, but could we get away without php:pha? OS
     ; 1.20 at least appears to save these itself before calling EVNTV, and since
     ; we know we're the only event handler probably nothing would care even if
     ; the OS didn't save them.
     php:pha
 
-    ; Decrement frames_left_in_game_cycle, clamping it at -127 (=128) so in the
+    txa:pha ; SFTODO HACKY
+    jsr set_interval_timer ; interrupts will be disabled as we're in an event handler
+    pla:tax
+
+    ; Decrement ticks_left_in_game_cycle, clamping it at -127 (=128) so in the
     ; (extremely unlikely) event we take that long to process a game cycle, we
     ; won't introduce extra time waiting for the counter to hit zero.
-    dec frames_left_in_game_cycle
-    lda frames_left_in_game_cycle:cmp #127:bne dont_clamp_frames_left
-    inc frames_left_in_game_cycle
-.dont_clamp_frames_left
+    dec ticks_left_in_game_cycle
+    lda ticks_left_in_game_cycle:cmp #127:bne dont_clamp_ticks_left
+    inc ticks_left_in_game_cycle
+.dont_clamp_ticks_left
 
-    dec frames_left_in_music_cycle:bne music_cycle_not_finished
+    dec ticks_left_in_music_cycle:bne music_cycle_not_finished
     txa:pha:tya:pha
-    lda #music_frame_interval:sta frames_left_in_music_cycle
+    lda #music_tick_interval:sta ticks_left_in_music_cycle
     ; Check how much free space there is in sound channel 2's buffer; we must
     ; avoid blindly adding more as we'll block here if the buffer becomes full.
     ; TODO: Do we need to be careful to keep as little as possible in the
@@ -668,12 +668,18 @@ tune_length = P% - tune_pitch
 .music_cycle_not_finished
 
     pla:plp
-.rts
     rts
 
-.event_vsync_disabled
-    lda #osbyte_enable_event:ldx #event_vsync:jsr osbyte
-    jmp reset_game_cycle_frame_interval
+.set_interval_timer
+    lda #&ff:ldx #4
+.set_interval_timer_loop
+    sta interval_timer,x:dex:bpl set_interval_timer_loop
+    rts
+
+.event_interval_disabled
+    sei:jsr set_interval_timer:cli
+    lda #osbyte_enable_event:ldx #event_interval:jsr osbyte
+    jmp reset_game_cycle_tick_interval
 
 .jmp_cnpv
     jmp (cnpv)
@@ -692,39 +698,39 @@ tune_length = P% - tune_pitch
 
 ; The main game loop in BASIC calls q_subroutine exactly once per game cycle, so it's
 ; a convenient point to introduce our speed limiting. We also use this as an opportunity
-; to enable vsync events; the BASIC code then doesn't need to worry about this, it just
-; needs to disable vsync events when it leaves the main game loop temporarily.
+; to enable interval events; the BASIC code then doesn't need to worry about this, it just
+; needs to disable interval events when it leaves the main game loop temporarily.
 ; TODO: Should I use the *interval timer crossing zero* even to get 100Hz callbacks?
 ; Apart from extra resolution, this would also allow me to *reset* the timer - bearing in
 ; mind we are not trying to use vsync to avoid tearing or anything like that - so we start
 ; each game cycle with the full desired time. Actually I suppose we could also set the timer
 ; to go off every 3/50ths second or whatever rather than having 100Hz ticks if desired.
 .^q_subroutine_wrapper
-    lda event_vsync_flag:beq event_vsync_disabled
+    lda event_interval_flag:beq event_interval_disabled
 
-if show_frame_count
+if show_tick_count
     ldx #7
-.show_frame_count_loop
+.show_tick_count_loop
     lda &5800-1,x:sta &5800,x
-    dex:bne show_frame_count_loop
+    dex:bne show_tick_count_loop
 endif
 
 .busy_wait
-if show_frame_count
+if show_tick_count
     ; We would really like A>=1 here, as that means we are actively busy-waiting
     ; and we thus completed the game cycle's processing in at least slightly
-    ; less than game_cycle_frame_interval frames. Store A-1 in the debug
+    ; less than game_cycle_tick_interval ticks. Store A-1 in the debug
     ; indicator in video RAM, since that will make the "good" cases all >=0 and
     ; the "bad" cases ~&Fx, which will have a more distinctive appearance.
-    ldx frames_left_in_game_cycle:dex:stx &5800
+    ldx ticks_left_in_game_cycle:dex:stx &5800
 endif
-    lda frames_left_in_game_cycle
-    beq reset_game_cycle_frame_interval:bpl busy_wait
-.reset_game_cycle_frame_interval
+    lda ticks_left_in_game_cycle
+    beq reset_game_cycle_tick_interval:bpl busy_wait
+.reset_game_cycle_tick_interval
     ; TODO: I am wondering if this is "wrong"/unfair/unhelpful when we haven't actually done any busy-waiting - partly but not entirely, is there a danger this update is going to get trampled on by the vsync event, so maybe we should sei around this?
-    ; TODO: What I'm kind of thinking is something like: we take 3.5 frames for one game cycle, so we come in here with frames_left=&ff and half a frame already gone. we set frames_left to 3, but because half a frame has already gone, if we take 2.9 frames for the next cycle (thus actually beating the deadline), we will see frames_left=0 here and think that we've at best just scraped in and most likely failed to hit the deadline.
-    ; TODO: Just thinking out loud - could/should we attempt to hit the deadline *on average*? Maybe if we're a frame "ahead" of the deadline in one cycle, we should save that up and allow ourselves to start the next cycle immediately, as long as we're not getting multiple frames ahead. Something like that.
-    lda #game_cycle_frame_interval:sta frames_left_in_game_cycle
+    ; TODO: What I'm kind of thinking is something like: we take 3.5 ticks for one game cycle, so we come in here with ticks_left=&ff and half a tick already gone. we set ticks_left to 3, but because half a tick has already gone, if we take 2.9 ticks for the next cycle (thus actually beating the deadline), we will see ticks_left=0 here and think that we've at best just scraped in and most likely failed to hit the deadline.
+    ; TODO: Just thinking out loud - could/should we attempt to hit the deadline *on average*? Maybe if we're a tick "ahead" of the deadline in one cycle, we should save that up and allow ourselves to start the next cycle immediately, as long as we're not getting multiple ticks ahead. Something like that.
+    lda #game_cycle_tick_interval:sta ticks_left_in_game_cycle
 
     ; The BASIC used to do W%=SLOT_LEE:Y%=8 before calling Q%; it's trivial to
     ; do this in machine code, so we do.
@@ -1565,10 +1571,10 @@ if not(MAKE_IMAGE)
     lda initial_qrstuv_values-1,x:sta ri_q-1,x
     dex:bne init_qrstuv_loop
 else
-    ; Install the vsync event handler.
+    ; Install the interval event handler.
     sei
-    lda #<vsync_event_handler:sta evntv
-    lda #>vsync_event_handler:sta evntv+1
+    lda #<interval_event_handler:sta evntv
+    lda #>interval_event_handler:sta evntv+1
     cli
 
     ; Set R% up to point to a table of entry points.
