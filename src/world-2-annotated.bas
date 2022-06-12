@@ -63,12 +63,9 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
 
   260DEFPROCplay
   270PROCplay_init
+  272W%=SLOT_LEE
   275REPEAT
   280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
-  
-  282REM when he's falling *after* a jump has finished in mid-air, and that all other
-  283REM falls are straight down.
-  290W%=SLOT_LEE
   291IFjumping%=1:PROCjump ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0ANDPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1 ELSE PROCmove
   330CALLS%
   335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:PROCplay_init:UNTILgame_ended%=1:ENDPROC
