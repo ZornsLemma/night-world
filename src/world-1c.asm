@@ -671,6 +671,7 @@ tune_length = P% - tune_pitch
     pla:plp
     rts
 
+; Interrupts must be disabled while calling this.
 .set_interval_timer
     lda #&ff:ldx #4
 .set_interval_timer_loop
