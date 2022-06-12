@@ -702,10 +702,15 @@ if show_frame_count
 endif
 
 .busy_wait
-    lda frames_left_in_game_cycle
 if show_frame_count
-    sta &5800
+    ; We would really like A>=1 here, as that means we are actively busy-waiting
+    ; and we thus completed the game cycle's processing in at least slightly
+    ; less than game_cycle_frame_interval frames. Store A-1 in the debug
+    ; indicator in video RAM, since that will make the "good" cases all >=0 and
+    ; the "bad" cases ~&Fx, which will have a more distinctive appearance.
+    ldx frames_left_in_game_cycle:dex:stx &5800
 endif
+    lda frames_left_in_game_cycle
     beq reset_game_cycle_frame_interval:bpl busy_wait
 .reset_game_cycle_frame_interval
     lda #game_cycle_frame_interval:sta frames_left_in_game_cycle
