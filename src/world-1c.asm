@@ -1635,6 +1635,8 @@ if MAKE_IMAGE
     equw sound_nonblocking
     equw play_270
     equw play_280
+    equw delta_x
+    equw jumping
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1654,6 +1656,11 @@ endif
 
 if MAKE_IMAGE
 {
+.^delta_x
+    equb 0
+.^jumping
+    equb 0
+
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
 ; overly clever I will hopefully reduce the risk of introducing bugs or subtle
@@ -1668,11 +1675,11 @@ if MAKE_IMAGE
     ; 290W%=SLOT_LEE
     lda #SLOT_LEE:sta ri_w
     ; 291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
-    lda TODOJUMPING:beq not_jumping
+    lda jumping:beq not_jumping
     jsr jump
     jmp play_330
 .not_jumping
-    lda #0:sta TODODELTAX ; TODO THIS MIGHT WANT/NEED TO BE A 16-BIT VAR, REMEMBER IT CAN BE NEGATIVE
+    lda #0:sta delta_x
     clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
     sec:lda ri_d:sbc #66:sta osword_read_pixel_block_y
@@ -1683,7 +1690,7 @@ if MAKE_IMAGE
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
     jsr point
     lda osword_read_pixel_block_result:bne not_black_below
-    clc:lda ri_c:adc TODOFALLINGDELTAX:sta ri_c
+    clc:lda ri_c:adc TODOFALLINGDELTAXBECAREFULWITHSIGN:sta ri_c
     lda ri_c+1:adc #0:sta ri_c+1
     sec:lda ri_d:sbc #8:sta ri_d
     lda ri_d+1:sbc #0:sta ri_d+1

@@ -47,6 +47,8 @@ constant R_TABLE_CURRENT_NOTE = 16
 constant R_TABLE_SOUND_NONBLOCKING = 18
 constant R_TABLE_PLAY_270 = 20
 constant R_TABLE_PLAY_280 = 22
+constant R_TABLE_DELTA_X = 24
+constant R_TABLE_JUMPING = 26
 
    0IFPAGE>&E00:GOTO32000
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
@@ -79,7 +81,7 @@ constant R_TABLE_PLAY_280 = 22
   260DEFPROCplay
   270CALLR%!SLOT_R_TABLE_PLAY_270:GOTOL%
   300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
+  310falling_time%=0:IFINKEY-1PROCset8(R_TABLE_JUMPING,1):jump_time%=0:jump_delta_y%=8:falling_delta_x%=FNget8signed(R_TABLE_DELTA_X):SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
   320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
   330W%=SLOT_LEE:CALLS%
   335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!SLOT_R_TABLE_PLAY_270:GOTOL% ELSEIFgame_ended%=1:ENDPROC
@@ -95,15 +97,15 @@ constant R_TABLE_PLAY_280 = 22
 
   420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
   430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite:W%=SLOT_LEE
-  440delta_x%=-8:C%=C%-8:ENDPROC
+  440PROCset8(R_TABLE_DELTA_X,-8):C%=C%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(C%+64,D%-8)<>0:ENDPROC
   460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite:W%=SLOT_LEE
-  470delta_x%=8:C%=C%+8:ENDPROC
+  470PROCset8(R_TABLE_DELTA_X,8):C%=C%+8:ENDPROC
 
-  480DEFPROCjump:IFPOINT(C%+8,D%+4)<>0ORPOINT(C%+56,D%+4)<>0:jumping%=0:falling_time%=FNjump_terminated_falling_time:PROCstop_sound:ENDPROC
-  490jump_time%=jump_time%+1:D%=D%+jump_delta_y%:C%=C%+delta_x%:jump_time%=jump_time%+1
-  491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(C%+32,D%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
+  480DEFPROCjump:IFPOINT(C%+8,D%+4)<>0ORPOINT(C%+56,D%+4)<>0:PROCset8(R_TABLE_JUMPING,0):falling_time%=FNjump_terminated_falling_time:PROCstop_sound:ENDPROC
+  490jump_time%=jump_time%+1:D%=D%+jump_delta_y%:C%=C%+FNget8signed(R_TABLE_DELTA_X):jump_time%=jump_time%+1
+  491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(C%+32,D%-66)<>0:PROCset8(R_TABLE_JUMPING,0):PROCstop_sound:ENDPROC
   500ENDPROC
 
   510DEFPROCadvance_sun_moon:W%=SLOT_SUN_MOON:Z%=DELTA_STEP_RIGHT:CALLT%:IFK%=1016:PROCtoggle_day_night
@@ -231,7 +233,7 @@ constant R_TABLE_PLAY_280 = 22
  1331REPEATnote_pitch%=note_count%?(R%!R_TABLE_PITCH):note_duration%=note_count%?(R%!R_TABLE_DURATION):note_count%=note_count%+1:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):IFnote_count%=63:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:D%=576:C%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
+ 1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:D%=576:C%=1120:K%=192:L%=108:PROCset8(R_TABLE_JUMPING,0):delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
@@ -307,6 +309,10 @@ constant R_TABLE_PLAY_280 = 22
  4020jump_time%=jump_time%+2:REM this would have happened in this game cycle before testing jump_time% if we hadn't collided with something
  4030IF jump_time%<full_speed_jump_time_limit%:jump_time%=full_speed_jump_time_limit%:REM don't credit any remaining "ascending" jump time
  4040=(jump_time%-max_jump_time%)DIV2:REM DIV 2 because jump_time% counts up by two every game cycle
+
+ 5000DEF PROCset8(slot%,value%):?(R%!slot%)=value%:ENDPROC
+ 5010DEF FNget8(slot%):=?(R%!slot%)
+ 5020DEF FNget8signed(slot%):LOCALv%:v%=FNget8(slot):IF v%>=128:=v%-256 ELSE =v%
 
 32000*TAPE
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M
