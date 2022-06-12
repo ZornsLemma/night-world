@@ -718,6 +718,7 @@ endif
 .reset_game_cycle_frame_interval
     ; TODO: I am wondering if this is "wrong"/unfair/unhelpful when we haven't actually done any busy-waiting - partly but not entirely, is there a danger this update is going to get trampled on by the vsync event, so maybe we should sei around this?
     ; TODO: What I'm kind of thinking is something like: we take 3.5 frames for one game cycle, so we come in here with frames_left=&ff and half a frame already gone. we set frames_left to 3, but because half a frame has already gone, if we take 2.9 frames for the next cycle (thus actually beating the deadline), we will see frames_left=0 here and think that we've at best just scraped in and most likely failed to hit the deadline.
+    ; TODO: Just thinking out loud - could/should we attempt to hit the deadline *on average*? Maybe if we're a frame "ahead" of the deadline in one cycle, we should save that up and allow ourselves to start the next cycle immediately, as long as we're not getting multiple frames ahead. Something like that.
     lda #game_cycle_frame_interval:sta frames_left_in_game_cycle
 
     ; The BASIC used to do W%=SLOT_LEE:Y%=8 before calling Q%; it's trivial to
