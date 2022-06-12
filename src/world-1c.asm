@@ -37,6 +37,7 @@ ri_c = &040c
 ri_d = &0410
 ri_e = &0414
 ri_l = &0430
+ri_m = &0434
 ri_q = &0444
 ri_r = &0448
 ri_w = &045c
@@ -1682,7 +1683,7 @@ if MAKE_IMAGE
     lda #SLOT_LEE:sta ri_w
     ; 291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
     lda jumping:beq not_jumping
-    lda #<255:sta ri_l:lda #>255:sta ri_l+1:rts ; TODO: jsr jump:jmp play_330
+    lda #<255:sta ri_m:lda #>255:sta ri_m+1:rts ; TODO: jsr jump:jmp play_330
 .not_jumping
     lda #0:sta delta_x
     clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
@@ -1707,9 +1708,9 @@ if MAKE_IMAGE
     lda ri_d+1:sbc #0:sta ri_d+1
     jmp play_330
 .not_black_below
-    lda #<300:sta ri_l:lda #>300:sta ri_l+1:rts ; TODO!
+    lda #<300:sta ri_m:lda #>300:sta ri_m+1:rts ; TODO!
 .play_330
-    lda #<330:sta ri_l:lda #>330:sta ri_l+1:rts ; TODO!
+    lda #<330:sta ri_m:lda #>330:sta ri_m+1:rts ; TODO!
 
 .point
     lda #osword_read_pixel

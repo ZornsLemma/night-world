@@ -83,16 +83,16 @@ constant R_TABLE_FALLING_DELTA_X = 28
   259ON JUNK GOTO 255,300,330:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
 
   260DEFPROCplay
-  270CALLR%!R_TABLE_PLAY_270:GOTOL%
+  270CALLR%!R_TABLE_PLAY_270:GOTOM%
   300PROCset8(R_TABLE_FALLING_DELTA_X,0):IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
   310falling_time%=0:IFINKEY-1PROCset8(R_TABLE_JUMPING,1):jump_time%=0:jump_delta_y%=8:PROCset8(R_TABLE_FALLING_DELTA_X,FNget8(R_TABLE_DELTA_X)):SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
   320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
   330W%=SLOT_LEE:CALLS%
-  335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!R_TABLE_PLAY_270:GOTOL% ELSEIFgame_ended%=1:ENDPROC
+  335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!R_TABLE_PLAY_270:GOTOM% ELSEIFgame_ended%=1:ENDPROC
   340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
-  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOL%
-  380CALLR%!R_TABLE_PLAY_280:GOTOL%
+  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOM%
+  380CALLR%!R_TABLE_PLAY_280:GOTOM%
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
