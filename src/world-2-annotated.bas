@@ -69,10 +69,7 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
   282REM when he's falling *after* a jump has finished in mid-air, and that all other
   283REM falls are straight down.
   290W%=SLOT_LEE
-  291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
-  300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
-  320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
+  291IFjumping%=1:PROCjump ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0ANDPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1 ELSE PROCmove
   330W%=SLOT_LEE:CALLS%
   335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:PROCplay_init:UNTILgame_ended%=1:ENDPROC
   340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
@@ -92,7 +89,13 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
-  395DEFPROCplay_init:GCOL0,0:Y%=S_OP_MOVE:W%=SLOT_LEE:ENDPROC
+  392DEFPROCplay_init:GCOL0,0:Y%=S_OP_MOVE:W%=SLOT_LEE:ENDPROC
+
+  393DEFPROCmove
+  394falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
+  395falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
+  396sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
+  397ENDPROC
 
   400DEFPROCshow_using_slot_misc(text_x%,text_y%,image%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=image%:W%=SLOT_MISC:IFimage%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
