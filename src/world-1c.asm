@@ -694,6 +694,11 @@ tune_length = P% - tune_pitch
 ; a convenient point to introduce our speed limiting. We also use this as an opportunity
 ; to enable vsync events; the BASIC code then doesn't need to worry about this, it just
 ; needs to disable vsync events when it leaves the main game loop temporarily.
+; TODO: Should I use the *interval timer crossing zero* even to get 100Hz callbacks?
+; Apart from extra resolution, this would also allow me to *reset* the timer - bearing in
+; mind we are not trying to use vsync to avoid tearing or anything like that - so we start
+; each game cycle with the full desired time. Actually I suppose we could also set the timer
+; to go off every 3/50ths second or whatever rather than having 100Hz ticks if desired.
 .^q_subroutine_wrapper
     lda event_vsync_flag:beq event_vsync_disabled
 
