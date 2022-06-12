@@ -598,13 +598,9 @@ tune_length = P% - tune_pitch
 .ticks_left_in_music_cycle
     equb 1
 
-; TODO: Name for this is not great, particularly with the change to discard the
-; sound if the buffer has something in already rather than just to avoid
-; blocking when the buffer is full.
-; TODO: I think I've ruined things a bit with the, stand under the wall-eater in room C so you're being permanently damaged and the sound is broken up. Perhaps just need to allow slightly more sounds into the queue?!
 .^sound_nonblocking
-    ldx #sound_channel_1_buffer_number:clv:clc:jsr jmp_cnpv
-    cpx #2:bcs rts ; do nothing if the buffer has >=2 entries already
+    ldx #sound_channel_1_buffer_number:clv:sec:jsr jmp_cnpv
+    cpx #0:beq rts ; do nothing if the buffer is full
     lda ri_a:sta osword_7_block2_amplitude ; TODO: will only work for envelopes as we only set low byte
     lda ri_b:sta osword_7_block2_pitch
     lda ri_e:sta osword_7_block2_duration
