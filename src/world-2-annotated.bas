@@ -68,7 +68,7 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
   280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
   291IFjumping%=1:PROCjump ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0ANDPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1 ELSE PROCmove
   330CALLS%
-  335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:PROCplay_init:UNTILgame_ended%=1:ENDPROC
+  335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:PROCplay_init:UNTILgame_ended%=1:ENDPROC ELSEIFgame_ended%=1:UNTILTRUE:ENDPROC
   340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350REM Note the CALLQ% in the next line implicitly does W%=SLOT_LEE:Y%=8
   360P.TAB(1,0);TIME;" ";:CALLQ%:TIME=0:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
