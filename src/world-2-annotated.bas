@@ -74,7 +74,7 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
   335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:PROCplay_init:UNTILgame_ended%=1:ENDPROC
   340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   350REM Note the CALLQ% in the next line implicitly does W%=SLOT_LEE:Y%=8
-  360Y%=8:P.TAB(1,0);TIME;" ";:CALLQ%:TIME=0:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
+  360P.TAB(1,0);TIME;" ";:CALLQ%:TIME=0:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
   370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:PROCplay_init
   380UNTILFALSE
 
