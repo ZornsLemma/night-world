@@ -1672,7 +1672,7 @@ if MAKE_IMAGE
     jsr jump
     jmp play_330
 .not_jumping
-    lda #0:sta TODODELTAX
+    lda #0:sta TODODELTAX ; TODO THIS MIGHT WANT/NEED TO BE A 16-BIT VAR, REMEMBER IT CAN BE NEGATIVE
     clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
     sec:lda ri_d:sbc #66:sta osword_read_pixel_block_y
@@ -1689,9 +1689,9 @@ if MAKE_IMAGE
     lda ri_d+1:sbc #0:sta ri_d+1
     jmp play_330
 .not_black_below
-
-
-    rts
+    lda #<300:sta ri_l:lda #>300:sta ri_l+1:rts ; TODO!
+.play_330
+    lda #<330:sta ri_l:lda #>330:sta ri_l+1:rts ; TODO!
 
 .point
     lda #osword_read_pixel
