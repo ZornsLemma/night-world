@@ -65,15 +65,16 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
   270PROCplay_init
   275REPEAT
   280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
-  281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
+  
   282REM when he's falling *after* a jump has finished in mid-air, and that all other
   283REM falls are straight down.
   290W%=SLOT_LEE
   291IFjumping%=1:PROCjump ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0ANDPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1 ELSE PROCmove
-  330W%=SLOT_LEE:CALLS%
+  330CALLS%
   335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:PROCplay_init:UNTILgame_ended%=1:ENDPROC
   340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
-  360W%=SLOT_LEE:Y%=8:P.TAB(0,0);TIME;" ";:CALLQ%:TIME=0:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
+  350REM Note the CALLQ% in the next line implicitly does W%=SLOT_LEE:Y%=8
+  360Y%=8:P.TAB(1,0);TIME;" ";:CALLQ%:TIME=0:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
   370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:PROCplay_init
   380UNTILFALSE
 
@@ -101,11 +102,11 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
-  430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite:W%=SLOT_LEE
+  430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite
   440delta_x%=-8:C%=C%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(C%+64,D%-8)<>0:ENDPROC
-  460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite:W%=SLOT_LEE
+  460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite
   470delta_x%=8:C%=C%+8:ENDPROC
 
   480DEFPROCjump:IFPOINT(C%+8,D%+4)<>0ORPOINT(C%+56,D%+4)<>0:jumping%=0:falling_time%=FNjump_terminated_falling_time:PROCstop_sound:ENDPROC

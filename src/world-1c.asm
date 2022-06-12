@@ -717,6 +717,11 @@ endif
     beq reset_game_cycle_frame_interval:bpl busy_wait
 .reset_game_cycle_frame_interval
     lda #game_cycle_frame_interval:sta frames_left_in_game_cycle
+
+    ; The BASIC used to do W%=SLOT_LEE:Y%=8 before calling Q%; it's trivial to
+    ; do this in machine code, so we do.
+    lda #10:sta ri_w
+    lda #8:sta ri_y
     assert P% = q_subroutine ; fall through to q_subroutine
 }
 endif
