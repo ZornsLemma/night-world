@@ -1674,7 +1674,9 @@ if MAKE_IMAGE
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
 ; overly clever I will hopefully reduce the risk of introducing bugs or subtle
-; behaviour changes.
+; behaviour changes. TODO: When/if this code has been stable for a while and
+; passed some testing, it might be worth tidying it up, perhaps focussing more on
+; space saving than performance enhancements.
 .^play_270
     ; 270GCOL0,0:Y%=S_OP_MOVE:W%=SLOT_LEE
     lda #vdu_gcol:jsr oswrch:lda #0:jsr oswrch:jsr oswrch
