@@ -62,6 +62,11 @@ if MAKE_IMAGE
     show_tick_count = TRUE; TODO: should be off in a "final" build
     sound_channel_1_buffer_number = 5
     sound_channel_2_buffer_number = 6
+
+    vdu_gcol = 18
+    S_OP_MOVE = 0
+    SLOT_LEE = 10
+    osword_read_pixel = 9
 endif
 
 if MAKE_IMAGE
@@ -1628,6 +1633,8 @@ if MAKE_IMAGE
     equw tune_duration
     equw current_note
     equw sound_nonblocking
+    equw play_270
+    equw play_280
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1644,6 +1651,63 @@ else
     equw v_subroutine, 0
 endif
 }
+
+if MAKE_IMAGE
+{
+; I am trying to translate this code in a fairly literal fashion; the
+; performance should still be vastly better than BASIC, and by avoiding being
+; overly clever I will hopefully reduce the risk of introducing bugs or subtle
+; behaviour changes.
+.^play_270
+    ; 270GCOL0,0:Y%=S_OP_MOVE:W%=SLOT_LEE
+    lda #vdu_gcol:jsr oswrch:lda #0:jsr oswrch:jsr oswrch
+    lda #S_OP_MOVE:sta ri_y
+    lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
+.^play_280
+    ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show TODO: NOT IMPLEMENTED YET
+    ; 290W%=SLOT_LEE
+    lda #SLOT_LEE:sta ri_w
+    ; 291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
+    lda TODOJUMPING:beq not_jumping
+    jsr jump
+    jmp play_330
+.not_jumping
+    lda #0:sta TODODELTAX
+    clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    sec:lda ri_d:sbc #66:sta osword_read_pixel_block_y
+    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result:bne not_black_below
+    clc:lda ri_c:adc #60:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    jsr point
+    lda osword_read_pixel_block_result:bne not_black_below
+    clc:lda ri_c:adc TODOFALLINGDELTAX:sta ri_c
+    lda ri_c+1:adc #0:sta ri_c+1
+    sec:lda ri_d:sbc #8:sta ri_d
+    lda ri_d+1:sbc #0:sta ri_d+1
+    jmp play_330
+.not_black_below
+
+
+    rts
+
+.point
+    lda #osword_read_pixel
+    ldx #<osword_read_pixel_block
+    ldy #>osword_read_pixel_block
+    jmp osword
+
+.osword_read_pixel_block
+.osword_read_pixel_block_x
+    equw 0
+.osword_read_pixel_block_y
+    equw 0
+.osword_read_pixel_block_result
+    equb 0
+}
+endif
 
 if not(MAKE_IMAGE)
     ; ENHANCE: Junk data, can be deleted.
