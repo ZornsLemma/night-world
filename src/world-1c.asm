@@ -33,7 +33,10 @@ s_y = 1
 ; BASIC and this machine code.
 ri_a = &0404
 ri_b = &0408
+ri_c = &040c
+ri_d = &0410
 ri_e = &0414
+ri_l = &0430
 ri_q = &0444
 ri_r = &0448
 ri_w = &045c
@@ -1637,6 +1640,7 @@ if MAKE_IMAGE
     equw play_280
     equw delta_x
     equw jumping
+    equw falling_delta_x
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1660,6 +1664,8 @@ if MAKE_IMAGE
     equb 0
 .^jumping
     equb 0
+.^falling_delta_x
+    equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
@@ -1676,8 +1682,7 @@ if MAKE_IMAGE
     lda #SLOT_LEE:sta ri_w
     ; 291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
     lda jumping:beq not_jumping
-    jsr jump
-    jmp play_330
+    lda #<255:sta ri_l:lda #>255:sta ri_l+1:rts ; TODO: jsr jump:jmp play_330
 .not_jumping
     lda #0:sta delta_x
     clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
@@ -1690,8 +1695,14 @@ if MAKE_IMAGE
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
     jsr point
     lda osword_read_pixel_block_result:bne not_black_below
-    clc:lda ri_c:adc TODOFALLINGDELTAXBECAREFULWITHSIGN:sta ri_c
+    lda falling_delta_x:bmi falling_delta_x_negative
+    clc:adc ri_c:sta ri_c
     lda ri_c+1:adc #0:sta ri_c+1
+    jmp falling_delta_x_not_negative
+.falling_delta_x_negative
+    clc:adc ri_c:sta ri_c
+    lda ri_c+1:adc #&ff:sta ri_c+1
+.falling_delta_x_not_negative
     sec:lda ri_d:sbc #8:sta ri_d
     lda ri_d+1:sbc #0:sta ri_d+1
     jmp play_330

@@ -49,6 +49,7 @@ constant R_TABLE_PLAY_270 = 20
 constant R_TABLE_PLAY_280 = 22
 constant R_TABLE_DELTA_X = 24
 constant R_TABLE_JUMPING = 26
+constant R_TABLE_FALLING_DELTA_X = 28
 
    0IFPAGE>&E00:GOTO32000
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
@@ -78,17 +79,20 @@ constant R_TABLE_JUMPING = 26
   240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
   250PROCdraw_room(logical_room%):ENDPROC
 
+  255PROCjump:GOTO330:REM TODO TEMP
+  259ON JUNK GOTO 255,300,330:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
+
   260DEFPROCplay
-  270CALLR%!SLOT_R_TABLE_PLAY_270:GOTOL%
-  300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  310falling_time%=0:IFINKEY-1PROCset8(R_TABLE_JUMPING,1):jump_time%=0:jump_delta_y%=8:falling_delta_x%=FNget8signed(R_TABLE_DELTA_X):SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
+  270CALLR%!R_TABLE_PLAY_270:GOTOL%
+  300PROCset8(R_TABLE_FALLING_DELTA_X,0):IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
+  310falling_time%=0:IFINKEY-1PROCset8(R_TABLE_JUMPING,1):jump_time%=0:jump_delta_y%=8:PROCset8(R_TABLE_FALLING_DELTA_X,FNget8(R_TABLE_DELTA_X)):SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
   320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
   330W%=SLOT_LEE:CALLS%
-  335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!SLOT_R_TABLE_PLAY_270:GOTOL% ELSEIFgame_ended%=1:ENDPROC
+  335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!R_TABLE_PLAY_270:GOTOL% ELSEIFgame_ended%=1:ENDPROC
   340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
-  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:CALLR%!SLOT_R_TABLE_PLAY_270:GOTOL%
-  380CALLR%!SLOT_R_TABLE_PLAY_280:GOTOL%
+  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOL%
+  380CALLR%!R_TABLE_PLAY_280:GOTOL%
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
@@ -233,7 +237,7 @@ constant R_TABLE_JUMPING = 26
  1331REPEATnote_pitch%=note_count%?(R%!R_TABLE_PITCH):note_duration%=note_count%?(R%!R_TABLE_DURATION):note_count%=note_count%+1:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):IFnote_count%=63:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:D%=576:C%=1120:K%=192:L%=108:PROCset8(R_TABLE_JUMPING,0):delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
+ 1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:D%=576:C%=1120:K%=192:L%=108:PROCset8(R_TABLE_JUMPING,0):delta_x%=0:sd%=10:lee_direction%=10:PROCset8(R_TABLE_FALLING_DELTA_X,0)
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
@@ -312,7 +316,7 @@ constant R_TABLE_JUMPING = 26
 
  5000DEF PROCset8(slot%,value%):?(R%!slot%)=value%:ENDPROC
  5010DEF FNget8(slot%):=?(R%!slot%)
- 5020DEF FNget8signed(slot%):LOCALv%:v%=FNget8(slot):IF v%>=128:=v%-256 ELSE =v%
+ 5020DEF FNget8signed(slot%):LOCALv%:v%=FNget8(slot%):IF v%>=128:=v%-256 ELSE =v%
 
 32000*TAPE
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M
