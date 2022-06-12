@@ -717,7 +717,6 @@ if show_tick_count
     dex:bne show_tick_count_loop
 endif
 
-.busy_wait
 if show_tick_count
     ; We would really like A>=1 here, as that means we are actively busy-waiting
     ; and we thus completed the game cycle's processing in at least slightly
@@ -726,6 +725,7 @@ if show_tick_count
     ; the "bad" cases ~&Fx, which will have a more distinctive appearance.
     ldx ticks_left_in_game_cycle:dex:stx &5800
 endif
+.busy_wait
     lda ticks_left_in_game_cycle
     beq reset_game_cycle_tick_interval:bpl busy_wait
 .reset_game_cycle_tick_interval
