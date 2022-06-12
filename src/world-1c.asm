@@ -70,7 +70,10 @@ if MAKE_IMAGE
     vdu_gcol = 18
     S_OP_MOVE = 0
     SLOT_LEE = 10
+    IMAGE_HUMAN_RIGHT = 9
+    IMAGE_HUMAN_LEFT = 10
     osword_read_pixel = 9
+    osbyte_inkey = 129
 endif
 
 if MAKE_IMAGE
@@ -1643,6 +1646,8 @@ if MAKE_IMAGE
     equw jumping
     equw falling_delta_x
     equw falling_time
+    equw day_night
+    equw lee_direction
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1669,6 +1674,10 @@ if MAKE_IMAGE
 .^falling_delta_x
     equb 0
 .^falling_time
+    equb 0
+.^day_night
+    equb 0
+.^lee_direction
     equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
@@ -1714,9 +1723,73 @@ if MAKE_IMAGE
     inc falling_time ; TODO: does this need to be 16 bit? bear in mind we use negative values...
     jmp play_330
 .not_black_below
-    lda #<300:sta ri_m:lda #>300:sta ri_m+1:rts ; TODO!
+    ; 300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
+    lda #0:sta falling_delta_x
+    ldx #-98 and &ff:jsr inkey:bne not_move_left:jsr move_left:jmp done_move_left_right
+.not_move_left
+    ldx #-67 and &ff:jsr inkey:bne done_move_left_right:jsr move_right
+.done_move_left_right
+    lda #<310:sta ri_m:lda #>310:sta ri_m+1:rts ; TODO!
 .play_330
     lda #<330:sta ri_m:lda #>330:sta ri_m+1:rts ; TODO!
+
+.move_left
+    ; 420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
+    sec:lda ri_c:sbc #4:sta osword_read_pixel_block_x
+    lda ri_c+1:sbc #0:sta osword_read_pixel_block_x+1
+    sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
+    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result:bne move_left_rts
+    ; 430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite:W%=SLOT_LEE
+    lda lee_direction:cmp #IMAGE_HUMAN_RIGHT:bne not_facing_right
+    lda #IMAGE_HUMAN_LEFT:sta lee_direction
+    jsr change_lee_sprite
+    lda #SLOT_LEE:STA ri_w
+.not_facing_right
+    ; 440delta_x%=-8:C%=C%-8:ENDPROC
+    lda #-8 and &ff:sta delta_x
+    sec:lda ri_c:sbc #8:sta ri_c
+    lda ri_c+1:sbc #0:sta ri_c+1
+.move_left_rts
+    rts
+
+.move_right
+    ; 450DEFPROCmove_right:IFPOINT(C%+64,D%-8)<>0:ENDPROC
+    clc:lda ri_c:adc #64:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
+    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result:bne move_right_rts
+    ; 460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite:W%=SLOT_LEE
+    lda lee_direction:cmp #IMAGE_HUMAN_LEFT:bne not_facing_left
+    lda #IMAGE_HUMAN_RIGHT:sta lee_direction
+    jsr change_lee_sprite
+    lda #SLOT_LEE:sta ri_w
+.not_facing_left
+    ; 470delta_x%=8:C%=C%+8:ENDPROC
+    lda #8:sta delta_x
+    clc:lda ri_c:adc #8:sta ri_c
+    lda ri_c+1:adc #0:sta ri_c+1
+.move_right_rts
+    rts
+
+.change_lee_sprite
+    ; 200DEFPROCchange_lee_sprite
+    ; 202W%=SLOT_LEE:X%=lee_direction%+2*day_night%:CALLU%
+    lda #SLOT_LEE:sta ri_w
+    lda day_night:asl a:clc:adc lee_direction:sta ri_x
+    jsr u_subroutine
+    ; 203Y%=S_OP_MOVE
+    lda #S_OP_MOVE:sta ri_y
+    ; 208ENDPROC
+    rts
+
+.inkey
+    lda #osbyte_inkey:ldy #&ff:jsr osbyte
+    inx
+    rts
 
 .point
     lda #osword_read_pixel
