@@ -1642,6 +1642,7 @@ if MAKE_IMAGE
     equw delta_x
     equw jumping
     equw falling_delta_x
+    equw falling_time
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1666,6 +1667,8 @@ if MAKE_IMAGE
 .^jumping
     equb 0
 .^falling_delta_x
+    equb 0
+.^falling_time
     equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
@@ -1706,6 +1709,7 @@ if MAKE_IMAGE
 .falling_delta_x_not_negative
     sec:lda ri_d:sbc #8:sta ri_d
     lda ri_d+1:sbc #0:sta ri_d+1
+    inc falling_time ; TODO: does this need to be 16 bit? bear in mind we use negative values...
     jmp play_330
 .not_black_below
     lda #<300:sta ri_m:lda #>300:sta ri_m+1:rts ; TODO!
