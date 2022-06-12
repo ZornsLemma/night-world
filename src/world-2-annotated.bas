@@ -61,49 +61,48 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
   100*FX13,5
   105PROCgame_over:GOTO70
 
+  110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
+
+  200DEFPROCchange_lee_sprite
+  202W%=SLOT_LEE:X%=lee_direction%+2*day_night%:CALLU%
+  203Y%=S_OP_MOVE
+  208ENDPROC
+
+  210DEFPROCdraw_current_room:PROCclear_room
+  220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
+  230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFlogical_room%=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
+  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
+  250PROCdraw_room(logical_room%):ENDPROC
+
   260DEFPROCplay
-  270PROCplay_init
-  272W%=SLOT_LEE
-  275REPEAT
+  270GCOL0,0:Y%=S_OP_MOVE:W%=SLOT_LEE
   280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
-  291IFjumping%=1:PROCjump ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0ANDPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1 ELSE PROCmove
-  330CALLS%
-  335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:PROCplay_init:UNTILgame_ended%=1:ENDPROC ELSEIFgame_ended%=1:UNTILTRUE:ENDPROC
+  281REM TODO: I *think* that falling_delta_x% is used to give Lee a left/right drift
+  282REM when he's falling *after* a jump has finished in mid-air, and that all other
+  283REM falls are straight down.
+  290W%=SLOT_LEE
+  291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
+  300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
+  310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
+  320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
+  330W%=SLOT_LEE:CALLS%
+  335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0GOTO270 ELSEIFgame_ended%=1:ENDPROC
   340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
-  350REM Note the CALLQ% in the next line implicitly does W%=SLOT_LEE:Y%=8
-  360P.TAB(1,0);TIME;" ";:CALLQ%:TIME=0:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
-  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:PROCplay_init
-  380UNTILFALSE
-
-  381DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
-
-  382DEFPROCchange_lee_sprite:W%=SLOT_LEE:X%=lee_direction%+2*day_night%:CALLU%:Y%=S_OP_MOVE:ENDPROC
-
-  383DEFPROCdraw_current_room:PROCclear_room
-  384colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO384 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
-  385VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFlogical_room%=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
-  386IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
-  387PROCdraw_room(logical_room%):ENDPROC
+  360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
+  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
+  380GOTO280
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
-
-  392DEFPROCplay_init:GCOL0,0:Y%=S_OP_MOVE:W%=SLOT_LEE:ENDPROC
-
-  393DEFPROCmove
-  394falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
-  395falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
-  396sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
-  397ENDPROC
 
   400DEFPROCshow_using_slot_misc(text_x%,text_y%,image%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=image%:W%=SLOT_MISC:IFimage%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
 
   420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
-  430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite
+  430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite:W%=SLOT_LEE
   440delta_x%=-8:C%=C%-8:ENDPROC
 
   450DEFPROCmove_right:IFPOINT(C%+64,D%-8)<>0:ENDPROC
-  460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite
+  460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite:W%=SLOT_LEE
   470delta_x%=8:C%=C%+8:ENDPROC
 
   480DEFPROCjump:IFPOINT(C%+8,D%+4)<>0ORPOINT(C%+56,D%+4)<>0:jumping%=0:falling_time%=FNjump_terminated_falling_time:PROCstop_sound:ENDPROC
@@ -209,27 +208,17 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
  1150PROCdraw_current_room:ENDPROC
 
- 1160DEFPROCupdate_energy_and_items
- 1162IFfalling_time%>1:PROCSFTODOFT:ENDPROC
- 1165IFX%=SLOT_ENEMY:PROCSFTODO1210:ENDPROC ELSEIFX%=SLOT_MISCANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7:PROCSFTODO1210:ENDPROC
- 1175IFlogical_room%=1:this_item%=1 ELSEIFlogical_room%=7:this_item%=2 ELSEIFlogical_room%=5:this_item%=3 ELSEIFlogical_room%=14:this_item%=4 ELSEIFlogical_room%=9:this_item%=5
- 1180IFitem_collected%(this_item%)=1:PROCSFTODO1210:ENDPROC:REM SFTODO: Can this happen any more? Now we remove items that have been collected we can't collide with them. Except maybe the MacGuffin.
- 1181item_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
+ 1160DEFPROCupdate_energy_and_items:IFX%=SLOT_ENEMY:GOTO1210 ELSEIFX%=SLOT_ENEMYOR(X%=SLOT_MISCANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
+ 1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:this_item%=1 ELSEIFlogical_room%=7:this_item%=2 ELSEIFlogical_room%=5:this_item%=3 ELSEIFlogical_room%=14:this_item%=4 ELSEIFlogical_room%=9:this_item%=5
+ 1180IFitem_collected%(this_item%)=1:GOTO1220 ELSEitem_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
  1182W%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:REM remove the collected object from the room
- 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:em%=50:PROCdelay(150):VDU19,0,0;0;
+ 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
  1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
- 1201DEFPROCSFTODOFT
- 1202A%=11:B%=em%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING
- 1203PROCtake_damage
- 1204ENDPROC
- 1210DEFPROCSFTODO1210
- 1215IFroom_type%=2ANDday_night%=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2:A%=9:B%=em%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=em%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=em%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
- 1216PROCtake_damage
- 1217ENDPROC
- 1218DEFPROCtake_damage
- 1230em%=em%-1
- 1231IFem%=0:em%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:game_ended%=1
+ 1210IFfalling_time%>1:A%=11:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING:GOTO1230
+ 1220IFroom_type%=2ANDday_night%=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2:A%=9:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=energy_minor%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=energy_minor%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
+ 1230energy_minor%=energy_minor%-1
+ 1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:game_ended%=1
  1240ENDPROC
 
  1250DEFPROChide_fleece:IFlogical_room%<>5:ENDPROC
@@ -246,7 +235,7 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
  1331REPEATnote_pitch%=note_count%?(R%!R_TABLE_PITCH):note_duration%=note_count%?(R%!R_TABLE_DURATION):note_count%=note_count%+1:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):IFnote_count%=63:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351energy_major%=16:em%=10:logical_room%=8:day_night%=0:w%=0:D%=576:C%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
+ 1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:D%=576:C%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
