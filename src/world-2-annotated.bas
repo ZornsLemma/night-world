@@ -209,17 +209,27 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
  1140IFlogical_room%=10ANDscore%>70:room_type%=5
  1150PROCdraw_current_room:ENDPROC
 
- 1160DEFPROCupdate_energy_and_items:IFX%=SLOT_ENEMY:GOTO1210 ELSEIFX%=SLOT_MISCANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7:GOTO1210
- 1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:this_item%=1 ELSEIFlogical_room%=7:this_item%=2 ELSEIFlogical_room%=5:this_item%=3 ELSEIFlogical_room%=14:this_item%=4 ELSEIFlogical_room%=9:this_item%=5
- 1180IFitem_collected%(this_item%)=1:GOTO1220 ELSEitem_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
+ 1160DEFPROCupdate_energy_and_items
+ 1162IFfalling_time%>1:PROCSFTODOFT:ENDPROC
+ 1165IFX%=SLOT_ENEMY:PROCSFTODO1210:ENDPROC ELSEIFX%=SLOT_MISCANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7:PROCSFTODO1210:ENDPROC
+ 1175IFlogical_room%=1:this_item%=1 ELSEIFlogical_room%=7:this_item%=2 ELSEIFlogical_room%=5:this_item%=3 ELSEIFlogical_room%=14:this_item%=4 ELSEIFlogical_room%=9:this_item%=5
+ 1180IFitem_collected%(this_item%)=1:PROCSFTODO1210:ENDPROC:REM SFTODO: Can this happen any more? Now we remove items that have been collected we can't collide with them. Except maybe the MacGuffin.
+ 1181item_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
  1182W%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:REM remove the collected object from the room
- 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
+ 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:em%=50:PROCdelay(150):VDU19,0,0;0;
  1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
- 1210IFfalling_time%>1:A%=11:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING:GOTO1230
- 1220IFroom_type%=2ANDday_night%=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2:A%=9:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=energy_minor%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=energy_minor%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
- 1230energy_minor%=energy_minor%-1
- 1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:game_ended%=1
+ 1201DEFPROCSFTODOFT
+ 1202A%=11:B%=em%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING
+ 1203PROCtake_damage
+ 1204ENDPROC
+ 1210DEFPROCSFTODO1210
+ 1215IFroom_type%=2ANDday_night%=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2:A%=9:B%=em%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=em%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=em%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
+ 1216PROCtake_damage
+ 1217ENDPROC
+ 1218DEFPROCtake_damage
+ 1230em%=em%-1
+ 1231IFem%=0:em%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:game_ended%=1
  1240ENDPROC
 
  1250DEFPROChide_fleece:IFlogical_room%<>5:ENDPROC
@@ -236,7 +246,7 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
  1331REPEATnote_pitch%=note_count%?(R%!R_TABLE_PITCH):note_duration%=note_count%?(R%!R_TABLE_DURATION):note_count%=note_count%+1:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):IFnote_count%=63:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351energy_major%=16:energy_minor%=10:logical_room%=8:day_night%=0:w%=0:D%=576:C%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
+ 1351energy_major%=16:em%=10:logical_room%=8:day_night%=0:w%=0:D%=576:C%=1120:K%=192:L%=108:jumping%=0:delta_x%=0:sd%=10:lee_direction%=10:falling_delta_x%=0
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
  1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
