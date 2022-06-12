@@ -604,9 +604,12 @@ tune_length = P% - tune_pitch
 .frames_left_in_music_cycle
     equb 1
 
+; TODO: Name for this is not great, particularly with the change to discard the
+; sound if the buffer has something in already rather than just to avoid
+; blocking when the buffer is full.
 .^sound_nonblocking
-    ldx #sound_channel_1_buffer_number:clv:sec:jsr jmp_cnpv
-    cpx #0:beq rts ; do nothing if the buffer is full
+    ldx #sound_channel_1_buffer_number:clv:clc:jsr jmp_cnpv
+    cpx #2:bcs rts ; do nothing if the buffer has >=2 entries already
     lda ri_a:sta osword_7_block2_amplitude ; TODO: will only work for envelopes as we only set low byte
     lda ri_b:sta osword_7_block2_pitch
     lda ri_e:sta osword_7_block2_duration
