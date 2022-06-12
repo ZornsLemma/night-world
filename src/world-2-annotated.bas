@@ -61,22 +61,6 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
   100*FX13,4
   105PROCgame_over:GOTO70
 
-  110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
-
-  115REM Note for the following procedures that different sprite numbers have their position
-  116REM managed via different resident integer variables pairs.
-
-  200DEFPROCchange_lee_sprite
-  202W%=SLOT_LEE:X%=lee_direction%+2*day_night%:CALLU%
-  203Y%=S_OP_MOVE
-  208ENDPROC
-
-  210DEFPROCdraw_current_room:PROCclear_room
-  220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
-  230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFlogical_room%=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
-  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
-  250PROCdraw_room(logical_room%):ENDPROC
-
   260DEFPROCplay
   270GCOL0,0:Y%=S_OP_MOVE:W%=SLOT_LEE
   280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
@@ -94,6 +78,16 @@ constant R_TABLE_SOUND_NONBLOCKING = 18
   360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
   370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
   380GOTO280
+
+  381DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
+
+  382DEFPROCchange_lee_sprite:W%=SLOT_LEE:X%=lee_direction%+2*day_night%:CALLU%:Y%=S_OP_MOVE:ENDPROC
+
+  383DEFPROCdraw_current_room:PROCclear_room
+  384colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO384 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
+  385VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFlogical_room%=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
+  386IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
+  387PROCdraw_room(logical_room%):ENDPROC
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
