@@ -1767,8 +1767,26 @@ if MAKE_IMAGE
     ; 330W%=SLOT_LEE:CALLS%
     lda #SLOT_LEE:sta ri_w
     jsr s_subroutine
-
-    lda #<335:sta ri_m:lda #>335:sta ri_m+1:rts ; TODO!
+.play_335
+    ; 335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!R_TABLE_PLAY_270:GOTOM% ELSEIFgame_ended%=1:ENDPROC
+    lda ri_c+1:cmp #>24:bne c_not_lt_24
+    lda ri_c:cmp #<24:bcc c_lt_24
+.c_not_lt_24
+    lda ri_c+1:cmp #>1194:bcc c_not_gt_1194:bne c_gt_1194
+    lda ri_c:cmp #<1194:beq c_not_gt_1194:bcs c_gt_1194
+.c_not_gt_1194
+    lda ri_d+1:cmp #>730:bcc d_not_gt_730:bne d_gt_730
+    lda ri_d:cmp #<730:beq d_not_gt_730:bcs d_gt_730
+.d_not_gt_730
+    lda ri_d+1:cmp #>228:bne d_not_lt_228
+    lda ri_d:cmp #<228:bcs d_not_lt_228
+.d_lt_228
+.c_lt_24
+.c_gt_1194
+.d_gt_730
+    lda #<257:sta ri_m:lda #>257:sta ri_m+1:rts ; TODO!?
+.d_not_lt_228
+    lda #<340:sta ri_m:lda #>340:sta ri_m+1:rts ; TODO!
 
 .move_left
     ; 420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
