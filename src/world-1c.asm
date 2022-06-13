@@ -37,6 +37,7 @@ ri_c = &040c
 ri_d = &0410
 ri_e = &0414
 ri_i = &0424
+ri_j = &0428
 ri_l = &0430
 ri_m = &0434
 ri_q = &0444
@@ -72,8 +73,19 @@ if MAKE_IMAGE
     S_OP_MOVE = 0
     SLOT_ENEMY = 5
     SLOT_LEE = 10
+
     IMAGE_HUMAN_RIGHT = 9
     IMAGE_HUMAN_LEFT = 10
+    IMAGE_HARPY_RIGHT = 13
+    IMAGE_HARPY_LEFT = 14
+
+    DELTA_STEP_LEFT_UP = 1
+    DELTA_STEP_RIGHT_UP = 3
+    DELTA_STEP_LEFT = 4
+    DELTA_STEP_RIGHT = 6
+    DELTA_STEP_LEFT_DOWN = 7
+    DELTA_STEP_RIGHT_DOWN = 9
+
     osword_read_pixel = 9
     osbyte_inkey = 129
 endif
@@ -1666,6 +1678,7 @@ if MAKE_IMAGE
     equw room_type
     equw ah
     equw ak
+    equw db
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1714,6 +1727,8 @@ if MAKE_IMAGE
 .^ah
     equb 0
 .^ak
+    equb 0
+.^db
     equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
@@ -1838,7 +1853,57 @@ if MAKE_IMAGE
     lda #<360:sta ri_m:lda #>360:sta ri_m+1:rts ; TODO!
 
 .room_type_1
-    brk:equs 0, "TODO ROOM TYPE 1",0
+{
+    ; 650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
+    lda db:sta ri_z
+    lda #3:jsr rnd:cmp #1:bne room_type_1_680
+    ; Compare J% with D% ahead of the next few lines.
+    ldy #0
+    lda ri_j+1:cmp ri_d+1:bcc j_lt_d:bne j_gt_d
+    lda ri_j:cmp ri_d:bcc j_lt_d:beq j_eq_d
+.j_gt_d
+    iny
+.j_lt_d
+    iny
+.j_eq_d
+    ; Y=0 if J%=D%, 1 if J%<D%, 2 if J%>D%
+    ; 660IFdb%=DELTA_STEP_RIGHTANDJ%>D%:Z%=DELTA_STEP_RIGHT_DOWN ELSEIFdb%=6ANDJ%<D%:Z%=DELTA_STEP_RIGHT_UP
+    lda db:cmp #DELTA_STEP_RIGHT:bne room_type_1_660_else
+    cpy #2:bne room_type_1_660_else
+    lda #DELTA_STEP_RIGHT_DOWN:sta ri_z
+    jmp room_type_1_670
+.room_type_1_660_else
+    lda db:cmp #6:bne room_type_1_670
+    cpy #1:bne room_type_1_670
+    lda #DELTA_STEP_RIGHT_UP:sta ri_z
+    ; 670IFdb%=DELTA_STEP_LEFTANDJ%>D%:Z%=DELTA_STEP_LEFT_DOWN ELSEIFdb%=4ANDJ%<D%:Z%=DELTA_STEP_LEFT_UP
+.room_type_1_670
+    lda db:cmp #DELTA_STEP_LEFT:bne room_type_1_670_else
+    cpy #2:bne room_type_1_670_else
+    lda #DELTA_STEP_LEFT_DOWN:sta ri_z
+    jmp room_type_1_680
+.room_type_1_670_else
+    lda db:cmp #4:bne room_type_1_680
+    cpy #1:bne room_type_1_680
+    lda #DELTA_STEP_LEFT_UP:sta ri_z
+    ; 680IFI%=1152:db%=DELTA_STEP_LEFT:X%=IMAGE_HARPY_LEFT:CALLU% ELSEIFI%=64:db%=DELTA_STEP_RIGHT:X%=IMAGE_HARPY_RIGHT:CALLU%
+.room_type_1_680
+    lda ri_i:cmp #<1152:bne room_type_1_680_else
+    lda ri_i+1:cmp #>1152:bne room_type_1_680_else
+    lda #DELTA_STEP_LEFT:sta db
+    lda #IMAGE_HARPY_LEFT:sta ri_x
+    jsr u_subroutine
+    jmp room_type_1_690
+.room_type_1_680_else
+    lda ri_i:cmp #<64:bne room_type_1_690
+    lda ri_i+1:cmp #>64:bne room_type_1_690
+    lda #DELTA_STEP_RIGHT:sta db
+    lda #IMAGE_HARPY_RIGHT:STA ri_x
+    jsr u_subroutine
+    ; 690CALLT%:ENDPROC
+.room_type_1_690
+    jmp t_subroutine
+}
 
 .room_type_2
     brk:equs 0, "TODO ROOM TYPE 2",0
@@ -2020,6 +2085,11 @@ if MAKE_IMAGE
     ldx #<osword_read_pixel_block
     ldy #>osword_read_pixel_block
     jmp osword
+
+.rnd
+    ; TODO!
+    lda #0
+    rts
 
 .osword_read_pixel_block
 .osword_read_pixel_block_x
