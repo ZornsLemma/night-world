@@ -1869,8 +1869,10 @@ if MAKE_IMAGE
     ; TODO: for now assuming falling_time is 8-bit signed value; we *may* need 16 bits
     lda falling_time:bmi falling_time_not_gt_12:cmp #12+1:bcc falling_time_not_gt_12
 .x_ne_0
-    lda #<252:sta ri_m:lda #>252:sta ri_m+1:rts ; TODO!
+    jsr update_energy_and_items
+    jmp play_370
 .falling_time_not_gt_12
+.play_370
     lda #<370:sta ri_m:lda #>370:sta ri_m+1:rts ; TODO!
 
 .room_type_1
@@ -2100,6 +2102,105 @@ if MAKE_IMAGE
 .jump_pixel_above_black
     ; 500ENDPROC
     rts
+
+.update_energy_and_items
+{
+    ; 1160DEFPROCupdate_energy_and_items:IFX%=SLOT_ENEMY:GOTO1210 ELSEIFX%=SLOT_ENEMYOR(X%=SLOT_MISCANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
+    lda ri_x
+    cmp #SLOT_ENEMY:beq update_energy_and_items_1210
+    cmp #SLOT_MISC:bne update_energy_and_items_1170
+    lda logical_room
+    cmp #1:beq update_energy_and_items_1170
+    cmp #5:beq update_energy_and_items_1170
+    cmp #9:beq update_energy_and_items_1170
+    cmp #14:beq update_energy_and_items_1170
+    cmp #7:beq update_energy_and_items_1170
+    jmp update_energy_and_items_1210
+    ; 1170IFfalling_time%>1:GOTO1210 ELSEIFlogical_room%=1:this_item%=1 ELSEIFlogical_room%=7:this_item%=2 ELSEIFlogical_room%=5:this_item%=3 ELSEIFlogical_room%=14:this_item%=4 ELSEIFlogical_room%=9:this_item%=5
+.update_energy_and_items_1170
+    lda falling_time:bmi falling_time_negative:cmp #1+1:bcs update_energy_and_items_1210
+.falling_time_negative
+    lda logical_room
+    ldx #1:cmp #1:beq this_item_in_x
+    ldx #2:cmp #7:beq this_item_in_x
+    ldx #3:cmp #5:beq this_item_in_x
+    ldx #4:cmp #14:beq this_item_in_x
+    ldx #5:cmp #9:beq this_item_in_x
+    brk:equs 0, "Bad item",0 ; TODO!?
+.this_item_in_x
+    stx this_item
+    ; 1180IFitem_collected%(this_item%)=1:GOTO1220 ELSEitem_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
+    ldx this_item:lda item_collected,x:cmp #1:beq update_energy_and_items_1220
+    lda #1:sta item_collected,x
+    cpx #5:bcs this_item_not_lt_5
+    ; TODO: jsr show_prisms - temporarily not bothering with this
+.this_item_not_lt_5
+    ; 1182W%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:REM remove the collected object from the room
+    lda #SLOT_MISC:sta ri_w
+    LDA #S_OP_REMOVE:sta ri_y
+    jsr s_subroutine
+    ; 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
+    jsr stop_sound
+    lda #100:jsr delay
+    TODO I REALLY NEED TO CALL INTO BASIC FOR THIS BUT IT NEEDS A LITTLE THOUGHT AS I HAVE A "LOCAL" SUBROUTINE ON STACK
+    ; 1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
+    TODO
+    ; 1200ENDPROC
+    TODO
+    ; 1210IFfalling_time%>1:A%=11:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING:GOTO1230
+.update_energy_and_items_1210
+    lda falling_time:bmi update_energy_and_items_1210
+    lda #11:sta ri_a
+    lda energy_minor:sta ri_b
+    lda #2:sta ri_e
+    jsr sound_nonblocking
+    jmp update_energy_and_items_1230
+    ; 1220IFroom_type%=2ANDday_night%=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2:A%=9:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=energy_minor%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=energy_minor%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
+    lda room_type:cmp #2:bne not_endproc
+    lda day_night:cmp #1:bne not_endproc
+    lda ri_x:cmp #SLOT_ENEMY:bne not_endproc
+    rts
+.not_endproc
+    jsr stop_sound
+    lda room_type:cmp #2:bne not_room_type_2
+    lda #9:sta ri_a
+    lda energy_minor:sta rI-b
+    lda #2:sta ri_e
+    jsr sound_nonblocking
+    jmp update_energy_and_items_1230
+.not_room_type_2
+    lda ri_x:cmp #SLOT_MISC:bne not_slot_misc
+    lda #8:sta ri_a
+    lda energy_minor:sta ri_b
+    lda #4:sta ri_e
+    jsr sound_nonblocking
+    jmp update_energy_and_items_1230
+.not_slot_misc
+    lda #12:sta ri_a
+    lda energy_minor:sta ri_b
+    lda #5:sta ri_e
+    jsr sound_nonblocking
+    ; 1230energy_minor%=energy_minor%-1
+.update_energy_and_items_1230
+    dec energy_minor
+    ; 1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:PROCset8(R_TABLE_GAME_ENDED,1)
+    lda energy_minor:bne energy_minor_not_0
+    lda #25:sta energy_minor
+    lda &9ff:cmp #1:beq infinite_health_cheat
+    dec energy_major
+    lda #17:jsr oswrch:lda #0:jsr oswrch:lda #17:jsr oswrch:lda #131:jsr oswrch
+    lda #30:jsr oswrch:lda energy_major:jsr oswrch:lda #5:jsr oswrch
+    lda #224:jsr oswrch
+    lda #17:jsr oswrch:lda #128:jsr oswrch:lda #17:jsr oswrch:lda #1:jsr oswrch
+    lda #256:jsr oswrch
+    lda energy_major:cmp #3:bne not_game_ended
+    lda #1:sta game_ended
+.not_game_ended
+.energy_minor_not_0
+.infinite_health_cheat
+    ; 1240ENDPROC
+    rts
+}
 
 .stop_sound
     ; 110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
