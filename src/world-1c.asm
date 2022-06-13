@@ -1679,6 +1679,7 @@ if MAKE_IMAGE
     equw ah
     equw ak
     equw db
+    equw jsr_room_type_1_continue
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1839,6 +1840,12 @@ if MAKE_IMAGE
     dex:beq jsr_room_type_5
     brk:equs 0, "Bad room type", 0
 .jsr_room_type_1
+    ; We need a random number; we let BASIC generate it to avoid introducing
+    ; subtle behavioural changes.
+    lda #<251:sta ri_m
+    lda #>251:sta ri_m+1
+    rts
+.^jsr_room_type_1_continue
     jsr room_type_1
     jmp play_360
 .jsr_room_type_2
@@ -1860,7 +1867,8 @@ if MAKE_IMAGE
 {
     ; 650DEFPROCroom_type1:Z%=db%:IFRND(3)<>1:GOTO680
     lda db:sta ri_z
-    lda #3:jsr rnd:cmp #1:bne room_type_1_680
+    ; M% contains the result of RND(3)
+    lda ri_m:cmp #1:bne room_type_1_680
     ; Compare J% with D% ahead of the next few lines.
     ldy #0
     lda ri_j+1:cmp ri_d+1:bcc j_lt_d:bne j_gt_d
@@ -2110,11 +2118,6 @@ if MAKE_IMAGE
     ldx #<osword_read_pixel_block
     ldy #>osword_read_pixel_block
     jmp osword
-
-.rnd
-    ; TODO!
-    lda #0
-    rts
 
 .osword_read_pixel_block
 .osword_read_pixel_block_x
