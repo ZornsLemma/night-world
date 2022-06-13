@@ -1663,6 +1663,8 @@ if MAKE_IMAGE
     equw max_jump_time
     equw game_ended
     equw room_type
+    equw ah
+    equw ak
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1707,6 +1709,10 @@ if MAKE_IMAGE
 .^game_ended
     equb 0
 .^room_type
+    equb 0
+.^ah
+    equb 0
+.^ak
     equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
@@ -1805,7 +1811,7 @@ if MAKE_IMAGE
 .play_340
     ; 340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
     lda #SLOT_ENEMY:sta ri_w
-    ldx room_type
+    ldx room_type ; TODO: This can probably also be 0
     dex:beq jsr_room_type_1
     dex:beq jsr_room_type_2
     dex:beq jsr_room_type_3
@@ -1832,13 +1838,50 @@ if MAKE_IMAGE
     brk:equs 0, "TODO ROOM TYPE 2",0
 
 .room_type_3
-    brk:equs 0, "TODO ROOM TYPE 3",0
+{
+    ; 750DEFPROCroom_type3:Z%=ed%(ah%):ak%=ak%+1:IFak%=30:ak%=0:ah%=ah%+1:IFah%=7:ah%=1
+    ldx ah:lda ed,x:sta ri_z
+    ldx ak:inx
+    cpx #30:bne ak_not_30
+    ldx #0
+    ldy ah:iny
+    cpy #7:bne ah_not_7
+    ldy #1
+.ah_not_7
+    sty ah
+.ak_not_30
+    stx ak
+    ; 760CALLT%:ENDPROC
+    jmp t_subroutine
+}
 
 .room_type_4
-    brk:equs 0, "TODO ROOM TYPE 4",0
+{
+    ; 730DEFPROCroom_type4:Z%=ad%(ah%):ak%=ak%+1:IFak%=40:ak%=0:ah%=ah%+1:IFah%=5:ah%=1
+    ldx ah:lda ad,x:sta ri_z
+    ldx ak:inx
+    cpx #40:bne ak_not_40
+    ldx #0
+    ldy ah:iny
+    cpy #5:bne ah_not_5
+    ldy #1
+.ah_not_5
+    sty ah
+.ak_not_40
+    stx ak
+    ; 740CALLT%:ENDPROC
+    jmp t_subroutine
+}
 
 .room_type_5
     brk:equs 0, "TODO ROOM TYPE 5",0
+
+; TODO: This array is read-only so we just duplicate it from the BASIC rather than trying to share it.
+.ed
+    equb 0, 3, 6, 9, 7, 4, 1
+; TODO: This array is read-only so we just duplicate it from the BASIC rather than trying to share it.
+.ad
+    equb 0, 3, 9, 7, 1
 
 .move_left
     ; 420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
