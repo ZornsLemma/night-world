@@ -98,8 +98,8 @@ if MAKE_IMAGE
     ; TODO: Now that the room data has been shrunk, we can probably move all the
     ; machine code up. This would require tweaking world-1c-wrapper.asm and the
     ; CALL to it in world-1b.bas.
-    assert &3600-P% < 256
-    skipto &3600
+    assert &3500-P% < 256
+    skipto &3500
     guard &5800
 else
     org &35bc
@@ -1695,6 +1695,7 @@ if MAKE_IMAGE
     equw sun_moon_disabled
     equw m
     equw continue_after_advance_sun_moon
+    equw score
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1759,6 +1760,8 @@ if MAKE_IMAGE
 .^sun_moon_disabled
     equb 0
 .^m
+    equb 0
+.^score
     equb 0
 .axm
     equw 0
@@ -1832,7 +1835,24 @@ if MAKE_IMAGE
     ; 320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
     sec:lda ri_d:sbc #6:sta sf
     lda ri_d+1:sbc #0:sta sf+1
-    ; TODONOW: DO SCORE%=100 BIT
+    lda score:cmp #100:bne score_not_100
+    lda ri_d+1:cmp #>260:bcc d_not_gt_260:bne d_gt_260
+    lda ri_d:cmp #<260:bcc d_not_gt_260:beq d_not_gt_260
+.d_gt_260
+    lda ri_c:sta osword_read_pixel_block_x
+    lda ri_c+1:sta osword_read_pixel_block_x+1
+    lda sf:sta osword_read_pixel_block_y
+    lda sf+1:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result:cmp #3:bne point_not_3
+    lda #25:jsr oswrch:lda #4:jsr oswrch
+    lda ri_c:jsr oswrch:lda ri_c+1:jsr oswrch
+    clc:lda sf:adc #26:php:jsr oswrch:plp
+    lda sf+1:adc #0:jsr oswrch
+    lda #5:jsr oswrch:lda #249:jsr oswrch:lda #4:jsr oswrch
+.point_not_3
+.d_not_gt_260
+.score_not_100
 .^play_330
     ; 330W%=SLOT_LEE:CALLS%
     lda #SLOT_LEE:sta ri_w
