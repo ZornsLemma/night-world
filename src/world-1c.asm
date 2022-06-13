@@ -1832,7 +1832,7 @@ if MAKE_IMAGE
     ; 320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
     sec:lda ri_d:sbc #6:sta sf
     lda ri_d+1:sbc #0:sta sf+1
-    ; TODO: DO SCORE%=100 BIT
+    ; TODONOW: DO SCORE%=100 BIT
 .^play_330
     ; 330W%=SLOT_LEE:CALLS%
     lda #SLOT_LEE:sta ri_w
@@ -2137,7 +2137,7 @@ if MAKE_IMAGE
     lda osword_read_pixel_block_result:beq dont_stop_jumping
 .stop_jumping
     lda #0:sta jumping
-    lda #0:sta falling_time ; TODO: FNjump_terminated_falling_time - but will use 0 for now
+    lda #0:sta falling_time ; TODONOW: FNjump_terminated_falling_time - but will use 0 for now
     jmp stop_sound
 .dont_stop_jumping
     ; 490jump_time%=jump_time%+2:D%=D%+jump_delta_y%:C%=C%+delta_x%
