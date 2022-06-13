@@ -98,6 +98,7 @@ constant R_TABLE_SCORE = 78
   203Y%=S_OP_MOVE
   208ENDPROC
 
+  209REM TODONOW: DM IN FINAL ROOM DOESN'T SEEM TO MOVE CORRECTLY
   210DEFPROCdraw_current_room:PROCclear_room
   220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFFNget8(R_TABLE_SCORE)=100:colour2%=0:colour3%=4:colour1%=6
   230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFFNget8(R_TABLE_LOGICAL_ROOM)=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
@@ -204,6 +205,7 @@ constant R_TABLE_SCORE = 78
  1260IFFNget8(R_TABLE_SCORE)<90:ENDPROC ELSEW%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:ENDPROC
 
  1270DEFPROCrestore_fleece:IFFNget8(R_TABLE_LOGICAL_ROOM)<>5:ENDPROC
+ 1275M%=608:REM machine code conversion of PROCplay corrupts M%; just fix it up here for now TODO: neater fix?
  1280IFFNget8(R_TABLE_SCORE)<90:ENDPROC ELSEW%=SLOT_MISC:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLS%:CALLU%:ENDPROC
 
  1290DEFPROCwarp_effect:*FX13,5

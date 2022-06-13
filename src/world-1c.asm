@@ -1833,7 +1833,7 @@ if MAKE_IMAGE
 .not_pause
 .^play_320
     ; 320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
-    sec:lda ri_d:sbc #6:sta sf
+    sec:lda ri_d:sbc #66:sta sf
     lda ri_d+1:sbc #0:sta sf+1
     lda score:cmp #100:bne score_not_100
     lda ri_d+1:cmp #>260:bcc d_not_gt_260:bne d_gt_260
