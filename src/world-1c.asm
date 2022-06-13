@@ -36,6 +36,7 @@ ri_b = &0408
 ri_c = &040c
 ri_d = &0410
 ri_e = &0414
+ri_i = &0424
 ri_l = &0430
 ri_m = &0434
 ri_q = &0444
@@ -1820,14 +1821,19 @@ if MAKE_IMAGE
     brk:equs 0, "Bad room type", 0
 .jsr_room_type_1
     jsr room_type_1
+    jmp play_360
 .jsr_room_type_2
     jsr room_type_2
+    jmp play_360
 .jsr_room_type_3
     jsr room_type_3
+    jmp play_360
 .jsr_room_type_4
     jsr room_type_4
+    jmp play_360
 .jsr_room_type_5
     jsr room_type_5
+    assert P% == play_360 ; fall through to play_360
 .play_360
     lda #<360:sta ri_m:lda #>360:sta ri_m+1:rts ; TODO!
 
@@ -1874,7 +1880,26 @@ if MAKE_IMAGE
 }
 
 .room_type_5
-    brk:equs 0, "TODO ROOM TYPE 5",0
+{
+    ; 770DEFPROCroom_type5:Z%=ed%:IFed%=6ANDI%>688:ed%=4
+    lda ed:sta ri_z
+    cmp #6:bne ed_not_6
+    lda ri_i+1:cmp #>688:bcc i_not_gt_688:bne i_not_gt_688
+    lda ri_i:cmp #<688:bcc i_not_gt_688:beq i_not_gt_688
+    lda #4:sta ed
+.i_not_gt_688
+.ed_not_6
+    ; 780IFed%=4ANDI%<644:ed%=6
+    lda ed:cmp #4:bne ed_not_4
+    lda ri_i+1:cmp #>644:bcc i_lt_644:bne i_not_lt_644
+    lda ri_i:cmp #<644:bcs i_not_lt_644
+.i_lt_644
+    lda #6:sta ed
+.i_not_lt_644
+.ed_not_4
+    ; 790CALLT%:ENDPROC
+    jmp t_subroutine
+}
 
 ; TODO: This array is read-only so we just duplicate it from the BASIC rather than trying to share it.
 .ed
