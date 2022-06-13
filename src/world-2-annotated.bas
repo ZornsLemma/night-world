@@ -65,6 +65,11 @@ constant R_TABLE_AH = 52
 constant R_TABLE_AK = 54
 constant R_TABLE_DB = 56
 constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
+constant R_TABLE_LOGICAL_ROOM = 60
+constant R_TABLE_THIS_TIME = 62
+constant R_TABLE_ITEM_COLLECTED = 64
+constant R_TABLE_ENERGY_MINOR = 66
+constant R_TABLE_ENERGY_MAJOR = 68
 
    0IFPAGE>&E00:GOTO32000
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
@@ -72,7 +77,7 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
    30REM If we hit an error other than Escape, let's make it obvious so it can be fixed.
    35REM TODO: Are we at risk of the problem where SRAM utilities corrupts a byte of memory around ~&1700 if an error occurs on a B?!
    40ONERROR:VDU4:IFERR=17:uw%=1:GOTO100 ELSE REPORT:PRINT;ERL:END
-   50won%=0:score%=13:uw%=0:energy_major%=10
+   50won%=0:score%=13:uw%=0:PROCset8(R_TABLE_ENERGY_MAJOR,10)
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
    80*FX200,0
@@ -90,19 +95,19 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
 
   210DEFPROCdraw_current_room:PROCclear_room
   220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
-  230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFlogical_room%=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
-  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:PROCset8(R_TABLE_ROOM_TYPE,0):PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
-  250PROCdraw_room(logical_room%):ENDPROC
+  230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFFNget8(R_TABLE_LOGICAL_ROOM)=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
+  240IFFNget8(R_TABLE_LOGICAL_ROOM)<1ORFNget8(R_TABLE_LOGICAL_ROOM)>14:PROCset8(R_TABLE_LOGICAL_ROOM,1):phys_room%=1:C%=128:PROCset8(R_TABLE_ROOM_TYPE,0):PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
+  250PROCdraw_room(FNget8(R_TABLE_LOGICAL_ROOM)):ENDPROC
 
   251M%=RND(3):CALLR%!R_TABLE_ROOM_TYPE_1_CONTINUE:GOTOM%
   256PROCpause:CALLR%!R_TABLE_PLAY_320:GOTOM%:REM TODO TEMP - MAYBE?
   257PROCchange_room:PROCreset_note_count:IFFNget8(R_TABLE_GAME_ENDED)=0:CALLR%!R_TABLE_PLAY_270:GOTOM% ELSE ENDPROC
   258ENDPROC:REM TODO TEMP - MAYBE?
-  259ON JUNK GOTO 251,255,256,257,258,370:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
+  259ON JUNK GOTO 1181, 251,255,256,257,258,370:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
 
   260DEFPROCplay
   270CALLR%!R_TABLE_PLAY_270:GOTOM%
-  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOM%
+  370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFFNget8(R_TABLE_LOGICAL_ROOM)=1ORFNget8(R_TABLE_LOGICAL_ROOM)=13ORFNget8(R_TABLE_LOGICAL_ROOM)=5ORFNget8(R_TABLE_LOGICAL_ROOM)=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOM%
   380CALLR%!R_TABLE_PLAY_280:GOTOM%
 
   390DEFPROCsound_and_light_show:PROCstop_sound:VDU19,0,7;0;19,1,0;0;19,2,0;0;19,3,0;0;:SOUND&10,-13,5,6:SOUND0,-10,5,6:SOUND0,-7,6,10:PROCdelay(250):VDU19,0,0;0;19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
@@ -112,7 +117,7 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
 
   510DEFPROCadvance_sun_moon:W%=SLOT_SUN_MOON:Z%=DELTA_STEP_RIGHT:CALLT%:IFK%=1016:PROCtoggle_day_night
   515REM TODO: Does the next line do anything useful?
-  520IFlogical_room%=5:W%=8:Z%=DELTA_STEP_RIGHT:CALLT%
+  520IFFNget8(R_TABLE_LOGICAL_ROOM)=5:W%=8:Z%=DELTA_STEP_RIGHT:CALLT%
   530ENDPROC
 
   540DEFPROCtoggle_day_night:*FX13,5
@@ -127,16 +132,16 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
   580DEFPROCcheck_warps
   581REM If player is in room 1 (Ed's room D) and at the far left of the screen,
   582REM warp to room 9 (Ed's room A).
-  583IFlogical_room%=1ANDC%<68:phys_room%=12:C%=1142:D%=316:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  583IFFNget8(R_TABLE_LOGICAL_ROOM)=1ANDC%<68:phys_room%=12:C%=1142:D%=316:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCset8(R_TABLE_LOGICAL_ROOM,8):PROCdraw_current_room:PROCwarp_effect:ENDPROC
   585REM If player is in room 10 (Ed's room J) and in the top half of the screen,
   586REM warp to room 9 (Ed's room N) - the fleece room.
-  590IFlogical_room%=10ANDC%>=1152ANDD%>480:phys_room%=14:logical_room%=9:C%=68:D%=416:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCdraw_current_room:PROCwarp_effect:PROCset8(R_TABLE_ROOM_TYPE,2):ENDPROC
+  590IFFNget8(R_TABLE_LOGICAL_ROOM)=10ANDC%>=1152ANDD%>480:phys_room%=14:PROCset8(R_TABLE_LOGICAL_ROOM,9):C%=68:D%=416:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCdraw_current_room:PROCwarp_effect:PROCset8(R_TABLE_ROOM_TYPE,2):ENDPROC
   595REM If player is in room 13 at a specific point on the right edge, warp to
   596REM room 7 (Ed's room H).
-  600IFlogical_room%=13ANDC%>1150AND(D%=288ORD%=284):phys_room%=9:C%=1148:D%=420:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
+  600IFFNget8(R_TABLE_LOGICAL_ROOM)=13ANDC%>1150AND(D%=288ORD%=284):phys_room%=9:C%=1148:D%=420:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCset8(R_TABLE_LOGICAL_ROOM,7):PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM show a lightning flash effect. If the player has collided with SLOT_MISC, it's the fleece; collect it.
-  610IFlogical_room%=5ANDscore%=90ANDFNget8(R_TABLE_DAY_NIGHT)=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=SLOT_MISC:PROCcollect_fleece
+  610IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDscore%=90ANDFNget8(R_TABLE_DAY_NIGHT)=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=SLOT_MISC:PROCcollect_fleece
   620ENDPROC
 
   630DEFPROCcollect_fleece:*FX13,5
@@ -148,7 +153,7 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
   801FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
 
   815REM TODO: Moving this towards end of code would slightly speed up line number searching for GOTOs
-  820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6),item_collected%(5):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26:ENDPROC
+  820DEFPROCone_off_init:CALLV%:DIMad%(4),ed%(6):ad%(1)=3:ad%(2)=9:ad%(3)=7:ad%(4)=1:ed%(1)=3:ed%(2)=6:ed%(3)=9:ed%(4)=7:ed%(5)=4:ed%(6)=1:VDU17,3,17,128,28,0,30,19,28,12,26:ENDPROC
 
   840DEFPROCclear_room
   843Y%=S_OP_REMOVE:W%=SLOT_MISC:CALLS%:Y%=S_OP_MOVE
@@ -157,68 +162,61 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
   850DEFPROCdraw_room(b1%):!&70=b1%*45:PRINTTAB(0,9);:CALLR%!R_TABLE_DRAW_ROOM
   880IFFNget8(R_TABLE_ROOM_TYPE)=2:I%=608:J%=672:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:GOTO900
   890PROCset8(R_TABLE_DB,6):IFFNget8(R_TABLE_ROOM_TYPE)>0:I%=291:J%=480:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:IFFNget8(R_TABLE_ROOM_TYPE)=1:X%=IMAGE_HARPY_RIGHT:CALLU%
-  900IFlogical_room%=2ANDscore%=80:PROCset8(R_TABLE_ROOM_TYPE,3):X%=IMAGE_VEIL2:CALLU%:GOTO960
-  910IFlogical_room%=5ANDscore%=90:PROCset8(R_TABLE_ROOM_TYPE,0):Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
+  900IFFNget8(R_TABLE_LOGICAL_ROOM)=2ANDscore%=80:PROCset8(R_TABLE_ROOM_TYPE,3):X%=IMAGE_VEIL2:CALLU%:GOTO960
+  910IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDscore%=90:PROCset8(R_TABLE_ROOM_TYPE,0):Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
   920IFFNget8(R_TABLE_ROOM_TYPE)=2:X%=IMAGE_WINGED_CREATURE:CALLU%
   930IFFNget8(R_TABLE_ROOM_TYPE)=3:X%=IMAGE_ROBOT:CALLU%
   940IFFNget8(R_TABLE_ROOM_TYPE)=4:X%=IMAGE_EYE:CALLU%
   950IFFNget8(R_TABLE_ROOM_TYPE)=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=S_OP_MOVE:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFFNget8(R_TABLE_ROOM_TYPE)=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
-  960PROCset8(R_TABLE_AK,0):PROCset8(R_TABLE_AH,1):W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=SLOT_MISC:M%=1035:N%=692:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFitem_collected%(5)=0:PROCshow_using_slot_misc(2,14,IMAGE_HEALTH)
-  970IFlogical_room%=6:PROCshow_using_slot_misc(18,15,IMAGE_WALL_ENEMY_RIGHT):PROCshow_using_slot_misc(18,19,IMAGE_WALL_ENEMY_RIGHT)
-  980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
-  990IFlogical_room%=5ANDscore%>80:PRINTTAB(9,14)"  "
- 1000IFlogical_room%=13ANDscore%=60:PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
- 1010IFlogical_room%=1:PROCshow_using_slot_misc(9,12,IMAGE_STATUE):IFitem_collected%(1)=0:PROCshow_using_slot_misc(2,12,IMAGE_FLEECE_MACGUFFIN_PRISM)
- 1020IFlogical_room%=7:PROCshow_using_slot_misc(6,21,IMAGE_STATUE):IFitem_collected%(2)=0:PROCshow_using_slot_misc(2,11,IMAGE_FLEECE_MACGUFFIN_PRISM)
- 1030IFlogical_room%=2:PROCshow_using_slot_misc(1,23,IMAGE_WALL_ENEMY_LEFT)
- 1040IFlogical_room%=8:PROCshow_using_slot_misc(11,23,IMAGE_STATUE):PROCshow_using_slot_misc(9,21,IMAGE_STATUE):PROCshow_using_slot_misc(13,24,IMAGE_STATUE)
- 1050IFlogical_room%=14:PROCshow_using_slot_misc(8,20,IMAGE_WALL_ENEMY_RIGHT):PROCshow_using_slot_misc(11,20,IMAGE_WALL_ENEMY_LEFT):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFitem_collected%(4)=0:PROCshow_using_slot_misc(12,25,IMAGE_FLEECE_MACGUFFIN_PRISM)
- 1060IFlogical_room%=12:PROCshow_using_slot_misc(1,15,IMAGE_WALL_ENEMY_LEFT):PROCshow_using_slot_misc(1,18,IMAGE_WALL_ENEMY_LEFT):PROCshow_using_slot_misc(1,21,IMAGE_WALL_ENEMY_LEFT)
- 1070IFlogical_room%=13:PROCshow_using_slot_misc(7,21,IMAGE_STATUE):PROCshow_using_slot_misc(12,21,IMAGE_STATUE)
- 1080IFlogical_room%=5ANDscore%=90:M%=608:N%=512:W%=SLOT_MISC:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFFNget8(R_TABLE_DAY_NIGHT)=1:Y%=S_OP_REMOVE:CALLS%
- 1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCshow_using_slot_misc(18,24,IMAGE_FLEECE_MACGUFFIN_PRISM)
+  960PROCset8(R_TABLE_AK,0):PROCset8(R_TABLE_AH,1):W%=2:Y%=S_OP_SHOW:IFFNget8(R_TABLE_LOGICAL_ROOM)=9:W%=SLOT_MISC:M%=1035:N%=692:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFFNitem_collected(5)=0:PROCshow_using_slot_misc(2,14,IMAGE_HEALTH)
+  970IFFNget8(R_TABLE_LOGICAL_ROOM)=6:PROCshow_using_slot_misc(18,15,IMAGE_WALL_ENEMY_RIGHT):PROCshow_using_slot_misc(18,19,IMAGE_WALL_ENEMY_RIGHT)
+  980IFFNget8(R_TABLE_LOGICAL_ROOM)=10ANDscore%>70:PRINTTAB(10,26)"  "
+  990IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDscore%>80:PRINTTAB(9,14)"  "
+ 1000IFFNget8(R_TABLE_LOGICAL_ROOM)=13ANDscore%=60:PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
+ 1010IFFNget8(R_TABLE_LOGICAL_ROOM)=1:PROCshow_using_slot_misc(9,12,IMAGE_STATUE):IFFNitem_collected(1)=0:PROCshow_using_slot_misc(2,12,IMAGE_FLEECE_MACGUFFIN_PRISM)
+ 1020IFFNget8(R_TABLE_LOGICAL_ROOM)=7:PROCshow_using_slot_misc(6,21,IMAGE_STATUE):IFFNitem_collected(2)=0:PROCshow_using_slot_misc(2,11,IMAGE_FLEECE_MACGUFFIN_PRISM)
+ 1030IFFNget8(R_TABLE_LOGICAL_ROOM)=2:PROCshow_using_slot_misc(1,23,IMAGE_WALL_ENEMY_LEFT)
+ 1040IFFNget8(R_TABLE_LOGICAL_ROOM)=8:PROCshow_using_slot_misc(11,23,IMAGE_STATUE):PROCshow_using_slot_misc(9,21,IMAGE_STATUE):PROCshow_using_slot_misc(13,24,IMAGE_STATUE)
+ 1050IFFNget8(R_TABLE_LOGICAL_ROOM)=14:PROCshow_using_slot_misc(8,20,IMAGE_WALL_ENEMY_RIGHT):PROCshow_using_slot_misc(11,20,IMAGE_WALL_ENEMY_LEFT):VDU17,131,17,2:PRINTTAB(0,26)STRING$(20,CHR$231):COLOUR128:IFFNitem_collected(4)=0:PROCshow_using_slot_misc(12,25,IMAGE_FLEECE_MACGUFFIN_PRISM)
+ 1060IFFNget8(R_TABLE_LOGICAL_ROOM)=12:PROCshow_using_slot_misc(1,15,IMAGE_WALL_ENEMY_LEFT):PROCshow_using_slot_misc(1,18,IMAGE_WALL_ENEMY_LEFT):PROCshow_using_slot_misc(1,21,IMAGE_WALL_ENEMY_LEFT)
+ 1070IFFNget8(R_TABLE_LOGICAL_ROOM)=13:PROCshow_using_slot_misc(7,21,IMAGE_STATUE):PROCshow_using_slot_misc(12,21,IMAGE_STATUE)
+ 1080IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDscore%=90:M%=608:N%=512:W%=SLOT_MISC:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFFNget8(R_TABLE_DAY_NIGHT)=1:Y%=S_OP_REMOVE:CALLS%
+ 1090IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDFNitem_collected(3)=0:PROCshow_using_slot_misc(18,24,IMAGE_FLEECE_MACGUFFIN_PRISM)
  1100ENDPROC
 
- 1110DEFPROCchange_room:IFlogical_room%=10ANDD%<228:PROCwin:PROCset8(R_TABLE_GAME_ENDED,1):ENDPROC
+ 1110DEFPROCchange_room:IFFNget8(R_TABLE_LOGICAL_ROOM)=10ANDD%<228:PROCwin:PROCset8(R_TABLE_GAME_ENDED,1):ENDPROC
  1121IFD%>730:D%=224:phys_room%=phys_room%-5 ELSEIFD%<228:D%=728:phys_room%=phys_room%+5 ELSEIFC%>1194:C%=24:phys_room%=phys_room%+1 ELSEIFC%<24:C%=1194:phys_room%=phys_room%-1
  1122PROCchange_room2:ENDPROC
  1124DEFPROCchange_room2
  1127W%=SLOT_ENEMY:Y%=S_OP_REMOVE:CALLS%:W%=SLOT_LEE:CALLS%
- 1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type_tmp%:NEXT:PROCset8(R_TABLE_ROOM_TYPE,room_type_tmp%):IFscore%=100:PROCset8(R_TABLE_ROOM_TYPE,2)
- 1140IFlogical_room%=10ANDscore%>70:PROCset8(R_TABLE_ROOM_TYPE,5)
+ 1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room_tmp%:NEXT:RESTORE1440:PROCset8(R_TABLE_LOGICAL_ROOM,logical_room_tmp%):FORn%=1TOFNget8(R_TABLE_LOGICAL_ROOM):READroom_type_tmp%:NEXT:PROCset8(R_TABLE_ROOM_TYPE,room_type_tmp%):IFscore%=100:PROCset8(R_TABLE_ROOM_TYPE,2)
+ 1140IFFNget8(R_TABLE_LOGICAL_ROOM)=10ANDscore%>70:PROCset8(R_TABLE_ROOM_TYPE,5)
  1150PROCdraw_current_room:ENDPROC
 
- 1160DEFPROCupdate_energy_and_items:IFX%=SLOT_ENEMY:GOTO1210 ELSEIFX%=SLOT_ENEMYOR(X%=SLOT_MISCANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
- 1170IFFNget8signed(R_TABLE_FALLING_TIME)>1:GOTO1210 ELSEIFlogical_room%=1:this_item%=1 ELSEIFlogical_room%=7:this_item%=2 ELSEIFlogical_room%=5:this_item%=3 ELSEIFlogical_room%=14:this_item%=4 ELSEIFlogical_room%=9:this_item%=5
- 1180IFitem_collected%(this_item%)=1:GOTO1220 ELSEitem_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
+ 1181IFFNget8(R_TABLE_THIS_ITEM)<5:PROCshow_prisms
  1182W%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:REM remove the collected object from the room
- 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
- 1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
+ 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:PROCset8(R_TABLE_ENERGY_MINOR,50):PROCdelay(150):VDU19,0,0;0;
+ 1191IFFNget8(R_TABLE_LOGICAL_ROOM)=9:score%=score%-10:COLOUR1:PRINTTAB(FNget8(R_TABLE_ENERGY_MAJOR),5)CHR$246:PROCset8(R_TABLE_ENERGY_MJAOR,16):VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
- 1210IFFNget8signed(R_TABLE_FALLING_TIME)>1:A%=11:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING:GOTO1230
- 1220IFFNget8(R_TABLE_ROOM_TYPE)=2ANDFNget8(R_TABLE_DAY_NIGHT)=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFFNget8(R_TABLE_ROOM_TYPE)=2:A%=9:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=energy_minor%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=energy_minor%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
- 1230energy_minor%=energy_minor%-1
- 1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:PROCset8(R_TABLE_GAME_ENDED,1)
- 1240ENDPROC
 
- 1250DEFPROChide_fleece:IFlogical_room%<>5:ENDPROC
+ 1250DEFPROChide_fleece:IFFNget8(R_TABLE_LOGICAL_ROOM)<>5:ENDPROC
  1260IFscore%<90:ENDPROC ELSEW%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:ENDPROC
 
- 1270DEFPROCrestore_fleece:IFlogical_room%<>5:ENDPROC
+ 1270DEFPROCrestore_fleece:IFFNget8(R_TABLE_LOGICAL_ROOM)<>5:ENDPROC
  1280IFscore%<90:ENDPROC ELSEW%=SLOT_MISC:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLS%:CALLU%:ENDPROC
 
  1290DEFPROCwarp_effect:*FX13,5
  1295VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
  1320DEFPROCtitle_screen:colour1%=7:colour2%=6:colour3%=1:PROCreset_note_count
- 1330PROCset8(R_TABLE_DAY_NIGHT,0):score%=0:PROCset8(R_TABLE_ROOM_TYPE,0):logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
+ 1330PROCset8(R_TABLE_DAY_NIGHT,0):score%=0:PROCset8(R_TABLE_ROOM_TYPE,0):PROCset8(R_TABLE_LOGICAL_ROOM,9):VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
  1331REPEATnote_pitch%=note_count%?(R%!R_TABLE_PITCH):note_duration%=note_count%?(R%!R_TABLE_DURATION):note_count%=note_count%+1:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):IFnote_count%=63:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
- 1351energy_major%=16:energy_minor%=10:logical_room%=8:PROCset8(R_TABLE_DAY_NIGHT,0):w%=0:D%=576:C%=1120:K%=192:L%=108:PROCset8(R_TABLE_JUMPING,0):delta_x%=0:sd%=10:PROCset8(R_TABLE_LEE_DIRECTION,10):PROCset8(R_TABLE_FALLING_DELTA_X,0)
+ 1351PROCset8(R_TABLE_ENERGY_MAJOR,16):PROCset8(R_TABLE_ENERGY_MINOR,10):PROCset8(R_TABLE_LOGICAL_ROOM,8):PROCset8(R_TABLE_DAY_NIGHT,0):w%=0:D%=576:C%=1120:K%=192:L%=108:PROCset8(R_TABLE_JUMPING,0):delta_x%=0:sd%=10:PROCset8(R_TABLE_LEE_DIRECTION,10):PROCset8(R_TABLE_FALLING_DELTA_X,0)
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
  1360PROCreset_note_count:phys_room%=12:PROCset8(R_TABLE_GAME_ENDED,0):W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:PROCset8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT,20):PROCset8(R_TABLE_MAX_JUMP_TIME,40):uw%=0:sun_moon_disabled%=0:m%=0:PROCset8(R_TABLE_ROOM_TYPE,3)
- 1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
+ 1361VDU17,0,17,131:PRINTTAB(FNget8(R_TABLE_ENERGY_MAJOR),5)CHR$224:COLOUR128:FORn%=1TO5:n%?(R%!R_TABLE_ITEM_COLLECTED)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q"ORs$="q":*FX210,1
  1380ENDPROC
 
@@ -243,7 +241,7 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
  1470PROCstop_sound:pw%=1000:on%=2:IFwon%=1ORuw%=1:GOTO1490
  1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=SLOT_LEE:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
  1490VDU19,1,1;0;19,2,6;0;19,3,7;0;17,3:s$=STR$score%+"%":PROCclear_room:PRINTTAB(5,16);:VDU232,233,234,235,32,32,238,239,235,240,5
- 1491GCOL0,2:FORn%=416TO412STEP-4:MOVE544,n%:PRINTs$:NEXT:VDU4:PROCdelay(14000):COLOUR1:PRINTTAB(energy_major%,5)CHR$246:ENDPROC
+ 1491GCOL0,2:FORn%=416TO412STEP-4:MOVE544,n%:PRINTs$:NEXT:VDU4:PROCdelay(14000):COLOUR1:PRINTTAB(FNget8(R_TABLE_ENERGY_MAJOR),5)CHR$246:ENDPROC
 
  1500DEFPROCwin:won%=1:PROCstop_sound:VDU19,1,1;0;19,2,3;0;19,3,6;0;:PROCclear_room:COLOUR2:PRINTTAB(6,16);:VDU232,233,234,235,32,235,242,245,5:GCOL0,1:a$=CHR$10+STRING$(12,CHR$8):FORn%=416TO412STEP-4:MOVE256,n%
  1510PRINT"INNER  WORLD"+a$+"COMING  SOON":NEXT:*FX15,1
@@ -260,7 +258,7 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
  2050RESTORE 2500
  2060FOR n%=1 TO ASC(key$)AND&9F:READ phys_room%,C%,D%:NEXT
  2070REM Logical room 14 (Ed's room N) has some tricky behaviour; to get it right, we pretend we're passing through the warp from logical room 10 as in real gameplay.
- 2200IF phys_room%<>14:PROCchange_room2 ELSE logical_room%=10:PROCset8(R_TABLE_ROOM_TYPE,4-(score%>70)):C%=1152:D%=484:PROCcheck_warps
+ 2200IF phys_room%<>14:PROCchange_room2 ELSE PROCset8(R_TABLE_LOGICAL_ROOM,10):PROCset8(R_TABLE_ROOM_TYPE,4-(score%>70)):C%=1152:D%=484:PROCcheck_warps
  2205W%=SLOT_LEE:W%=SLOT_LEE:Y%=S_OP_SHOW:CALLS%:REM show player sprite
  2210PROCreset_note_count:REM Must do this because we moved DATA pointer
  2218VDU5:Y%=S_OP_MOVE:IF sun_moon_disabled%=0:W%=SLOT_SUN_MOON
@@ -271,7 +269,7 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
  3000DEFPROCshow_prisms
  3005LOCAL W%,X%,Y%
  3007REMFORn%=1TO4:item_collected%(n%)=1:NEXT:REM TODO HACK
- 3010q%=0:FOR n%=1 TO 4:q%=q%+item_collected%(n%):NEXT
+ 3010q%=0:FOR n%=1 TO 4:q%=q%+FNitem_collected(n%):NEXT
  3025W%=SLOT_COLLECTED_PRISM:Y%=S_OP_SHOW:X%=IMAGE_FLEECE_MACGUFFIN_PRISM
  3030IF q%<=2 THEN F%=124:p%=q% ELSE F%=144:p%=4
  3040FOR n%=1 TO p%
@@ -295,6 +293,7 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
  5000DEF PROCset8(slot%,value%):?(R%!slot%)=value%:ENDPROC
  5010DEF FNget8(slot%):=?(R%!slot%)
  5020DEF FNget8signed(slot%):LOCALv%:v%=FNget8(slot%):IF v%>=128:=v%-256 ELSE =v%
+ 5030DEF FNitem_collected(n%):=n%?(R%!R_TABLE_ITEM_COLLECTED)
 
 32000*TAPE
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M

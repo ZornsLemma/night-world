@@ -71,7 +71,9 @@ if MAKE_IMAGE
 
     vdu_gcol = 18
     S_OP_MOVE = 0
+
     SLOT_ENEMY = 5
+    SLOT_MISC = 7
     SLOT_LEE = 10
 
     IMAGE_HUMAN_RIGHT = 9
@@ -1680,6 +1682,11 @@ if MAKE_IMAGE
     equw ak
     equw db
     equw jsr_room_type_1_continue
+    equw logical_room
+    equw this_item
+    equw item_collected
+    equw energy_minor
+    equw energy_major
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1730,6 +1737,16 @@ if MAKE_IMAGE
 .^ak
     equb 0
 .^db
+    equb 0
+.^logical_room
+    equb 0
+.^this_item
+    equb 0
+.^item_collected
+    equb 0, 0, 0, 0, 0, 0
+.^energy_minor
+    equb 0
+.^energy_major
     equb 0
 .axm
     equw 0
@@ -2132,21 +2149,7 @@ if MAKE_IMAGE
     ; 1180IFitem_collected%(this_item%)=1:GOTO1220 ELSEitem_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
     ldx this_item:lda item_collected,x:cmp #1:beq update_energy_and_items_1220
     lda #1:sta item_collected,x
-    cpx #5:bcs this_item_not_lt_5
-    ; TODO: jsr show_prisms - temporarily not bothering with this
-.this_item_not_lt_5
-    ; 1182W%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:REM remove the collected object from the room
-    lda #SLOT_MISC:sta ri_w
-    LDA #S_OP_REMOVE:sta ri_y
-    jsr s_subroutine
-    ; 1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4:VDU19,0,7;0;:score%=score%+20:energy_minor%=50:PROCdelay(150):VDU19,0,0;0;
-    jsr stop_sound
-    lda #100:jsr delay
-    TODO I REALLY NEED TO CALL INTO BASIC FOR THIS BUT IT NEEDS A LITTLE THOUGHT AS I HAVE A "LOCAL" SUBROUTINE ON STACK
-    ; 1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
-    TODO
-    ; 1200ENDPROC
-    TODO
+    pla:pla:lda #<1181:sta ri_m:lda #>1181:sta ri_m+1:rts
     ; 1210IFfalling_time%>1:A%=11:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING:GOTO1230
 .update_energy_and_items_1210
     lda falling_time:bmi update_energy_and_items_1210
@@ -2156,6 +2159,7 @@ if MAKE_IMAGE
     jsr sound_nonblocking
     jmp update_energy_and_items_1230
     ; 1220IFroom_type%=2ANDday_night%=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2:A%=9:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=energy_minor%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=energy_minor%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
+.update_energy_and_items_1220
     lda room_type:cmp #2:bne not_endproc
     lda day_night:cmp #1:bne not_endproc
     lda ri_x:cmp #SLOT_ENEMY:bne not_endproc
@@ -2164,7 +2168,7 @@ if MAKE_IMAGE
     jsr stop_sound
     lda room_type:cmp #2:bne not_room_type_2
     lda #9:sta ri_a
-    lda energy_minor:sta rI-b
+    lda energy_minor:sta ri_b
     lda #2:sta ri_e
     jsr sound_nonblocking
     jmp update_energy_and_items_1230
@@ -2192,7 +2196,7 @@ if MAKE_IMAGE
     lda #30:jsr oswrch:lda energy_major:jsr oswrch:lda #5:jsr oswrch
     lda #224:jsr oswrch
     lda #17:jsr oswrch:lda #128:jsr oswrch:lda #17:jsr oswrch:lda #1:jsr oswrch
-    lda #256:jsr oswrch
+    lda #246:jsr oswrch
     lda energy_major:cmp #3:bne not_game_ended
     lda #1:sta game_ended
 .not_game_ended
