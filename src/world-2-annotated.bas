@@ -285,12 +285,6 @@ constant R_TABLE_SCORE = 78
  3510W%=SLOT_LEE:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
  3520ENDPROC
 
- 4000DEFFNjump_terminated_falling_time
- 4010REM Credit the player with any unused "descending" time from this jump; this wouldn't count as time towards the falling damage threshold if they hadn't collided with something above them, so it seems fair to give them the same here.
- 4020PROCset8(R_TABLE_JUMP_TIME,FNget8(R_TABLE_JUMP_TIME)+2):REM this would have happened in this game cycle before testing jump_time% if we hadn't collided with something
- 4030IF FNget8(R_TABLE_JUMP_TIME)<FNget8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT):PROCset8(R_TABLE_JUMP_TIME,FNget8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT)):REM don't credit any remaining "ascending" jump time
- 4040=(FNget8(R_TABLE_JUMP_TIME)-FNget8(R_TABLE_MAX_JUMP_TIME))DIV2:REM DIV 2 because jump_time% counts up by two every game cycle
-
  5000DEF PROCset8(slot%,value%):?(R%!slot%)=value%:ENDPROC
  5010DEF FNget8(slot%):=?(R%!slot%)
  5020DEF FNget8signed(slot%):LOCALv%:v%=FNget8(slot%):IF v%>=128:=v%-256 ELSE =v%
