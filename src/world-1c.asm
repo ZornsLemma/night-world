@@ -1656,6 +1656,8 @@ if MAKE_IMAGE
     equw lee_direction
     equw jump_time
     equw jump_delta_y
+    equw play_330
+    equw play_320
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1691,6 +1693,8 @@ if MAKE_IMAGE
     equb 0
 .^jump_delta_y
     equb 0
+.sf
+    equw 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
@@ -1754,10 +1758,17 @@ if MAKE_IMAGE
     ldx #-56 and &ff:jsr inkey:bne not_pause
     lda #<256:sta ri_m:lda #>256:sta ri_m+1:rts ; TODO!
 .not_pause
-.play_320
-    lda #<320:sta ri_m:lda #>320:sta ri_m+1:rts ; TODO!
-.play_330
-    lda #<330:sta ri_m:lda #>330:sta ri_m+1:rts ; TODO!
+.^play_320
+    ; 320sf%=D%-66:IFscore%=100:IFD%>260:IFPOINT(C%,sf%)=3:MOVEC%,sf%+26:VDU5,249,4
+    sec:lda ri_d:sbc #6:sta sf
+    lda ri_d+1:sbc #0:sta sf+1
+    ; TODO: DO SCORE%=100 BIT
+.^play_330
+    ; 330W%=SLOT_LEE:CALLS%
+    lda #SLOT_LEE:sta ri_w
+    jsr s_subroutine
+
+    lda #<335:sta ri_m:lda #>335:sta ri_m+1:rts ; TODO!
 
 .move_left
     ; 420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
