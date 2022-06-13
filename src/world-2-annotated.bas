@@ -144,10 +144,6 @@ constant R_TABLE_ROOM_TYPE_1_CONTINUE = 58
   635Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=SLOT_MISC:CALLS%:RESTORE1450:score%=100:sun_moon_disabled%=1:PROCremove_lee_sprite:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;:IFok%=0:RESTORE1450
   640SOUND1,4,n%+nm%,2:SOUND2,12,n%+nm%,3:NEXT,:PROCreset_note_count:VDU19,3,4;0;19,2,0;0;19,1,6;0;17,131,17,2:colour1%=6:colour2%=0:colour3%=4:PRINTTAB(9,14)STRING$(4,CHR$227):COLOUR128:CALLV%:ENDPROC
 
-  700DEFPROCroom_type2:axm%=3:IFI%>C%:axm%=-3
-  710aym%=2:IFJ%>D%:aym%=-4
-  720I%=I%+axm%:J%=J%+aym%:CALLS%:ENDPROC
-
   799REM TODO: Moving this towards end of code would slightly speed up line number searching for GOTOs
   800DEFPROCnew_game_init:CALLV%:PROCclear_room:VDU28,4,30,15,28,17,128,12,26
   801FORn%=28TO30:FORwn%=0TO2:VDU31,wn%,n%,(229+wn%),31,(wn%+17),n%,(229+wn%):NEXT,:ENDPROC
