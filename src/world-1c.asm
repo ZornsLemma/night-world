@@ -1687,6 +1687,7 @@ if MAKE_IMAGE
     equw item_collected
     equw energy_minor
     equw energy_major
+    equw play_370
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1889,7 +1890,7 @@ if MAKE_IMAGE
     jsr update_energy_and_items
     jmp play_370
 .falling_time_not_gt_12
-.play_370
+.^play_370
     lda #<370:sta ri_m:lda #>370:sta ri_m+1:rts ; TODO!
 
 .room_type_1
