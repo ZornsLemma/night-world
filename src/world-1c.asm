@@ -38,6 +38,7 @@ ri_d = &0410
 ri_e = &0414
 ri_i = &0424
 ri_j = &0428
+ri_k = &042c
 ri_l = &0430
 ri_m = &0434
 ri_q = &0444
@@ -73,6 +74,7 @@ if MAKE_IMAGE
     S_OP_MOVE = 0
 
     SLOT_ENEMY = 5
+    SLOT_SUN_MOON = 6
     SLOT_MISC = 7
     SLOT_LEE = 10
 
@@ -554,6 +556,7 @@ endif
     equb   0,   0,   0,   0,   0, &11, &11, &11, &65, &65, &65, &65
     equb &67, &67, &77, &7f, &65, &65, &65, &65, &65, &ef, &ef, &ff
 
+if not(MAKE_IMAGE)
 ; ENHANCE: This appears to be mode 5 graphics data showing '< 1 > Load ' (just
 ; *LOAD World1c 5800 to see this), so this is almost certainly junk/a build
 ; artefact/spare space.
@@ -581,6 +584,7 @@ endif
     equs "```"
     equb &e0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0
+endif
 
 ; Most of the following subroutines handle sprites in one way or another. We
 ; have max_sprite_num sprite slots, each of which defines a screen position and
@@ -1688,6 +1692,9 @@ if MAKE_IMAGE
     equw energy_minor
     equw energy_major
     equw play_370
+    equw sun_moon_disabled
+    equw m
+    equw continue_after_advance_sun_moon
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1748,6 +1755,10 @@ if MAKE_IMAGE
 .^energy_minor
     equb 0
 .^energy_major
+    equb 0
+.^sun_moon_disabled
+    equb 0
+.^m
     equb 0
 .axm
     equw 0
@@ -1891,7 +1902,41 @@ if MAKE_IMAGE
     jmp play_370
 .falling_time_not_gt_12
 .^play_370
-    lda #<370:sta ri_m:lda #>370:sta ri_m+1:rts ; TODO!
+    ; 370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFFNget8(R_TABLE_LOGICAL_ROOM)=1ORFNget8(R_TABLE_LOGICAL_ROOM)=13ORFNget8(R_TABLE_LOGICAL_ROOM)=5ORFNget8(R_TABLE_LOGICAL_ROOM)=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOM%
+    lda sun_moon_disabled:bne dont_update_sun_moon
+    inc m
+    lda m:cmp #11:bne dont_advance_sun_moon
+    jsr advance_sun_moon
+.^continue_after_advance_sun_moon
+    lda #0:sta m
+    jmp play_280
+.dont_advance_sun_moon
+.dont_update_sun_moon
+    lda logical_room
+    cmp #1:beq do_check_warps
+    cmp #13:beq do_check_warps
+    cmp #5:beq do_check_warps
+    cmp #10:beq do_check_warps
+    jmp play_280
+.do_check_warps
+    lda #<381:sta ri_m:lda #>381:sta ri_m+1:rts
+
+.advance_sun_moon
+{
+    ; 510DEFPROCadvance_sun_moon:W%=SLOT_SUN_MOON:Z%=DELTA_STEP_RIGHT:CALLT%:IFK%=1016:PROCtoggle_day_night
+    lda #SLOT_SUN_MOON:sta ri_w
+    lda #DELTA_STEP_RIGHT:sta ri_z
+    jsr t_subroutine
+    lda ri_k:cmp #<1016:bne k_not_1016
+    lda ri_k+1:cmp #>1016:bne k_not_1016
+    pla:pla:lda #<531:sta ri_m:lda #>531:sta ri_m+1:rts
+.k_not_1016
+    ; TODO: Not translating next line as it's probably useless...
+    ; 515REM TODO: Does the next line do anything useful?
+    ; 520IFFNget8(R_TABLE_LOGICAL_ROOM)=5:W%=8:Z%=DELTA_STEP_RIGHT:CALLT%
+    ; 530ENDPROC
+    rts
+}
 
 .room_type_1
 {
