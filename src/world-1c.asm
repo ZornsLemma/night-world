@@ -1861,7 +1861,17 @@ if MAKE_IMAGE
     jsr room_type_5
     assert P% == play_360 ; fall through to play_360
 .play_360
-    lda #<360:sta ri_m:lda #>360:sta ri_m+1:rts ; TODO!
+    ; 360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORFNget8signed(R_TABLE_FALLING_TIME)>12:PROCupdate_energy_and_items
+    lda #SLOT_LEE:sta ri_w
+    lda #8:sta ri_y
+    jsr q_subroutine_wrapper
+    lda ri_x:bne x_ne_0
+    ; TODO: for now assuming falling_time is 8-bit signed value; we *may* need 16 bits
+    lda falling_time:bmi falling_time_not_gt_12:cmp #12+1:bcc falling_time_not_gt_12
+.x_ne_0
+    lda #<252:sta ri_m:lda #>252:sta ri_m+1:rts ; TODO!
+.falling_time_not_gt_12
+    lda #<370:sta ri_m:lda #>370:sta ri_m+1:rts ; TODO!
 
 .room_type_1
 {
