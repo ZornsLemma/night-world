@@ -1660,6 +1660,7 @@ if MAKE_IMAGE
     equw play_320
     equw full_speed_jump_time_limit
     equw max_jump_time
+    equw game_ended
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1700,6 +1701,8 @@ if MAKE_IMAGE
 .^full_speed_jump_time_limit
     equb 0
 .^max_jump_time
+    equb 0
+.^game_ended
     equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
@@ -1793,6 +1796,9 @@ if MAKE_IMAGE
 .d_gt_730
     lda #<257:sta ri_m:lda #>257:sta ri_m+1:rts ; TODO!?
 .d_not_lt_228
+    lda game_ended:beq play_340
+    lda #<258:sta ri_m:lda #>258:sta ri_m+1:rts ; TODO!?
+.play_340
     lda #<340:sta ri_m:lda #>340:sta ri_m+1:rts ; TODO!
 
 .move_left

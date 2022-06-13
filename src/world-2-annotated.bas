@@ -59,6 +59,7 @@ constant R_TABLE_PLAY_330 = 40
 constant R_TABLE_PLAY_320 = 42
 constant R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT = 44
 constant R_TABLE_MAX_JUMP_TIME = 46
+constant R_TABLE_GAME_ENDED = 48
 
    0IFPAGE>&E00:GOTO32000
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
@@ -89,8 +90,9 @@ constant R_TABLE_MAX_JUMP_TIME = 46
   250PROCdraw_room(logical_room%):ENDPROC
 
   256PROCpause:CALLR%!R_TABLE_PLAY_320:GOTOM%:REM TODO TEMP - MAYBE?
-  257PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!R_TABLE_PLAY_270:GOTOM% ELSE ENDPROC
-  259ON JUNK GOTO 255,340,256,257:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
+  257PROCchange_room:PROCreset_note_count:IFFNget8(R_TABLE_GAME_ENDED)=0:CALLR%!R_TABLE_PLAY_270:GOTOM% ELSE ENDPROC
+  258ENDPROC:REM TODO TEMP - MAYBE?
+  259ON JUNK GOTO 255,340,256,257,258:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
 
   260DEFPROCplay
   270CALLR%!R_TABLE_PLAY_270:GOTOM%
@@ -193,7 +195,7 @@ constant R_TABLE_MAX_JUMP_TIME = 46
  1090IFlogical_room%=5ANDitem_collected%(3)=0:PROCshow_using_slot_misc(18,24,IMAGE_FLEECE_MACGUFFIN_PRISM)
  1100ENDPROC
 
- 1110DEFPROCchange_room:IFlogical_room%=10ANDD%<228:PROCwin:game_ended%=1:ENDPROC
+ 1110DEFPROCchange_room:IFlogical_room%=10ANDD%<228:PROCwin:PROCset8(R_TABLE_GAME_ENDED,1):ENDPROC
  1121IFD%>730:D%=224:phys_room%=phys_room%-5 ELSEIFD%<228:D%=728:phys_room%=phys_room%+5 ELSEIFC%>1194:C%=24:phys_room%=phys_room%+1 ELSEIFC%<24:C%=1194:phys_room%=phys_room%-1
  1122PROCchange_room2:ENDPROC
  1124DEFPROCchange_room2
@@ -212,7 +214,7 @@ constant R_TABLE_MAX_JUMP_TIME = 46
  1210IFFNget8signed(R_TABLE_FALLING_TIME)>1:A%=11:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING:GOTO1230
  1220IFroom_type%=2ANDFNget8(R_TABLE_DAY_NIGHT)=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2:A%=9:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=energy_minor%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=energy_minor%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
  1230energy_minor%=energy_minor%-1
- 1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:game_ended%=1
+ 1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:PROCset8(R_TABLE_GAME_ENDED,1)
  1240ENDPROC
 
  1250DEFPROChide_fleece:IFlogical_room%<>5:ENDPROC
@@ -231,7 +233,7 @@ constant R_TABLE_MAX_JUMP_TIME = 46
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:PROCset8(R_TABLE_DAY_NIGHT,0):w%=0:D%=576:C%=1120:K%=192:L%=108:PROCset8(R_TABLE_JUMPING,0):delta_x%=0:sd%=10:PROCset8(R_TABLE_LEE_DIRECTION,10):PROCset8(R_TABLE_FALLING_DELTA_X,0)
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
- 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:PROCset8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT,20):PROCset8(R_TABLE_MAX_JUMP_TIME,40):uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
+ 1360PROCreset_note_count:phys_room%=12:PROCset8(R_TABLE_GAME_ENDED,0):W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:PROCset8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT,20):PROCset8(R_TABLE_MAX_JUMP_TIME,40):uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q"ORs$="q":*FX210,1
  1380ENDPROC
