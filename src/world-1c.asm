@@ -1658,6 +1658,8 @@ if MAKE_IMAGE
     equw jump_delta_y
     equw play_330
     equw play_320
+    equw full_speed_jump_time_limit
+    equw max_jump_time
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1695,6 +1697,10 @@ if MAKE_IMAGE
     equb 0
 .sf
     equw 0
+.^full_speed_jump_time_limit
+    equb 0
+.^max_jump_time
+    equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
@@ -1713,7 +1719,8 @@ if MAKE_IMAGE
     lda #SLOT_LEE:sta ri_w
     ; 291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
     lda jumping:beq not_jumping
-    lda #<255:sta ri_m:lda #>255:sta ri_m+1:rts ; TODO: jsr jump:jmp play_330
+    jsr jump
+    jmp play_330
 .not_jumping
     lda #0:sta delta_x
     clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
@@ -1829,6 +1836,55 @@ if MAKE_IMAGE
     lda ri_c+1:adc #0:sta ri_c+1
 .move_right_rts
     rts
+
+.jump
+    ; 480DEFPROCjump:IFPOINT(C%+8,D%+4)<>0ORPOINT(C%+56,D%+4)<>0:jumping%=0:falling_time%=FNjump_terminated_falling_time:PROCstop_sound:ENDPROC
+    clc:lda ri_c:adc #8:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    clc:lda ri_d:adc #4:sta osword_read_pixel_block_y
+    lda ri_d+1:adc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result:bne stop_jumping
+    clc:lda ri_c:adc #56:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    jsr point
+    lda osword_read_pixel_block_result:beq dont_stop_jumping
+.stop_jumping
+    lda #0:sta jumping
+    lda #0:sta falling_time ; TODO: FNjump_terminated_falling_time - but will use 0 for now
+    jmp stop_sound
+.dont_stop_jumping
+    ; 490jump_time%=jump_time%+2:D%=D%+jump_delta_y%:C%=C%+delta_x%
+    clc:lda jump_time:adc #2:sta jump_time ; TODO: need to worry about wrapping?
+    ldx #0:lda jump_delta_y:bpl jump_delta_y_positive:dex:.jump_delta_y_positive
+    clc:adc ri_d:sta ri_d
+    txa:adc ri_d+1:sta ri_d+1
+    ldx #0:lda delta_x:bpl delta_x_positive:dex:.delta_x_positive
+    clc:adc ri_c:sta ri_c
+    txa:adc ri_c+1:sta ri_c+1
+    ; 491IFjump_time%>full_speed_jump_time_limit%:jump_delta_y%=-4:IFjump_time%=max_jump_time%ORPOINT(C%+32,D%-66)<>0:jumping%=0:PROCstop_sound:ENDPROC
+    lda jump_time:cmp full_speed_jump_time_limit:bcc jump_time_not_gt_full_speed_jump_time_limit:beq jump_time_not_gt_full_speed_jump_time_limit
+    lda #-4 and &ff:sta jump_delta_y
+    lda jump_time:cmp max_jump_time:beq jump_time_eq_max_jump_time
+    clc:lda ri_c:adc #32:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    sec:lda ri_d:sbc #66:sta osword_read_pixel_block_y
+    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result:beq jump_pixel_above_black
+.jump_time_eq_max_jump_time
+    lda #0:sta jumping
+    jmp stop_sound
+.jump_time_not_gt_full_speed_jump_time_limit
+.jump_pixel_above_black
+    ; 500ENDPROC
+    rts
+
+.stop_sound
+    ; 110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
+    lda #7:ldx #<stop_sound_block:ldy #>stop_sound_block:jmp osword
+.stop_sound_block
+    equw &11, 0, 0, 0
 
 .change_lee_sprite
     ; 200DEFPROCchange_lee_sprite

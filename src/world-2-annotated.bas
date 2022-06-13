@@ -57,6 +57,8 @@ constant R_TABLE_JUMP_TIME = 36
 constant R_TABLE_JUMP_DELTA_Y = 38
 constant R_TABLE_PLAY_330 = 40
 constant R_TABLE_PLAY_320 = 42
+constant R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT = 44
+constant R_TABLE_MAX_JUMP_TIME = 46
 
    0IFPAGE>&E00:GOTO32000
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
@@ -86,7 +88,6 @@ constant R_TABLE_PLAY_320 = 42
   240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
   250PROCdraw_room(logical_room%):ENDPROC
 
-  255PROCjump:CALLR%!R_TABLE_PLAY_330:GOTOM%:REM TODO TEMP
   256PROCpause:CALLR%!R_TABLE_PLAY_320:GOTOM%:REM TODO TEMP - MAYBE?
   257PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!R_TABLE_PLAY_270:GOTOM% ELSE ENDPROC
   259ON JUNK GOTO 255,340,256,257:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
@@ -103,11 +104,6 @@ constant R_TABLE_PLAY_320 = 42
   400DEFPROCshow_using_slot_misc(text_x%,text_y%,image%):M%=(text_x%*64)-4:N%=(1024-(32*text_y%))+28:X%=image%:W%=SLOT_MISC:IFimage%=20:M%=M%+4
   410CALLS%:CALLU%:ENDPROC
 
-  480DEFPROCjump:IFPOINT(C%+8,D%+4)<>0ORPOINT(C%+56,D%+4)<>0:PROCset8(R_TABLE_JUMPING,0):PROCset8(R_TABLE_FALLING_TIME,FNjump_terminated_falling_time):PROCstop_sound:ENDPROC
-  490PROCset8(R_TABLE_JUMP_TIME,FNget8(R_TABLE_JUMP_TIME)+2):D%=D%+FNget8signed(R_TABLE_JUMP_DELTA_Y):C%=C%+FNget8signed(R_TABLE_DELTA_X)
-  491IFFNget8(R_TABLE_JUMP_TIME)>full_speed_jump_time_limit%:PROCset8(R_TABLE_JUMP_DELTA_Y,-4):IFFNget8(R_TABLE_JUMP_TIME)=max_jump_time%ORPOINT(C%+32,D%-66)<>0:PROCset8(R_TABLE_JUMPING,0):PROCstop_sound:ENDPROC
-  500ENDPROC
-
   510DEFPROCadvance_sun_moon:W%=SLOT_SUN_MOON:Z%=DELTA_STEP_RIGHT:CALLT%:IFK%=1016:PROCtoggle_day_night
   515REM TODO: Does the next line do anything useful?
   520IFlogical_room%=5:W%=8:Z%=DELTA_STEP_RIGHT:CALLT%
@@ -116,8 +112,8 @@ constant R_TABLE_PLAY_320 = 42
   540DEFPROCtoggle_day_night:*FX13,5
   545RESTORE1450:FORn%=1TO140STEP5:READo%:SOUND1,3,n%,2:SOUND2,2,n%+10,3:VDU19,1,o%;0;19,2,o%-1;0;19,3,o%-2;0;:IFo%=0:RESTORE1450
   550NEXT:PROCreset_note_count:VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:PROCstop_sound:W%=SLOT_SUN_MOON:Y%=S_OP_REMOVE:CALLS%:K%=192
-  551IFFNget8(R_TABLE_DAY_NIGHT)=0:PROCset8(R_TABLE_DAY_NIGHT,1):PROCchange_lee_sprite:X%=IMAGE_MOON:W%=SLOT_SUN_MOON:CALLS%:CALLU%:W%=SLOT_LEE:full_speed_jump_time_limit%=45:max_jump_time%=90:PROChide_fleece:ENDPROC
-  560full_speed_jump_time_limit%=20:max_jump_time%=40:PROCset8(R_TABLE_DAY_NIGHT,0):PROCchange_lee_sprite:X%=IMAGE_SUN:W%=SLOT_SUN_MOON:CALLS%:CALLU%:W%=SLOT_LEE:PROCrestore_fleece:ENDPROC
+  551IFFNget8(R_TABLE_DAY_NIGHT)=0:PROCset8(R_TABLE_DAY_NIGHT,1):PROCchange_lee_sprite:X%=IMAGE_MOON:W%=SLOT_SUN_MOON:CALLS%:CALLU%:W%=SLOT_LEE:PROCset8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT,45):PROCset8(R_TABLE_MAX_JUMP_TIME,90):PROChide_fleece:ENDPROC
+  560PROCset8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT,20):PROCset8(R_TABLE_MAX_JUMP_TIME,40):PROCset8(R_TABLE_DAY_NIGHT,0):PROCchange_lee_sprite:X%=IMAGE_SUN:W%=SLOT_SUN_MOON:CALLS%:CALLU%:W%=SLOT_LEE:PROCrestore_fleece:ENDPROC
 
   570DEFPROCdelay(n1%):FORn%=1TOn1%:NEXT:ENDPROC
 
@@ -235,7 +231,7 @@ constant R_TABLE_PLAY_320 = 42
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:PROCset8(R_TABLE_DAY_NIGHT,0):w%=0:D%=576:C%=1120:K%=192:L%=108:PROCset8(R_TABLE_JUMPING,0):delta_x%=0:sd%=10:PROCset8(R_TABLE_LEE_DIRECTION,10):PROCset8(R_TABLE_FALLING_DELTA_X,0)
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
- 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:full_speed_jump_time_limit%=20:max_jump_time%=40:uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
+ 1360PROCreset_note_count:phys_room%=12:game_ended%=0:W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:PROCset8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT,20):PROCset8(R_TABLE_MAX_JUMP_TIME,40):uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q"ORs$="q":*FX210,1
  1380ENDPROC
@@ -307,8 +303,8 @@ constant R_TABLE_PLAY_320 = 42
  4000DEFFNjump_terminated_falling_time
  4010REM Credit the player with any unused "descending" time from this jump; this wouldn't count as time towards the falling damage threshold if they hadn't collided with something above them, so it seems fair to give them the same here.
  4020PROCset8(R_TABLE_JUMP_TIME,FNget8(R_TABLE_JUMP_TIME)+2):REM this would have happened in this game cycle before testing jump_time% if we hadn't collided with something
- 4030IF FNget8(R_TABLE_JUMP_TIME)<full_speed_jump_time_limit%:PROCset8(R_TABLE_JUMP_TIME,full_speed_jump_time_limit%):REM don't credit any remaining "ascending" jump time
- 4040=(FNget8(R_TABLE_JUMP_TIME)-max_jump_time%)DIV2:REM DIV 2 because jump_time% counts up by two every game cycle
+ 4030IF FNget8(R_TABLE_JUMP_TIME)<FNget8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT):PROCset8(R_TABLE_JUMP_TIME,FNget8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT)):REM don't credit any remaining "ascending" jump time
+ 4040=(FNget8(R_TABLE_JUMP_TIME)-FNget8(R_TABLE_MAX_JUMP_TIME))DIV2:REM DIV 2 because jump_time% counts up by two every game cycle
 
  5000DEF PROCset8(slot%,value%):?(R%!slot%)=value%:ENDPROC
  5010DEF FNget8(slot%):=?(R%!slot%)
