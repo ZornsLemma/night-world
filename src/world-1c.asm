@@ -2157,7 +2157,7 @@ if MAKE_IMAGE
     lda osword_read_pixel_block_result:beq dont_stop_jumping
 .stop_jumping
     lda #0:sta jumping
-    lda #0:sta falling_time ; TODONOW: FNjump_terminated_falling_time - but will use 0 for now
+    jsr jump_terminated_falling_time:sta falling_time
     jmp stop_sound
 .dont_stop_jumping
     ; 490jump_time%=jump_time%+2:D%=D%+jump_delta_y%:C%=C%+delta_x%
@@ -2269,6 +2269,26 @@ if MAKE_IMAGE
 .energy_minor_not_0
 .infinite_health_cheat
     ; 1240ENDPROC
+    rts
+}
+
+.jump_terminated_falling_time
+{
+    ; 4000DEFFNjump_terminated_falling_time
+    ; 4010REM Credit the player with any unused "descending" time from this jump; this wouldn't count as time towards the falling damage threshold if they hadn't collided with something above them, so it seems fair to give them the same here.
+    ; 4020jump_time%=jump_time%+2:REM this would have happened in this game cycle before testing jump_time% if we hadn't collided with something
+    inc jump_time:inc jump_time
+    ; 4030IF jump_time%<full_speed_jump_time_limit%:jump_time%=full_speed_jump_time_limit%:REM don't credit any remaining "ascending" jump time
+    lda jump_time:cmp full_speed_jump_time_limit:bcs no_ascending_time_left
+    lda full_speed_jump_time_limit:sta jump_time
+.no_ascending_time_left
+    ; 4040=(jump_time%-max_jump_time%)DIV2:REM DIV 2 because jump_time% counts up by two every game cycle
+    sec:lda jump_time:sbc max_jump_time:beq falling_time_0
+    bmi falling_time_negative
+    brk:equb 0, "Positive!", 0
+.falling_time_negative
+    sec:ror a
+.falling_time_0
     rts
 }
 
