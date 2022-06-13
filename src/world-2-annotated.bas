@@ -60,6 +60,7 @@ constant R_TABLE_PLAY_320 = 42
 constant R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT = 44
 constant R_TABLE_MAX_JUMP_TIME = 46
 constant R_TABLE_GAME_ENDED = 48
+constant R_TABLE_ROOM_TYPE=50
 
    0IFPAGE>&E00:GOTO32000
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
@@ -86,17 +87,16 @@ constant R_TABLE_GAME_ENDED = 48
   210DEFPROCdraw_current_room:PROCclear_room
   220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFscore%=100:colour2%=0:colour3%=4:colour1%=6
   230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFlogical_room%=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
-  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:room_type%=0:PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
+  240IFlogical_room%<1ORlogical_room%>14:logical_room%=1:phys_room%=1:C%=128:PROCset8(R_TABLE_ROOM_TYPE,0):PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
   250PROCdraw_room(logical_room%):ENDPROC
 
   256PROCpause:CALLR%!R_TABLE_PLAY_320:GOTOM%:REM TODO TEMP - MAYBE?
   257PROCchange_room:PROCreset_note_count:IFFNget8(R_TABLE_GAME_ENDED)=0:CALLR%!R_TABLE_PLAY_270:GOTOM% ELSE ENDPROC
   258ENDPROC:REM TODO TEMP - MAYBE?
-  259ON JUNK GOTO 255,340,256,257,258:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
+  259ON JUNK GOTO 255,360,256,257,258:REM TODO TEMP - SO ABE PACK LEAVES THESE LINES ALONE
 
   260DEFPROCplay
   270CALLR%!R_TABLE_PLAY_270:GOTOM%
-  340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
   360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORFNget8signed(R_TABLE_FALLING_TIME)>12:PROCupdate_energy_and_items
   370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOM%
   380CALLR%!R_TABLE_PLAY_280:GOTOM%
@@ -126,7 +126,7 @@ constant R_TABLE_GAME_ENDED = 48
   583IFlogical_room%=1ANDC%<68:phys_room%=12:C%=1142:D%=316:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:logical_room%=8:PROCdraw_current_room:PROCwarp_effect:ENDPROC
   585REM If player is in room 10 (Ed's room J) and in the top half of the screen,
   586REM warp to room 9 (Ed's room N) - the fleece room.
-  590IFlogical_room%=10ANDC%>=1152ANDD%>480:phys_room%=14:logical_room%=9:C%=68:D%=416:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCdraw_current_room:PROCwarp_effect:room_type%=2:ENDPROC
+  590IFlogical_room%=10ANDC%>=1152ANDD%>480:phys_room%=14:logical_room%=9:C%=68:D%=416:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCdraw_current_room:PROCwarp_effect:PROCset8(R_TABLE_ROOM_TYPE,2):ENDPROC
   595REM If player is in room 13 at a specific point on the right edge, warp to
   596REM room 7 (Ed's room H).
   600IFlogical_room%=13ANDC%>1150AND(D%=288ORD%=284):phys_room%=9:C%=1148:D%=420:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:logical_room%=7:PROCdraw_current_room:PROCwarp_effect:ENDPROC
@@ -171,14 +171,14 @@ constant R_TABLE_GAME_ENDED = 48
   847VDU28,0,26,19,9,17,128,12,26:ENDPROC
 
   850DEFPROCdraw_room(b1%):!&70=b1%*45:PRINTTAB(0,9);:CALLR%!R_TABLE_DRAW_ROOM
-  880IFroom_type%=2:I%=608:J%=672:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:GOTO900
-  890db%=6:IFroom_type%>0:I%=291:J%=480:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:IFroom_type%=1:X%=IMAGE_HARPY_RIGHT:CALLU%
-  900IFlogical_room%=2ANDscore%=80:room_type%=3:X%=IMAGE_VEIL2:CALLU%:GOTO960
-  910IFlogical_room%=5ANDscore%=90:room_type%=0:Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
-  920IFroom_type%=2:X%=IMAGE_WINGED_CREATURE:CALLU%
-  930IFroom_type%=3:X%=IMAGE_ROBOT:CALLU%
-  940IFroom_type%=4:X%=IMAGE_EYE:CALLU%
-  950IFroom_type%=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=S_OP_MOVE:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFroom_type%=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
+  880IFFNget8(R_TABLE_ROOM_TYPE)=2:I%=608:J%=672:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:GOTO900
+  890db%=6:IFFNget8(R_TABLE_ROOM_TYPE)>0:I%=291:J%=480:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:IFFNget8(R_TABLE_ROOM_TYPE)=1:X%=IMAGE_HARPY_RIGHT:CALLU%
+  900IFlogical_room%=2ANDscore%=80:PROCset8(R_TABLE_ROOM_TYPE,3):X%=IMAGE_VEIL2:CALLU%:GOTO960
+  910IFlogical_room%=5ANDscore%=90:PROCset8(R_TABLE_ROOM_TYPE,0):Y%=S_OP_REMOVE:CALLS%:Y%=S_OP_MOVE
+  920IFFNget8(R_TABLE_ROOM_TYPE)=2:X%=IMAGE_WINGED_CREATURE:CALLU%
+  930IFFNget8(R_TABLE_ROOM_TYPE)=3:X%=IMAGE_ROBOT:CALLU%
+  940IFFNget8(R_TABLE_ROOM_TYPE)=4:X%=IMAGE_EYE:CALLU%
+  950IFFNget8(R_TABLE_ROOM_TYPE)=5:Y%=S_OP_REMOVE:CALLS%:I%=640:J%=316:Y%=S_OP_MOVE:CALLS%:ed%=6:IFscore%>70ANDscore%<100:X%=IMAGE_VEIL:CALLU% ELSEIFFNget8(R_TABLE_ROOM_TYPE)=5ANDscore%=100:X%=IMAGE_FINAL_GUARDIAN:CALLU%
   960ak%=0:ah%=1:W%=2:Y%=S_OP_SHOW:IFlogical_room%=9:W%=SLOT_MISC:M%=1035:N%=692:CALLS%:X%=IMAGE_FLEECE_MACGUFFIN_PRISM:CALLU%:IFitem_collected%(5)=0:PROCshow_using_slot_misc(2,14,IMAGE_HEALTH)
   970IFlogical_room%=6:PROCshow_using_slot_misc(18,15,IMAGE_WALL_ENEMY_RIGHT):PROCshow_using_slot_misc(18,19,IMAGE_WALL_ENEMY_RIGHT)
   980IFlogical_room%=10ANDscore%>70:PRINTTAB(10,26)"  "
@@ -200,8 +200,8 @@ constant R_TABLE_GAME_ENDED = 48
  1122PROCchange_room2:ENDPROC
  1124DEFPROCchange_room2
  1127W%=SLOT_ENEMY:Y%=S_OP_REMOVE:CALLS%:W%=SLOT_LEE:CALLS%
- 1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type%:NEXT:IFscore%=100:room_type%=2
- 1140IFlogical_room%=10ANDscore%>70:room_type%=5
+ 1130RESTORE1430:FORn%=1TOphys_room%:READlogical_room%:NEXT:RESTORE1440:FORn%=1TOlogical_room%:READroom_type_tmp%:NEXT:PROCset8(R_TABLE_ROOM_TYPE,room_type_tmp%):IFscore%=100:PROCset8(R_TABLE_ROOM_TYPE,2)
+ 1140IFlogical_room%=10ANDscore%>70:PROCset8(R_TABLE_ROOM_TYPE,5)
  1150PROCdraw_current_room:ENDPROC
 
  1160DEFPROCupdate_energy_and_items:IFX%=SLOT_ENEMY:GOTO1210 ELSEIFX%=SLOT_ENEMYOR(X%=SLOT_MISCANDlogical_room%<>1ANDlogical_room%<>5ANDlogical_room%<>9ANDlogical_room%<>14ANDlogical_room%<>7):GOTO1210
@@ -212,7 +212,7 @@ constant R_TABLE_GAME_ENDED = 48
  1191IFlogical_room%=9:score%=score%-10:COLOUR1:PRINTTAB(energy_major%,5)CHR$246:energy_major%=16:VDU17,0,17,131:PRINTTAB(16,5)CHR$224:VDU17,128
  1200ENDPROC
  1210IFFNget8signed(R_TABLE_FALLING_TIME)>1:A%=11:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING:GOTO1230
- 1220IFroom_type%=2ANDFNget8(R_TABLE_DAY_NIGHT)=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFroom_type%=2:A%=9:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=energy_minor%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=energy_minor%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
+ 1220IFFNget8(R_TABLE_ROOM_TYPE)=2ANDFNget8(R_TABLE_DAY_NIGHT)=1ANDX%=SLOT_ENEMY:ENDPROC ELSEPROCstop_sound:IFFNget8(R_TABLE_ROOM_TYPE)=2:A%=9:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEIFX%=SLOT_MISC:A%=8:B%=energy_minor%:E%=4:CALLR%!R_TABLE_SOUND_NONBLOCKING ELSEA%=12:B%=energy_minor%:E%=5:CALLR%!R_TABLE_SOUND_NONBLOCKING
  1230energy_minor%=energy_minor%-1
  1231IFenergy_minor%=0:energy_minor%=25:IF?&9FF<>1:energy_major%=energy_major%-1:VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:VDU17,128,17,1:PRINTTAB(energy_major%+1,5)CHR$246:IFenergy_major%=3:PROCset8(R_TABLE_GAME_ENDED,1)
  1240ENDPROC
@@ -227,13 +227,13 @@ constant R_TABLE_GAME_ENDED = 48
  1295VDU19,1,7;0;19,2,7;0;19,3,7;0;:SOUND1,6,60,4:PROCdelay(120):VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:ENDPROC
 
  1320DEFPROCtitle_screen:colour1%=7:colour2%=6:colour3%=1:PROCreset_note_count
- 1330PROCset8(R_TABLE_DAY_NIGHT,0):score%=0:room_type%=0:logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
+ 1330PROCset8(R_TABLE_DAY_NIGHT,0):score%=0:PROCset8(R_TABLE_ROOM_TYPE,0):logical_room%=9:VDU19,3,1;0;19,2,6;0;19,1,7;0;:PROCdraw_room(9):VDU17,3,31,5,28,241,240,235,236,236,32,32,233,242,243,31,4,30,237,235,243,32,244,238,32,236,244,233,240,244
  1331REPEATnote_pitch%=note_count%?(R%!R_TABLE_PITCH):note_duration%=note_count%?(R%!R_TABLE_DURATION):note_count%=note_count%+1:IFnote_pitch%=0:PROCdelay(220):GOTO1350
  1340SOUND1,1,note_pitch%,note_duration%:SOUND2,1,note_pitch%,note_duration%:SOUND3,1,note_pitch%,note_duration%:s$=INKEY$(14):IFnote_count%=63:PROCreset_note_count
  1350GCOL0,RND(3):PLOT69,634,934:PLOT69,648,934:UNTILs$<>""ORINKEY-1
  1351energy_major%=16:energy_minor%=10:logical_room%=8:PROCset8(R_TABLE_DAY_NIGHT,0):w%=0:D%=576:C%=1120:K%=192:L%=108:PROCset8(R_TABLE_JUMPING,0):delta_x%=0:sd%=10:PROCset8(R_TABLE_LEE_DIRECTION,10):PROCset8(R_TABLE_FALLING_DELTA_X,0)
  1352VDU28,3,30,16,28,17,128,12,26:sound_and_light_show_chance%=40
- 1360PROCreset_note_count:phys_room%=12:PROCset8(R_TABLE_GAME_ENDED,0):W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:PROCset8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT,20):PROCset8(R_TABLE_MAX_JUMP_TIME,40):uw%=0:sun_moon_disabled%=0:m%=0:room_type%=3
+ 1360PROCreset_note_count:phys_room%=12:PROCset8(R_TABLE_GAME_ENDED,0):W%=SLOT_SUN_MOON:X%=IMAGE_SUN:CALLS%:CALLU%:PROCset8(R_TABLE_FULL_SPEED_JUMP_TIME_LIMIT,20):PROCset8(R_TABLE_MAX_JUMP_TIME,40):uw%=0:sun_moon_disabled%=0:m%=0:PROCset8(R_TABLE_ROOM_TYPE,3)
  1361VDU17,0,17,131:PRINTTAB(energy_major%,5)CHR$224:COLOUR128:FORn%=1TO5:item_collected%(n%)=0:NEXT:won%=0:*FX210,0
  1370PROCstop_sound:IFs$="Q"ORs$="q":*FX210,1
  1380ENDPROC
@@ -276,7 +276,7 @@ constant R_TABLE_GAME_ENDED = 48
  2050RESTORE 2500
  2060FOR n%=1 TO ASC(key$)AND&9F:READ phys_room%,C%,D%:NEXT
  2070REM Logical room 14 (Ed's room N) has some tricky behaviour; to get it right, we pretend we're passing through the warp from logical room 10 as in real gameplay.
- 2200IF phys_room%<>14:PROCchange_room2 ELSE logical_room%=10:room_type%=4-(score%>70):C%=1152:D%=484:PROCcheck_warps
+ 2200IF phys_room%<>14:PROCchange_room2 ELSE logical_room%=10:PROCset8(R_TABLE_ROOM_TYPE,4-(score%>70)):C%=1152:D%=484:PROCcheck_warps
  2205W%=SLOT_LEE:W%=SLOT_LEE:Y%=S_OP_SHOW:CALLS%:REM show player sprite
  2210PROCreset_note_count:REM Must do this because we moved DATA pointer
  2218VDU5:Y%=S_OP_MOVE:IF sun_moon_disabled%=0:W%=SLOT_SUN_MOON

@@ -69,6 +69,7 @@ if MAKE_IMAGE
 
     vdu_gcol = 18
     S_OP_MOVE = 0
+    SLOT_ENEMY = 5
     SLOT_LEE = 10
     IMAGE_HUMAN_RIGHT = 9
     IMAGE_HUMAN_LEFT = 10
@@ -1661,6 +1662,7 @@ if MAKE_IMAGE
     equw full_speed_jump_time_limit
     equw max_jump_time
     equw game_ended
+    equw room_type
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1703,6 +1705,8 @@ if MAKE_IMAGE
 .^max_jump_time
     equb 0
 .^game_ended
+    equb 0
+.^room_type
     equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
@@ -1799,7 +1803,42 @@ if MAKE_IMAGE
     lda game_ended:beq play_340
     lda #<258:sta ri_m:lda #>258:sta ri_m+1:rts ; TODO!?
 .play_340
-    lda #<340:sta ri_m:lda #>340:sta ri_m+1:rts ; TODO!
+    ; 340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
+    lda #SLOT_ENEMY:sta ri_w
+    ldx room_type
+    dex:beq jsr_room_type_1
+    dex:beq jsr_room_type_2
+    dex:beq jsr_room_type_3
+    dex:beq jsr_room_type_4
+    dex:beq jsr_room_type_5
+    brk:equs 0, "Bad room type", 0
+.jsr_room_type_1
+    jsr room_type_1
+.jsr_room_type_2
+    jsr room_type_2
+.jsr_room_type_3
+    jsr room_type_3
+.jsr_room_type_4
+    jsr room_type_4
+.jsr_room_type_5
+    jsr room_type_5
+.play_360
+    lda #<360:sta ri_m:lda #>360:sta ri_m+1:rts ; TODO!
+
+.room_type_1
+    brk:equs 0, "TODO ROOM TYPE 1",0
+
+.room_type_2
+    brk:equs 0, "TODO ROOM TYPE 2",0
+
+.room_type_3
+    brk:equs 0, "TODO ROOM TYPE 3",0
+
+.room_type_4
+    brk:equs 0, "TODO ROOM TYPE 4",0
+
+.room_type_5
+    brk:equs 0, "TODO ROOM TYPE 5",0
 
 .move_left
     ; 420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
