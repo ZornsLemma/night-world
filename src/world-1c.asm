@@ -754,10 +754,9 @@ endif
 if show_tick_count
     ; We would really like A>=1 here, as that means we are actively busy-waiting
     ; and we thus completed the game cycle's processing in at least slightly
-    ; less than game_cycle_tick_interval ticks. Store A-1 in the debug
-    ; indicator in video RAM, since that will make the "good" cases all >=0 and
-    ; the "bad" cases ~&Fx, which will have a more distinctive appearance.
-    ldx ticks_left_in_game_cycle:dex:stx &5800
+    ; less than game_cycle_tick_interval ticks. We therefore subtract one and
+    ; make negative values as noticeable as possible.
+    ldx ticks_left_in_game_cycle:dex:bpl not_negative:ldx #&ff:.not_negative:stx &5800
 endif
 .busy_wait
     lda ticks_left_in_game_cycle

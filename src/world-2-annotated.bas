@@ -311,3 +311,4 @@ constant R_TABLE_ED_SCALAR = 80
 32010FORI%=PAGE TOTOP STEP4:!(I%-PAGE+&E00)=!I%:NEXT:*KEY0PAGE=&E00|MOLD|MDEL.0,0|MDEL.32000,32767|MRUN|F|M
 32020VDU21:*FX15,1
 32030*FX138,0,128
+32040REM TODO: We could probably include a machine-code downloader in World1c, getting the speed benefit without needing to have machine code bundled onto the end of this otherwise pure BASIC code.
