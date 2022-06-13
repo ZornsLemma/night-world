@@ -21,6 +21,8 @@ Maybe tweak the random colours for each room
 - maybe disallow yellow+white or white+cyan both being in the palette at the same time?!
 - maybe have some static per-room colours instead of them being completely random (e.g. taken from Ed's map)
 - maybe remember the random colours for each room the first time you enter it, so that within a single game the colours are consistent??
+- maybe use a split palette effect to colour the lower half of room A differently
+- maybe colour room A differently once you've passed through the secret passage (probably *not* if we can use a split palette effect in first place)
 
 Maybe use interrupts to allow different colours (fixed? or just "differently random to the room") in the header/footer regions
 

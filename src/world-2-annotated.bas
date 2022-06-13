@@ -143,8 +143,8 @@ constant R_TABLE_ED_SCALAR = 80
   600IFFNget8(R_TABLE_LOGICAL_ROOM)=13ANDC%>1150AND(D%=288ORD%=284):phys_room%=9:C%=1148:D%=420:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCset8(R_TABLE_LOGICAL_ROOM,7):PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM show a lightning flash effect. If the player has collided with SLOT_MISC, it's the fleece; collect it.
-  607REM TODONOW: Does the new faster/more controlled game cycle make this lightning flash effect less "random"?
-  610IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDFNget8(R_TABLE_SCORE)=90ANDFNget8(R_TABLE_DAY_NIGHT)=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=SLOT_MISC:PROCcollect_fleece
+  607REM PROCdelay() in next line has been added to try to work round what I felt was an unwanted "regularity" in lightning effect now the main loop is in machine code and a bit tighter/more predictable.
+  610IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDFNget8(R_TABLE_SCORE)=90ANDFNget8(R_TABLE_DAY_NIGHT)=0:PROCdelay(5+RND(10)):VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=SLOT_MISC:PROCcollect_fleece
   620ENDPROC
 
   630DEFPROCcollect_fleece:*FX13,5
@@ -228,8 +228,9 @@ constant R_TABLE_ED_SCALAR = 80
 
  1400DEFPROCpause:SOUND1,4,20,3:Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:VDU5:B$="WAITING":*FX15,1
  1401*FX13,5
- 1402REPEAT:A$=INKEY$(0)
- 1403IF ?&9FE<>0 AND (A$="W" OR A$="w"):PROCcheat_warp
+ 1402PROCset8(R_TABLE_SCORE,90):REM TODO HACK
+ 1403REPEAT:A$=INKEY$(0)
+ 1404IF ?&9FE<>0 AND (A$="W" OR A$="w"):PROCcheat_warp
  1405GCOL0,RND(3):FORmf%=92TO88STEP-4:MOVE416,mf%:PRINTB$:NEXT:UNTILA$="C"ORA$="c":FORmf%=92TO88STEP-4:MOVE416,mf%:GCOL0,0:PRINTB$:NEXT:VDU4:IFFNget8(R_TABLE_SUN_MOON_DISABLED)=0:Y%=S_OP_MOVE:CALLS%
  1410SOUND1,6,30,3:*FX15,1
  1420ENDPROC
