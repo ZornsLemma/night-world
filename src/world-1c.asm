@@ -1696,6 +1696,7 @@ if MAKE_IMAGE
     equw m
     equw continue_after_advance_sun_moon
     equw score
+    equw ed_scalar
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1762,6 +1763,8 @@ if MAKE_IMAGE
 .^m
     equb 0
 .^score
+    equb 0
+.^ed_scalar
     equb 0
 .axm
     equw 0
@@ -2040,7 +2043,7 @@ if MAKE_IMAGE
 .room_type_3
 {
     ; 750DEFPROCroom_type3:Z%=ed%(ah%):ak%=ak%+1:IFak%=30:ak%=0:ah%=ah%+1:IFah%=7:ah%=1
-    ldx ah:lda ed,x:sta ri_z
+    ldx ah:lda ed_array,x:sta ri_z
     ldx ak:inx
     cpx #30:bne ak_not_30
     ldx #0
@@ -2076,20 +2079,20 @@ if MAKE_IMAGE
 .room_type_5
 {
     ; 770DEFPROCroom_type5:Z%=ed%:IFed%=6ANDI%>688:ed%=4
-    lda ed:sta ri_z
+    lda ed_scalar:sta ri_z
     cmp #6:bne ed_not_6
     lda ri_i+1:cmp #>688:bcc i_not_gt_688:bne i_gt_688
     lda ri_i:cmp #<688:bcc i_not_gt_688:beq i_not_gt_688
 .i_gt_688
-    lda #4:sta ed
+    lda #4:sta ed_scalar
 .i_not_gt_688
 .ed_not_6
     ; 780IFed%=4ANDI%<644:ed%=6
-    lda ed:cmp #4:bne ed_not_4
+    lda ed_scalar:cmp #4:bne ed_not_4
     lda ri_i+1:cmp #>644:bcc i_lt_644:bne i_not_lt_644
     lda ri_i:cmp #<644:bcs i_not_lt_644
 .i_lt_644
-    lda #6:sta ed
+    lda #6:sta ed_scalar
 .i_not_lt_644
 .ed_not_4
     ; 790CALLT%:ENDPROC
@@ -2097,7 +2100,7 @@ if MAKE_IMAGE
 }
 
 ; TODO: This array is read-only so we just duplicate it from the BASIC rather than trying to share it.
-.ed
+.ed_array
     equb 0, 3, 6, 9, 7, 4, 1
 ; TODO: This array is read-only so we just duplicate it from the BASIC rather than trying to share it.
 .ad
