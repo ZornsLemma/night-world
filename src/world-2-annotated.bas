@@ -100,7 +100,7 @@ constant R_TABLE_ED_SCALAR = 80
   208ENDPROC
 
   210DEFPROCdraw_current_room:PROCclear_room
-  220colour1%=RND(7):colour2%=RND(7):colour3%=RND(7):IFcolour1%=colour2%ORcolour1%=colour3%ORcolour2%=colour3%:GOTO220 ELSEIFFNget8(R_TABLE_SCORE)=100:colour2%=0:colour3%=4:colour1%=6
+  220IFFNget8(R_TABLE_SCORE)=100:colour2%=0:colour3%=4:colour1%=6ELSERESTORE1452:FORn%=1TOFNget8(R_TABLE_LOGICAL_ROOM):READcolour1%,colour2%,colour3%:NEXT
   230VDU19,1,colour1%;0;19,2,colour2%;0;19,3,colour3%;0;:IFFNget8(R_TABLE_LOGICAL_ROOM)=10:sound_and_light_show_chance%=4 ELSEsound_and_light_show_chance%=40
   240IFFNget8(R_TABLE_LOGICAL_ROOM)<1ORFNget8(R_TABLE_LOGICAL_ROOM)>14:PROCset8(R_TABLE_LOGICAL_ROOM,1):phys_room%=1:C%=128:PROCset8(R_TABLE_ROOM_TYPE,0):PROCdraw_room(1):COLOUR3:PRINTTAB(7,26);:VDU245,234:ENDPROC
   250PROCdraw_room(FNget8(R_TABLE_LOGICAL_ROOM)):ENDPROC
@@ -240,8 +240,23 @@ constant R_TABLE_ED_SCALAR = 80
  1440DATA2,1,1,2,3,4,2,3,4,4,4,3,1,2
  1449REM colour sequence for day/night transition
  1450DATA7,6,3,5,1,2,4,0
+ 1451REM colours for logical room numbers TODO: put on a single line to save space
+ 1452DATA 7,3,5:REM 1/D
+     DATA 3,1,7:REM 2/C
+     DATA 1,2,6:REM 3/E
+     DATA 4,3,7:REM 4/F
+     DATA 1,7,6:REM 5/G
+     DATA 3,5,4:REM 6/B
+     DATA 6,2,3:REM 7/H
+     DATA 4,2,6:REM 8/A
+     DATA 2,1,5:REM 9/N
+     DATA 2,5,1:REM 10/J
+     DATA 2,3,1:REM 11/I
+     DATA 3,6,1:REM 12/K
+     DATA 4,1,7:REM 13/L
+     DATA 3,2,4:REM 14/M
 
- 1460DEFPROCgame_over:W%=SLOT_SUN_MOON:Y%=S_OP_REMOVE:CALLS%:IFwon%=0:PROCset8(R_TABLE_SCORE,FNget8(R_TABLE_SCORE)-1):IFFNget8(R_TABLE_SCORE)=-1:PROCset8(R_TABLE_SCORE,0)
+ 1469DEFPROCgame_over:W%=SLOT_SUN_MOON:Y%=S_OP_REMOVE:CALLS%:IFwon%=0:PROCset8(R_TABLE_SCORE,FNget8(R_TABLE_SCORE)-1):IFFNget8(R_TABLE_SCORE)=-1:PROCset8(R_TABLE_SCORE,0)
  1470PROCstop_sound:pw%=1000:on%=2:IFwon%=1ORuw%=1:GOTO1490
  1480FORmrx%=1TO30:SOUND&12,6,mrx%+50,5:PROCdelay(pw%):pw%=pw%-25:W%=SLOT_LEE:Y%=on%:rr%=on%:on%=0:CALLS%:IFrr%=0:on%=2:NEXT ELSENEXT
  1490VDU19,1,1;0;19,2,6;0;19,3,7;0;17,3:s$=STR$(FNget8(R_TABLE_SCORE))+"%":PROCclear_room:PRINTTAB(5,16);:VDU232,233,234,235,32,32,238,239,235,240,5
