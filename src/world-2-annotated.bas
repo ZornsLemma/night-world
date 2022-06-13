@@ -82,7 +82,7 @@ constant R_TABLE_ED_SCALAR = 80
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
    30REM If we hit an error other than Escape, let's make it obvious so it can be fixed.
    35REM TODO: Are we at risk of the problem where SRAM utilities corrupts a byte of memory around ~&1700 if an error occurs on a B?!
-   40ONERROR:VDU4:IFERR=17:uw%=1:GOTO100 ELSE REPORT:PRINT;ERL:END
+   40ONERROR:VDU4:IFERR=17:uw%=1:GOTO100 ELSE COLOUR3:COLOUR128:REPORT:PRINT;ERL:END
    50won%=0:PROCset8(R_TABLE_SCORE,13):uw%=0:PROCset8(R_TABLE_ENERGY_MAJOR,10)
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
@@ -143,6 +143,7 @@ constant R_TABLE_ED_SCALAR = 80
   600IFFNget8(R_TABLE_LOGICAL_ROOM)=13ANDC%>1150AND(D%=288ORD%=284):phys_room%=9:C%=1148:D%=420:Y%=S_OP_REMOVE:W%=SLOT_ENEMY:CALLS%:PROCremove_lee_sprite:PROCset8(R_TABLE_LOGICAL_ROOM,7):PROCdraw_current_room:PROCwarp_effect:ENDPROC
   605REM If player is in room 5 (Ed's room G), has a score of 90% and it's daytime,
   606REM show a lightning flash effect. If the player has collided with SLOT_MISC, it's the fleece; collect it.
+  607REM TODONOW: Does the new faster/more controlled game cycle make this lightning flash effect less "random"?
   610IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDFNget8(R_TABLE_SCORE)=90ANDFNget8(R_TABLE_DAY_NIGHT)=0:VDU19,0,7;0;19,1,0;0;19,0,0;0;19,1,3;0;:IFX%=SLOT_MISC:PROCcollect_fleece
   620ENDPROC
 
