@@ -1730,6 +1730,10 @@ if MAKE_IMAGE
     equb 0
 .^db
     equb 0
+.axm
+    equw 0
+.aym
+    equw 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
@@ -1906,7 +1910,28 @@ if MAKE_IMAGE
 }
 
 .room_type_2
-    brk:equs 0, "TODO ROOM TYPE 2",0
+{
+    ; 700DEFPROCroom_type2:axm%=3:IFI%>C%:axm%=-3
+    lda #3:sta axm:lda #0:sta axm+1
+    lda ri_i+1:cmp ri_c+1:bcc i_not_gt_c:bne i_gt_c
+    lda ri_i:cmp ri_c:bcc i_not_gt_c:beq i_not_gt_c
+.i_gt_c
+    lda #-3 and &ff:sta axm:lda #&ff:sta axm+1
+.i_not_gt_c
+    ; 710aym%=2:IFJ%>D%:aym%=-4
+    lda #2:sta aym:lda #0:sta aym+1
+    lda ri_j+1:cmp ri_d+1:bcc j_not_gt_d:bne j_gt_d
+    lda ri_j:cmp ri_d:bcc j_not_gt_d:beq j_not_gt_d
+.j_gt_d
+    lda #-4 and &ff:sta aym:lda #&ff:sta aym+1
+.j_not_gt_d
+    ; 720I%=I%+axm%:J%=J%+aym%:CALLS%:ENDPROC
+    clc:lda ri_i:adc axm:sta ri_i
+    lda ri_i+1:adc axm+1:sta ri_i+1
+    clc:lda ri_j:adc aym:sta ri_j
+    lda ri_j+1:adc aym+1:sta ri_j+1
+    jmp s_subroutine
+}
 
 .room_type_3
 {
