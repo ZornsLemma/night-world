@@ -1911,7 +1911,7 @@ if MAKE_IMAGE
     assert P% == play_360 ; fall through to play_360
 .room_type_0
 .play_360
-    ; 360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORFNget8signed(R_TABLE_FALLING_TIME)>12:PROCupdate_energy_and_items
+    ; 360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORfalling_time%>12:PROCupdate_energy_and_items
     lda #SLOT_LEE:sta ri_w
     lda #8:sta ri_y
     jsr q_subroutine_wrapper
@@ -1923,7 +1923,7 @@ if MAKE_IMAGE
     jmp play_370
 .falling_time_not_gt_12
 .^play_370
-    ; 370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFFNget8(R_TABLE_LOGICAL_ROOM)=1ORFNget8(R_TABLE_LOGICAL_ROOM)=13ORFNget8(R_TABLE_LOGICAL_ROOM)=5ORFNget8(R_TABLE_LOGICAL_ROOM)=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOM%
+    ; 370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOM%
     lda sun_moon_disabled:bne dont_update_sun_moon
     inc m
     lda m:cmp #11:bne dont_advance_sun_moon
@@ -1954,7 +1954,7 @@ if MAKE_IMAGE
 .k_not_1016
     ; TODO: Not translating next line as it's probably useless...
     ; 515REM TODO: Does the next line do anything useful?
-    ; 520IFFNget8(R_TABLE_LOGICAL_ROOM)=5:W%=8:Z%=DELTA_STEP_RIGHT:CALLT%
+    ; 520IFlogical_room%=5:W%=8:Z%=DELTA_STEP_RIGHT:CALLT%
     ; 530ENDPROC
     rts
 }
@@ -2078,8 +2078,9 @@ if MAKE_IMAGE
     ; 770DEFPROCroom_type5:Z%=ed%:IFed%=6ANDI%>688:ed%=4
     lda ed:sta ri_z
     cmp #6:bne ed_not_6
-    lda ri_i+1:cmp #>688:bcc i_not_gt_688:bne i_not_gt_688
+    lda ri_i+1:cmp #>688:bcc i_not_gt_688:bne i_gt_688
     lda ri_i:cmp #<688:bcc i_not_gt_688:beq i_not_gt_688
+.i_gt_688
     lda #4:sta ed
 .i_not_gt_688
 .ed_not_6
