@@ -1881,7 +1881,7 @@ if MAKE_IMAGE
 .play_340
     ; 340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
     lda #SLOT_ENEMY:sta ri_w
-    ldx room_type ; TODO: This can probably also be 0
+    ldx room_type:beq room_type_0
     dex:beq jsr_room_type_1
     dex:beq jsr_room_type_2
     dex:beq jsr_room_type_3
@@ -1909,6 +1909,7 @@ if MAKE_IMAGE
 .jsr_room_type_5
     jsr room_type_5
     assert P% == play_360 ; fall through to play_360
+.room_type_0
 .play_360
     ; 360W%=SLOT_LEE:Y%=8:CALLQ%:IFX%<>0ORFNget8signed(R_TABLE_FALLING_TIME)>12:PROCupdate_energy_and_items
     lda #SLOT_LEE:sta ri_w
