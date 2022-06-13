@@ -2152,7 +2152,7 @@ if MAKE_IMAGE
     pla:pla:lda #<1181:sta ri_m:lda #>1181:sta ri_m+1:rts
     ; 1210IFfalling_time%>1:A%=11:B%=energy_minor%:E%=2:CALLR%!R_TABLE_SOUND_NONBLOCKING:GOTO1230
 .update_energy_and_items_1210
-    lda falling_time:bmi update_energy_and_items_1210
+    lda falling_time:bmi update_energy_and_items_1220
     lda #11:sta ri_a
     lda energy_minor:sta ri_b
     lda #2:sta ri_e
@@ -2193,7 +2193,7 @@ if MAKE_IMAGE
     lda &9ff:cmp #1:beq infinite_health_cheat
     dec energy_major
     lda #17:jsr oswrch:lda #0:jsr oswrch:lda #17:jsr oswrch:lda #131:jsr oswrch
-    lda #30:jsr oswrch:lda energy_major:jsr oswrch:lda #5:jsr oswrch
+    lda #31:jsr oswrch:lda energy_major:jsr oswrch:lda #5:jsr oswrch
     lda #224:jsr oswrch
     lda #17:jsr oswrch:lda #128:jsr oswrch:lda #17:jsr oswrch:lda #1:jsr oswrch
     lda #246:jsr oswrch
