@@ -91,6 +91,7 @@ if MAKE_IMAGE
     DELTA_STEP_RIGHT_DOWN = 9
 
     osword_read_pixel = 9
+    osbyte_acknowledge_escape = 126
     osbyte_inkey = 129
 endif
 
@@ -1770,6 +1771,9 @@ if MAKE_IMAGE
 .aym
     equw 0
 
+.escape
+    brk:equb 17, "Escape", 0 ; ENHANCE: No one cares about the string, if we're trying to save space
+
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
 ; overly clever I will hopefully reduce the risk of introducing bugs or subtle
@@ -1782,6 +1786,9 @@ if MAKE_IMAGE
     lda #S_OP_MOVE:sta ri_y
     lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
 .^play_280
+    ; Test for Escape so the player can quit the game part-way through.
+    lda #osbyte_acknowledge_escape:jsr osbyte
+    cpx #0:bne escape
     ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show TODO: NOT IMPLEMENTED YET
     ; 290W%=SLOT_LEE
     lda #SLOT_LEE:sta ri_w

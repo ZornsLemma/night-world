@@ -270,6 +270,7 @@ constant R_TABLE_ED_SCALAR = 80
  2000DEFPROCcheat_warp
  2002REM IF score%<80:score%=80:FORcheat%=1TO4:item_collected%(cheat%)=1:NEXT:REM TODO TEMP HACK
  2003VDU 4:COLOUR 3
+ 2004REM TODO: Use the double-printed font as in PROCwin? Standard mode 5 font is a bit ugly.
  2005PRINTTAB(2,17);" Warp to? (A-N) ";
  2006REPEAT
  2010*FX15,1
