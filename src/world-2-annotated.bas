@@ -86,10 +86,11 @@ constant R_TABLE_ED_SCALAR = 80
    50won%=0:PROCset8(R_TABLE_SCORE,13):uw%=0:PROCset8(R_TABLE_ENERGY_MAJOR,10)
    60PROCone_off_init
    70PROCnew_game_init:*FX15,0
-   80*FX200,0
-   90PROCtitle_screen:PROCdraw_current_room:PROCplay:*FX13,5
+   90PROCtitle_screen:PROCdraw_current_room:*FX200
+   93PROCplay:*FX13,5
    95IFw%=1:PROCo
   100*FX13,5
+  101*FX200,1
   105PROCgame_over:GOTO70
 
   110DEFPROCstop_sound:SOUND&11,0,0,0:ENDPROC
