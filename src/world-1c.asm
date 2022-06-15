@@ -1789,7 +1789,7 @@ if MAKE_IMAGE
     ; Test for Escape so the player can quit the game part-way through.
     lda #osbyte_acknowledge_escape:jsr osbyte
     cpx #0:bne escape
-    ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show TODO: NOT IMPLEMENTED YET
+    ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show TODONOW: NOT IMPLEMENTED YET
     ; 290W%=SLOT_LEE
     lda #SLOT_LEE:sta ri_w
     ; 291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
