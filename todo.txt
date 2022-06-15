@@ -44,8 +44,6 @@ Show health regeneration/fleece at bottom of screen once collected, as we do wit
 
 Don't do two separate "jump_time%=jump_time%+1" in PROCjump - inefficient
 
-Would it break anything visually if world-2.bas were tweaked so the player sprite always occupies the same slot? If this is visually indistinguishable, making this change would potentially simplify the game code a lot, saving space and probably speeding things up (for a start, the player OS coordinates could probably just live permanently in the relevant sprite slot variables, if they're not used by any "competing" sprite slots which share those variables)
-
 Fix the "phantom wall-eater" glitch - probably done
 
 Would there be any point in an "item randomiser" which positions the prisms at random (but in a definitely winnable) locations to add replay value?
@@ -54,3 +52,8 @@ Fixes related to passage to 4th prism sealing off/collecting health before 4th p
 - obviously be very careful here, what the author's intentions were and what's just a bug isn't all that clear - just making a note here so this isn't forgotten accidentally
 
 Try to avoid the risk of being bitten by DFS 2.26 corrupting memory below &1900: https://stardot.org.uk/forums/viewtopic.php?f=2&t=12195
+
+Replace all the delays and keypresses at end of game with a utility routine that:
+- ensures no key is currently pressed (flushing buffer is probably not good enough in practice, based on what I've observed at times)
+- waits until you press a key
+This way you will never miss a message and can take as long as you want to observe your score etc.
