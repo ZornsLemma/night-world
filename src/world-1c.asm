@@ -678,7 +678,11 @@ tune_length = P% - tune_pitch
 
     dec ticks_left_in_music_cycle:bne music_cycle_not_finished
     txa:pha:tya:pha
-    lda #music_tick_interval:sta ticks_left_in_music_cycle
+    lda #music_tick_interval
+    ldy score:cpy #100:bne not_100c ; TODO: hacky
+    asl a
+.not_100c
+    sta ticks_left_in_music_cycle
     ; Check how much free space there is in sound channel 2's buffer; we must
     ; avoid blindly adding more as we'll block here if the buffer becomes full.
     ; TODO: Do we need to be careful to keep as little as possible in the
@@ -691,8 +695,16 @@ tune_length = P% - tune_pitch
     ; *could* get lost if this code is executing at precisely the wrong time.
     ; Is there a neat way to avoid this? - Actually this is probably fine, bearing in mind *this* code is atomic - but think about it from scratch
     ldx current_note
-    lda tune_pitch,x:sta osword_7_block_pitch
-    lda tune_duration,x:sta osword_7_block_duration
+    lda tune_pitch,x
+    ldy score:cpy #100:bne not_100a ; TODO: hacky, we need to be sure score is set to 0 before the tune starts - to be fair, it *probably* will be, but check
+    sec:sbc #4
+.not_100a
+    sta osword_7_block_pitch
+    lda tune_duration,x
+    cpy #100:bne not_100b
+    asl a ; TODO: This is too simplistic, we really need to slow the ticks-per-cycle thing down, but the queue handling will probably make this kinda-sorta work as a test
+.not_100b
+    sta osword_7_block_duration
     jsr make_sound:inc osword_7_block_channel
     jsr make_sound:dec osword_7_block_channel
     ldx current_note:cpx #tune_length-1:bne not_last_note
