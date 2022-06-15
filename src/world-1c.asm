@@ -1697,6 +1697,8 @@ if MAKE_IMAGE
     equw continue_after_advance_sun_moon
     equw score
     equw ed_scalar
+    equw play_290
+    equw pending_sound_and_light_show_second_part
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1766,6 +1768,8 @@ if MAKE_IMAGE
     equb 0
 .^ed_scalar
     equb 0
+.^pending_sound_and_light_show_second_part
+    equb 0
 .axm
     equw 0
 .aym
@@ -1786,10 +1790,20 @@ if MAKE_IMAGE
     lda #S_OP_MOVE:sta ri_y
     lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
 .^play_280
+    ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
+    ; PROCsound_and_light_show involves a PROCdelay(250), which is about 5cs. In
+    ; order to avoid becoming unresponsive, we split this up and do the part
+    ; after the delay in the next game cycle.
+    lda pending_sound_and_light_show_second_part:beq not_second_part
+    lda #0:sta pending_sound_and_light_show_second_part
+    lda #<254:sta ri_m:lda #>254:sta ri_m+1:rts
+.not_second_part
+    lda score:cmp #100:bne play_290
+    lda #<252:sta ri_m:lda #>252:sta ri_m+1:rts
+.^play_290
     ; Test for Escape so the player can quit the game part-way through.
     lda #osbyte_acknowledge_escape:jsr osbyte
     cpx #0:bne escape
-    ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show TODONOW: NOT IMPLEMENTED YET
     ; 290W%=SLOT_LEE
     lda #SLOT_LEE:sta ri_w
     ; 291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
