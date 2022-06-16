@@ -66,7 +66,7 @@ if MAKE_IMAGE
     event_interval = 5
     event_interval_flag = &2c4 ; TODO: different address on Electron
     interval_timer = &29c ; TODO: different address on Electron - we could *probably* just use OSWORD to write this
-    show_tick_count = FALSE ; TODO: should be off in a "final" build
+    show_tick_count = TRUE ; FALSE ; TODO: should be off in a "final" build
     sound_channel_1_buffer_number = 5
     sound_channel_2_buffer_number = 6
 
