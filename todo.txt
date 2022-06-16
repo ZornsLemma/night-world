@@ -1,6 +1,7 @@
 Optional cheats/tweaks offered in loader
 - infinite health
 - teleport (press "T", type in X/Y coords when prompted to teleport there)
+- the current "yes/no" series of questions isn't too bad, but might be nicer to have a screen showing the options with a key you can press to toggle them independently, then press e.g. SPACE to go ahead and load the game
 
 Conservative "physics" tweaks
 - maybe allow jumping to be terminated by letting go of Shift?
