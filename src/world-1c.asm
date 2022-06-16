@@ -680,7 +680,7 @@ tune_length = P% - tune_pitch
     txa:pha:tya:pha
     lda #music_tick_interval
     ldy score:cpy #100:bne not_100c ; TODO: hacky
-    asl a
+    sta &70:lsr a:clc:adc &70
 .not_100c
     sta ticks_left_in_music_cycle
     ; Check how much free space there is in sound channel 2's buffer; we must
@@ -702,7 +702,7 @@ tune_length = P% - tune_pitch
     sta osword_7_block_pitch
     lda tune_duration,x
     cpy #100:bne not_100b
-    asl a ; TODO: This is too simplistic, we really need to slow the ticks-per-cycle thing down, but the queue handling will probably make this kinda-sorta work as a test
+    sta &70:lsr a:clc:adc &70
 .not_100b
     sta osword_7_block_duration
     jsr make_sound:inc osword_7_block_channel
