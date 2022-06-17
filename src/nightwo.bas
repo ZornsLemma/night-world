@@ -23,13 +23,16 @@ PRINTTAB(R%);CHR$131;R$
 ?&9FF=0:REM infinite health? 0=no, 1=yes
 ?&9FE=0:REM arbitrary warp? 0=no, 1=yes
 ?&9FD=0:REM allow strobe? 0=yes, 1=no
+?&9FC=0:REM fixed palette? 0=no, 1=yes
 PRINT'" Would you like to cheat?";
 cheat%=FNyes:IF NOT cheat% THEN GOTO 900
 PRINT'" Infinite health?";:IF FNyes THEN ?&9FF=1
 PRINT'" Allow warp to any room?";:IF FNyes THEN ?&9FE=1:PRINT " Press W to warp when paused."
 900PRINT'" Would you like to tweak?";
 tweak%=FNyes:IF NOT tweak% THEN GOTO 950
-PRINT'" Disable strobing effects?";:IF FNyes THEN ?&9FD=1
+PRINT'" Fixed high-contrast colours?";:fixed_palette%=FNyes:IF fixed_palette% THEN ?&9FC=1:disable_strobing%=TRUE
+IF NOT fixed_palette% THEN PRINT'" Disable strobing effects?";:disable_strobing%=FNyes
+IF disable_strobing% THEN ?&9FD=1
 950IF NOT (cheat% OR tweak%) THEN GOTO 1000
 PRINT'TAB(7);:VDU136:PRINT"PRESS ANY KEY TO CONTINUE";
 A=GET:*FX15,0

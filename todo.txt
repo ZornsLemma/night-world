@@ -58,3 +58,5 @@ Replace all the delays and keypresses at end of game with a utility routine that
 - ensures no key is currently pressed (flushing buffer is probably not good enough in practice, based on what I've observed at times)
 - waits until you press a key
 This way you will never miss a message and can take as long as you want to observe your score etc.
+
+Should the "fixed high contrast colours" be applied during the loading screens as well?
