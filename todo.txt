@@ -60,3 +60,5 @@ Replace all the delays and keypresses at end of game with a utility routine that
 This way you will never miss a message and can take as long as you want to observe your score etc.
 
 Should the "fixed high contrast colours" be applied during the loading screens as well?
+
+There is an intermittent freeze.
