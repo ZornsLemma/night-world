@@ -1,8 +1,10 @@
 DIM plist% 1000, dlist% 1000
 octave%=0
+RESTORE 2000:REM TODO: Hack to temporarily just use Prestissimo section
 I%=0
 REPEAT
 200READ note$,duration%
+IF note$="Lento":note$="END":REM TODO: Hack to temporarily just use Prestissimo section
 IF note$="Adagio":dmult%=6:GOTO 1000 ELSE IF note$="Prestissimo":dmult%=1:GOTO 1000 ELSE IF note$="Lento":dmult%=10:GOTO 1000
 duration%=duration%*dmult%
 IF note$="END":GOTO 1000
@@ -18,12 +20,15 @@ pitch%=pitch%+adjust%-1+octave%*48:REM -1 as BBC user guide values are 1 too hig
 I%=I%+1
 1000UNTIL note$="END"
 
+REPEAT
 FOR play%=0 TO I%-1
 pitch%=plist%?play%:duration%=dlist%?play%
-duration%=duration%:REM TODO!?
+PRINT pitch%,duration%
+duration%=duration%*1.5:REM TODO!? 1.5 is experimental as part of prestissimo hack, it may sound better without this
 vol%=-5:IF pitch%<=0 THEN vol%=0
 SOUND 2,vol%,pitch%,duration%:SOUND 3,vol%,pitch%,duration%
 NEXT
+UNTIL FALSE
 END
 
 REM Bar 1
@@ -32,7 +37,9 @@ DATA "O2a", 1, "g", 1, "a", 1, "", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c#", 2, "
 DATA "-a", 1, "g", 1, "a", 1, "", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c#", 2, "", 1, "d", 4, "", 4, "-b_", 2, "+c#", 2, "e", 2, "g", 2, "b_", 2, "+c#", 2, "e", 10
 DATA "d", 8, "", 8, "", 4, "", 2, "c#", 2
 REM Bar 4
-DATA "Prestissimo", 0
+2000DATA "Prestissimo", 0
+REM TODO: Copy of "preceding" note from Adagio section, as part of hacks which would otherwise omit this
+DATA "c#", 4
 DATA "d", 2, "e", 2, "c#", 2, "d", 2, "e", 2, "c#", 2, "d", 2, "e", 2, "c#", 2, "d", 2, "e", 2, "f", 2, "g", 2, "e", 2, "f", 2, "g", 2, "e", 2, "f", 2, "g", 2, "e", 2, "f", 2, "g", 2
 DATA "a", 2, "b_", 2, "g", 2, "a", 2, "b_", 2, "g", 2, "a", 2, "b_", 2, "g", 2, "a", 4, "", 8, "", 4, "", 2, "+c#", 2
 REM Bar 6
@@ -42,7 +49,9 @@ REM Bar 8
 DATA "g", 2, "b_", 2, "e", 2, "g", 2, "b_", 2, "e", 2, "f", 2, "a", 2, "d", 2, "f", 2, "a", 2, "d", 2, "e", 2, "g", 2, "c", 2, "e", 2, "g", 2, "c", 2, "d", 2, "f", 2, "-b_", 2, "+d", 2, "f", 2, "-b_", 2
 DATA "+c", 2, "e", 2, "-a", 2, "+c", 2, "e", 2, "-a", 2, "b_", 2, "+d", 2, "-g", 2, "b_", 2, "+d", 2, "-g", 2, "a", 2, "+c", 2, "-f", 2, "a", 2, "+c", 2, "-f", 2, "g", 2, "b_", 2, "e", 2, "g", 2, "b_", 2, "e_", 2
 REM Bar 10
-DATA "f", 2, "a", 2, "d", 2, "f", 2, "a", 2, "d", 2, "e", 2, "g", 2, "c#", 2, "e", 2, "g", 2, "c#", 2, "", 8, "Lento", 0, "-c", 2, "e", 2, "g", 2, "b_", 2
+DATA "f", 2, "a", 2, "d", 2, "f", 2, "a", 2, "d", 2, "e", 2, "g", 2, "c#", 2, "e", 2, "g", 2, "c#", 2, "", 8
+DATA "", 4, "", 2:REM TODO: add extra pause to match other "sub-passages" as part of Prestissimo-only hack
+DATA "Lento", 0, "-c", 2, "e", 2, "g", 2, "b_", 2
 REM TODO: Add the pair of grace notes in bar 11?
 DATA "+c#", 2, "e", 2, "g", 2, "b_", 3, "a", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c", 1, "-b", 1, "+c", 2, "-a", 2, "+c", 2, "e", 1, "g", 1, "f", 6, "e", 2
 DATA "f", 10
