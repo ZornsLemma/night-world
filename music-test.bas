@@ -1,3 +1,6 @@
+MODE 7
+HIMEM=&2900:*LOAD World1c
+CALL &3390:CALL R%!8
 DIM plist% 1000, dlist% 1000
 octave%=0
 RESTORE 2000:REM TODO: Hack to temporarily just use Prestissimo section
@@ -19,15 +22,29 @@ pitch%=pitch%+adjust%-1+octave%*48:REM -1 as BBC user guide values are 1 too hig
 900plist%?I%=pitch%:dlist%?I%=duration%
 I%=I%+1
 1000UNTIL note$="END"
+toccata_length%=I%
+
+PRINTTAB(0,20);"A - original music"'"B - Toccata and Fugue"
 
 REPEAT
-FOR play%=0 TO I%-1
+CALL R%!0
+REPEAT
+key$=INKEY$(0)
+UNTIL key$="B"
+*FX13,5
+
+REM TODO: ADD SPEED-VARIABLE VERSION OF ORIGINAL MUSIC AS OPTION C, AND MAKE THE LIGHTNING CRASH NOISES DURING OPTIONS B/C
+play%=0
+REPEAT
 pitch%=plist%?play%:duration%=dlist%?play%
-PRINT pitch%,duration%
+REM PRINT pitch%,duration%
 duration%=duration%*1.5:REM TODO!? 1.5 is experimental as part of prestissimo hack, it may sound better without this
 vol%=-5:IF pitch%<=0 THEN vol%=0
 SOUND 2,vol%,pitch%,duration%:SOUND 3,vol%,pitch%,duration%
-NEXT
+play%=(play%+1) MOD toccata_length%
+key$=INKEY$(0)
+UNTIL key$="A"
+*FX15
 UNTIL FALSE
 END
 
