@@ -1,13 +1,34 @@
+DIM plist% 1000, dlist% 1000
+octave%=0
+I%=0
 REPEAT
-READ pitch%, duration%
-IF pitch%<>0 THEN pitch%=pitch%-1+48:REM TODO: hack to adjust the values from BBC user guide and move up an octave
-duration%=duration%*3:REM TODO!?
+READ note$, duration%
+IF note$="END":GOTO 1000
+IF note$="":pitch%=0:GOTO 900
+IF LEFT$(note$,1)="O":octave%=VAL(MID$(note$,2,1)):note$=MID$(note$,3)
+IF LEFT$(note$,1)="+":octave%=octave%+1:note$=MID$(note$,2)
+IF LEFT$(note$,1)="-":octave%=octave%-1:note$=MID$(note$,2)
+adjust%=0
+IF RIGHT$(note$,1)="#":adjust%=4:note$=LEFT$(note$,LEN(note$)-1) ELSE IF RIGHT$(note$,1)="b":adjust%=-4:note$=LEFT$(note$,LEN(note$)-1)
+IF note$="c":pitch%=53 ELSE IF note$="d":pitch%=61 ELSE IF note$="e":pitch%=69 ELSE IF note$="f":pitch%=73 ELSE IF note$="g":pitch%=81 ELSE IF note$="a":pitch%=89 ELSE IF note$="b":pitch%=97 ELSE PRINT "Unknown note: ";note$:END
+pitch%=pitch%+adjust%-1+octave%*48
+900plist%?I%=pitch%:dlist%?I%=duration%
+I%=I%+1
+1000UNTIL note$="END"
+
+FOR play%=0 TO I%-1
+pitch%=plist%?play%:duration%=dlist%?play%
+duration%=duration%*3*3:REM TODO!?
 vol%=-5:IF pitch%<=0 THEN vol%=0
 SOUND 2,vol%,pitch%,duration%:SOUND 3,vol%,pitch%,duration%
-UNTIL FALSE
+NEXT
 END
-DATA 137,1,129,1,137,1,0,1,129,1,121,1,117,1,109,1,105,2,0,1,109,4,0,4,89,1,81,1,89,1,0,1,69,1,73,1,57,1,61,4,0,4
-DATA 121,1,117,1,121,1,0,1,117,1,109,1,101,1,93 ,1,93,1,0,1,93 ,4,0,4,0,1,-3 ,2,9,2,21,2,33,2,45,2,53,2,69,10
-DATA 61,8,0,8,0,4,0,2,57,2
+
+DATA "O2a", 1, "g", 1, "a", 1, "", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c#", 2, "", 1, "d", 4, "", 4, "-a", 1, "g", 1, "a", 1, "", 1, "e", 1, "f", 1, "c#", 1, "d", 4, "", 4
+DATA "END", 0
+
+REM DATA 137,1,129,1,137,1,0,1,129,1,121,1,117,1,109,1,105,2,0,1,109,4,0,4,89,1,81,1,89,1,0,1,69,1,73,1,57,1,61,4,0,4
+REM DATA 41,1,33,1,41,1,0,1,33,1,25,1,211,13,1,9,1,0,1,13,4,0,4,0,1,45,2,57,2,69,2,33,2,45,2,53,2,69,10
+REM DATA 61,8,0,8,0,4,0,2,57,2
 REM Bar 4
-DATA 61,2,69,2,57,2,61,2,69,2,53,2,61,2,69,2,53,2,61,2,69,2,73,2,81,2,69,2,73,2,81,2,69,2,73,2,81,2,69,2,73,2,81,2
+REM DATA 61,2,69,2,57,2,61,2,69,2,53,2,61,2,69,2,53,2,61,2,69,2,73,2,81,2,69,2,73,2,81,2,69,2,73,2,81,2,69,2,73,2,81,2
