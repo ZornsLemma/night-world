@@ -120,7 +120,7 @@ constant FIXED_PALETTE3=7
   251M%=RND(3):CALLR%!R_TABLE_ROOM_TYPE_1_CONTINUE:GOTOM%
   252IFRND(sound_and_light_show_chance%)=1:PROCset8(R_TABLE_PENDING_SOUND_AND_LIGHT_SHOW_SECOND_PART,1):PROCsound_and_light_show
   253CALLR%!R_TABLE_PLAY_290:GOTOM%
-  254PROCset_colours:CALLR%!R_TABLE_PLAY_280:GOTOM%
+  254VDU19,0,0;0;:PROCset_colours:CALLR%!R_TABLE_PLAY_280:GOTOM%
   255CALLR%!R_TABLE_PLAY_280:GOTOM%
   256PROCpause:CALLR%!R_TABLE_PLAY_320:GOTOM%:REM TODO TEMP - MAYBE?
   257PROCchange_room:IFFNget8(R_TABLE_GAME_ENDED)=0:CALLR%!R_TABLE_PLAY_270:GOTOM% ELSE ENDPROC
@@ -284,7 +284,7 @@ constant FIXED_PALETTE3=7
      DATA 3,1,7:REM 2/C
      DATA 1,2,6:REM 3/E
      DATA 4,3,7:REM 4/F
-     DATA 3,7,6:REM 5/G TODO experimentally changed first colour 1->3 (Lum gargoyle foot problem)
+     DATA 2,3,4:REM 5/G TODO experimentally changed colours (Lum gargoyle foot problem)
      DATA 3,5,4:REM 6/B
      DATA 6,2,3:REM 7/H
      DATA 4,2,6:REM 8/A
