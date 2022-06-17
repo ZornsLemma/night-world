@@ -3,7 +3,7 @@ octave%=0
 I%=0
 REPEAT
 200READ note$,duration%
-IF note$="Adagio":dmult%=4:GOTO 1000 ELSE IF note$="Prestissimo":dmult%=1:GOTO 1000 ELSE IF note$="Lento":dmult%=6:GOTO 1000
+IF note$="Adagio":dmult%=6:GOTO 1000 ELSE IF note$="Prestissimo":dmult%=1:GOTO 1000 ELSE IF note$="Lento":dmult%=10:GOTO 1000
 duration%=duration%*dmult%
 IF note$="END":GOTO 1000
 IF note$="":pitch%=0:GOTO 900
@@ -20,7 +20,7 @@ I%=I%+1
 
 FOR play%=0 TO I%-1
 pitch%=plist%?play%:duration%=dlist%?play%
-duration%=duration%*2:REM TODO!?
+duration%=duration%:REM TODO!?
 vol%=-5:IF pitch%<=0 THEN vol%=0
 SOUND 2,vol%,pitch%,duration%:SOUND 3,vol%,pitch%,duration%
 NEXT
@@ -43,6 +43,7 @@ DATA "g", 2, "b_", 2, "e", 2, "g", 2, "b_", 2, "e", 2, "f", 2, "a", 2, "d", 2, "
 DATA "+c", 2, "e", 2, "-a", 2, "+c", 2, "e", 2, "-a", 2, "b_", 2, "+d", 2, "-g", 2, "b_", 2, "+d", 2, "-g", 2, "a", 2, "+c", 2, "-f", 2, "a", 2, "+c", 2, "-f", 2, "g", 2, "b_", 2, "e", 2, "g", 2, "b_", 2, "e_", 2
 REM Bar 10
 DATA "f", 2, "a", 2, "d", 2, "f", 2, "a", 2, "d", 2, "e", 2, "g", 2, "c#", 2, "e", 2, "g", 2, "c#", 2, "", 8, "Lento", 0, "-c", 2, "e", 2, "g", 2, "b_", 2
+REM TODO: Add the pair of grace notes in bar 11?
 DATA "+c#", 2, "e", 2, "g", 2, "b_", 3, "a", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c", 1, "-b", 1, "+c", 2, "-a", 2, "+c", 2, "e", 1, "g", 1, "f", 6, "e", 2
 DATA "f", 10
 DATA "END", 0
