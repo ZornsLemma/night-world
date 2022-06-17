@@ -9,7 +9,7 @@ IF LEFT$(note$,1)="O":octave%=VAL(MID$(note$,2,1)):note$=MID$(note$,3)
 IF LEFT$(note$,1)="+":octave%=octave%+1:note$=MID$(note$,2)
 IF LEFT$(note$,1)="-":octave%=octave%-1:note$=MID$(note$,2)
 adjust%=0
-IF RIGHT$(note$,1)="#":adjust%=4:note$=LEFT$(note$,LEN(note$)-1) ELSE IF RIGHT$(note$,1)="b":adjust%=-4:note$=LEFT$(note$,LEN(note$)-1)
+IF RIGHT$(note$,1)="#":adjust%=4:note$=LEFT$(note$,LEN(note$)-1) ELSE IF RIGHT$(note$,1)="_":adjust%=-4:note$=LEFT$(note$,LEN(note$)-1)
 IF note$="c":pitch%=53 ELSE IF note$="d":pitch%=61 ELSE IF note$="e":pitch%=69 ELSE IF note$="f":pitch%=73 ELSE IF note$="g":pitch%=81 ELSE IF note$="a":pitch%=89 ELSE IF note$="b":pitch%=97 ELSE PRINT "Unknown note: ";note$:END
 pitch%=pitch%+adjust%-1+octave%*48
 900plist%?I%=pitch%:dlist%?I%=duration%
@@ -24,7 +24,11 @@ SOUND 2,vol%,pitch%,duration%:SOUND 3,vol%,pitch%,duration%
 NEXT
 END
 
+REM Bar 1
 DATA "O2a", 1, "g", 1, "a", 1, "", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c#", 2, "", 1, "d", 4, "", 4, "-a", 1, "g", 1, "a", 1, "", 1, "e", 1, "f", 1, "c#", 1, "d", 4, "", 4
+DATA "-a", 1, "g", 1, "a", 1, "", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c#", 2, "", 1, "d", 4, "", 4, "-b_", 2, "+c#", 2, "e", 2, "g", 2, "b_", 2, "+c#", 2, "e", 10
+DATA "d", 8, "", 8, "", 4, "", 2, "c#", 2
+REM Bar 4
 DATA "END", 0
 
 REM DATA 137,1,129,1,137,1,0,1,129,1,121,1,117,1,109,1,105,2,0,1,109,4,0,4,89,1,81,1,89,1,0,1,69,1,73,1,57,1,61,4,0,4
