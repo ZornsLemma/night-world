@@ -20,3 +20,6 @@ save "README", message_start, message_end, 0, 0
 ; slightly fiddly.
 putfile "orig/bbc-wor", "BBC-Wor", &1900, &1900
 putfile "tmp/nightwo.tok", "Nightwo", &1100, &8023
+
+; TODO: temporary
+putbasic "music-test.bas", "MUSTEST"
