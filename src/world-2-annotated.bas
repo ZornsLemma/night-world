@@ -284,7 +284,7 @@ constant FIXED_PALETTE3=7
      DATA 3,1,7:REM 2/C
      DATA 1,2,6:REM 3/E
      DATA 4,3,7:REM 4/F
-     DATA 1,7,6:REM 5/G
+     DATA 3,7,6:REM 5/G TODO experimentally changed first colour 1->3 (Lum gargoyle foot problem)
      DATA 3,5,4:REM 6/B
      DATA 6,2,3:REM 7/H
      DATA 4,2,6:REM 8/A
