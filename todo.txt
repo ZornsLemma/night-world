@@ -62,3 +62,5 @@ This way you will never miss a message and can take as long as you want to obser
 Should the "fixed high contrast colours" be applied during the loading screens as well?
 
 There is an intermittent freeze.
+
+Should there be a speed option (e.g. 6 vs 7 centiseconds per game cycle)? It would be nice to just "get it right" but it may not be possible.
