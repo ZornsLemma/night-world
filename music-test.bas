@@ -3,7 +3,7 @@ HIMEM=&2900:*LOAD World1c
 CALL &3390:CALL R%!8
 DIM plist% 1000, dlist% 1000
 octave%=0
-RESTORE 2000:REM TODO: Hack to temporarily just use Prestissimo section
+RESTORE 20000:REM TODO: Hack to temporarily just use Prestissimo section
 I%=0
 REPEAT
 200READ note$,duration%
@@ -24,16 +24,36 @@ I%=I%+1
 1000UNTIL note$="END"
 toccata_length%=I%
 
-PRINTTAB(0,20);"A - original music"'"B - Toccata and Fugue"
+PRINTTAB(0,20);"A - original music"'"B - Toccata and Fugue"'"C - variant original music"
 
+key$="A"
 REPEAT
+*FX15
+IF key$<>"A" THEN GOTO 3000
 CALL R%!0
 REPEAT
 key$=INKEY$(0)
-UNTIL key$="B"
+UNTIL key$="B" OR key$="C"
 *FX13,5
 
-REM TODO: ADD SPEED-VARIABLE VERSION OF ORIGINAL MUSIC AS OPTION C, AND MAKE THE LIGHTNING CRASH NOISES DURING OPTIONS B/C
+REM TODO: Make lightning effects during B/C
+
+3000IF key$<>"C" THEN GOTO 4000
+play%=0
+REPEAT
+T%=TIME
+REPEAT
+key$=INKEY$(0)
+UNTIL key$="A" OR key$="B" OR TIME-T%>=6*4
+pitch%=?((R%!12)+play%):duration%=?((R%!14)+play%)
+duration%=duration%*2:REM TODO make keyboard controllable, also pitch
+vol%=-5
+SOUND 2,vol%,pitch%,duration%:SOUND 3,vol%,pitch%,duration%
+play%=(play%+1) MOD 70
+UNTIL key$="A" OR key$="B"
+
+4000IF key$<>"B" THEN GOTO 5000
+
 play%=0
 REPEAT
 pitch%=plist%?play%:duration%=dlist%?play%
@@ -43,9 +63,9 @@ vol%=-5:IF pitch%<=0 THEN vol%=0
 SOUND 2,vol%,pitch%,duration%:SOUND 3,vol%,pitch%,duration%
 play%=(play%+1) MOD toccata_length%
 key$=INKEY$(0)
-UNTIL key$="A"
-*FX15
-UNTIL FALSE
+UNTIL key$="A" OR key$="C"
+
+5000UNTIL FALSE
 END
 
 REM Bar 1
@@ -54,7 +74,7 @@ DATA "O2a", 1, "g", 1, "a", 1, "", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c#", 2, "
 DATA "-a", 1, "g", 1, "a", 1, "", 1, "g", 1, "f", 1, "e", 1, "d", 1, "c#", 2, "", 1, "d", 4, "", 4, "-b_", 2, "+c#", 2, "e", 2, "g", 2, "b_", 2, "+c#", 2, "e", 10
 DATA "d", 8, "", 8, "", 4, "", 2, "c#", 2
 REM Bar 4
-2000DATA "Prestissimo", 0
+20000DATA "Prestissimo", 0
 REM TODO: Copy of "preceding" note from Adagio section, as part of hacks which would otherwise omit this
 DATA "c#", 4
 DATA "d", 2, "e", 2, "c#", 2, "d", 2, "e", 2, "c#", 2, "d", 2, "e", 2, "c#", 2, "d", 2, "e", 2, "f", 2, "g", 2, "e", 2, "f", 2, "g", 2, "e", 2, "f", 2, "g", 2, "e", 2, "f", 2, "g", 2
