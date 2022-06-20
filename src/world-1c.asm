@@ -2299,7 +2299,6 @@ if MAKE_IMAGE
     rts
 }
 
-    ; TODONOW: UP TO HERE WITH REVIEW
 .jump_terminated_falling_time
 {
     ; 4000DEFFNjump_terminated_falling_time
