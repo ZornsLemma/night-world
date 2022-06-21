@@ -714,8 +714,22 @@ tune_length = P% - tune_pitch
     rts
 
 .event_interval_disabled
-    sei:jsr set_interval_timer:cli
+    ; Enable the interval timer crossing zero event and set the timer to -1. We
+    ; need to be careful with the sequencing here; if we set the timer to -1
+    ; then enable the event, we can get unlucky and have the interval timer
+    ; incremented before we enable the event, in which case we will have to wait
+    ; just over 348.42 years for it to wrap back round again. (Bear in mind that
+    ; the increment happens on its own schedule when the system VIA timer fires;
+    ; setting the timer doesn't "start" it ticking at that instant.)
+    ;
+    ; We disable interrupts across the whole sequence, but I think the main
+    ; thing is that we get the order right. If the event fires before we set the
+    ; interval timer explicitly there's no real harm done.
+    sei
     lda #osbyte_enable_event:ldx #event_interval:jsr osbyte
+    sei ; Paranoia; I hope the previous OSBYTE doesn't enable interrupts, but play it safe.
+    jsr set_interval_timer
+    cli
     jmp reset_game_cycle_tick_interval
 
 .jmp_cnpv
@@ -1881,7 +1895,7 @@ if MAKE_IMAGE
     lda #SLOT_LEE:sta ri_w
     jsr s_subroutine
 .play_335
-    ; 335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0CALLR%!R_TABLE_PLAY_270:GOTOM% ELSEIFgame_ended%=1:ENDPROC
+    ; 335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0:GOTO270 ELSEIFgame_ended%=1:ENDPROC
     lda ri_c+1:cmp #>24:bne c_not_lt_24
     lda ri_c:cmp #<24:bcc c_lt_24
 .c_not_lt_24
@@ -1943,10 +1957,10 @@ if MAKE_IMAGE
     lda falling_time:bmi falling_time_not_gt_12:cmp #12+1:bcc falling_time_not_gt_12
 .x_ne_0
     jsr update_energy_and_items
-    jmp play_370
+    jmp play_370 ; SFTODO: redundant (and not in the BASIC either, so not exactly "clarity-adding" either)
 .falling_time_not_gt_12
 .^play_370
-    ; 370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:CALLR%!R_TABLE_PLAY_270:GOTOM%
+    ; 370IFsun_moon_disabled%=0:m%=m%+1:IFm%=11:PROCadvance_sun_moon:m%=0 ELSEIFlogical_room%=1ORlogical_room%=13ORlogical_room%=5ORlogical_room%=10:PROCcheck_warps:GOTO270
     lda sun_moon_disabled:bne dont_update_sun_moon
     inc m
     lda m:cmp #11:bne dont_advance_sun_moon
@@ -2029,7 +2043,7 @@ if MAKE_IMAGE
     lda ri_i:cmp #<64:bne room_type_1_690
     lda ri_i+1:cmp #>64:bne room_type_1_690
     lda #DELTA_STEP_RIGHT:sta db
-    lda #IMAGE_HARPY_RIGHT:STA ri_x
+    lda #IMAGE_HARPY_RIGHT:sta ri_x
     jsr u_subroutine
     ; 690CALLT%:ENDPROC
 .room_type_1_690
@@ -2234,7 +2248,7 @@ if MAKE_IMAGE
     ldx #3:cmp #5:beq this_item_in_x
     ldx #4:cmp #14:beq this_item_in_x
     ldx #5:cmp #9:beq this_item_in_x
-    brk:equs 0, "Bad item",0 ; TODO!?
+    brk:equs 0, "Bad item", 0 ; TODO!?
 .this_item_in_x
     stx this_item
     ; 1180IFitem_collected%(this_item%)=1:GOTO1220 ELSEitem_collected%(this_item%)=1:IFthis_item%<5:PROCshow_prisms
