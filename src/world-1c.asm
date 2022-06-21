@@ -714,8 +714,22 @@ tune_length = P% - tune_pitch
     rts
 
 .event_interval_disabled
-    sei:jsr set_interval_timer:cli
+    ; Enable the interval timer crossing zero event and set the timer to -1. We
+    ; need to be careful with the sequencing here; if we set the timer to -1
+    ; then enable the event, we can get unlucky and have the interval timer
+    ; incremented before we enable the event, in which case we will have to wait
+    ; just over 348.42 years for it to wrap back round again. (Bear in mind that
+    ; the increment happens on its own schedule when the system VIA timer fires;
+    ; setting the timer doesn't "start" it ticking at that instant.)
+    ;
+    ; We disable interrupts across the whole sequence, but I think the main
+    ; thing is that we get the order right. If the event fires before we set the
+    ; interval timer explicitly there's no real harm done.
+    sei
     lda #osbyte_enable_event:ldx #event_interval:jsr osbyte
+    sei ; Paranoia; I hope the previous OSBYTE doesn't enable interrupts, but play it safe.
+    jsr set_interval_timer
+    cli
     jmp reset_game_cycle_tick_interval
 
 .jmp_cnpv
