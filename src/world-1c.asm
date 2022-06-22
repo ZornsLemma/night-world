@@ -50,13 +50,16 @@ ri_z = &0468
 
 if MAKE_IMAGE
     ; The original game code completes a cycle roughly every 0.06s.
-    game_cycle_tick_interval = 6
+    ; TODO!? game_cycle_tick_interval = 6
+    game_cycle_tick_interval_addr = &9fb
 
     ; The original BASIC code played a note of the background music once every four
     ; game cycles, so by following that we should keep approximately the same
     ; playback speed, although more consistent. TODO: It is just possible that it
     ; would be better to use a different interval to get the speed closer.
-    music_tick_interval = game_cycle_tick_interval * 4
+    ; TODO: For now this is fixed and doesn't change as the user tweaks the game cycle
+    ; tick interval. This is probably OK/desirable, but I haven't thought too closely.
+    music_tick_interval = 6 * 4
 
     evntv = &220
     cnpv = &22e
@@ -780,7 +783,7 @@ endif
     ; TODO: I am wondering if this is "wrong"/unfair/unhelpful when we haven't actually done any busy-waiting - partly but not entirely, is there a danger this update is going to get trampled on by the vsync event, so maybe we should sei around this?
     ; TODO: What I'm kind of thinking is something like: we take 3.5 ticks for one game cycle, so we come in here with ticks_left=&ff and half a tick already gone. we set ticks_left to 3, but because half a tick has already gone, if we take 2.9 ticks for the next cycle (thus actually beating the deadline), we will see ticks_left=0 here and think that we've at best just scraped in and most likely failed to hit the deadline.
     ; TODO: Just thinking out loud - could/should we attempt to hit the deadline *on average*? Maybe if we're a tick "ahead" of the deadline in one cycle, we should save that up and allow ourselves to start the next cycle immediately, as long as we're not getting multiple ticks ahead. Something like that.
-    lda #game_cycle_tick_interval:sta ticks_left_in_game_cycle
+    lda game_cycle_tick_interval_addr:sta ticks_left_in_game_cycle
 
     ; The BASIC used to do W%=SLOT_LEE:Y%=8 before calling Q%; it's trivial to
     ; do this in machine code, so we do.

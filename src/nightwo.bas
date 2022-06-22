@@ -24,6 +24,7 @@ PRINTTAB(R%);CHR$131;R$
 ?&9FE=0:REM arbitrary warp? 0=no, 1=yes
 ?&9FD=0:REM allow strobe? 0=yes, 1=no
 ?&9FC=0:REM fixed palette? 0=no, 1=yes
+?&9FB=6:REM game cycle time (ms)
 PRINT'" Would you like to cheat?";
 cheat%=FNyes:IF NOT cheat% THEN GOTO 900
 PRINT'" Infinite health?";:IF FNyes THEN ?&9FF=1
@@ -33,6 +34,11 @@ tweak%=FNyes:IF NOT tweak% THEN GOTO 950
 PRINT'" Fixed high-contrast colours?";:fixed_palette%=FNyes:IF fixed_palette% THEN ?&9FC=1:disable_strobing%=TRUE
 IF NOT fixed_palette% THEN PRINT'" Disable strobing effects?";:disable_strobing%=FNyes
 IF disable_strobing% THEN ?&9FD=1
+PRINT'" Speed? (5/6/7/8)";CHR$131;
+*FX15,0
+REPEAT:K$=GET$:UNTIL K$="5" OR K$="6" OR K$="7" OR K$="8"
+PRINT;K$
+?&9FB=VAL(K$)
 950IF NOT (cheat% OR tweak%) THEN GOTO 1000
 PRINT'TAB(7);:VDU136:PRINT"PRESS ANY KEY TO CONTINUE";
 A=GET:*FX15,0
