@@ -102,8 +102,8 @@ if MAKE_IMAGE
     ; TODO: Now that the room data has been shrunk, we can probably move all the
     ; machine code up. This would require tweaking world-1c-wrapper.asm and the
     ; CALL to it in world-1b.bas.
-    assert &3500-P% < 256
-    skipto &3500
+    assert &3400-P% < 256
+    skipto &3400
     guard &5800
 else
     org &35bc
@@ -1792,6 +1792,18 @@ if MAKE_IMAGE
 .aym
     equw 0
 
+past_position_count = 10 ; TODO: arbitrary
+.past_position_index
+    equb 0
+.past_position_x_lo
+    skip past_position_count
+.past_position_x_hi
+    skip past_position_count
+.past_position_y_lo
+    skip past_position_count
+.past_position_y_hi
+    skip past_position_count
+
 .escape
     brk:equb 17, "Escape", 0 ; ENHANCE: No one cares about the string, if we're trying to save space
 
@@ -1894,6 +1906,59 @@ if MAKE_IMAGE
 .d_not_gt_260
 .score_not_100
 .^play_330
+    ; TODO: Experimental anti-stick
+    jmp play_330_start
+.new_position
+    ; Can the player move? TODO: This is potentially inefficient with the extra "point" calls, but let's
+    ; not worry about that for now.
+    jsr check_if_player_can_move:bcs player_cant_move:jmp player_can_move
+.player_cant_move
+    ; The player can't move from this new position, so let's find an alternative. We'll test each previous
+    ; position in sequence.
+    lda ri_c:sta &70:lda ri_c+1:sta &71:lda ri_d:sta &72:lda ri_d+1:sta &73 ; TODO HACKY USE OF TEMP ZP LOCS
+    ldx past_position_index:ldy #past_position_count
+.check_position_loop
+    lda past_position_x_lo,x:sta ri_c
+    lda past_position_x_hi,x:sta ri_c+1
+    lda past_position_y_lo,x:sta ri_d
+    lda past_position_y_hi,x:sta ri_d+1
+    jsr check_if_player_can_move:bcc found_new_position ; TODO: ASSUMING PRESERVES X/Y FOR THE MOMENT
+    dex:bpl dont_wrap:ldx #past_position_count-1:.dont_wrap
+    dey:bne check_position_loop
+    ; The player can't move in any of the past positions we've stored. Restore ri_c/ri_d and just carry on,
+    ; for want of a better option.
+    lda &70:sta ri_c:lda &71:sta ri_c+1:lda &72:sta ri_d:lda &73:sta ri_d+1
+    jmp player_position_ok
+.play_330_start
+    ; If the player hasn't changed position, don't do anything. TODO: This may or may not be a good idea - this is all experimental. At the moment I'm thinking we stop the player getting into a stuck position, and if they haven't moved then their previous position (which we didn't adjust either) was OK. It may be that we want to do something here in case an enemy has moved in and trapped the player, but this may not be the right place to deal with that, and it may well be that getting trapped by an enemy is acceptable.
+    ldx past_position_index
+    lda ri_c:cmp past_position_x_lo,x:bne new_position
+    lda ri_c+1:cmp past_position_x_hi,x:bne new_position
+    lda ri_d:cmp past_position_y_lo,x:bne new_position
+    lda ri_d+1:cmp past_position_y_hi,x:beq not_new_position
+.found_new_position
+    ; X identifies the most recent past position where the player can still move.
+    ; TODO: We should really "remove" the now unwanted positions we've "popped" from the stack, but for
+    ; the moment the code assumes all past_position_count entries are always valid. We could track how
+    ; many entries are valid or we could write some dummy "player can't ever move from here" locations
+    ; over the top of the "removed" ones. For now just ignore this completely while experimenting.
+    stx past_position_index
+    ; Make the player stationary; if they would otherwise have got stuck in the wall, it seems reasonable
+    ; to say that they aren't moving. Falling might kick in next game cycle in the usual way, of course.
+    lda #0:sta jumping
+    ; TODO: Do I need to update any other state?
+    jmp player_position_ok
+.player_can_move
+    ; The player can move from this new position, so we'll record it and use it to update the sprite.
+    inx
+    cpx #past_position_count:bcc dont_wrap_past_position_index:ldx #0:.dont_wrap_past_position_index
+    stx past_position_index
+    lda ri_c:sta past_position_x_lo,x
+    lda ri_c+1:sta past_position_x_hi,x
+    lda ri_d:sta past_position_y_lo,x
+    lda ri_d+1:sta past_position_y_hi,x
+.not_new_position
+.player_position_ok
     ; 330W%=SLOT_LEE:CALLS%
     lda #SLOT_LEE:sta ri_w
     jsr s_subroutine
@@ -1981,6 +2046,10 @@ if MAKE_IMAGE
     jmp play_280
 .do_check_warps
     lda #<381:sta ri_m:lda #>381:sta ri_m+1:rts
+
+.check_if_player_can_move
+    clc ; TODO: temporarily always say they can; this should give existing behaviour barring bugs
+    rts
 
 .advance_sun_moon
 {
