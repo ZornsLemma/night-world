@@ -1841,16 +1841,8 @@ past_position_count = 10 ; TODO: arbitrary
     jmp play_330
 .not_jumping
     lda #0:sta delta_x
-    clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
-    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    sec:lda ri_d:sbc #66:sta osword_read_pixel_block_y
-    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result:bne not_black_below
-    clc:lda ri_c:adc #60:sta osword_read_pixel_block_x
-    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    jsr point
-    lda osword_read_pixel_block_result:bne not_black_below
+    jsr point_below_left:bne not_black_below
+    jsr point_below_right:bne not_black_below
     lda falling_delta_x:bmi falling_delta_x_negative
     clc:adc ri_c:sta ri_c
     lda ri_c+1:adc #0:sta ri_c+1
@@ -1910,7 +1902,10 @@ past_position_count = 10 ; TODO: arbitrary
     jmp play_330_start
 .new_position
     ; Can the player move? TODO: This is potentially inefficient with the extra "point" calls, but let's
-    ; not worry about that for now.
+    ; not worry about that for now. TODO: This is probably fine, but just possibly we need to allow the
+    ; player to come to a rest naturally (e.g. normal code decides jump has finished) before we start to
+    ; un-stick. We probably still want to *save* "player can move" positions during a jump, just not
+    ; try to fix sticking until the jump ends. As I say, this may not be an issue.
     jsr check_if_player_can_move:bcs player_cant_move:jmp player_can_move
 .player_cant_move
     ; The player can't move from this new position, so let's find an alternative. We'll test each previous
@@ -1922,7 +1917,9 @@ past_position_count = 10 ; TODO: arbitrary
     lda past_position_x_hi,x:sta ri_c+1
     lda past_position_y_lo,x:sta ri_d
     lda past_position_y_hi,x:sta ri_d+1
-    jsr check_if_player_can_move:bcc found_new_position ; TODO: ASSUMING PRESERVES X/Y FOR THE MOMENT
+    stx &74:sty &75 ; TODO HACKY
+    jsr check_if_player_can_move:bcc found_new_position
+    ldx &74:ldy &75 ; TODO HACKY
     dex:bpl dont_wrap:ldx #past_position_count-1:.dont_wrap
     dey:bne check_position_loop
     ; The player can't move in any of the past positions we've stored. Restore ri_c/ri_d and just carry on,
@@ -2047,9 +2044,73 @@ past_position_count = 10 ; TODO: arbitrary
 .do_check_warps
     lda #<381:sta ri_m:lda #>381:sta ri_m+1:rts
 
+.point_below_left
+    clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    sec:lda ri_d:sbc #66:sta osword_read_pixel_block_y
+    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result
+    rts
+
+; Note this assumes point_below_left has set up Y
+.point_below_right
+    clc:lda ri_c:adc #60:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    jsr point
+    lda osword_read_pixel_block_result
+    rts
+
+.point_left
+    sec:lda ri_c:sbc #4:sta osword_read_pixel_block_x
+    lda ri_c+1:sbc #0:sta osword_read_pixel_block_x+1
+    sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
+    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result
+    rts
+
+.point_right
+    clc:lda ri_c:adc #64:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
+    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result
+    rts
+
+; Check if the player can move from (C%, D%), returning with carry clear iff they can. This works
+; on the assumption the player is stationary, because if this routine says the player
 .check_if_player_can_move
+{
+    ; TODO: Copy and paste of other code, could share later.
+    ; Can the player fall?
+    jsr point_below_left:bne player_wont_fall
+    jsr point_below_right:beq player_can_move ; both below pixels are black, so player can fall
+.player_wont_fall
+    ; Can the player move left?
+    jsr point_left:beq player_can_move ; they can move left
+    ; Can the player move right?
+    jsr point_right:beq player_can_move ; they can move right
+    ; Can the player jump?
+    clc:lda ri_c:adc #8:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    clc:lda ri_d:adc #4:sta osword_read_pixel_block_y
+    lda ri_d+1:adc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result:bne player_cant_jump
+    clc:lda ri_c:adc #56:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    jsr point
+    lda osword_read_pixel_block_result:beq player_can_move ; they can jump; neither "above" pixel is non-black
+.player_cant_jump
+    ; Player has no possible movement.
+    sec
+    rts
+.player_can_move
     clc ; TODO: temporarily always say they can; this should give existing behaviour barring bugs
     rts
+}
 
 .advance_sun_moon
 {
@@ -2214,12 +2275,7 @@ past_position_count = 10 ; TODO: arbitrary
 
 .move_left
     ; 420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
-    sec:lda ri_c:sbc #4:sta osword_read_pixel_block_x
-    lda ri_c+1:sbc #0:sta osword_read_pixel_block_x+1
-    sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
-    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result:bne move_left_rts
+    jsr point_left:bne move_left_rts
     ; 430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite:W%=SLOT_LEE
     lda lee_direction:cmp #IMAGE_HUMAN_RIGHT:bne not_facing_right
     lda #IMAGE_HUMAN_LEFT:sta lee_direction
@@ -2235,12 +2291,7 @@ past_position_count = 10 ; TODO: arbitrary
 
 .move_right
     ; 450DEFPROCmove_right:IFPOINT(C%+64,D%-8)<>0:ENDPROC
-    clc:lda ri_c:adc #64:sta osword_read_pixel_block_x
-    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
-    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result:bne move_right_rts
+    jsr point_right:bne move_right_rts
     ; 460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite:W%=SLOT_LEE
     lda lee_direction:cmp #IMAGE_HUMAN_LEFT:bne not_facing_left
     lda #IMAGE_HUMAN_RIGHT:sta lee_direction
