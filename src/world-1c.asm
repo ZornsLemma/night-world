@@ -2134,6 +2134,7 @@ past_position_count = 10 ; TODO: arbitrary
 
 ; Check if the player can move from (C%, D%), returning with carry clear iff they can. This works
 ; on the assumption the player is stationary, because if this routine says the player
+; TODO: Would it help if we required the possibility for both left *and* right movement, perhaps even discounting falling, for this to consider the play as able to move?
 .check_if_player_can_move
 {
     ; TODO: Copy and paste of other code, could share later.
