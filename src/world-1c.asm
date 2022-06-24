@@ -1911,6 +1911,8 @@ past_position_count = 10 ; TODO: arbitrary
     ; The player can't move from this new position, so let's find an alternative. We'll test each previous
     ; position in sequence.
     lda ri_c:sta &70:lda ri_c+1:sta &71:lda ri_d:sta &72:lda ri_d+1:sta &73 ; TODO HACKY USE OF TEMP ZP LOCS
+    ; TODO: I need to do something about initialising past_position_index/x/y on startup - just wing it for
+    ; now and assume it's "OK" - also probably needs doing when room changes.
     ldx past_position_index:ldy #past_position_count
 .check_position_loop
     lda past_position_x_lo,x:sta ri_c
@@ -1918,8 +1920,9 @@ past_position_count = 10 ; TODO: arbitrary
     lda past_position_y_lo,x:sta ri_d
     lda past_position_y_hi,x:sta ri_d+1
     stx &74:sty &75 ; TODO HACKY
-    jsr check_if_player_can_move:bcc found_new_position
+    jsr check_if_player_can_move
     ldx &74:ldy &75 ; TODO HACKY
+    bcc found_new_position
     dex:bpl dont_wrap:ldx #past_position_count-1:.dont_wrap
     dey:bne check_position_loop
     ; The player can't move in any of the past positions we've stored. Restore ri_c/ri_d and just carry on,
@@ -2108,7 +2111,7 @@ past_position_count = 10 ; TODO: arbitrary
     sec
     rts
 .player_can_move
-    clc ; TODO: temporarily always say they can; this should give existing behaviour barring bugs
+    clc
     rts
 }
 
