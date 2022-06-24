@@ -75,6 +75,8 @@ if MAKE_IMAGE
 
     vdu_gcol = 18
     S_OP_MOVE = 0
+    S_OP_SHOW = 1
+    S_OP_REMOVE = 2
 
     SLOT_ENEMY = 5
     SLOT_SUN_MOON = 6
@@ -1803,6 +1805,8 @@ past_position_count = 10 ; TODO: arbitrary
     skip past_position_count
 .past_position_y_hi
     skip past_position_count
+.need_to_restore_enemy
+    equb 0
 
 .escape
     brk:equb 17, "Escape", 0 ; ENHANCE: No one cares about the string, if we're trying to save space
@@ -1898,10 +1902,10 @@ past_position_count = 10 ; TODO: arbitrary
 .d_not_gt_260
 .score_not_100
 .^play_330
-    ; TODO: Experimental anti-stick
+    ; TODO: Experimental anti-stick - this code is absolute spaghetti on top of everything else, in part due to hacking around branch distance limits
     jmp play_330_start
-.new_position
-    ; Can the player move? TODO: This is potentially inefficient with the extra "point" calls, but let's
+.player_has_moved
+    ; Can the player move from this new position? TODO: This is potentially inefficient with the extra "point" calls, but let's
     ; not worry about that for now. TODO: This is probably fine, but just possibly we need to allow the
     ; player to come to a rest naturally (e.g. normal code decides jump has finished) before we start to
     ; un-stick. We probably still want to *save* "player can move" positions during a jump, just not
@@ -1913,8 +1917,28 @@ past_position_count = 10 ; TODO: arbitrary
     ; I haven't attempted to check the code to see how it's structured yet, just bashing this comment in.
     jsr check_if_player_can_move:bcs player_cant_move:jmp player_can_move
 .player_cant_move
-    ; The player can't move from this new position, so let's find an alternative. We'll test each previous
-    ; position in sequence.
+    ; The player can't move from this new position, so let's find an alternative.
+    ; If the player is colliding with an enemy, we'll temporarily remove it from the screen. We don't
+    ; want to find a spot that's "safe" only because an ememy is temporarily creating a black pixel there.
+    ; TODO: We should probably also re-check the current position once the enemy has been removed and stick
+    ; with it if it's OK.
+    lda #SLOT_LEE:sta ri_w
+    lda #SLOT_ENEMY:sta ri_y
+    jsr q_subroutine
+    lda #0:sta need_to_restore_enemy
+    lda ri_x:cmp #SLOT_ENEMY:bne not_colliding_with_enemy
+    inc need_to_restore_enemy
+    lda #SLOT_ENEMY:sta ri_w
+    lda #S_OP_REMOVE:sta ri_y
+    jsr s_subroutine
+    lda #S_OP_MOVE:sta ri_y ; restore this before we forget
+    jsr check_if_player_can_move:bcs player_still_cant_move
+    ; The player can move now we've removed the enemy, so let's treat the (unaltered) position as OK.
+    jsr restore_enemy
+    jmp player_can_move
+.player_still_cant_move
+.not_colliding_with_enemy
+    ; We'll test each previous position in sequence.
     lda ri_c:sta &70:lda ri_c+1:sta &71:lda ri_d:sta &72:lda ri_d+1:sta &73 ; TODO HACKY USE OF TEMP ZP LOCS
     ; TODO: I need to do something about initialising past_position_index/x/y on startup - just wing it for
     ; now and assume it's "OK" - also probably needs doing when room changes.
@@ -1927,21 +1951,25 @@ past_position_count = 10 ; TODO: arbitrary
     stx &74:sty &75 ; TODO HACKY
     jsr check_if_player_can_move
     ldx &74:ldy &75 ; TODO HACKY
-    bcc found_new_position
+    bcc found_replacement_position
     dex:bpl dont_wrap:ldx #past_position_count-1:.dont_wrap
     dey:bne check_position_loop
     ; The player can't move in any of the past positions we've stored. Restore ri_c/ri_d and just carry on,
     ; for want of a better option.
     lda &70:sta ri_c:lda &71:sta ri_c+1:lda &72:sta ri_d:lda &73:sta ri_d+1
+    jsr restore_enemy
     jmp player_position_ok
+.player_has_moved_indirect
+    jmp player_has_moved
 .play_330_start
     ; If the player hasn't changed position, don't do anything. TODO: This may or may not be a good idea - this is all experimental. At the moment I'm thinking we stop the player getting into a stuck position, and if they haven't moved then their previous position (which we didn't adjust either) was OK. It may be that we want to do something here in case an enemy has moved in and trapped the player, but this may not be the right place to deal with that, and it may well be that getting trapped by an enemy is acceptable.
     ldx past_position_index
-    lda ri_c:cmp past_position_x_lo,x:bne new_position
-    lda ri_c+1:cmp past_position_x_hi,x:bne new_position
-    lda ri_d:cmp past_position_y_lo,x:bne new_position
-    lda ri_d+1:cmp past_position_y_hi,x:beq not_new_position
-.found_new_position
+    lda ri_c:cmp past_position_x_lo,x:bne player_has_moved_indirect
+    lda ri_c+1:cmp past_position_x_hi,x:bne player_has_moved_indirect
+    lda ri_d:cmp past_position_y_lo,x:bne player_has_moved_indirect
+    lda ri_d+1:cmp past_position_y_hi,x:bne player_has_moved_indirect
+    jmp player_has_not_moved
+.found_replacement_position
     ; X identifies the most recent past position where the player can still move.
     ; TODO: We should really "remove" the now unwanted positions we've "popped" from the stack, but for
     ; the moment the code assumes all past_position_count entries are always valid. We could track how
@@ -1952,6 +1980,7 @@ past_position_count = 10 ; TODO: arbitrary
     ; to say that they aren't moving. Falling might kick in next game cycle in the usual way, of course.
     lda #0:sta jumping
     ; TODO: Do I need to update any other state?
+    jsr restore_enemy
     jmp player_position_ok
 .player_can_move
     ; The player can move from this new position, so we'll record it and use it to update the sprite.
@@ -1962,7 +1991,7 @@ past_position_count = 10 ; TODO: arbitrary
     lda ri_c+1:sta past_position_x_hi,x
     lda ri_d:sta past_position_y_lo,x
     lda ri_d+1:sta past_position_y_hi,x
-.not_new_position
+.player_has_not_moved
 .player_position_ok
     ; 330W%=SLOT_LEE:CALLS%
     lda #SLOT_LEE:sta ri_w
@@ -2087,6 +2116,23 @@ past_position_count = 10 ; TODO: arbitrary
     lda osword_read_pixel_block_result
     rts
 
+.point_above_left
+    clc:lda ri_c:adc #8:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    clc:lda ri_d:adc #4:sta osword_read_pixel_block_y
+    lda ri_d+1:adc #0:sta osword_read_pixel_block_y+1
+    jsr point
+    lda osword_read_pixel_block_result
+    rts
+
+; Assumes point_above_left has set up Y already
+.point_above_right
+    clc:lda ri_c:adc #56:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+    jsr point
+    lda osword_read_pixel_block_result
+    rts
+
 ; Check if the player can move from (C%, D%), returning with carry clear iff they can. This works
 ; on the assumption the player is stationary, because if this routine says the player
 .check_if_player_can_move
@@ -2101,22 +2147,25 @@ past_position_count = 10 ; TODO: arbitrary
     ; Can the player move right?
     jsr point_right:beq player_can_move ; they can move right
     ; Can the player jump?
-    clc:lda ri_c:adc #8:sta osword_read_pixel_block_x
-    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    clc:lda ri_d:adc #4:sta osword_read_pixel_block_y
-    lda ri_d+1:adc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result:bne player_cant_jump
-    clc:lda ri_c:adc #56:sta osword_read_pixel_block_x
-    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    jsr point
-    lda osword_read_pixel_block_result:beq player_can_move ; they can jump; neither "above" pixel is non-black
+    jsr point_above_left:bne player_cant_jump
+    jsr point_above_right:beq player_can_move ; they can jump; neither "above" pixel is non-black
 .player_cant_jump
     ; Player has no possible movement.
     sec
     rts
 .player_can_move
     clc
+    rts
+}
+
+.restore_enemy
+{
+    lda need_to_restore_enemy:beq rts
+    lda #SLOT_ENEMY:sta ri_w
+    lda #S_OP_SHOW:sta ri_y
+    jsr s_subroutine
+.rts
+    lda #S_OP_MOVE:sta ri_y
     rts
 }
 
@@ -2315,16 +2364,8 @@ past_position_count = 10 ; TODO: arbitrary
 
 .jump
     ; 480DEFPROCjump:IFPOINT(C%+8,D%+4)<>0ORPOINT(C%+56,D%+4)<>0:jumping%=0:falling_time%=FNjump_terminated_falling_time:PROCstop_sound:ENDPROC
-    clc:lda ri_c:adc #8:sta osword_read_pixel_block_x
-    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    clc:lda ri_d:adc #4:sta osword_read_pixel_block_y
-    lda ri_d+1:adc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result:bne stop_jumping
-    clc:lda ri_c:adc #56:sta osword_read_pixel_block_x
-    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    jsr point
-    lda osword_read_pixel_block_result:beq dont_stop_jumping
+    jsr point_above_left:bne stop_jumping
+    jsr point_above_right:beq dont_stop_jumping
 .stop_jumping
     lda #0:sta jumping
     jsr jump_terminated_falling_time:sta falling_time
