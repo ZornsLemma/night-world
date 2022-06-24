@@ -64,3 +64,7 @@ Should the "fixed high contrast colours" be applied during the loading screens a
 There is an intermittent freeze - probably fixed in 0.16.
 
 Should there be a speed option (e.g. 6 vs 7 centiseconds per game cycle)? It would be nice to just "get it right" but it may not be possible.
+
+Lum suggestion to show the door to room M "slamming" visibly instead of just appearing - we might also want to explicitly push the player out of this wall if they accidentally or deliberately clip into it, although perhaps be careful as IIRC Ed's original post mentions using this as a way to avoid damage from the harpy while you wait for night
+
+Bob suggestion to slightly widen "chimneys" so the player can wall climb slowly out of them, without needing to worry about this as part of the anti-stick logic
