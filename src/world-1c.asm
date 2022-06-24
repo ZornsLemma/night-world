@@ -1921,8 +1921,6 @@ past_position_count = 10 ; TODO: arbitrary
     ; The player can't move from this new position, so let's find an alternative.
     ; If the player is colliding with an enemy, we'll temporarily remove it from the screen. We don't
     ; want to find a spot that's "safe" only because an ememy is temporarily creating a black pixel there.
-    ; TODO: We should probably also re-check the current position once the enemy has been removed and stick
-    ; with it if it's OK.
     lda #SLOT_LEE:sta ri_w
     lda #SLOT_ENEMY:sta ri_y
     jsr q_subroutine
@@ -1932,7 +1930,7 @@ past_position_count = 10 ; TODO: arbitrary
     lda #SLOT_ENEMY:sta ri_w
     lda #S_OP_REMOVE:sta ri_y
     jsr s_subroutine
-    lda #S_OP_MOVE:sta ri_y ; restore this before we forget
+    lda #S_OP_MOVE:sta ri_y ; restore this before we forget TODO: perhaps pointless given we will be restoring and thus setting ri_y anyway
     jsr check_if_player_can_move:bcs player_still_cant_move
     ; The player can move now we've removed the enemy, so let's treat the (unaltered) position as OK.
     jsr restore_enemy
