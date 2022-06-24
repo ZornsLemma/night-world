@@ -1906,6 +1906,11 @@ past_position_count = 10 ; TODO: arbitrary
     ; player to come to a rest naturally (e.g. normal code decides jump has finished) before we start to
     ; un-stick. We probably still want to *save* "player can move" positions during a jump, just not
     ; try to fix sticking until the jump ends. As I say, this may not be an issue.
+    ; TODO: Would there perhaps be mileage in executing this code at the "enemy has been removed before
+    ; re-plotting" stage of the enemy move subroutine? That way it would make decisions ignoring the
+    ; enemy completely. It might be fiddly to do it at that point though, particularly if the player
+    ; movement logic for the game cycle hasn't had a chance to specify its "desired" new position yet -
+    ; I haven't attempted to check the code to see how it's structured yet, just bashing this comment in.
     jsr check_if_player_can_move:bcs player_cant_move:jmp player_can_move
 .player_cant_move
     ; The player can't move from this new position, so let's find an alternative. We'll test each previous
