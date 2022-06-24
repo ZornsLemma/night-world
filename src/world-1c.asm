@@ -1903,6 +1903,7 @@ past_position_count = 10 ; TODO: arbitrary
 .score_not_100
 .^play_330
     ; TODO: Experimental anti-stick - this code is absolute spaghetti on top of everything else, in part due to hacking around branch distance limits
+    ; TODO: At time of writing it's possible not just to get stuck in a wall, but to get stuck in a wall suffering continuous damage. Strictly speaking this doesn't "matter", because once you're stuck in the wall you're as good as dead anyway, but it shouldn't happen. I don't know if this is an incorrect collision detection or the game somehow thinks you are falling, I haven't tried to investigate yet.
     jmp play_330_start
 .player_has_moved
     ; Can the player move from this new position? TODO: This is potentially inefficient with the extra "point" calls, but let's
@@ -2147,6 +2148,7 @@ past_position_count = 10 ; TODO: arbitrary
     ; Can the player move right?
     jsr point_right:beq player_can_move ; they can move right
     ; Can the player jump?
+    jmp player_cant_jump ; TODO: experimental, jumping doesn't offer much "freedom" - if this code isn't needed, can un-factor the point_above_{left,right} subroutines, which will only have one caller
     jsr point_above_left:bne player_cant_jump
     jsr point_above_right:beq player_can_move ; they can jump; neither "above" pixel is non-black
 .player_cant_jump
