@@ -1930,9 +1930,11 @@ past_position_count = 10 ; TODO: arbitrary
     ; want to find a spot that's "safe" only because an ememy is temporarily creating a black pixel there.
     lda #SLOT_LEE:sta ri_w
     lda #SLOT_ENEMY:sta ri_y
+    lda ri_x:pha ; TODO: bit voodoo but we do check ri_x in update_energy_and_items so I want to avoid corrupting it
     jsr q_subroutine
+    ldx ri_x:pla:sta ri_x
     lda #0:sta need_to_restore_enemy
-    lda ri_x:cmp #SLOT_ENEMY:bne not_colliding_with_enemy
+    cpx #SLOT_ENEMY:bne not_colliding_with_enemy
     inc need_to_restore_enemy
     lda #SLOT_ENEMY:sta ri_w
     lda #S_OP_REMOVE:sta ri_y
@@ -2140,7 +2142,6 @@ past_position_count = 10 ; TODO: arbitrary
 .check_if_player_can_move
 {
     lda #0:sta player_dof
-    jmp player_wont_fall ; TODO: experimental, ignoring this dof
     ; Can the player fall?
     jsr point_below_left:bne player_wont_fall
     jsr point_below_right:bne player_wont_fall
@@ -2155,7 +2156,6 @@ past_position_count = 10 ; TODO: arbitrary
     inc player_dof
 .player_cant_move_right
     ; Can the player jump?
-    jmp player_cant_jump ; TODO: experimental, jumping doesn't offer much "freedom" - if this code isn't needed, can un-factor the point_above_{left,right} subroutines, which will only have one caller
     jsr point_above_left:bne player_cant_jump
     jsr point_above_right:bne player_cant_jump
     inc player_dof
