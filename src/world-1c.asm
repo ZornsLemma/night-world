@@ -1970,6 +1970,7 @@ past_position_count = 10 ; TODO: arbitrary
     jmp player_has_not_moved
 .found_replacement_position
     ; X identifies the most recent past position where the player can still move.
+    lda #7:jsr oswrch ; TODO very temp hack
     ; TODO: We should really "remove" the now unwanted positions we've "popped" from the stack, but for
     ; the moment the code assumes all past_position_count entries are always valid. We could track how
     ; many entries are valid or we could write some dummy "player can't ever move from here" locations
@@ -2132,6 +2133,7 @@ past_position_count = 10 ; TODO: arbitrary
 .check_if_player_can_move
 {
     lda #0:sta player_dof
+    jmp player_wont_fall ; TODO: experimental, ignoring this dof
     ; Can the player fall?
     jsr point_below_left:bne player_wont_fall
     jsr point_below_right:bne player_wont_fall
