@@ -1983,6 +1983,7 @@ past_position_count = 10 ; TODO: arbitrary
     jmp player_position_ok
 .player_can_move
     ; The player can move from this new position, so we'll record it and use it to update the sprite.
+    ldx past_position_index
     inx
     cpx #past_position_count:bcc dont_wrap_past_position_index:ldx #0:.dont_wrap_past_position_index
     stx past_position_index
