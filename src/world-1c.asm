@@ -1905,6 +1905,8 @@ past_position_count = 10 ; TODO: arbitrary
     ; TODO: Experimental anti-stick - this code is absolute spaghetti on top of everything else, in part due to hacking around branch distance limits
     ; TODO: At time of writing it's possible not just to get stuck in a wall, but to get stuck in a wall suffering continuous damage. Strictly speaking this doesn't "matter", because once you're stuck in the wall you're as good as dead anyway, but it shouldn't happen. I don't know if this is an incorrect collision detection or the game somehow thinks you are falling, I haven't tried to investigate yet.
     jmp play_330_start
+.player_can_move_indirect jmp player_can_move
+.player_position_ok_indirect jmp player_position_ok
 .player_has_moved
     ; Can the player move from this new position? TODO: This is potentially inefficient with the extra "point" calls, but let's
     ; not worry about that for now. TODO: This is probably fine, but just possibly we need to allow the
@@ -1916,7 +1918,12 @@ past_position_count = 10 ; TODO: arbitrary
     ; enemy completely. It might be fiddly to do it at that point though, particularly if the player
     ; movement logic for the game cycle hasn't had a chance to specify its "desired" new position yet -
     ; I haven't attempted to check the code to see how it's structured yet, just bashing this comment in.
-    jsr check_if_player_can_move:beq player_cant_move:jmp player_can_move
+    ; TODO: Note that we're inconsistent, because although we currently require >=2 "dof" to save a player
+    ; position, if we get that *while* colliding with an enemy, we will happily store it rather than
+    ; checking we have this without the enemy's presence. For the moment I'm trying not to worry too much
+    ; about enemy-induced stuckness anyway.
+    jsr check_if_player_can_move:beq player_cant_move
+    cmp #2:bcs player_can_move_indirect:bcc player_position_ok_indirect
 .player_cant_move
     ; The player can't move from this new position, so let's find an alternative.
     ; If the player is colliding with an enemy, we'll temporarily remove it from the screen. We don't
@@ -1933,8 +1940,9 @@ past_position_count = 10 ; TODO: arbitrary
     lda #S_OP_MOVE:sta ri_y ; restore this before we forget TODO: perhaps pointless given we will be restoring and thus setting ri_y anyway
     jsr check_if_player_can_move:beq player_still_cant_move
     ; The player can move now we've removed the enemy, so let's treat the (unaltered) position as OK.
+    pha
     jsr restore_enemy
-    jmp player_can_move
+    pla:cmp #2:bcs player_can_move_indirect:bcc player_position_ok_indirect
 .player_still_cant_move
 .not_colliding_with_enemy
     ; We'll test each previous position in sequence.
@@ -2103,6 +2111,7 @@ past_position_count = 10 ; TODO: arbitrary
 .point_left
     sec:lda ri_c:sbc #4:sta osword_read_pixel_block_x
     lda ri_c+1:sbc #0:sta osword_read_pixel_block_x+1
+.point_left_end
     sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
     lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
     jmp point_end
@@ -2110,9 +2119,7 @@ past_position_count = 10 ; TODO: arbitrary
 .point_right
     clc:lda ri_c:adc #64:sta osword_read_pixel_block_x
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
-    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jmp point_end
+    jmp point_left_end
 
 .point_above_left
     clc:lda ri_c:adc #8:sta osword_read_pixel_block_x
