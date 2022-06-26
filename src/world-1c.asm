@@ -1969,6 +1969,7 @@ past_position_count = 10 ; TODO: arbitrary
 .player_has_moved_indirect
     jmp player_has_moved
 .play_330_start
+    lda #0:sta &5800 ; TODO TEMP HACK
     ; If the player hasn't changed position, don't do anything. TODO: This may or may not be a good idea - this is all experimental. At the moment I'm thinking we stop the player getting into a stuck position, and if they haven't moved then their previous position (which we didn't adjust either) was OK. It may be that we want to do something here in case an enemy has moved in and trapped the player, but this may not be the right place to deal with that, and it may well be that getting trapped by an enemy is acceptable.
     ldx past_position_index
     lda ri_c:cmp past_position_x_lo,x:bne player_has_moved_indirect
@@ -2000,6 +2001,7 @@ past_position_count = 10 ; TODO: arbitrary
     lda ri_c+1:sta past_position_x_hi,x
     lda ri_d:sta past_position_y_lo,x
     lda ri_d+1:sta past_position_y_hi,x
+    lda #255:sta &5800 ; TODO TEMP HACK
 .player_has_not_moved
 .player_position_ok
     ; 330W%=SLOT_LEE:CALLS%
@@ -2094,10 +2096,9 @@ past_position_count = 10 ; TODO: arbitrary
     clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
     sec:lda ri_d:sbc #66:sta osword_read_pixel_block_y
+.sbc_0_y_point_end
     lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result
-    rts
+    jmp point_end
 
 ; Note this assumes point_below_left has set up Y
 .point_below_right
@@ -2113,8 +2114,7 @@ past_position_count = 10 ; TODO: arbitrary
     lda ri_c+1:sbc #0:sta osword_read_pixel_block_x+1
 .point_left_end
     sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
-    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jmp point_end
+    jmp sbc_0_y_point_end
 
 .point_right
     clc:lda ri_c:adc #64:sta osword_read_pixel_block_x
