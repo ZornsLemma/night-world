@@ -1916,7 +1916,7 @@ past_position_count = 10 ; TODO: arbitrary
     ; enemy completely. It might be fiddly to do it at that point though, particularly if the player
     ; movement logic for the game cycle hasn't had a chance to specify its "desired" new position yet -
     ; I haven't attempted to check the code to see how it's structured yet, just bashing this comment in.
-    jsr check_if_player_can_move:bcs player_cant_move:jmp player_can_move
+    jsr check_if_player_can_move:beq player_cant_move:jmp player_can_move
 .player_cant_move
     ; The player can't move from this new position, so let's find an alternative.
     ; If the player is colliding with an enemy, we'll temporarily remove it from the screen. We don't
@@ -1931,7 +1931,7 @@ past_position_count = 10 ; TODO: arbitrary
     lda #S_OP_REMOVE:sta ri_y
     jsr s_subroutine
     lda #S_OP_MOVE:sta ri_y ; restore this before we forget TODO: perhaps pointless given we will be restoring and thus setting ri_y anyway
-    jsr check_if_player_can_move:bcs player_still_cant_move
+    jsr check_if_player_can_move:beq player_still_cant_move
     ; The player can move now we've removed the enemy, so let's treat the (unaltered) position as OK.
     jsr restore_enemy
     jmp player_can_move
@@ -1950,7 +1950,7 @@ past_position_count = 10 ; TODO: arbitrary
     stx &74:sty &75 ; TODO HACKY
     jsr check_if_player_can_move
     ldx &74:ldy &75 ; TODO HACKY
-    bcc found_replacement_position
+    cmp #2:bcs found_replacement_position
     dex:bpl dont_wrap:ldx #past_position_count-1:.dont_wrap
     dey:bne check_position_loop
     ; The player can't move in any of the past positions we've stored. Restore ri_c/ri_d and just carry on,
@@ -2093,6 +2093,7 @@ past_position_count = 10 ; TODO: arbitrary
 .point_below_right
     clc:lda ri_c:adc #60:sta osword_read_pixel_block_x
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
+.point_end
     jsr point
     lda osword_read_pixel_block_result
     rts
@@ -2102,61 +2103,56 @@ past_position_count = 10 ; TODO: arbitrary
     lda ri_c+1:sbc #0:sta osword_read_pixel_block_x+1
     sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
     lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result
-    rts
+    jmp point_end
 
 .point_right
     clc:lda ri_c:adc #64:sta osword_read_pixel_block_x
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
     sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
     lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result
-    rts
+    jmp point_end
 
 .point_above_left
     clc:lda ri_c:adc #8:sta osword_read_pixel_block_x
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
     clc:lda ri_d:adc #4:sta osword_read_pixel_block_y
     lda ri_d+1:adc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result
-    rts
+    jmp point_end
 
 ; Assumes point_above_left has set up Y already
 .point_above_right
     clc:lda ri_c:adc #56:sta osword_read_pixel_block_x
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    jsr point
-    lda osword_read_pixel_block_result
-    rts
+    jmp point_end
 
 ; Check if the player can move from (C%, D%), returning with carry clear iff they can. This works
 ; on the assumption the player is stationary, because if this routine says the player
 ; TODO: Would it help if we required the possibility for both left *and* right movement, perhaps even discounting falling, for this to consider the play as able to move?
 .check_if_player_can_move
 {
-    ; TODO: Copy and paste of other code, could share later.
+    lda #0:sta player_dof
     ; Can the player fall?
     jsr point_below_left:bne player_wont_fall
-    jsr point_below_right:beq player_can_move ; both below pixels are black, so player can fall
+    jsr point_below_right:bne player_wont_fall
+    inc player_dof
 .player_wont_fall
     ; Can the player move left?
-    jsr point_left:beq player_can_move ; they can move left
+    jsr point_left:bne player_cant_move_left
+    inc player_dof
+.player_cant_move_left
     ; Can the player move right?
-    jsr point_right:beq player_can_move ; they can move right
+    jsr point_right:bne player_cant_move_right
+    inc player_dof
+.player_cant_move_right
     ; Can the player jump?
     jmp player_cant_jump ; TODO: experimental, jumping doesn't offer much "freedom" - if this code isn't needed, can un-factor the point_above_{left,right} subroutines, which will only have one caller
     jsr point_above_left:bne player_cant_jump
-    jsr point_above_right:beq player_can_move ; they can jump; neither "above" pixel is non-black
+    jsr point_above_right:bne player_cant_jump
+    inc player_dof
 .player_cant_jump
-    ; Player has no possible movement.
-    sec
+    lda player_dof
     rts
-.player_can_move
-    clc
-    rts
+.player_dof equb 0
 }
 
 .restore_enemy
