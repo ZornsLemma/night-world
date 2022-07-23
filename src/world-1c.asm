@@ -1904,6 +1904,7 @@ past_position_count = 10 ; TODO: arbitrary
 .^play_330
     ; TODO: Experimental anti-stick - this code is absolute spaghetti on top of everything else, in part due to hacking around branch distance limits
     ; TODO: At time of writing it's possible not just to get stuck in a wall, but to get stuck in a wall suffering continuous damage. Strictly speaking this doesn't "matter", because once you're stuck in the wall you're as good as dead anyway, but it shouldn't happen. I don't know if this is an incorrect collision detection or the game somehow thinks you are falling, I haven't tried to investigate yet.
+    ; TODO: Would it maybe be worth trying something where *if the player is moving left*, we only allow a move if they could subsequently move right from that position, and vice versa? This directionally aware variant might work better than what I currently have, which is either buggy or just fundamentally doesn't work well.
     jmp play_330_start
 .player_can_move_indirect jmp player_can_move
 .player_position_ok_indirect jmp player_position_ok
@@ -1922,6 +1923,7 @@ past_position_count = 10 ; TODO: arbitrary
     ; position, if we get that *while* colliding with an enemy, we will happily store it rather than
     ; checking we have this without the enemy's presence. For the moment I'm trying not to worry too much
     ; about enemy-induced stuckness anyway.
+    lda #0:sta &5800 ; TODO TEMP HACK
     jsr check_if_player_can_move:beq player_cant_move
     cmp #2:bcs player_can_move_indirect:bcc player_position_ok_indirect
 .player_cant_move
@@ -1971,7 +1973,6 @@ past_position_count = 10 ; TODO: arbitrary
 .player_has_moved_indirect
     jmp player_has_moved
 .play_330_start
-    lda #0:sta &5800 ; TODO TEMP HACK
     ; If the player hasn't changed position, don't do anything. TODO: This may or may not be a good idea - this is all experimental. At the moment I'm thinking we stop the player getting into a stuck position, and if they haven't moved then their previous position (which we didn't adjust either) was OK. It may be that we want to do something here in case an enemy has moved in and trapped the player, but this may not be the right place to deal with that, and it may well be that getting trapped by an enemy is acceptable.
     ldx past_position_index
     lda ri_c:cmp past_position_x_lo,x:bne player_has_moved_indirect
