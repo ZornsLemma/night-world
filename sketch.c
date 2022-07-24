@@ -5,11 +5,11 @@
 //
 // Code which isn't relevant to movement is omitted.
 
-{
+while (true) {
     // 291
     if (jumping) {
         PROCjump;
-        goto 330;
+        goto 330; // TODO!
     } else {
         delta_x = 0;
         if ((point(player_x +  4, player_y - 66) == 0) &&
@@ -17,7 +17,7 @@
             player_x += falling_delta_x;
             player_y -= 8;
             ++falling_time;
-            goto 330;
+            goto 330; // TODO!
         }
     }
 
@@ -37,4 +37,14 @@
         jump_delta_y = 8;
         falling_delta_x = delta_x;
     }
+
+    // 330
+    eor_player_sprite(); // TODO: in practice, is this unplot or plot?
+
+    // 360 TODO: Is this relevant? If it *just* applies damage it isn't, but it may alter movement related vars - need to check.
+    if (player_touching_enemy() || (falling_time > 12)) {
+        update_energy_and_items();
+    }
 }
+
+// TODO: Need to fill in the missing functions called above and check I've captured everything - then I can start making non-functional changes to this pseudo-code to improve the readability
