@@ -5,6 +5,14 @@
 //
 // Code which isn't relevant to movement is omitted.
 
+int player_x, player_y;
+int delta_x;
+int falling_time;
+int falling_delta_x;
+bool jumping;
+int jump_time;
+int jump_delta_y;
+
 while (true) {
     // 291
     if (jumping) {
@@ -44,6 +52,32 @@ while (true) {
     // 360 TODO: Is this relevant? If it *just* applies damage it isn't, but it may alter movement related vars - need to check.
     if (player_touching_enemy() || (falling_time > 12)) {
         update_energy_and_items();
+    }
+}
+
+void jump()
+{
+    // 480
+    if ((point(player_x +  8, player_y + 4) != 0) ||
+        (point(player_x + 56, player_y + 4) != 0)) {
+        jumping = false;
+        falling_time = jump_terminated_falling_time();
+        return;
+    }
+
+    // 490
+    jump_time += 2;
+    player_y += jump_delta_y;
+    player_x += delta_x;
+
+    // 491
+    if (jump_time > full_speed_jump_time_limit) {
+        jump_delta_y = -4;
+        if ((jump_time == max_jump_time) ||
+            (point(player_x + 32, player_y - 66) != 0)) {
+            jumping = false;
+            return;
+        }
     }
 }
 
