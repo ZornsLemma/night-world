@@ -16,7 +16,7 @@ int jump_delta_y;
 while (true) {
     // 291
     if (jumping) {
-        PROCjump;
+        jump();
         goto 330; // TODO!
     } else {
         delta_x = 0;
@@ -49,10 +49,44 @@ while (true) {
     // 330
     eor_player_sprite(); // TODO: in practice, is this unplot or plot?
 
-    // 360 TODO: Is this relevant? If it *just* applies damage it isn't, but it may alter movement related vars - need to check.
+    // 360 TODO: This isn't really relevant; it only causes damage and collects items
     if (player_touching_enemy() || (falling_time > 12)) {
-        update_energy_and_items();
+        update_energy_and_items(); // does not modify any movement-related state
     }
+}
+
+void move_left()
+{
+    // 420
+    if (point(player_x - 4, player_y - 8) != 0) {
+        return;
+    }
+    // 430
+    if (lee_direction == IMAGE_HUMAN_RIGHT) {
+        lee_direction = IMAGE_HUMAN_LEFT;
+        change_lee_sprite();
+        ri_w = SLOT_LEE;
+    }
+    // 440
+    delta_x = -8;
+    player_x -= 8;
+}
+
+void move_right() 
+{
+    // 450
+    if (point(player_x + 64, player_y - 8) != 0) {
+        return;
+    }
+    // 460
+    if (lee_direction == IMAGE_HUMAN_LEFT) {
+        lee_direction = IMAGE_HUMAN_RIGHT;
+        change_lee_sprite();
+        ri_w = SLOT_LEE;
+    }
+    // 470
+    delta_x = 8;
+    player_x += 8;
 }
 
 void jump()
@@ -61,7 +95,7 @@ void jump()
     if ((point(player_x +  8, player_y + 4) != 0) ||
         (point(player_x + 56, player_y + 4) != 0)) {
         jumping = false;
-        falling_time = jump_terminated_falling_time();
+        falling_time = jump_terminated_falling_time(); // TODO: this modifies jump_time, but it can probably be ignored for my purposes here
         return;
     }
 
@@ -80,5 +114,3 @@ void jump()
         }
     }
 }
-
-// TODO: Need to fill in the missing functions called above and check I've captured everything - then I can start making non-functional changes to this pseudo-code to improve the readability
