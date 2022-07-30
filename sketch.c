@@ -21,7 +21,7 @@ while (true) {
     } else {
         delta_x = 0;
         if ((point(player_x +  4, player_y - 66) == 0) &&
-            (point(player_x + 60, player_6 - 66) == 0)) {
+            (point(player_x + 60, player_y - 66) == 0)) {
             player_x += falling_delta_x;
             player_y -= 8;
             ++falling_time;
