@@ -33,7 +33,7 @@ while (true) {
         }
     }
 
-    if (!jumping_or_failling) {
+    if (!have_jumped_or_fallen) {
         // 300
         falling_delta_x = 0;
         if (z_pressed()) {
