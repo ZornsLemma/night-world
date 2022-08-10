@@ -60,6 +60,8 @@ while (true) {
 // - "logically" we should not be allowed to be at a location in the first place if we can't move left-then-right or right-then-left from that location (although this ignores jumping) - which would seem to imply a requirement that at all times (modulo jumping) X-8+64 and X+8-4 are always black (arguably, in game logic, *if* you aren't allowed to move in one direction, that restriction shouldn't apply - but I am not sure it's terribly unreasonable)
 //
 // Just as a possibly-relevant observation, ignoring (as I think we have to for now) moving enemies, the game's walls are pretty chunky and solid (although glancing collisions with corners *might* be a potential concern; still, my gut feeling is these don't typically play a key part in the player getting stuck), so there's probably a fairly clear-cut point at which the player transitions from "not stuck" to "stuck" - it's not as if (purely intuition, not proven) the player falls "into" a wall, is stuck at time T but at time T+1 has moved on and is in a non-stuck position.
+//
+// I might *guess* that it's nearly always an active jump rather than a fall which is in play when the player gets stuck. (It just might be a very brief fall at the end of the jump, but my current guess is that even this isn't the case.)
 void move_left()
 {
     // 420
@@ -84,7 +86,7 @@ void move_right()
 
 void jump()
 {
-    // 480
+    // 480 TODO: MAYBE THIS SHOULD BE EXTENDED TO ALSO STOP THE JUMP IF THE 490... STUFF BELOW *WOULD* GET THE PLAYER STUCK???
     if ((point(player_x +  8, player_y + 4) != 0) ||
         (point(player_x + 56, player_y + 4) != 0)) {
         jumping = false;
