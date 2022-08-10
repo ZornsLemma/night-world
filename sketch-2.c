@@ -56,6 +56,10 @@ while (true) {
     move_player_sprite();
 }
 
+// TEMP NOTE: Suppose we are at X=512. We see there's black at X=508, so we allow a move left to X=504. In order to move right, we need black at 504+64=568 - this is not guaranteed, but maybe that's OK. We then move back to X=512. Two superficially odd things here - we don't test for black at the same offset we move by, and there's no *local* guarantee (it might be an emergent property) that we can move right just because we just moved left.
+// - "logically" we should not be allowed to be at a location in the first place if we can't move left-then-right or right-then-left from that location (although this ignores jumping) - which would seem to imply a requirement that at all times (modulo jumping) X-8+64 and X+8-4 are always black (arguably, in game logic, *if* you aren't allowed to move in one direction, that restriction shouldn't apply - but I am not sure it's terribly unreasonable)
+//
+// Just as a possibly-relevant observation, ignoring (as I think we have to for now) moving enemies, the game's walls are pretty chunky and solid (although glancing collisions with corners *might* be a potential concern; still, my gut feeling is these don't typically play a key part in the player getting stuck), so there's probably a fairly clear-cut point at which the player transitions from "not stuck" to "stuck" - it's not as if (purely intuition, not proven) the player falls "into" a wall, is stuck at time T but at time T+1 has moved on and is in a non-stuck position.
 void move_left()
 {
     // 420
