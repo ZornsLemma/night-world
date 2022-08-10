@@ -16,10 +16,12 @@ int jump_time;
 int jump_delta_y;
 
 while (true) {
+    bool have_jumped_or_fallen = false;
+
     // 291
     if (jumping) {
-        jump();
-        goto 330; // TODO!
+        jump(); // may set jumping to false...
+        have_jumped_or_fallen = true; // ... but we still *jumped* this cycle
     } else {
         delta_x = 0;
         if ((point(player_x +  4, player_y - 66) == 0) &&
@@ -27,25 +29,27 @@ while (true) {
             player_x += falling_delta_x;
             player_y -= 8;
             ++falling_time;
-            goto 330; // TODO!
+            have_jumped_or_fallen = true;
         }
     }
 
-    // 300
-    falling_delta_x = 0;
-    if (z_pressed()) {
-        move_left();
-    } else if (x_pressed()) {
-        move_right();
-    }
+    if (!jumping_or_failling) {
+        // 300
+        falling_delta_x = 0;
+        if (z_pressed()) {
+            move_left();
+        } else if (x_pressed()) {
+            move_right();
+        }
 
-    // 310
-    falling_time = 0;
-    if (shift_pressed()) {
-        jumping = true;
-        jump_time = 0;
-        jump_delta_y = 8;
-        falling_delta_x = delta_x;
+        // 310
+        falling_time = 0;
+        if (shift_pressed()) {
+            jumping = true;
+            jump_time = 0;
+            jump_delta_y = 8;
+            falling_delta_x = delta_x;
+        }
     }
 
     // 330
