@@ -1791,6 +1791,10 @@ if MAKE_IMAGE
     equw 0
 .aym
     equw 0
+.player_x_safe
+    equw 0
+.player_y_safe
+    equw 0
 
 .escape
     brk:equb 17, "Escape", 0 ; ENHANCE: No one cares about the string, if we're trying to save space
@@ -1852,8 +1856,39 @@ if MAKE_IMAGE
     inc falling_time ; TODO: does this need to be 16 bit? bear in mind we use negative values...
     jmp play_330
 .not_black_below
+    ; TODO: Experimental anti-stick. I think (part?) of the sticking problem is
+    ; that when we're moving left and right we are checking points at head
+    ; height, whereas when we're jumping/falling we are checking points at foot
+    ; height, so when we finish jumping/falling we might be in a position where
+    ; we can no longer move left or right. To try to work round this, we keep
+    ; track of the last known "safe" position.
+    ; We are not jumping/falling. Is the current position different from the
+    ; saved safe position?
+    lda ri_c:cmp player_x_safe:bne new_safe_candidate
+    lda ri_c+1:cmp player_x_safe+1:bne new_safe_candidate
+    lda ri_d:cmp player_y_safe:bne new_safe_candidate
+    lda ri_d+1:cmp player_y_safe+1:beq not_new_safe_candidate
+.new_safe_candidate
+    ; The current position isn't the already saved safe position. Is it safe? We define this experimentally as "the player is able to move left or right". It *might* be desirable to also check the player is in a valid position, such that if they move left they can subsequently move right to get back to this position (or vice versa), but let's not add that complexity yet.
+    jsr check_move_left:beq is_new_safe_position
+    jsr check_move_right:bne not_new_safe_candidate
+.is_new_safe_position
+    lda ri_c:sta player_x_safe
+    lda ri_c+1:sta player_x_safe+1
+    lda ri_d:sta player_y_safe
+    lda ri_d+1:sta player_y_safe+1
+.not_new_safe_candidate
     ; 300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
     lda #0:sta falling_delta_x
+    ; TODO: We should automatically teleport (ideally with a "shimmer" effect and a sound) to the safe point when
+    ; we are stuck, but for now let's make it a manual operation.
+    ldx #-36 and &ff:jsr inkey:bne not_teleport
+    lda player_x_safe:sta ri_c
+    lda player_x_safe+1:sta ri_c+1
+    lda player_y_safe:sta ri_d
+    lda player_y_safe+1:sta ri_d+1
+    jmp done_move_left_right ; don't confuse matters by also allowing the user to move this cycle
+.not_teleport
     ldx #-98 and &ff:jsr inkey:bne not_move_left:jsr move_left:jmp done_move_left_right
 .not_move_left
     ldx #-67 and &ff:jsr inkey:bne done_move_left_right:jsr move_right
@@ -2143,14 +2178,25 @@ if MAKE_IMAGE
 .ad
     equb 0, 3, 9, 7, 1
 
-.move_left
-    ; 420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
+.check_move_left
+    ; TODO: If we expressed this as adding -4, we might be able to move more code into the common tail.
     sec:lda ri_c:sbc #4:sta osword_read_pixel_block_x
-    lda ri_c+1:sbc #0:sta osword_read_pixel_block_x+1
+    lda ri_c+1:sbc #0
+    jmp check_move_left_right_common_tail
+.check_move_right
+    clc:lda ri_c:adc #64:sta osword_read_pixel_block_x
+    lda ri_c+1:adc #0
+.check_move_left_right_common_tail
+    sta osword_read_pixel_block_x+1
     sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
     lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
     jsr point
-    lda osword_read_pixel_block_result:bne move_left_rts
+    lda osword_read_pixel_block_result
+    rts
+
+.move_left
+    ; 420DEFPROCmove_left:IFPOINT(C%-4,D%-8)<>0:ENDPROC
+    jsr check_move_left:bne move_left_rts
     ; 430IFlee_direction%=IMAGE_HUMAN_RIGHT:lee_direction%=IMAGE_HUMAN_LEFT:PROCchange_lee_sprite:W%=SLOT_LEE
     lda lee_direction:cmp #IMAGE_HUMAN_RIGHT:bne not_facing_right
     lda #IMAGE_HUMAN_LEFT:sta lee_direction
@@ -2166,12 +2212,7 @@ if MAKE_IMAGE
 
 .move_right
     ; 450DEFPROCmove_right:IFPOINT(C%+64,D%-8)<>0:ENDPROC
-    clc:lda ri_c:adc #64:sta osword_read_pixel_block_x
-    lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
-    sec:lda ri_d:sbc #8:sta osword_read_pixel_block_y
-    lda ri_d+1:sbc #0:sta osword_read_pixel_block_y+1
-    jsr point
-    lda osword_read_pixel_block_result:bne move_right_rts
+    jsr check_move_right:bne move_right_rts
     ; 460IFlee_direction%=IMAGE_HUMAN_LEFT:lee_direction%=IMAGE_HUMAN_RIGHT:PROCchange_lee_sprite:W%=SLOT_LEE
     lda lee_direction:cmp #IMAGE_HUMAN_LEFT:bne not_facing_left
     lda #IMAGE_HUMAN_RIGHT:sta lee_direction
