@@ -1870,6 +1870,7 @@ if MAKE_IMAGE
     lda ri_d+1:cmp player_y_safe+1:beq not_new_safe_candidate
 .new_safe_candidate
     ; The current position isn't the already saved safe position. Is it safe? We define this experimentally as "the player is able to move left or right". It *might* be desirable to also check the player is in a valid position, such that if they move left they can subsequently move right to get back to this position (or vice versa), but let's not add that complexity yet.
+    ; TODO: I managed to get stuck in the "ladder" at the rhs of room C with an "invalid" safe position - the enemy *may* have been involved, not sure right now
     jsr check_move_left:beq is_new_safe_position
     jsr check_move_right:bne not_new_safe_candidate
 .is_new_safe_position

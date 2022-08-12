@@ -64,3 +64,6 @@ Should the "fixed high contrast colours" be applied during the loading screens a
 There is an intermittent freeze - probably fixed in 0.16.
 
 Should there be a speed option (e.g. 6 vs 7 centiseconds per game cycle)? It would be nice to just "get it right" but it may not be possible.
+
+"Chimneys" where shaving off a row of pixels (or one on either side) might avoid getting stuck - probably ask experienced players for feedback on these, it may be I am just too incompetent to escape without any tweaks:
+- vertical stack of single blocks at left of room K
