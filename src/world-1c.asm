@@ -1405,6 +1405,9 @@ ri_coord_index = &76
 slot_index_x4 = &7e
 slot_index_x2 = &7f
 
+if MAKE_IMAGE
+    rts ; TODO TEMP HACK
+endif
     lda ri_w:beq cli_rts
     cmp #max_sprite_num+1:bcs cli_rts
     sec:sbc #1:tay
@@ -1894,6 +1897,11 @@ if MAKE_IMAGE
 .d_not_gt_260
 .score_not_100
 .^play_330
+    ; TODO: TEMP HACK TO LOG PLAYER POSITION
+    lda ri_c:sta &ffff
+    lda ri_c+1:sta &ffff
+    lda ri_d:sta &ffff
+    lda ri_d+1:sta &ffff
     ; 330W%=SLOT_LEE:CALLS%
     lda #SLOT_LEE:sta ri_w
     jsr s_subroutine

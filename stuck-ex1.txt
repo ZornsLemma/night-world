@@ -1,0 +1,29 @@
+VDU 19,2,2,0,0,0
+REM Note that all the Y steps are by 8, so we never seem to engage in the "jump fall with jump_delta_y = -4" stage
+VDU 23,128,255,255,255,255,255,255,255,255
+REM Make relevant bits of walls solid so we have "spare" colour for highlighting
+PRINTTAB(8,16);CHR$128;
+PRINTTAB(7,14);CHR$128;CHR$128;
+jumping%=TRUE
+PROCp(568, 568)
+PROCp(560, 576)
+PROCp(552, 584)
+PROCp(544, 592)
+PROCp(536, 600)
+PROCp(528, 608)
+PROCp(520, 600)
+PROCp(512, 592)
+PROCp(504, 584)
+PROCp(496, 576)
+REM We're now stuck
+GCOL 0,2:PLOT 69,496-4,576-8:PLOT 69,496+64,576-8
+END
+DEF PROCp(x%,y%)
+PRINTTAB(0,0);" ";TAB(0,0);
+GCOL 0,1:PLOT 69,x%,y%
+IF jumping%:IF POINT(x%+8,y%+4)<>0:PRINT "A";:Q%=GET:jumping%=FALSE:ENDPROC
+IF jumping%:IF POINT(x%+56,y%+4)<>0:PRINT "B";:Q%=GET:jumping%=FALSE:ENDPROC
+IF jumping%:ENDPROC
+PLOT 69,x%+4,y%-66
+PLOT 69,x%+60,y%-66
+ENDPROC
