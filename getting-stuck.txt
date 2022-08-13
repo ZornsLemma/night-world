@@ -1,6 +1,18 @@
-Attempting to slap band-aids onto the code without really understanding what was going on having failed, I took a deep breath and knocked up some code to log Lee's X and Y coordinates to a file and went bouncing around room A until I got stuck. I temporarily disabled enemy movement to eliminate that as a factor. I then messed around in BASIC plotting points tested by the game code using POINT() on top of a saved screen in order to figure out exactly what was going on.
+It's been a while, but Night World has been in my thoughts and I've been intermittently wrestling with the "getting stuck" problem. An experimental and ony lightly tested v0.18 is attached.
+
+TL;DR:
+[list]
+[*]This tries to record the last "safe" position the player occupied. The player can press "T" (for teleport) at any time to teleport to the last "safe" position. If this approach works out, I plan to get rid of the "T" key and auto-teleport if and only if the player is stuck (ideally with some sort of sparkly teleportation visual effect and a sound), but while this is experimental it's nice to be able to "explore" being stuck (can I jump? does it make a difference if I wait until the enemy attacks me? etc) without immediately being rescued.
+[*]The "chimney" to the left of room K has also been widened in order to make it impossible to get stuck permanently in it. I don't know if this is going to break anything, or if in fact a skilled player could escape that chimney without this change. It might actually be better just to widen the chimney at the bottom and leave it the original width further up.
+[/list]
+
+I have bumbled around a bit and I think it's definitely harder to get unstickably-stuck now, but I wouldn't like to say it's impossible. Feedback very much appreciated. I don't think - except for the chimney in room K - normal gameplay should be affected by this.
+
+My earlier attempts to use this kind of approach all failed. After attempting to slap band-aids onto the code without really understanding what was going on, I took a deep breath and tried to actually investigate what was going wrong. :-) I knocked up some code to log Lee's X and Y coordinates to a file and went bouncing around room A until I got stuck. I temporarily disabled enemy movement to eliminate that as a factor. I then messed around in BASIC plotting points tested by the game code using POINT() on top of a saved screen in order to figure out exactly what was going on.
 
 Here's an animation showing what happens:
+
+TODOINSERT
 
 (You might need to open that in a new window to see the animation, I'm not sure.)
 
@@ -15,9 +27,9 @@ Given sufficient time/memory, it would be possible (although moving enemies woul
 So my current thinking is to work on the basis that the player (almost?) always gets stuck as a result of jumping/falling. I am therefore recording the last "safe" position the player occupied, where "safe" is defined as:
 - player is not jumping
 - player is not falling
-- player is not colliding with an enemy TODO: NOT DONE YET
+- player is not colliding with an enemy
 - player can move left or right, i.e. at least one of the "green points" used to allow left/right movement is black
 
 If the player get stuck, which I define as "can't move left or right" (jumping doesn't count), I will teleport them back to the last "safe" position. This should probably be accompanied by some kind of sparkly teleport effect and sound, indicating that <insert appropriate mythological deity here> took pity on you and removed you from the wall you had trapped yourself in.
 
-That animation might not be much to look at, but it took a bit of hair-pulling to produce it. My respect for Youtube content creators who do this sort of thing all the time has definitely taken an upward turn as a result of this! :-)
+That animation might not be much to look at, but it took a bit of hair-pulling to produce it. It gives me a newfound respect for all those people making Youtube videos with animations and diagrams!
