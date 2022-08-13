@@ -19,3 +19,5 @@ So my current thinking is to work on the basis that the player (almost?) always 
 - player can move left or right, i.e. at least one of the "green points" used to allow left/right movement is black
 
 If the player get stuck, which I define as "can't move left or right" (jumping doesn't count), I will teleport them back to the last "safe" position. This should probably be accompanied by some kind of sparkly teleport effect and sound, indicating that <insert appropriate mythological deity here> took pity on you and removed you from the wall you had trapped yourself in.
+
+That animation might not be much to look at, but it took a bit of hair-pulling to produce it. My respect for Youtube content creators who do this sort of thing all the time has definitely taken an upward turn as a result of this! :-)
