@@ -1791,6 +1791,8 @@ if MAKE_IMAGE
     equw 0
 .aym
     equw 0
+.jump_or_fall_flag ; TODO: poor name
+    equb 0
 .player_x_safe
     equw 0
 .player_y_safe
@@ -1827,6 +1829,7 @@ if MAKE_IMAGE
     cpx #0:bne escape
     ; 290W%=SLOT_LEE
     lda #SLOT_LEE:sta ri_w
+    lda #1:sta jump_or_fall_flag
     ; 291IFjumping%=1:PROCjump:GOTO330 ELSEdelta_x%=0:IFPOINT(C%+4,D%-66)=0:IFPOINT(C%+60,D%-66)=0:C%=C%+falling_delta_x%:D%=D%-8:falling_time%=falling_time%+1:GOTO330
     lda jumping:beq not_jumping
     jsr jump
@@ -1856,29 +1859,7 @@ if MAKE_IMAGE
     inc falling_time ; TODO: does this need to be 16 bit? bear in mind we use negative values...
     jmp play_330
 .not_black_below
-    ; TODO: Experimental anti-stick. I think (part?) of the sticking problem is
-    ; that when we're moving left and right we are checking points at head
-    ; height, whereas when we're jumping/falling we are checking points at foot
-    ; height, so when we finish jumping/falling we might be in a position where
-    ; we can no longer move left or right. To try to work round this, we keep
-    ; track of the last known "safe" position.
-    ; We are not jumping/falling. Is the current position different from the
-    ; saved safe position?
-    lda ri_c:cmp player_x_safe:bne new_safe_candidate
-    lda ri_c+1:cmp player_x_safe+1:bne new_safe_candidate
-    lda ri_d:cmp player_y_safe:bne new_safe_candidate
-    lda ri_d+1:cmp player_y_safe+1:beq not_new_safe_candidate
-.new_safe_candidate
-    ; The current position isn't the already saved safe position. Is it safe? We define this experimentally as "the player is able to move left or right". It *might* be desirable to also check the player is in a valid position, such that if they move left they can subsequently move right to get back to this position (or vice versa), but let's not add that complexity yet.
-    ; TODO: I managed to get stuck in the "ladder" at the rhs of room C with an "invalid" safe position - the enemy *may* have been involved, not sure right now - I am wondering if (assuming it is the enemy's "fault" I can get an invalid safe position) simply not saving a safe position when colliding with something would work
-    jsr check_move_left:beq is_new_safe_position
-    jsr check_move_right:bne not_new_safe_candidate
-.is_new_safe_position
-    lda ri_c:sta player_x_safe
-    lda ri_c+1:sta player_x_safe+1
-    lda ri_d:sta player_y_safe
-    lda ri_d+1:sta player_y_safe+1
-.not_new_safe_candidate
+    lda #0:sta jump_or_fall_flag ; TODO: could probably just "dec"
     ; 300falling_delta_x%=0:IFINKEY-98PROCmove_left ELSEIFINKEY-67PROCmove_right
     lda #0:sta falling_delta_x
     ; TODO: We should automatically teleport (ideally with a "shimmer" effect and a sound) to the safe point when
@@ -1992,6 +1973,31 @@ if MAKE_IMAGE
     lda #8:sta ri_y
     jsr q_subroutine_wrapper
     lda ri_x:bne x_ne_0
+    ; We're not colliding with an enemy, so one of the conditions for this being a new safe position is met.
+    ; TODO: Experimental anti-stick. I think (part?) of the sticking problem is
+    ; that when we're moving left and right we are checking points at head
+    ; height, whereas when we're jumping/falling we are checking points at foot
+    ; height, so when we finish jumping/falling we might be in a position where
+    ; we can no longer move left or right. To try to work round this, we keep
+    ; track of the last known "safe" position.
+    ; We are not jumping/falling. Is the current position different from the
+    ; saved safe position?
+    lda jumping:ora jump_or_fall_flag:bne not_new_safe_candidate
+    lda ri_c:cmp player_x_safe:bne new_safe_candidate
+    lda ri_c+1:cmp player_x_safe+1:bne new_safe_candidate
+    lda ri_d:cmp player_y_safe:bne new_safe_candidate
+    lda ri_d+1:cmp player_y_safe+1:beq not_new_safe_candidate
+.new_safe_candidate
+    ; The current position isn't the already saved safe position. Is it safe? We define this experimentally as "the player is able to move left or right". It *might* be desirable to also check the player is in a valid position, such that if they move left they can subsequently move right to get back to this position (or vice versa), but let's not add that complexity yet.
+    ; TODO: I managed to get stuck in the "ladder" at the rhs of room C with an "invalid" safe position - the enemy *may* have been involved, not sure right now - I am wondering if (assuming it is the enemy's "fault" I can get an invalid safe position) simply not saving a safe position when colliding with something would work - have now tweaked code but not yet seen if this fixes this - I think the enemy *did* have a role to play
+    jsr check_move_left:beq is_new_safe_position
+    jsr check_move_right:bne not_new_safe_candidate
+.is_new_safe_position
+    lda ri_c:sta player_x_safe
+    lda ri_c+1:sta player_x_safe+1
+    lda ri_d:sta player_y_safe
+    lda ri_d+1:sta player_y_safe+1
+.not_new_safe_candidate
     ; TODO: for now assuming falling_time is 8-bit signed value; we *may* need 16 bits
     lda falling_time:bmi falling_time_not_gt_12:cmp #12+1:bcc falling_time_not_gt_12
 .x_ne_0
