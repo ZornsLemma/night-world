@@ -43,6 +43,10 @@ Perhaps remove the energy drain when you touch the objects you have to collect?
 
 Show health regeneration/fleece at bottom of screen once collected, as we do with prisms?
 
+Tweak prism display
+- Ed has a suggestion but I don't know what it is yet
+- Lum 2022-06-29 post on stardot has suggestions
+
 Don't do two separate "jump_time%=jump_time%+1" in PROCjump - inefficient
 
 Fix the "phantom wall-eater" glitch - probably done
