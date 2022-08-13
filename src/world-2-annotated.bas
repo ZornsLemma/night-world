@@ -194,6 +194,8 @@ constant FIXED_PALETTE3=7
   847VDU28,0,26,19,9,17,128,12,26:ENDPROC
 
   850DEFPROCdraw_room(b1%):!&70=b1%*45:PRINTTAB(0,9);:CALLR%!R_TABLE_DRAW_ROOM
+  851REM TODO: Experimental anti-stick hack - if this works, we might want to tidy up the drawing process so the user can't see this being removed, though it's probably not a huge deal.
+  852IFb1%=12:GCOL0,0:MOVE312,224:DRAW312,636:MOVE384,224:DRAW384,636:REM widen the chimney towards left of room K so player can "climb" it
   880IFFNget8(R_TABLE_ROOM_TYPE)=2:I%=608:J%=672:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:GOTO900
   890PROCset8(R_TABLE_DB,6):IFFNget8(R_TABLE_ROOM_TYPE)>0:I%=291:J%=480:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:IFFNget8(R_TABLE_ROOM_TYPE)=1:X%=IMAGE_HARPY_RIGHT:CALLU%
   900IFFNget8(R_TABLE_LOGICAL_ROOM)=2ANDFNget8(R_TABLE_SCORE)=80:PROCset8(R_TABLE_ROOM_TYPE,3):X%=IMAGE_VEIL2:CALLU%:GOTO960
