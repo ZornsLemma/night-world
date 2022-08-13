@@ -1,0 +1,21 @@
+Attempting to slap band-aids onto the code without really understanding what was going on having failed, I took a deep breath and knocked up some code to log Lee's X and Y coordinates to a file and went bouncing around room A until I got stuck. I temporarily disabled enemy movement to eliminate that as a factor. I then messed around in BASIC plotting points tested by the game code using POINT() on top of a saved screen in order to figure out exactly what was going on.
+
+Here's an animation showing what happens:
+
+(You might need to open that in a new window to see the animation, I'm not sure.)
+
+To start with Lee is jumping up and to the left. The white dots floating around his hat show the points the code is testing on each frame to see if he has collided with something above him. The upper left white dot collides with the top platform, at which point he starts to move downwards and to the left. At this point, the white dots below his feet show the points the code is testing on each frame to detect when he has landed. The green dots around his head show the points the game *would* test before allowing movement to the left or right respectively *if* he were standing at that position, rather than being in the middle of a jump/fall.
+
+The problem here is that Lee falls through a platform enough that the green dots around his head are within the platform, so once he's landeed he can no longer move left or right. I think he is able to jump from this position, but unless I'm missing some trick to the movement logic, he cannot jump and start to move left or right, so he's effectively stuck.
+
+The "obvious" fix would be to test the "can the player move left or right" green points during falling (and maybe during the ascending phase of the jump as well?) and stop the fall if they turn non-black, as well as testing the points below his feet. The big problem with this is that it would almost certainly affect normal movement - suddenly jumps that used to be possible would be terminated when those green points brush into a wall or enemy. So I don't think that's going to work.
+
+Given sufficient time/memory, it would be possible (although moving enemies would complicate this) to test the entire "arc" of a jump before Lee is allowed to leave the ground, and disallow the jump if we predict it would end up with Lee stuck. (I believe player movement is entirely deterministic here, because you don't get to terminate a jump early.) I suspect this would be too slow - it's probably possible for Lee to get stuck at the end of an epic jump halfway across the screen - and it would also probably look really weird in play. Yes, it would be better to just mysteriously not be allowed to jump at some points than to get stuck and have your game ruined, but the player wouldn't see it like that. Adding some kind of stumble animation might paper over this a bit, but even ignoring the effort/code required, probably not very much.
+
+So my current thinking is to work on the basis that the player (almost?) always gets stuck as a result of jumping/falling. I am therefore recording the last "safe" position the player occupied, where "safe" is defined as:
+- player is not jumping
+- player is not falling
+- player is not colliding with an enemy TODO: NOT DONE YET
+- player can move left or right, i.e. at least one of the "green points" used to allow left/right movement is black
+
+If the player get stuck, which I define as "can't move left or right" (jumping doesn't count), I will teleport them back to the last "safe" position. This should probably be accompanied by some kind of sparkly teleport effect and sound, indicating that <insert appropriate mythological deity here> took pity on you and removed you from the wall you had trapped yourself in.
