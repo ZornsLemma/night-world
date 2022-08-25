@@ -1982,6 +1982,9 @@ if MAKE_IMAGE
     ; track of the last known "safe" position.
     ; We are not jumping/falling. Is the current position different from the
     ; saved safe position?
+    ; TODO: Lum stardot 2022-08-24, two problems:
+    ; 1) You can get stuck in the exit room and teleport back to the same position
+    ; 2) Room transitions aren't taken into account by anti-stick
     lda jumping:ora jump_or_fall_flag:bne not_new_safe_candidate
     lda ri_c:cmp player_x_safe:bne new_safe_candidate
     lda ri_c+1:cmp player_x_safe+1:bne new_safe_candidate
