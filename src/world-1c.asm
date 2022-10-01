@@ -1406,7 +1406,7 @@ slot_index_x4 = &7e
 slot_index_x2 = &7f
 
 if MAKE_IMAGE
-    rts ; TODO TEMP HACK
+    ;rts ; TODO TEMP HACK
 endif
     lda ri_w:beq cli_rts
     cmp #max_sprite_num+1:bcs cli_rts
