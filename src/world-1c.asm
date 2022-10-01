@@ -1716,6 +1716,8 @@ if MAKE_IMAGE
     equw ed_scalar
     equw play_290
     equw pending_sound_and_light_show_second_part
+    equw door_slammed ; TODO: WE MAY NOT ACTUALLY NEED THIS IN THE MC IF BASIC DOES IT ALL
+    equw door_slam_counter
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1791,6 +1793,10 @@ if MAKE_IMAGE
     equw 0
 .aym
     equw 0
+.^door_slammed
+    equb 0
+.^door_slam_counter
+    equb 0
 
 .escape
     brk:equb 17, "Escape", 0 ; ENHANCE: No one cares about the string, if we're trying to save space
@@ -1807,6 +1813,18 @@ if MAKE_IMAGE
     lda #S_OP_MOVE:sta ri_y
     lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
 .^play_280
+    ; TODO: EXPERIMENTAL DOOR SLAM
+    lda door_slam_counter:beq no_door_slam_needed
+    dec door_slam_counter:bne no_door_slam_needed
+    ; TODO: Need to be careful with anti-stick
+    ; TODO: Need a sound effect
+    ; TODO: Need to make sure I'm using the right UDGs to draw
+    ldx #17
+.draw_door_loop
+    lda #31:jsr oswrch:lda #19:jsr oswrch:txa:jsr oswrch
+    lda #227:jsr oswrch
+    inx:cpx #20:bne draw_door_loop
+.no_door_slam_needed
     ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
     ; PROCsound_and_light_show involves a PROCdelay(250), which is about 5cs. In
     ; order to avoid becoming unresponsive, we split this up and do the part
