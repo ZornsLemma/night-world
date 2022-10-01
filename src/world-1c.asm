@@ -1688,6 +1688,9 @@ if MAKE_IMAGE
 .initial_r_value
     equw r_table
 
+; TODO: It may well be less wasteful of memory (both here, and in the verbosity
+; of the BASIC code) to just allocate addresses in (say) page 9 for these, rather
+; than this double-indirection.
 .r_table
     equw q_subroutine_wrapper
     equw s_subroutine
