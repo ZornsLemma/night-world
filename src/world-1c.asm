@@ -1217,7 +1217,11 @@ l007d = &7d
     sta slot_pixel_coord_table+s_x,x
     clc:bcc check_y_position ; always branch
 .x_position_too_far_right
+if not(MAKE_IMAGE)
     lda slot_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_max
+else
+    lda #1 ; TODO: simplistic hack
+endif
     cmp #1:beq force_x_position_to_sprite_x_min
     lda #sprite_pixel_x_pos_inf:sta slot_pixel_coord_table+s_x,x
     bne check_y_position ; always branch
@@ -1225,7 +1229,11 @@ l007d = &7d
     lda sprite_x_max:sta slot_pixel_coord_table+s_x,x:sta sprite_pixel_x_lo
     clc:bcc check_y_position
 .x_position_too_far_left
+if not(MAKE_IMAGE)
     lda slot_wrap_behaviour_table,y:beq force_x_position_to_sprite_x_min
+else
+    lda #1 ; TODO: simplistic hack
+endif
     cmp #1:beq force_x_position_to_sprite_x_max
     lda #sprite_pixel_x_neg_inf:sta slot_pixel_coord_table+s_x,x
     bne check_y_position ; always branch
@@ -1241,7 +1249,11 @@ l007d = &7d
     clc
     rts
 .y_position_too_far_up
+if not(MAKE_IMAGE)
     lda slot_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_max
+else
+    lda #1 ; TODO: simplistic hack
+endif
     cmp #1:beq force_y_position_to_sprite_y_min
     lda #sprite_pixel_y_pos_inf:sta slot_pixel_coord_table+s_y,x
     clc
@@ -1251,7 +1263,11 @@ l007d = &7d
     clc
     rts
 .y_position_too_far_down
+if not(MAKE_IMAGE)
     lda slot_wrap_behaviour_table,y:beq force_y_position_to_sprite_y_min
+else
+    lda #1 ; TODO: simplistic hack
+endif
     cmp #1:beq force_y_position_to_sprite_y_max
     lda #sprite_pixel_y_neg_inf:sta slot_pixel_coord_table+s_y,x
     clc
@@ -1716,6 +1732,8 @@ if MAKE_IMAGE
     equw ed_scalar
     equw play_290
     equw pending_sound_and_light_show_second_part
+    equw door_slammed
+    equw door_slam_counter
 else
 .initial_qrstuv_values
 .initial_q_value
@@ -1797,6 +1815,10 @@ if MAKE_IMAGE
     equw 0
 .player_y_safe
     equw 0
+.^door_slammed
+    equb 0
+.^door_slam_counter
+    equb 0
 
 .escape
     brk:equb 17, "Escape", 0 ; ENHANCE: No one cares about the string, if we're trying to save space
@@ -1813,6 +1835,20 @@ if MAKE_IMAGE
     lda #S_OP_MOVE:sta ri_y
     lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
 .^play_280
+    ; TODO: EXPERIMENTAL DOOR SLAM
+    lda door_slam_counter:beq no_door_slam_needed
+    dec door_slam_counter:bne no_door_slam_needed
+    ; TODO: Need to be careful with anti-stick
+    ; TODO: Need a sound effect
+    ; TODO: Need to make sure I'm using the right UDGs to draw
+    ; TODO: Need to be careful we're using the right colours to draw
+    ldx #17
+    stx door_slammed ; any non-0 value will do
+.draw_door_loop
+    lda #31:jsr oswrch:lda #19:jsr oswrch:txa:jsr oswrch
+    lda #227:jsr oswrch
+    inx:cpx #20:bne draw_door_loop
+.no_door_slam_needed
     ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
     ; PROCsound_and_light_show involves a PROCdelay(250), which is about 5cs. In
     ; order to avoid becoming unresponsive, we split this up and do the part
@@ -2620,6 +2656,7 @@ sprite_addr_lo = 3
         equb 0, 0
     next
 
+if not(MAKE_IMAGE)
 ; Byte-per-slot table which controls what happens when a sprite tries to move
 ; off the edges of the screen:
 ;     0 => clamp the sprite's position to the edge of the screen
@@ -2634,6 +2671,7 @@ sprite_addr_lo = 3
     for i, 1, 48
         equb 1
     next
+endif
 
 if not(MAKE_IMAGE)
 ; ENHANCE: Dead data as r_subroutine is not used, can be removed.
