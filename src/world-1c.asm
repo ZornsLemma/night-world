@@ -102,8 +102,8 @@ if MAKE_IMAGE
     ; TODO: Now that the room data has been shrunk, we can probably move all the
     ; machine code up. This would require tweaking world-1c-wrapper.asm and the
     ; CALL to it in world-1b.bas.
-    assert &3500-P% < 256
-    skipto &3500
+    assert &3400-P% < 256
+    skipto &3400
     guard &5800
 else
     org &35bc

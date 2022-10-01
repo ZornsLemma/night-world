@@ -14,8 +14,8 @@ if not(MAKE_IMAGE)
     org &2b00
     basic_entry = &3590
 else
-    org &2900
-    basic_entry = &3390
+    org &2800
+    basic_entry = &3290
 endif
 .start
 
