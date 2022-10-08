@@ -1841,7 +1841,7 @@ if MAKE_IMAGE
     dec door_slam_counter:bne no_door_slam_needed
     ; TODO: Need to be careful with anti-stick
     ; TODO: Need a sound effect
-    ldx #131:ldy #2:jsr set_text_colours
+    ldx #131:ldy #2:jsr set_text_colours ; TODO: may be worth factoring this out into subroutine as it also appears in draw_room_subroutine
     ldx #17
     stx door_slammed ; any non-0 value will do
 .draw_door_loop
