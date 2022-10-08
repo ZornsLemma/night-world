@@ -157,7 +157,8 @@ vdu_right = 9
 .done
     pla
     ldx #128:ldy #2
-.set_text_colours
+    ; TODO: There may be other places this could usefully be used. And/or a second entry point which just does the second of the two colour changes.
+.^set_text_colours
     lda #17:jsr oswrch:txa:jsr oswrch
     lda #17:jsr oswrch:tya:jmp oswrch
 }
@@ -1823,9 +1824,6 @@ if MAKE_IMAGE
 .^door_slam_counter
     equb 0
 
-.escape
-    brk:equb 17, "Escape", 0 ; ENHANCE: No one cares about the string, if we're trying to save space
-
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
 ; overly clever I will hopefully reduce the risk of introducing bugs or subtle
@@ -1843,13 +1841,12 @@ if MAKE_IMAGE
     dec door_slam_counter:bne no_door_slam_needed
     ; TODO: Need to be careful with anti-stick
     ; TODO: Need a sound effect
-    ; TODO: Need to make sure I'm using the right UDGs to draw
-    ; TODO: Need to be careful we're using the right colours to draw
+    ldx #131:ldy #2:jsr set_text_colours
     ldx #17
     stx door_slammed ; any non-0 value will do
 .draw_door_loop
     lda #31:jsr oswrch:lda #19:jsr oswrch:txa:jsr oswrch
-    lda #227:jsr oswrch
+    lda #228:cpx #17:beq use_228:lda #229:.use_228:jsr oswrch
     inx:cpx #20:bne draw_door_loop
 .no_door_slam_needed
     ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
@@ -1873,6 +1870,8 @@ if MAKE_IMAGE
     lda jumping:beq not_jumping
     jsr jump
     jmp play_330
+.escape
+    brk:equb 17, "Escape", 0 ; ENHANCE: No one cares about the string, if we're trying to save space
 .not_jumping
     lda #0:sta delta_x
     clc:lda ri_c:adc #4:sta osword_read_pixel_block_x
