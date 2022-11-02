@@ -71,3 +71,5 @@ Should there be a speed option (e.g. 6 vs 7 centiseconds per game cycle)? It wou
 
 "Chimneys" where shaving off a row of pixels (or one on either side) might avoid getting stuck - probably ask experienced players for feedback on these, it may be I am just too incompetent to escape without any tweaks:
 - vertical stack of single blocks at left of room K
+
+Maybe do the relocation down to &E00 from machine code? Using the technique of poking TOP directly in zp (and perhaps PAGE, if doing from machine code) discussed e.g. here https://stardot.org.uk/forums/viewtopic.php?f=2&t=25768&p=374428#p374428 might help.
