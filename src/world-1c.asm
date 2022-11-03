@@ -75,6 +75,8 @@ if MAKE_IMAGE
 
     vdu_gcol = 18
     S_OP_MOVE = 0
+    S_OP_SHOW = 1
+    S_OP_REMOVE = 2
 
     SLOT_ENEMY = 5
     SLOT_SUN_MOON = 6
@@ -115,6 +117,10 @@ if MAKE_IMAGE
 ; compression (bearing in mind we only have two states - block or no block - so
 ; we can just encode the number of cells between those two transitions) would be
 ; even better.
+; ENHANCE: It would be nice if when room L has the exit to the right open, it is
+; drawn like that in the first place, instead of the wall momentarily appearing.
+; Arguably this would remove a small clue that that exit is actually a door
+; though.
 .draw_room_subroutine
 {
 room_ptr = &70
@@ -1857,7 +1863,11 @@ max_safe_x_for_slam = 1064
 .safe_x_ok_for_slam
 endif
     ; TODO: Need a sound effect
-    ; TODO: WE NEED TO HIDE THE PLAYER SPRITE DURING THE SLAM TO AVOID CORRUPTION IF THEY ARE IN THE WAY
+    ; Hide the player sprite before drawing the door to avoid corruption if
+    ; they're in the way.
+    lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
+    lda #S_OP_REMOVE:sta ri_y:jsr s_subroutine
+    ; Draw the door.
     ldx #131:ldy #2:jsr set_text_colours ; TODO: may be worth factoring this out into subroutine as it also appears in draw_room_subroutine
     ldx #17
     stx door_slammed ; any non-0 value will do
@@ -1866,6 +1876,9 @@ endif
     lda #228:cpx #17:beq use_228:lda #229:.use_228:jsr oswrch
     inx:cpx #20:bne draw_door_loop
     jsr set_text_colours_default
+    ; Restore the player sprite.
+    lda #S_OP_SHOW:sta ri_y:jsr s_subroutine
+    lda #S_OP_MOVE:sta ri_y
 .no_door_slam_needed
     ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
     ; PROCsound_and_light_show involves a PROCdelay(250), which is about 5cs. In
