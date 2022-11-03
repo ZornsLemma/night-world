@@ -1839,7 +1839,7 @@ if MAKE_IMAGE
     ; TODO: EXPERIMENTAL DOOR SLAM
     lda door_slam_counter:beq no_door_slam_needed
     dec door_slam_counter:bne no_door_slam_needed
-    ; TODO: Need to be careful with anti-stick
+    ; TODO: Need to be careful with anti-stick - actually, I am thinking the best way to handle this is to simply not let the door slam if the player's X position is far enough to the right that the door could slam on top of them - would we need to stop them passing through the door? that might let them cheat. but think about it.
     ; TODO: Need a sound effect
     ldx #131:ldy #2:jsr set_text_colours ; TODO: may be worth factoring this out into subroutine as it also appears in draw_room_subroutine
     ldx #17
