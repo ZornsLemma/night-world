@@ -226,7 +226,7 @@ constant FIXED_PALETTE3=7
 
 1101DEFPROCroom_13_tweaks:REM TODO: This probably doesn't actually needs its own procedure after all, but don't revert just yet while tinkering
 1102IF FNget8(R_TABLE_SCORE)=60 OR (FNget8(R_TABLE_SCORE)>=80 AND FNget8(R_TABLE_DOOR_SLAMMED)=0):PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
-1103IF FNget8(R_TABLE_SCORE)=80 AND FNget8(R_TABLE_DOOR_SLAMMED)=0:PROCset8(R_TABLE_DOOR_SLAM_COUNTER,255):REM TODO 255 ARB
+1103IF FNget8(R_TABLE_SCORE)=80 AND FNget8(R_TABLE_DOOR_SLAMMED)=0:PROCset8(R_TABLE_DOOR_SLAM_COUNTER,32)
 1106ENDPROC
 1107REM TODO: Door slamming needs to be handled correctly by the anti-stick mechanism
 
