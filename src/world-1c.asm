@@ -156,6 +156,7 @@ vdu_right = 9
     bmi byte_loop
 .done
     pla
+.^set_text_colours_default
     ldx #128:ldy #2
     ; TODO: There may be other places this could usefully be used. And/or a second entry point which just does the second of the two colour changes.
 .^set_text_colours
@@ -1864,7 +1865,7 @@ endif
     lda #31:jsr oswrch:lda #19:jsr oswrch:txa:jsr oswrch
     lda #228:cpx #17:beq use_228:lda #229:.use_228:jsr oswrch
     inx:cpx #20:bne draw_door_loop
-    ; TODO: WE NEED TO SET THE COLOURS BACK TO "STANDARD" - OTHERWISE PAUSING DISPLAYS WHITE-ON-WHITE TEXT
+    jsr set_text_colours_default
 .no_door_slam_needed
     ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
     ; PROCsound_and_light_show involves a PROCdelay(250), which is about 5cs. In
