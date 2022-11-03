@@ -1839,8 +1839,24 @@ if MAKE_IMAGE
     ; TODO: EXPERIMENTAL DOOR SLAM
     lda door_slam_counter:beq no_door_slam_needed
     dec door_slam_counter:bne no_door_slam_needed
-    ; TODO: Need to be careful with anti-stick - actually, I am thinking the best way to handle this is to simply not let the door slam if the player's X position is far enough to the right that the door could slam on top of them - would we need to stop them passing through the door? that might let them cheat. but think about it.
+if FALSE
+    ; The door might slam on the player. Since we already have anti-stick logic,
+    ; we handle this by just ensuring the player's safe point is far enough left
+    ; that it isn't within the door.
+    ; TODO: I believe this code is correct, but it isn't actually necessary and
+    ; hasn't been tested; the player can always move left out of the door if it
+    ; does slam on them. I'll leave it here for now in case I'm missing
+    ; something.
+max_safe_x_for_slam = 1064
+    lda player_x_safe+1:cmp #hi(max_safe_x_for_slam+1):bcc safe_x_ok_for_slam:bne safe_x_not_ok_for_slam
+    lda player_x_safe  :cmp #lo(max_safe_x_for_slam+1):bcc safe_x_ok_for_slam
+.safe_x_not_ok_for_slam
+    lda #lo(max_safe_x_for_slam):sta player_x_safe
+    lda #hi(max_safe_x_for_slam):sta player_x_safe+1
+.safe_x_ok_for_slam
+endif
     ; TODO: Need a sound effect
+    ; TODO: WE NEED TO HIDE THE PLAYER SPRITE DURING THE SLAM TO AVOID CORRUPTION IF THEY ARE IN THE WAY
     ldx #131:ldy #2:jsr set_text_colours ; TODO: may be worth factoring this out into subroutine as it also appears in draw_room_subroutine
     ldx #17
     stx door_slammed ; any non-0 value will do
@@ -1848,6 +1864,7 @@ if MAKE_IMAGE
     lda #31:jsr oswrch:lda #19:jsr oswrch:txa:jsr oswrch
     lda #228:cpx #17:beq use_228:lda #229:.use_228:jsr oswrch
     inx:cpx #20:bne draw_door_loop
+    ; TODO: WE NEED TO SET THE COLOURS BACK TO "STANDARD" - OTHERWISE PAUSING DISPLAYS WHITE-ON-WHITE TEXT
 .no_door_slam_needed
     ; 280IFscore%=100:IFRND(sound_and_light_show_chance%)=1:PROCsound_and_light_show
     ; PROCsound_and_light_show involves a PROCdelay(250), which is about 5cs. In
