@@ -659,6 +659,7 @@ tune_length = P% - tune_pitch
     lda #7:ldx #<osword_7_block2:ldy #>osword_7_block2:jmp osword
 
 .osword_7_block2 ; TODO: poor naming of the two osword_7_blocks
+.^osword_7_block2_channel
     equw 1 ; channel
 .osword_7_block2_amplitude
     equw 0
@@ -1846,6 +1847,10 @@ if MAKE_IMAGE
     ; TODO: EXPERIMENTAL DOOR SLAM
     lda door_slam_counter:beq no_door_slam_needed
     dec door_slam_counter:bne no_door_slam_needed
+    ; Make the slam sound effect.
+    dec osword_7_block2_channel ; temporarily set channel to 0
+    lda #1:ldx #6:ldy #20:jsr sound1
+    inc osword_7_block2_channel ; reset channel to 1
 if FALSE
     ; The door might slam on the player. Since we already have anti-stick logic,
     ; we handle this by just ensuring the player's safe point is far enough left
@@ -1862,7 +1867,6 @@ max_safe_x_for_slam = 1064
     lda #hi(max_safe_x_for_slam):sta player_x_safe+1
 .safe_x_ok_for_slam
 endif
-    ; TODO: Need a sound effect
     ; Hide the player sprite before drawing the door to avoid corruption if
     ; they're in the way.
     lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
