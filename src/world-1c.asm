@@ -99,7 +99,7 @@ if MAKE_IMAGE
     osbyte_acknowledge_escape = 126
     osbyte_inkey = 129
 
-    room_13_door_udg = 228
+    room_13_door_udg = 226
 endif
 
 if MAKE_IMAGE
@@ -140,7 +140,7 @@ vdu_right = 9
     lda #initial_udg:sta udg
     lda #chars_between_transitions:sta chars_to_next_transition
 
-    ldx #131:ldy #2:jsr set_text_colours
+    jsr set_room_standard_colours
 
     ldy #255
 .byte_loop
@@ -160,7 +160,11 @@ vdu_right = 9
     { cpy #24:bne check_next:cpx #0:beq is_door_char:.check_next }
       cpy #27:bne not_door_char:cpx #4:bne not_door_char
 .is_door_char
+    txa:pha:tya:pha
+    jsr set_room_13_door_colours
     lda #room_13_door_udg:jsr oswrch
+    jsr set_room_standard_colours
+    pla:tay:pla:tax
     plp
     jmp char_printed
 .not_door_char
@@ -187,6 +191,10 @@ vdu_right = 9
 .^set_text_colours
     lda #17:jsr oswrch:txa:jsr oswrch
     lda #17:jsr oswrch:tya:jmp oswrch
+.set_room_standard_colours
+    ldx #131:ldy #2:jmp set_text_colours
+.^set_room_13_door_colours
+    ldx #131:ldy #1:jmp set_text_colours ; blue door ("foreground") with white flecks ("background")
 }
 endif
 
@@ -1891,7 +1899,7 @@ endif
     lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
     lda #S_OP_REMOVE:sta ri_y:jsr s_subroutine
     ; Draw the door.
-    ldx #131:ldy #2:jsr set_text_colours ; TODO: may be worth factoring this out into subroutine as it also appears in draw_room_subroutine
+    jsr set_room_13_door_colours
     ldx #17
     stx door_slammed ; any non-0 value will do
 .draw_door_loop
