@@ -98,6 +98,8 @@ if MAKE_IMAGE
     osword_read_pixel = 9
     osbyte_acknowledge_escape = 126
     osbyte_inkey = 129
+
+    room_13_door_udg = 228
 endif
 
 if MAKE_IMAGE
@@ -117,10 +119,6 @@ if MAKE_IMAGE
 ; compression (bearing in mind we only have two states - block or no block - so
 ; we can just encode the number of cells between those two transitions) would be
 ; even better.
-; ENHANCE: It would be nice if when room L has the exit to the right open, it is
-; drawn like that in the first place, instead of the wall momentarily appearing.
-; Arguably this would remove a small clue that that exit is actually a door
-; though.
 .draw_room_subroutine
 {
 room_ptr = &70
@@ -148,11 +146,32 @@ vdu_right = 9
 .byte_loop
     iny:lda (room_ptr),y:ldx #7
 .bit_loop
-    asl a:pha
-    lda #vdu_right:bcc char_in_a
+    asl a:pha:php
+    ; The room data has the door in room L open; if we want to show the door we
+    ; need to explicitly draw it here. Doing it this way means it doesn't
+    ; flicker briefly onto the screen during room drawing when it's open.
+    lda logical_room:cmp #13:bne not_room_13
+    lda score
+    cmp #60:beq room_13_door_open
+    cmp #80:bcc room_13_door_closed
+    lda door_slammed:beq room_13_door_open
+.room_13_door_closed
+    { cpy #22:bne check_next:cpx #4:beq is_door_char:.check_next }
+    { cpy #24:bne check_next:cpx #0:beq is_door_char:.check_next }
+      cpy #27:bne not_door_char:cpx #4:bne not_door_char
+.is_door_char
+    lda #room_13_door_udg:jsr oswrch
+    plp
+    jmp char_printed
+.not_door_char
+.room_13_door_open
+.not_room_13
+    lda #vdu_right
+    plp:bcc char_in_a
     lda udg
 .char_in_a
     jsr oswrch
+.char_printed
     dec chars_to_next_transition:bne no_transition
     inc udg:lda udg:cmp #initial_udg+(room_size_chars/chars_between_transitions):beq done
     lda #chars_between_transitions:sta chars_to_next_transition
@@ -1844,7 +1863,7 @@ if MAKE_IMAGE
     lda #S_OP_MOVE:sta ri_y
     lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
 .^play_280
-    ; TODO: EXPERIMENTAL DOOR SLAM
+    ; Handle slamming the door in room L if necessary.
     lda door_slam_counter:beq no_door_slam_needed
     dec door_slam_counter:bne no_door_slam_needed
     ; Make the slam sound effect.
@@ -1877,7 +1896,12 @@ endif
     stx door_slammed ; any non-0 value will do
 .draw_door_loop
     lda #31:jsr oswrch:lda #19:jsr oswrch:txa:jsr oswrch
+    lda #room_13_door_udg:jsr oswrch
+if FALSE
+    ; TODO: Delete this later; this logic used the correct UDG for each door row
+    ; to make it look like a normal wall, as it did in the original version.
     lda #228:cpx #17:beq use_228:lda #229:.use_228:jsr oswrch
+endif
     inx:cpx #20:bne draw_door_loop
     jsr set_text_colours_default
     ; Restore the player sprite.

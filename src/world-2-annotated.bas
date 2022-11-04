@@ -225,10 +225,9 @@ constant FIXED_PALETTE3=7
  1100ENDPROC
 
 1101DEFPROCroom_13_tweaks:REM TODO: This probably doesn't actually needs its own procedure after all, but don't revert just yet while tinkering
-1102IF FNget8(R_TABLE_SCORE)=60 OR (FNget8(R_TABLE_SCORE)>=80 AND FNget8(R_TABLE_DOOR_SLAMMED)=0):PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
+1102REM This logic is now in draw_room_subroutine: IF FNget8(R_TABLE_SCORE)=60 OR (FNget8(R_TABLE_SCORE)>=80 AND FNget8(R_TABLE_DOOR_SLAMMED)=0):PRINTTAB(19,17)STRING$(3," "+CHR$8+CHR$10)
 1103IF FNget8(R_TABLE_SCORE)=80 AND FNget8(R_TABLE_DOOR_SLAMMED)=0:PROCset8(R_TABLE_DOOR_SLAM_COUNTER,32)
 1106ENDPROC
-1107REM TODO: Door slamming needs to be handled correctly by the anti-stick mechanism
 
  1110DEFPROCchange_room:IFFNget8(R_TABLE_LOGICAL_ROOM)=10ANDD%<228:PROCwin:PROCset8(R_TABLE_GAME_ENDED,1):ENDPROC
  1121IFD%>730:D%=224:phys_room%=phys_room%-5 ELSEIFD%<228:D%=728:phys_room%=phys_room%+5 ELSEIFC%>1194:C%=24:phys_room%=phys_room%+1 ELSEIFC%<24:C%=1194:phys_room%=phys_room%-1

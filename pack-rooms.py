@@ -21,7 +21,15 @@ with open(sys.argv[1], "r") as f_in:
             if "room_row" in line:
                 line = line.strip()
                 i = line.index("%")
-                room_binary += line[i+1:]
+                binary_chunk = line[i+1:i+21]
+                # The original game has a wall in the data for room L and
+                # removes it in code when it isn't wanted. We do the opposite
+                # and remove it in the room data and draw it in code when it is
+                # wanted. This "SPECIAL" hack allows the room data to be shared
+                # by both builds.
+                if "SPECIAL" in line:
+                    binary_chunk = binary_chunk[:-1] + "0"
+                room_binary += binary_chunk
             else:
                 if line.lstrip().startswith("."):
                     if len(room_binary) > 0:
