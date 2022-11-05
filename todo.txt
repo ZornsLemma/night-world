@@ -17,6 +17,8 @@ Maybe play the background music under interrupts so it's consistent?
 
 Allow option to play with sound effects but no background music?
 
+Allow sound to be toggled on/off during play, not just at the start of the game?
+
 Maybe tweak the random colours for each room
 - e.g. maybe disallow a few "really intense" combinations (like white+{yellow,cyan} for the two colours used in the walls)
 - maybe disallow yellow+white or white+cyan both being in the palette at the same time?!
