@@ -1114,6 +1114,7 @@ l0074 = &0074
 sprite_y_offset_within_row = &75
 sprite_pixel_x_lo = &0076
 sprite_pixel_y_lo = &0077
+need_extra_player_plot = &92 ; TODO: HACKY USE OF "INVALID" ZP ADDRESS TO AVOID WORRYING ABOUT CORRUPTION FOR NOW
 
 ; ENHANCE: This subroutine seems a bit over-zealous about clearing carry and
 ; could probably be simplified and clarified by clearing it only when we finally
@@ -1145,6 +1146,7 @@ sprite_pixel_y_lo = &0077
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
 if MAKE_IMAGE
     cpx #S_OP_MOVE:bne not_solid_sprite_move
+    ldx #0:stx need_extra_player_plot
     cmp #SLOT_LEE-1:beq no_extra_player_unplot
     cmp #SLOT_ENEMY-1:bne not_solid_sprite_move
     ; We know we're moving a sprite which is already on the screen; if it's a
@@ -1155,16 +1157,15 @@ if MAKE_IMAGE
     lda #SLOT_LEE:sta ri_w
     lda #SLOT_ENEMY:sta ri_y
     jsr q_subroutine
-    lda ri_x:beq no_extra_player_unplot2
+    lda ri_x:lda #SLOT_ENEMY:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 ; SFTODO TEMP LDA#
+    inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
 .no_extra_player_unplot2 ; TODO CRAP LABEL
     lda #SLOT_ENEMY:sta ri_w
-    lda #0 ; TODO hacky, just for following php - perhaps want to rethink how all this is tracked, just use a zp var!?
 .no_extra_player_unplot
-    php ; TODO: bit tricksy, different code paths here should give right Z set/clear
     lda #2:sta ri_y:jsr s_subroutine ; remove
     dec ri_y:jsr s_subroutine ; show
-    plp:beq no_extra_player_plot
+    lda need_extra_player_plot:beq no_extra_player_plot
     lda #SLOT_LEE:sta ri_w:jsr s_subroutine ; show
     lda #SLOT_ENEMY:sta ri_w
 .no_extra_player_plot
