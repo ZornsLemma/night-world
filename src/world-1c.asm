@@ -1149,6 +1149,7 @@ osrdch = &ffe0 ; TODO TEMP
     sec:sbc #1
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
 if MAKE_IMAGE
+    ; TODO: THE BUG WITH MOVING SPRITES AND CORRUPTION WHEN THEY OVERLAP IS BECAUSE I AM NOT USING THE *OLD* SPRITE POSITION (WHICH THE EOR-BASED MOVE DOES) FOR THE UNPLOT - JUST NEED TO DECIDE HOW TO WIRE THIS CHANGE IN MOSTLY NEATLY
     cpx #S_OP_MOVE:bne not_solid_sprite_move
     ldx #0:stx need_extra_player_plot
     cmp #SLOT_LEE-1:beq no_extra_player_unplot
