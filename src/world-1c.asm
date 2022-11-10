@@ -601,11 +601,10 @@ endif
 
 if MAKE_IMAGE
 ; TODO: WIP solid sprite stuff.
+.sprite_mask_slot
+    equb 0
 .sprite_mask
-    ; TODO: Made up "noticeable but wrong" sprite mask
-    for i, 0, 48, 2
-        equb &00, &ff
-    next
+    skip 48
 .sprite_backing
     skip 48
 endif
@@ -1358,16 +1357,41 @@ if MAKE_IMAGE
 .solid_sprite_show
 {
 row_index = &75
+mask_bits = row_index
 sprite_backing_ptr = sprite_ptr2
 sprite_mask_ptr = screen_ptr2
 next_row_adjust = bytes_per_screen_row-7
-    clc ; TODO paranoia due to "keep C clear" style
     ; TODO: Unpleasant code duplication here but keep it simple to start with.
-    lda #1:sta row_index
     lda #lo(sprite_backing):sta sprite_backing_ptr
     lda #hi(sprite_backing):sta sprite_backing_ptr+1
     lda #lo(sprite_mask):sta sprite_mask_ptr
     lda #hi(sprite_mask):sta sprite_mask_ptr+1
+    ; Rather than waste memory on a sprite mask for each possible enemy sprite,
+    ; we derive a sprite mask when we need it. This isn't a big drag on
+    ; performance as the enemy sprite only changes when we change screens.
+    ; TODO: We will probably need precomputed sprite masks for the four player sprites.
+    ; TODO: This mask-deriving loop could probably use sprite_mask,y instead of (sprite_mask_ptr),y. That probably isn't acceptable in the actual plot loop where we need to be able to handle player sprites using a mask at a non-fixed location though.
+    lda ri_w:cmp sprite_mask_slot:beq sprite_mask_calculated
+    sta sprite_mask_slot
+    ldy #47
+.calculate_sprite_mask_loop
+    lda #0:sta (sprite_mask_ptr),y
+    lda #%00010001:sta mask_bits
+    lda (sprite_ptr),y
+    ldx #3
+.calculate_sprite_mask_inner_loop
+    pha
+    and mask_bits
+    bne not_black_pixel
+    lda (sprite_mask_ptr),y:ora mask_bits:sta (sprite_mask_ptr),y
+.not_black_pixel
+    pla
+    asl mask_bits
+    dex:bpl calculate_sprite_mask_inner_loop
+    dey:bpl calculate_sprite_mask_loop
+.sprite_mask_calculated
+    clc ; TODO paranoia due to "keep C clear" style
+    lda #1:sta row_index
 .outer_loop
     ldx #8
 .inner_loop
