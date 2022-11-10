@@ -1120,6 +1120,9 @@ need_extra_player_plot = &92 ; TODO: HACKY USE OF "INVALID" ZP ADDRESS TO AVOID 
 ; could probably be simplified and clarified by clearing it only when we finally
 ; need it cleared.
 
+if not(MAKE_IMAGE)
+.clc_remove_sprite_from_screen_indirect ; TODO JUST TEMP, DEBUGGING CODE HAS MADE BRANCH OUT OF RANGE
+endif
 .clc_remove_sprite_from_screen
     clc
     jmp remove_sprite_from_screen
@@ -1139,6 +1142,7 @@ need_extra_player_plot = &92 ; TODO: HACKY USE OF "INVALID" ZP ADDRESS TO AVOID 
 ; TODO: I suspect there are some subtleties around sprites not currently shown
 ; or off-screen and some of those may be interesting in practice, so need to
 ; investigate these aspects.
+osrdch = &ffe0 ; TODO TEMP
 .^s_subroutine
     lda ri_w:beq r_subroutine_rts
     cmp #max_sprite_num+1:bcs r_subroutine_rts
@@ -1160,22 +1164,29 @@ if MAKE_IMAGE
     lda ri_x:lda #SLOT_ENEMY:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 ; SFTODO TEMP LDA#
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
+    jsr osrdch
 .no_extra_player_unplot2 ; TODO CRAP LABEL
     lda #SLOT_ENEMY:sta ri_w
 .no_extra_player_unplot
     lda #2:sta ri_y:jsr s_subroutine ; remove
+    jsr osrdch
     dec ri_y:jsr s_subroutine ; show
+    jsr osrdch
     lda need_extra_player_plot:beq no_extra_player_plot
     lda #SLOT_LEE:sta ri_w:jsr s_subroutine ; show
+    jsr osrdch
     lda #SLOT_ENEMY:sta ri_w
 .no_extra_player_plot
     dec ri_y ; restore original 0 value
+.HANGTEST bne HANGTEST ; TODO TEMP
     rts
+.clc_remove_sprite_from_screen_indirect ; TODO JUST TEMP, DEBUGGING CODE HAS MADE BRANCH OUT OF RANGE
+    jmp clc_remove_sprite_from_screen
 .not_solid_sprite_move
 endif
     jsr get_sprite_details
-    lda slot_pixel_coord_table+s_x,x:cmp #sprite_pixel_x_neg_inf:bcs clc_remove_sprite_from_screen
-    lda slot_pixel_coord_table+s_y,x:cmp #sprite_pixel_y_neg_inf+1:bcc clc_remove_sprite_from_screen
+    lda slot_pixel_coord_table+s_x,x:cmp #sprite_pixel_x_neg_inf:bcs clc_remove_sprite_from_screen_indirect
+    lda slot_pixel_coord_table+s_y,x:cmp #sprite_pixel_y_neg_inf+1:bcc clc_remove_sprite_from_screen_indirect
     lda sprite_pixel_y_lo:tax
     lsr a:lsr a:and #&fe:tay
     ; Invert the low bits of the sprite's Y pixel address; this accounts for the
@@ -1444,6 +1455,7 @@ next_row_adjust = bytes_per_screen_row-7
 .outer_loop
     ldx #8
 .inner_loop
+    ; TODO: The second lda (screen_ptr),y in each of next three lines is redundant
     ldy # 0:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (screen_ptr),y:and (sprite_mask_ptr),y:ora (sprite_ptr),y:sta (screen_ptr),y
     ldy # 8:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (screen_ptr),y:and (sprite_mask_ptr),y:ora (sprite_ptr),y:sta (screen_ptr),y
     ldy #16:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (screen_ptr),y:and (sprite_mask_ptr),y:ora (sprite_ptr),y:sta (screen_ptr),y
@@ -1774,6 +1786,7 @@ slot_index_x2 = &7f
 ;     be changed to X% on the screen and in the internal data structures. This
 ;     is a no-op if the sprite is not visible. (In MAKE_IMAGE builds, the
 ;     requirement the sprite is visible is removed.)
+; TODO: The player sprite flickers more than necessary because it seems to be removed and replotted every frame even if it hasn't moved - is this right? if so can we easily detect this and make this a no-op? or would it be easier to tweak the code calling u_subroutine so it doesn't call if nothing changed?
 .u_subroutine
 {
 l0070 = &0070
@@ -1789,6 +1802,9 @@ if MAKE_IMAGE
     ; masks permanently in memory rather than deriving them at run time, but
     ; that's an extra 3*4*48=576 bytes so I'm going to see if this performs
     ; acceptably first.
+    ; TODO: We should really only do this if X%!=0 on entry; I don't think this
+    ; actually occurs in practice, but it's not ideal (and if it doesn't occur,
+    ; we should maybe just get rid of X%=0 support.)
     cmp #SLOT_ENEMY:bne not_slot_enemy
     ldx #0:stx enemy_sprite_mask_valid
 .not_slot_enemy
