@@ -524,6 +524,7 @@ endif
     equb &b1, &20,   0,   0, &ff, &ff, &ec, &e4, &a0, &80,   0,   0
 ; Statue
 .sprite_22
+if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb   5,   9, &19, &0d, &0e, &0f, &0f, &0f,   5,   4, &4c, &0d
     equb &0b,   7, &0f, &0f,   0,   8,   8,   8,   8,   8,   8,   8
     equb &0f, &0f, &3c, &1c, &1c, &18, &14, &30, &0f, &0f, &e1, &41
@@ -540,6 +541,7 @@ endif
     equb &0d, &0e, &0f, &0f, &0a,   9, &89, &0b,   7, &0f, &0f, &0f
     equb   1,   1,   1,   1,   1,   1,   0,   0, &0f, &0f, &78, &28
     equb &28, &20, &28, &70, &0f, &0f, &c3, &83, &83, &81, &82, &c0
+endif
 ; Sun
 .sprite_23
 if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
@@ -603,11 +605,17 @@ endif
 
 if MAKE_IMAGE
 ; TODO: WIP solid sprite stuff.
-.sprite_mask_valid
+.enemy_sprite_mask_valid
     equb 0
-.sprite_mask
+.enemy_sprite_mask
     skip 48*4
 .enemy_sprite_backing
+    skip 48
+.player_sprite_mask_valid
+    equb 0
+.player_sprite_mask
+    skip 48*4
+.player_sprite_backing
     skip 48
 endif
 
@@ -1135,11 +1143,12 @@ sprite_pixel_y_lo = &0077
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
 if MAKE_IMAGE
     cpx #S_OP_MOVE:bne not_solid_sprite_move
-    cmp #SLOT_ENEMY-1:bne not_solid_sprite_move ; -1 as we subtracted one just above
+    cmp #SLOT_ENEMY-1:beq solid_sprite_move
+    cmp #SLOT_LEE-1:bne not_solid_sprite_move
+.solid_sprite_move
     ; We know we're moving a sprite which is already on the screen; if it's a
     ; solid sprite, turn this into explicit remove and plot operations.
-    ; TODO: For now we only do enemies as solid sprites and don't worry about corruption when they overlap
-    ; they player. Later on we need to unplot the player temporarily when unplotting/plotting enemies.
+    ; TODO: We need to take care of enemy and player sprites overlapping and unplot the player sprite temporarily when moving enemies, but let's not worry about that just yet. A first attempt at this could just *always* unplot the player sprite, but it would probably be nicer to do a collision detection just between those two sprites and only unplot if they are overlapping.
     lda #2:sta ri_y:jsr s_subroutine ; remove
     dec ri_y:jsr s_subroutine ; # show
     dec ri_y ; restore original 0 value
@@ -1360,19 +1369,28 @@ if MAKE_IMAGE
 {
 row_index = &75
 mask_bits = row_index
-sprite_backing_ptr = sprite_ptr2
+sprite_backing_ptr = &90 ; TODO: HACKY LOCATION BUT WILL BE SAFE FOR NOW, PICK OUT SOMEWHERE IN &70-&8F FREE LATER
 sprite_mask_ptr = screen_ptr2
 next_row_adjust = bytes_per_screen_row-7
     ; TODO: Unpleasant code duplication here but keep it simple to start with.
-    lda #lo(sprite_mask):sta sprite_mask_ptr
-    lda #hi(sprite_mask):sta sprite_mask_ptr+1
-    ; Rather than waste memory on a sprite mask for each possible enemy sprite,
+    lda ri_w:cmp #SLOT_ENEMY:beq use_enemy_sprite_mask
+    lda #lo(player_sprite_mask):sta sprite_mask_ptr
+    lda #hi(player_sprite_mask):sta sprite_mask_ptr+1
+    lda #lo(player_sprite_backing):sta sprite_backing_ptr
+    lda #hi(player_sprite_backing):sta sprite_backing_ptr+1
+    lda player_sprite_mask_valid:bne sprite_mask_calculated
+    inc player_sprite_mask_valid:bne calculate_sprite_mask ; always branch
+.use_enemy_sprite_mask
+    lda #lo(enemy_sprite_mask):sta sprite_mask_ptr
+    lda #hi(enemy_sprite_mask):sta sprite_mask_ptr+1
+    lda #lo(enemy_sprite_backing):sta sprite_backing_ptr
+    lda #hi(enemy_sprite_backing):sta sprite_backing_ptr+1
+    inc enemy_sprite_mask_valid
+.calculate_sprite_mask
+    ; Rather than waste memory on a sprite mask for each possible solid sprite,
     ; we derive a sprite mask when we need it. This isn't a big drag on
-    ; performance as the enemy sprite only changes when we change screens.
+    ; performance as the enemy sprite only changes when we change screens and the player sprite only at day/night boundaries and when the player changes direction.
     ; TODO: We will probably need precomputed sprite masks for the four player sprites.
-    ; TODO: This mask-deriving loop could probably use sprite_mask,y instead of (sprite_mask_ptr),y. That probably isn't acceptable in the actual plot loop where we need to be able to handle player sprites using a mask at a non-fixed location though.
-    lda sprite_mask_valid:bne sprite_mask_calculated
-    inc sprite_mask_valid
     ; sprite_ptr points to the version of the sprite for the current X offset, but we want to calculate the mask over all four versions, so set sprite_ptr2 to the 0-offset version.
     lda ri_w:sec:sbc #1:asl a:asl a:tax
     lda slot_addr_table+sprite_addr_lo,x:sta sprite_ptr2
@@ -1447,9 +1465,15 @@ row_index = &75
 sprite_backing_ptr = sprite_ptr2
 next_row_adjust = bytes_per_screen_row-7
     clc ; TODO paranoia due to "keep C clear" style
-    lda #1:sta row_index
+    lda ri_w:cmp #SLOT_ENEMY:beq use_enemy_sprite_backing
+    lda #lo(player_sprite_backing):sta sprite_backing_ptr
+    lda #hi(player_sprite_backing):sta sprite_backing_ptr+1
+    jmp sprite_backing_selected
+.use_enemy_sprite_backing
     lda #lo(enemy_sprite_backing):sta sprite_backing_ptr
     lda #hi(enemy_sprite_backing):sta sprite_backing_ptr+1
+.sprite_backing_selected
+    lda #1:sta row_index
 .outer_loop
     ldx #8
 .inner_loop
@@ -1476,7 +1500,10 @@ row_index = &75
 next_row_adjust = bytes_per_screen_row-7
 
 if MAKE_IMAGE
-    lda ri_w:cmp #SLOT_ENEMY:beq solid_sprite_plot_indirect:clc ; TODO: clc due to odd "keep C clear at all times" code style
+    lda ri_w
+    cmp #SLOT_ENEMY:beq solid_sprite_plot_indirect
+    cmp #SLOT_LEE:beq solid_sprite_plot_indirect
+    clc ; TODO: clc due to odd "keep C clear at all times" code style
 endif
     lda #1:sta row_index
 .outer_loop
@@ -1741,10 +1768,17 @@ l0073 = &0073
     lda ri_w:beq t_subroutine_rts
     cmp #max_sprite_num+1:bcs t_subroutine_rts
 if MAKE_IMAGE
+    ; We need to regenerate the sprite masks when the player or enemy sprite changes.
+    ; TODO: It *might* be worth the extra memory to have the four player sprite
+    ; masks permanently in memory rather than deriving them at run time, but
+    ; that's an extra 3*4*48=576 bytes so I'm going to see if this performs
+    ; acceptably first.
     cmp #SLOT_ENEMY:bne not_slot_enemy
-    ; We need to regenerate the sprite mask when the enemy sprite is changed.
-    ldx #0:stx sprite_mask_valid
+    ldx #0:stx enemy_sprite_mask_valid
 .not_slot_enemy
+    cmp #SLOT_LEE:bne not_slot_lee
+    ldx #0:stx player_sprite_mask_valid
+.not_slot_lee
 endif
     sec:sbc #1
     ldx ri_x:beq return_coords
