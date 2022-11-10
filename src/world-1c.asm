@@ -2053,6 +2053,7 @@ endif
 .jsr_room_type_1
     ; We need a random number; we let BASIC generate it to avoid introducing
     ; subtle behavioural changes.
+    ; TODO: In general, we could shrink "set M% and return to BASIC" everywhere by something like: "ldx #<num:ldy #>num:jmp set_m_to_xy_and_rts"
     lda #<251:sta ri_m
     lda #>251:sta ri_m+1
     rts

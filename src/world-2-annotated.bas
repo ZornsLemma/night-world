@@ -88,6 +88,7 @@ constant FIXED_PALETTE2=5
 constant FIXED_PALETTE3=7
 
    0IFPAGE>&E00:GOTO32000
+   1REM TODO: Some of these integer variables aren't used any more with the machine code main loop, so we don't need to waste code setting them up and we can use them for other things.
    10Q%=R%!R_TABLE_Q:S%=R%!R_TABLE_S:T%=R%!R_TABLE_T:U%=R%!R_TABLE_U:V%=R%!R_TABLE_V
    20VDU17,128,17,3,12,26,19,3,7;0;:B$=STRING$(3,CHR$8)+CHR$10:A$=CHR$232+CHR$233+CHR$234+B$+CHR$235+":"+CHR$236+B$+CHR$243+CHR$236+CHR$244+B$+CHR$235+CHR$234+CHR$236:PROCclear_room:VDU5:GCOL0,3:MOVE532,528:PRINTA$:PROCdelay(18000):VDU4
    30REM If we hit an error other than Escape, let's make it obvious so it can be fixed.
