@@ -601,7 +601,7 @@ endif
 
 if MAKE_IMAGE
 ; TODO: WIP solid sprite stuff.
-.sprite_mask_slot
+.sprite_mask_valid
     equb 0
 .sprite_mask
     skip 48
@@ -1371,8 +1371,9 @@ next_row_adjust = bytes_per_screen_row-7
     ; performance as the enemy sprite only changes when we change screens.
     ; TODO: We will probably need precomputed sprite masks for the four player sprites.
     ; TODO: This mask-deriving loop could probably use sprite_mask,y instead of (sprite_mask_ptr),y. That probably isn't acceptable in the actual plot loop where we need to be able to handle player sprites using a mask at a non-fixed location though.
-    lda ri_w:cmp sprite_mask_slot:beq sprite_mask_calculated
-    sta sprite_mask_slot
+    lda sprite_mask_valid:bne sprite_mask_calculated
+    inc sprite_mask_valid
+.SFTODOHACK
     ldy #47
 .calculate_sprite_mask_loop
     lda #0:sta (sprite_mask_ptr),y
@@ -1410,6 +1411,7 @@ next_row_adjust = bytes_per_screen_row-7
     lda sprite_ptr:adc #16:sta sprite_ptr:bcc no_carry
     inc sprite_ptr+1:clc
 .no_carry
+    lda sprite_mask_ptr:clc:adc #16:sta sprite_mask_ptr:bcc SFTODOXS:inc sprite_mask_ptr+1:.SFTODOXS:clc ; TODO: paranoid clc
     dec row_index:beq outer_loop
     rts
 .screen_ptr_row_wrap
@@ -1724,6 +1726,12 @@ l0073 = &0073
 
     lda ri_w:beq t_subroutine_rts
     cmp #max_sprite_num+1:bcs t_subroutine_rts
+if MAKE_IMAGE
+    cmp #SLOT_ENEMY:bne not_slot_enemy
+    ; We need to regenerate the sprite mask when the enemy sprite is changed.
+    ldx #0:stx sprite_mask_valid
+.not_slot_enemy
+endif
     sec:sbc #1
     ldx ri_x:beq return_coords
     cpx #max_sprite_num+1:bcs t_subroutine_rts
