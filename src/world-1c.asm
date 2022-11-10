@@ -1353,6 +1353,7 @@ if MAKE_IMAGE
 row_index = &75
 sprite_backing_ptr = sprite_ptr2
 next_row_adjust = bytes_per_screen_row-7
+    clc ; TODO paranoia due to "keep C clear" style
     ; TODO: Unpleasant code duplication here but keep it simple to start with.
     lda #1:sta row_index
     lda #lo(sprite_backing):sta sprite_backing_ptr
@@ -1394,6 +1395,7 @@ next_row_adjust = bytes_per_screen_row-7
 row_index = &75
 sprite_backing_ptr = sprite_ptr2
 next_row_adjust = bytes_per_screen_row-7
+    clc ; TODO paranoia due to "keep C clear" style
     lda #1:sta row_index
     lda #lo(sprite_backing):sta sprite_backing_ptr
     lda #hi(sprite_backing):sta sprite_backing_ptr+1
@@ -1423,7 +1425,7 @@ row_index = &75
 next_row_adjust = bytes_per_screen_row-7
 
 if MAKE_IMAGE
-    lda ri_w:cmp #SLOT_ENEMY:beq solid_sprite_plot_indirect
+    lda ri_w:cmp #SLOT_ENEMY:beq solid_sprite_plot_indirect:clc ; TODO: clc due to odd "keep C clear at all times" code style
 endif
     lda #1:sta row_index
 .outer_loop
