@@ -1150,18 +1150,25 @@ if MAKE_IMAGE
     ; We know we're moving a sprite which is already on the screen; if it's a
     ; solid sprite, turn this into explicit remove and plot operations.
     ; TODO: We need to take care of enemy and player sprites overlapping and unplot the player sprite temporarily when moving enemies, but let's not worry about that just yet. A first attempt at this could just *always* unplot the player sprite, but it would probably be nicer to do a collision detection just between those two sprites and only unplot if they are overlapping.
-    ; We're moving the enemy sprite, so temporarily remove the player sprite and reinstate it after. This assumes it's currently shown, which I believe is always the case.
-    lda #2:sta ri_y:lda #SLOT_LEE:sta ri_w:jsr s_subroutine ; remove
+    ; TODO: It might be faster to *just* check for a collision between the two sprite slots of interest, but this is easier for now.
+    ; We're moving the enemy sprite, so *if we're overlapping it*, remove the player sprite and reinstate it after.
+    lda #SLOT_LEE:sta ri_w
+    lda #SLOT_ENEMY:sta ri_y
+    jsr q_subroutine
+    lda ri_x:beq no_extra_player_unplot2
+    lda #2:sta ri_y:jsr s_subroutine ; remove
+.no_extra_player_unplot2 ; TODO CRAP LABEL
     lda #SLOT_ENEMY:sta ri_w
+    lda #0 ; TODO hacky, just for following php - perhaps want to rethink how all this is tracked, just use a zp var!?
 .no_extra_player_unplot
+    php ; TODO: bit tricksy, different code paths here should give right Z set/clear
     lda #2:sta ri_y:jsr s_subroutine ; remove
     dec ri_y:jsr s_subroutine ; show
-    lda ri_w:cmp #SLOT_LEE:beq no_extra_player_plot
+    plp:beq no_extra_player_plot
     lda #SLOT_LEE:sta ri_w:jsr s_subroutine ; show
     lda #SLOT_ENEMY:sta ri_w
 .no_extra_player_plot
     dec ri_y ; restore original 0 value
-    inc &5800 ; TODO TEMP to show this code is executing
     rts
 .not_solid_sprite_move
 endif
