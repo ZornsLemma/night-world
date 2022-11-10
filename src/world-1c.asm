@@ -1373,18 +1373,19 @@ sprite_backing_ptr = &90 ; TODO: HACKY LOCATION BUT WILL BE SAFE FOR NOW, PICK O
 sprite_mask_ptr = screen_ptr2
 next_row_adjust = bytes_per_screen_row-7
     ; TODO: Unpleasant code duplication here but keep it simple to start with.
-    lda ri_w:cmp #SLOT_ENEMY:beq use_enemy_sprite_mask
+    lda ri_w:cmp #SLOT_ENEMY:beq use_enemy_sprite
     lda #lo(player_sprite_mask):sta sprite_mask_ptr
     lda #hi(player_sprite_mask):sta sprite_mask_ptr+1
     lda #lo(player_sprite_backing):sta sprite_backing_ptr
     lda #hi(player_sprite_backing):sta sprite_backing_ptr+1
     lda player_sprite_mask_valid:bne sprite_mask_calculated
     inc player_sprite_mask_valid:bne calculate_sprite_mask ; always branch
-.use_enemy_sprite_mask
+.use_enemy_sprite
     lda #lo(enemy_sprite_mask):sta sprite_mask_ptr
     lda #hi(enemy_sprite_mask):sta sprite_mask_ptr+1
     lda #lo(enemy_sprite_backing):sta sprite_backing_ptr
     lda #hi(enemy_sprite_backing):sta sprite_backing_ptr+1
+    lda enemy_sprite_mask_valid:bne sprite_mask_calculated
     inc enemy_sprite_mask_valid
 .calculate_sprite_mask
     ; Rather than waste memory on a sprite mask for each possible solid sprite,
@@ -1422,8 +1423,6 @@ next_row_adjust = bytes_per_screen_row-7
     sta sprite_mask_ptr
     lda sprite_mask_ptr+1:adc #0:sta sprite_mask_ptr+1
     clc ; TODO paranoia due to "keep C clear" style
-    lda #lo(enemy_sprite_backing):sta sprite_backing_ptr
-    lda #hi(enemy_sprite_backing):sta sprite_backing_ptr+1
     lda #1:sta row_index
 .outer_loop
     ldx #8
@@ -1464,7 +1463,6 @@ next_row_adjust = bytes_per_screen_row-7
 row_index = &75
 sprite_backing_ptr = sprite_ptr2
 next_row_adjust = bytes_per_screen_row-7
-    clc ; TODO paranoia due to "keep C clear" style
     lda ri_w:cmp #SLOT_ENEMY:beq use_enemy_sprite_backing
     lda #lo(player_sprite_backing):sta sprite_backing_ptr
     lda #hi(player_sprite_backing):sta sprite_backing_ptr+1
@@ -1473,6 +1471,7 @@ next_row_adjust = bytes_per_screen_row-7
     lda #lo(enemy_sprite_backing):sta sprite_backing_ptr
     lda #hi(enemy_sprite_backing):sta sprite_backing_ptr+1
 .sprite_backing_selected
+    clc ; TODO paranoia due to "keep C clear" style
     lda #1:sta row_index
 .outer_loop
     ldx #8
