@@ -595,6 +595,12 @@ endif
     equb   0,   0,   0,   0,   0, &11, &11, &11, &65, &65, &65, &65
     equb &67, &67, &77, &7f, &65, &65, &65, &65, &65, &ef, &ef, &ff
 
+if MAKE_IMAGE
+; TODO: WIP solid sprite stuff.
+.sprite_26
+    skip 48
+endif
+
 if not(MAKE_IMAGE)
 ; ENHANCE: This appears to be mode 5 graphics data showing '< 1 > Load ' (just
 ; *LOAD World1c 5800 to see this), so this is almost certainly junk/a build
@@ -1112,11 +1118,26 @@ sprite_pixel_y_lo = &0077
 ; TODO: I suspect there are some subtleties around sprites not currently shown
 ; or off-screen and some of those may be interesting in practice, so need to
 ; investigate these aspects.
+slot_enemy = 5 ; TODO: MOVE THIS, ALSO MAYBE CAPITALISE IT FOR CONSISTENCY
 .^s_subroutine
     lda ri_w:beq r_subroutine_rts
     cmp #max_sprite_num+1:bcs r_subroutine_rts
     sec:sbc #1
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
+if MAKE_IMAGE
+    cpx #S_OP_MOVE:bne not_solid_sprite_move
+    cmp #slot_enemy:bne not_solid_sprite_move
+    ; We know we're moving a sprite which is already on the screen; if it's a
+    ; solid sprite, turn this into explicit remove and plot operations.
+    ; TODO: For now we only do enemies as solid sprites and don't worry about corruption when they overlap
+    ; they player. Later on we need to unplot the player temporarily when unplotting/plotting enemies.
+    lda #2:sta ri_y:jsr s_subroutine ; remove
+    dec ri_y:jsr s_subroutine ; # show
+    dec ri_y ; restore original 0 value
+    inc &5800 ; TODO TEMP to show this code is executing
+    rts
+.not_solid_sprite_move
+endif
     jsr get_sprite_details
     lda slot_pixel_coord_table+s_x,x:cmp #sprite_pixel_x_neg_inf:bcs clc_remove_sprite_from_screen
     lda slot_pixel_coord_table+s_y,x:cmp #sprite_pixel_y_neg_inf+1:bcc clc_remove_sprite_from_screen
