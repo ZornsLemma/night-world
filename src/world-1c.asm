@@ -560,6 +560,7 @@ endif
     equb &f0, &61, &70, &30, &d2, &f0, &b4, &a4, &68, &c0, &c0, &80
 ; Moon
 .sprite_24
+if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb   0, &11, &33, &77, &77, &dd, &ff, &ff,   0, &cc, &ee, &77
     equb &77, &ff, &dd, &dd,   0,   0,   0,   0,   0, &88, &88, &88
     equb &dd, &dd, &ff, &77, &77, &33, &11,   0, &ff, &ff, &77, &77
@@ -576,6 +577,7 @@ endif
     equb &ee, &ff, &ff, &ff,   0, &88, &cc, &ee, &ee, &ff, &bb, &ff
     equb &11, &11, &11,   0,   0,   0,   0,   0, &ee, &66, &ff, &ff
     equb &ff, &77, &33,   0, &ff, &ff, &bb, &aa, &ee, &cc, &88,   0
+endif
 ; Veil of More Ambiguity
 .sprite_25
 if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
@@ -599,6 +601,11 @@ endif
 
 if MAKE_IMAGE
 ; TODO: WIP solid sprite stuff.
+.sprite_mask
+    ; TODO: Made up "noticeable but wrong" sprite mask
+    for i, 0, 48, 2
+        equb &00, &ff
+    next
 .sprite_backing
     skip 48
 endif
@@ -1352,24 +1359,28 @@ if MAKE_IMAGE
 {
 row_index = &75
 sprite_backing_ptr = sprite_ptr2
+sprite_mask_ptr = screen_ptr2
 next_row_adjust = bytes_per_screen_row-7
     clc ; TODO paranoia due to "keep C clear" style
     ; TODO: Unpleasant code duplication here but keep it simple to start with.
     lda #1:sta row_index
     lda #lo(sprite_backing):sta sprite_backing_ptr
     lda #hi(sprite_backing):sta sprite_backing_ptr+1
+    lda #lo(sprite_mask):sta sprite_mask_ptr
+    lda #hi(sprite_mask):sta sprite_mask_ptr+1
 .outer_loop
     ldx #8
 .inner_loop
-    ldy # 0:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (sprite_ptr),y:sta (screen_ptr),y
-    ldy # 8:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (sprite_ptr),y:sta (screen_ptr),y
-    ldy #16:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (sprite_ptr),y:sta (screen_ptr),y
+    ldy # 0:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (screen_ptr),y:and (sprite_mask_ptr),y:ora (sprite_ptr),y:sta (screen_ptr),y
+    ldy # 8:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (screen_ptr),y:and (sprite_mask_ptr),y:ora (sprite_ptr),y:sta (screen_ptr),y
+    ldy #16:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (screen_ptr),y:and (sprite_mask_ptr),y:ora (sprite_ptr),y:sta (screen_ptr),y
     lda screen_ptr:and #7:eor #7:beq screen_ptr_row_wrap
     inc screen_ptr
 .screen_ptr_row_wrap_handled
     inc sprite_ptr:beq sprite_ptr_carry
 .sprite_ptr_carry_handled
     inc sprite_backing_ptr:bne SFTODOZX:inc sprite_backing_ptr+1:.SFTODOZX
+    inc sprite_mask_ptr:bne SFTODOPD:inc sprite_mask_ptr+1:.SFTODOPD
     dex:bne inner_loop
     lda sprite_backing_ptr:clc:adc #16:sta sprite_backing_ptr:bcc sbp_no_carry:inc sprite_backing_ptr+1:.sbp_no_carry:clc
     lda sprite_ptr:adc #16:sta sprite_ptr:bcc no_carry
