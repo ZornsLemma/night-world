@@ -607,7 +607,7 @@ if MAKE_IMAGE
     equb 0
 .sprite_mask
     skip 48*4
-.sprite_backing
+.enemy_sprite_backing
     skip 48
 endif
 
@@ -1404,8 +1404,8 @@ next_row_adjust = bytes_per_screen_row-7
     sta sprite_mask_ptr
     lda sprite_mask_ptr+1:adc #0:sta sprite_mask_ptr+1
     clc ; TODO paranoia due to "keep C clear" style
-    lda #lo(sprite_backing):sta sprite_backing_ptr
-    lda #hi(sprite_backing):sta sprite_backing_ptr+1
+    lda #lo(enemy_sprite_backing):sta sprite_backing_ptr
+    lda #hi(enemy_sprite_backing):sta sprite_backing_ptr+1
     lda #1:sta row_index
 .outer_loop
     ldx #8
@@ -1448,8 +1448,8 @@ sprite_backing_ptr = sprite_ptr2
 next_row_adjust = bytes_per_screen_row-7
     clc ; TODO paranoia due to "keep C clear" style
     lda #1:sta row_index
-    lda #lo(sprite_backing):sta sprite_backing_ptr
-    lda #hi(sprite_backing):sta sprite_backing_ptr+1
+    lda #lo(enemy_sprite_backing):sta sprite_backing_ptr
+    lda #hi(enemy_sprite_backing):sta sprite_backing_ptr+1
 .outer_loop
     ldx #8
 .inner_loop
