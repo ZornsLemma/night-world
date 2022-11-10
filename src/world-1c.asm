@@ -542,6 +542,7 @@ endif
     equb &28, &20, &28, &70, &0f, &0f, &c3, &83, &83, &81, &82, &c0
 ; Sun
 .sprite_23
+if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb &10, &30, &21, &70, &70, &b4, &f0, &b4, &c0, &e0, &e0, &f0
     equb &f0, &f0, &f0, &f0,   0,   0,   0,   0,   0, &80, &80, &80
     equb &b4, &f0, &d2, &52, &52, &30, &30, &10, &f0, &f0, &f0, &f0
@@ -558,6 +559,7 @@ endif
     equb &f0, &f0, &f0, &f0, &80, &c0, &c0, &e0, &e0, &b4, &f0, &d2
     equb &10, &10, &10,   0,   0,   0,   0,   0, &f0, &f0, &f0, &f0
     equb &f0, &61, &70, &30, &d2, &f0, &b4, &a4, &68, &c0, &c0, &80
+endif
 ; Moon
 .sprite_24
 if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
@@ -604,7 +606,7 @@ if MAKE_IMAGE
 .sprite_mask_valid
     equb 0
 .sprite_mask
-    skip 48
+    skip 48*4
 .sprite_backing
     skip 48
 endif
@@ -1362,8 +1364,6 @@ sprite_backing_ptr = sprite_ptr2
 sprite_mask_ptr = screen_ptr2
 next_row_adjust = bytes_per_screen_row-7
     ; TODO: Unpleasant code duplication here but keep it simple to start with.
-    lda #lo(sprite_backing):sta sprite_backing_ptr
-    lda #hi(sprite_backing):sta sprite_backing_ptr+1
     lda #lo(sprite_mask):sta sprite_mask_ptr
     lda #hi(sprite_mask):sta sprite_mask_ptr+1
     ; Rather than waste memory on a sprite mask for each possible enemy sprite,
@@ -1373,12 +1373,16 @@ next_row_adjust = bytes_per_screen_row-7
     ; TODO: This mask-deriving loop could probably use sprite_mask,y instead of (sprite_mask_ptr),y. That probably isn't acceptable in the actual plot loop where we need to be able to handle player sprites using a mask at a non-fixed location though.
     lda sprite_mask_valid:bne sprite_mask_calculated
     inc sprite_mask_valid
+    ; sprite_ptr points to the version of the sprite for the current X offset, but we want to calculate the mask over all four versions, so set sprite_ptr2 to the 0-offset version.
+    lda ri_w:sec:sbc #1:asl a:asl a:tax
+    lda slot_addr_table+sprite_addr_lo,x:sta sprite_ptr2
+    lda slot_addr_table+sprite_addr_hi,x:sta sprite_ptr2+1
 .SFTODOHACK
-    ldy #47
+    ldy #48*4-1
 .calculate_sprite_mask_loop
     lda #0:sta (sprite_mask_ptr),y
     lda #%00010001:sta mask_bits
-    lda (sprite_ptr),y
+    lda (sprite_ptr2),y
     ldx #3
 .calculate_sprite_mask_inner_loop
     pha
@@ -1389,9 +1393,19 @@ next_row_adjust = bytes_per_screen_row-7
     pla
     asl mask_bits
     dex:bpl calculate_sprite_mask_inner_loop
-    dey:bpl calculate_sprite_mask_loop
+    dey:cpy #&ff:bne calculate_sprite_mask_loop
 .sprite_mask_calculated
+    ; We need to adjust sprite_mask_ptr to point to the correct X-shifted version of the sprite mask.
+    ; TODO: Copy and paste
+    lda sprite_pixel_x_lo:and #3
+    asl a:asl a:asl a:asl a:sta l0073
+    asl a:adc l0073 ; we know carry is clear after asl a
+    adc sprite_mask_ptr
+    sta sprite_mask_ptr
+    lda sprite_mask_ptr+1:adc #0:sta sprite_mask_ptr+1
     clc ; TODO paranoia due to "keep C clear" style
+    lda #lo(sprite_backing):sta sprite_backing_ptr
+    lda #hi(sprite_backing):sta sprite_backing_ptr+1
     lda #1:sta row_index
 .outer_loop
     ldx #8
