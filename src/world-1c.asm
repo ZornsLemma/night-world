@@ -416,6 +416,7 @@ endif
     equb &25, &77,   0,   0, &3f, &ff, &a4, &ee, &84, &cc,   0,   0
 ; Fleece/MacGuffin/unused/prism
 .sprite_16
+if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb   0,   0,   0,   0,   0,   0, &11, &22,   0,   0,   0,   0
     equb   0,   0, &44, &22,   0,   0,   0,   0,   0,   0,   0,   0
     equb &22, &33, &23, &23, &23, &33, &11, &11, &aa, &ee, &ae, &ae
@@ -432,6 +433,7 @@ endif
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0, &11, &11, &33, &23, &76
     equb &47, &fc, &8f, &ff,   0, &88, &88, &cc, &4c, &e6, &2e, &ff
+endif
 ; Health pickup
 .sprite_17
     equb   0,   0, &11, &36, &35, &3c, &2c, &2c,   0,   0, &c4, &eb
@@ -1143,14 +1145,21 @@ sprite_pixel_y_lo = &0077
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
 if MAKE_IMAGE
     cpx #S_OP_MOVE:bne not_solid_sprite_move
-    cmp #SLOT_ENEMY-1:beq solid_sprite_move
-    cmp #SLOT_LEE-1:bne not_solid_sprite_move
-.solid_sprite_move
+    cmp #SLOT_LEE-1:beq no_extra_player_unplot
+    cmp #SLOT_ENEMY-1:bne not_solid_sprite_move
     ; We know we're moving a sprite which is already on the screen; if it's a
     ; solid sprite, turn this into explicit remove and plot operations.
     ; TODO: We need to take care of enemy and player sprites overlapping and unplot the player sprite temporarily when moving enemies, but let's not worry about that just yet. A first attempt at this could just *always* unplot the player sprite, but it would probably be nicer to do a collision detection just between those two sprites and only unplot if they are overlapping.
+    ; We're moving the enemy sprite, so temporarily remove the player sprite and reinstate it after. This assumes it's currently shown, which I believe is always the case.
+    lda #2:sta ri_y:lda #SLOT_LEE:sta ri_w:jsr s_subroutine ; remove
+    lda #SLOT_ENEMY:sta ri_w
+.no_extra_player_unplot
     lda #2:sta ri_y:jsr s_subroutine ; remove
-    dec ri_y:jsr s_subroutine ; # show
+    dec ri_y:jsr s_subroutine ; show
+    lda ri_w:cmp #SLOT_LEE:beq no_extra_player_plot
+    lda #SLOT_LEE:sta ri_w:jsr s_subroutine ; show
+    lda #SLOT_ENEMY:sta ri_w
+.no_extra_player_plot
     dec ri_y ; restore original 0 value
     inc &5800 ; TODO TEMP to show this code is executing
     rts
