@@ -578,6 +578,7 @@ endif
     equb &ff, &77, &33,   0, &ff, &ff, &bb, &aa, &ee, &cc, &88,   0
 ; Veil of More Ambiguity
 .sprite_25
+if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb &ff, &df, &df, &ca, &ca, &ca, &ca, &ca, &6d, &65, &65, &65
     equb &65, &65, &65, &65,   0,   0,   0,   0,   0,   0,   0,   0
     equb &ca, &ca, &ca, &ca, &ca, &df, &df, &ff, &65, &65, &65, &65
@@ -594,10 +595,11 @@ endif
     equb &65, &65, &65, &65, &77, &67, &67, &65, &65, &65, &65, &65
     equb   0,   0,   0,   0,   0, &11, &11, &11, &65, &65, &65, &65
     equb &67, &67, &77, &7f, &65, &65, &65, &65, &65, &ef, &ef, &ff
+endif
 
 if MAKE_IMAGE
 ; TODO: WIP solid sprite stuff.
-.sprite_26
+.sprite_backing
     skip 48
 endif
 
@@ -1118,7 +1120,6 @@ sprite_pixel_y_lo = &0077
 ; TODO: I suspect there are some subtleties around sprites not currently shown
 ; or off-screen and some of those may be interesting in practice, so need to
 ; investigate these aspects.
-slot_enemy = 5 ; TODO: MOVE THIS, ALSO MAYBE CAPITALISE IT FOR CONSISTENCY
 .^s_subroutine
     lda ri_w:beq r_subroutine_rts
     cmp #max_sprite_num+1:bcs r_subroutine_rts
@@ -1126,7 +1127,7 @@ slot_enemy = 5 ; TODO: MOVE THIS, ALSO MAYBE CAPITALISE IT FOR CONSISTENCY
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
 if MAKE_IMAGE
     cpx #S_OP_MOVE:bne not_solid_sprite_move
-    cmp #slot_enemy:bne not_solid_sprite_move
+    cmp #SLOT_ENEMY-1:bne not_solid_sprite_move ; -1 as we subtracted one just above
     ; We know we're moving a sprite which is already on the screen; if it's a
     ; solid sprite, turn this into explicit remove and plot operations.
     ; TODO: For now we only do enemies as solid sprites and don't worry about corruption when they overlap
@@ -1346,11 +1347,84 @@ endif
 ;     image data.
 ;
 ; ENHANCE: This is probably over-zealous at ensuring carry is clear.
+if MAKE_IMAGE
+.solid_sprite_show
+{
+row_index = &75
+sprite_backing_ptr = sprite_ptr2
+next_row_adjust = bytes_per_screen_row-7
+    ; TODO: Unpleasant code duplication here but keep it simple to start with.
+    lda #1:sta row_index
+    lda #lo(sprite_backing):sta sprite_backing_ptr
+    lda #hi(sprite_backing):sta sprite_backing_ptr+1
+.outer_loop
+    ldx #8
+.inner_loop
+    ldy # 0:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (sprite_ptr),y:sta (screen_ptr),y
+    ldy # 8:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (sprite_ptr),y:sta (screen_ptr),y
+    ldy #16:lda (screen_ptr),y:sta (sprite_backing_ptr),y:lda (sprite_ptr),y:sta (screen_ptr),y
+    lda screen_ptr:and #7:eor #7:beq screen_ptr_row_wrap
+    inc screen_ptr
+.screen_ptr_row_wrap_handled
+    inc sprite_ptr:beq sprite_ptr_carry
+.sprite_ptr_carry_handled
+    inc sprite_backing_ptr:bne SFTODOZX:inc sprite_backing_ptr+1:.SFTODOZX
+    dex:bne inner_loop
+    lda sprite_backing_ptr:clc:adc #16:sta sprite_backing_ptr:bcc sbp_no_carry:inc sprite_backing_ptr+1:.sbp_no_carry:clc
+    lda sprite_ptr:adc #16:sta sprite_ptr:bcc no_carry
+    inc sprite_ptr+1:clc
+.no_carry
+    dec row_index:beq outer_loop
+    rts
+.screen_ptr_row_wrap
+    lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
+    lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
+    bne screen_ptr_row_wrap_handled ; always branch
+.sprite_ptr_carry
+    inc sprite_ptr+1:clc
+    bne sprite_ptr_carry_handled ; always branch
+}
+
+.^solid_sprite_plot_indirect
+    lda ri_y:cmp #S_OP_SHOW:bne solid_sprite_remove
+    jmp solid_sprite_show
+
+.solid_sprite_remove
+{
+row_index = &75
+sprite_backing_ptr = sprite_ptr2
+next_row_adjust = bytes_per_screen_row-7
+    lda #1:sta row_index
+    lda #lo(sprite_backing):sta sprite_backing_ptr
+    lda #hi(sprite_backing):sta sprite_backing_ptr+1
+.outer_loop
+    ldx #8
+.inner_loop
+    ldy # 0:lda (sprite_backing_ptr),y:sta (screen_ptr),y
+    ldy # 8:lda (sprite_backing_ptr),y:sta (screen_ptr),y
+    ldy #16:lda (sprite_backing_ptr),y:sta (screen_ptr),y
+    lda screen_ptr:and #7:eor #7:beq screen_ptr_row_wrap
+    inc screen_ptr
+.screen_ptr_row_wrap_handled
+    inc sprite_backing_ptr:bne SFTODOZX:inc sprite_backing_ptr+1:.SFTODOZX
+    dex:bne inner_loop
+    lda sprite_backing_ptr:clc:adc #16:sta sprite_backing_ptr:bcc sbp_no_carry:inc sprite_backing_ptr+1:.sbp_no_carry:clc
+    dec row_index:beq outer_loop
+    rts
+.screen_ptr_row_wrap
+    lda screen_ptr  :adc #<next_row_adjust:sta screen_ptr
+    lda screen_ptr+1:adc #>next_row_adjust:sta screen_ptr+1
+    bne screen_ptr_row_wrap_handled ; always branch
+}
+endif
 .plot_sprite
 {
 row_index = &75
 next_row_adjust = bytes_per_screen_row-7
 
+if MAKE_IMAGE
+    lda ri_w:cmp #SLOT_ENEMY:beq solid_sprite_plot_indirect
+endif
     lda #1:sta row_index
 .outer_loop
     ldx #8
