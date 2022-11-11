@@ -611,14 +611,20 @@ if MAKE_IMAGE
     equb 0
 .enemy_sprite_mask
     skip 48*4
+if FALSE ; TODO HACK
 .enemy_sprite_backing
     skip 48
+endif
+enemy_sprite_backing = &5800+4*20
 .player_sprite_mask_valid
     equb 0
 .player_sprite_mask
     skip 48*4
+if FALSE ; TODO HACK
 .player_sprite_backing
     skip 48
+endif
+player_sprite_backing = &5800+8*20
 endif
 
 if not(MAKE_IMAGE)
@@ -1165,22 +1171,25 @@ if MAKE_IMAGE
     lda ri_x:lda #SLOT_ENEMY:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 ; SFTODO TEMP LDA#
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
-    jsr osrdch
+    lda #'a':jsr SFTODO
 .no_extra_player_unplot2 ; TODO CRAP LABEL
     lda #SLOT_ENEMY:sta ri_w
 .no_extra_player_unplot
     lda #2:sta ri_y:jsr s_subroutine ; remove
-    jsr osrdch
+    lda #'b':jsr SFTODO
     dec ri_y:jsr s_subroutine ; show
-    jsr osrdch
+    lda #'c':jsr SFTODO
     lda need_extra_player_plot:beq no_extra_player_plot
     lda #SLOT_LEE:sta ri_w:jsr s_subroutine ; show
-    jsr osrdch
+    lda #'d':jsr SFTODO
     lda #SLOT_ENEMY:sta ri_w
 .no_extra_player_plot
     dec ri_y ; restore original 0 value
 .HANGTEST bne HANGTEST ; TODO TEMP
     rts
+.SFTODO
+    pha:lda #30:jsr oswrch:pla:jsr oswrch
+    jmp osrdch
 .clc_remove_sprite_from_screen_indirect ; TODO JUST TEMP, DEBUGGING CODE HAS MADE BRANCH OUT OF RANGE
     jmp clc_remove_sprite_from_screen
 .not_solid_sprite_move
