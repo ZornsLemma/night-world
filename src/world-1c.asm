@@ -607,6 +607,7 @@ endif
 
 if MAKE_IMAGE
 ; TODO: WIP solid sprite stuff.
+; TODO: Worth noting that if there's some free "low" memory, the sprite mask and sprite backing data can easily be placed there - it doesn't need to be initialised at load time.
 .enemy_sprite_mask_valid
     equb 0
 .enemy_sprite_mask
@@ -1796,7 +1797,7 @@ slot_index_x2 = &7f
 ;     be changed to X% on the screen and in the internal data structures. This
 ;     is a no-op if the sprite is not visible. (In MAKE_IMAGE builds, the
 ;     requirement the sprite is visible is removed.)
-; TODO: The player sprite flickers more than necessary because it seems to be removed and replotted every frame even if it hasn't moved - is this right? if so can we easily detect this and make this a no-op? or would it be easier to tweak the code calling u_subroutine so it doesn't call if nothing changed?
+; TODO: The player sprite flickers more than necessary because it seems to be removed and replotted every frame even if it hasn't moved - is this right? if so can we easily detect this and make this a no-op? or would it be easier to tweak the code calling u_subroutine so it doesn't call if nothing changed? (This comment is probably in the "wrong" place - I think this extra flicker is caused by call to s_subroutine not u_subroutine.)
 .u_subroutine
 {
 l0070 = &0070
@@ -1856,6 +1857,30 @@ if MAKE_IMAGE
     ; displayed; we just don't touch the screen in this case.
     lda slot_addr_table+screen_addr_hi,x:beq t_subroutine_rts
     sta screen_ptr2+1:sta screen_ptr+1
+endif
+if MAKE_IMAGE
+    ; TODO: EXPERIMENTAL BUG FIX - I THINK THIS IS NECESSARY, BUT IT DOESN'T SEEM TO HAVE HELPED.
+    ; (I SUSPECT THIS BUG WOULD HAVE MANIFESTED ON SCREENS WITH ENEMIES THAT HAVE LEFT/RIGHT
+    ; VERSIONS, WHICH THE INITIAL SCREEN DOESN'T HAVE.)
+    lda ri_w
+    cmp #SLOT_LEE:beq u_subroutine_solid_sprite
+    cmp #SLOT_ENEMY:bne u_subroutine_not_solid_sprite
+.u_subroutine_solid_sprite
+    ; Use s_subroutine to do the move in order to get the correct solid sprite behaviour.
+    ; TODO: I think this will introduce a subtle behaviour change because s_subroutine's
+    ; plot *will* pick up new location from the slot's X/Y coord resident integer variables,
+    ; whereas for non-solid sprites u_subroutine *doesn't* do this. I don't believe this
+    ; will be a problem in practice; I'm not sure it will occur at all in practive, never
+    ; mind being a problem.
+    ; TODO: We probably didn't need to do most of the work we just did when we're in this
+    ; case.
+    ; TODO: A lot of this sort of stuff could be tidied up.
+    lda ri_y:pha
+    lda #S_OP_MOVE:sta ri_y
+    jsr s_subroutine
+    pla:sta ri_y
+    rts
+.u_subroutine_not_solid_sprite
 endif
     jmp move_sprite
 
