@@ -1168,8 +1168,8 @@ if MAKE_IMAGE
     ; We're moving the enemy sprite, so *if we're overlapping it*, remove the player sprite and reinstate it after.
     lda #SLOT_LEE:sta ri_w
     lda #SLOT_ENEMY:sta ri_y
-    jsr q_subroutine
-    lda ri_x:lda #SLOT_ENEMY:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 ; SFTODO TEMP LDA#
+    ; SFTODO TCO JUST IN CASE IT MAKES A DIFFERENCE jsr q_subroutine - IT DOESN'T, BUT LET'S KEEPT IT COMMENTED OUT FOW NOW
+    lda ri_x:lda #SLOT_ENEMY:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 ; SFTODO TEMP LDA# - REVERT THIS AND PUT THE JSR Q_SUBROUTINE BACK TOO LATER ON
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
     lda #'a':jsr SFTODO
