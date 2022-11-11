@@ -1181,6 +1181,8 @@ if MAKE_IMAGE
     dec ri_y:jsr s_subroutine ; show
     lda #'c':jsr SFTODO
     lda need_extra_player_plot:beq no_extra_player_plot
+    ; TODO: This extra plot of the player (which isn't "officially" happening as far as our caller is concerned) will pick up any
+    ; changes in the relevant resident integer x/y coord variables. These could in theory have completely arbitrary values (the caller isn't telling us to use them at all) but in practice I don't think that happens, so this *should* be fine. But think about it. I don't think this is responsible for the bug I'm currently seeing, but I may be overlooking something.
     lda #SLOT_LEE:sta ri_w:jsr s_subroutine ; show
     lda #'d':jsr SFTODO
     lda #SLOT_ENEMY:sta ri_w
@@ -1279,6 +1281,8 @@ endif
 ;     slot_pixel_coord_table is updated to have the values returned in
 ;     sprite_pixel_{x,y}_lo after applying the configured wrapping behaviour for
 ;     out-of-bounds coordinates.
+;
+;     TODO: Values also returned in l0074 and X
 ;
 ; ENHANCE: This is probably over-zealous in ensuring carry clear on exit.
 .get_sprite_details
