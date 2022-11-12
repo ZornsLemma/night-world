@@ -1176,6 +1176,7 @@ if MAKE_IMAGE
     ; We're moving the enemy sprite, so *if we're overlapping it*, remove the player sprite and reinstate it after.
     lda #SLOT_LEE:sta ri_w
     lda #SLOT_ENEMY:sta ri_y
+    lda ri_x:pha:lda ri_z:pha ; q_subroutine will corrupt ri_x and ri_z, which s_subroutine shouldn't do (it will also corrupt ri_y, but we already take care of that as we're fiddling with it constantly here)
     ; TODO: The inc/dec here add an extra pixel of overlap to the collision detection in q_subroutine. This is a bit of a hack. I currently think q_subroutine is correct as written, *but* since the sprites are moving here, we actually should do this test against both the current and new positions. In order to hackily approximate this, we just widen the collision detection window by one pixel. TODO EVEN MORE HACKILY MAKING IT TWO, AS I HAD CORRUPTION WITH JUST ONE (*PROBABLY* A SIDE EFFECT OF PLAYER MOVING LEFT WHILE ENEMY MOVING - THEORETICALLY ONLY THE ENEMY IS MOVING HERE, BUT AS NOTED ELSEWHERE THIS SOLID MOVE LOGIC HAS THE NEW SIDE EFFECT OF PICKING UP UPDATED SPRITE POSITION ON THE PLAYER "EARLY") - OK, I STILL SAW CORRUPTION WITH TWO, SO HACKED IT UP TO THREE - WOULD BE GOOD TO UNDERSTAND WHAT'S GOING ON, OF COURSE!
     inc SFTODOPATCH1+1:inc SFTODOPATCH2+1
     inc SFTODOPATCH1+1:inc SFTODOPATCH2+1
@@ -1184,8 +1185,8 @@ if MAKE_IMAGE
     dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
     dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
     dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
-    ; SFTODO: SHOULLD WORK BUT EXPERIMENTING lda ri_x:cmp #SLOT_ENEMY:bne no_extra_player_unplot2
-    lda ri_x:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
+    ; SFTODO: SHOULLD WORK BUT EXPERIMENTING lda ri_x:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 - IF REINSTATE THIS NEED TO DO PLA:STA
+    ldx ri_x:pla:sta ri_z:pla:sta ri_x:txa:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
     lda #'a':jsr SFTODO
