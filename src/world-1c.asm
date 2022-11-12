@@ -1885,6 +1885,7 @@ if MAKE_IMAGE
     pla:sta ri_y
     rts
 .u_subroutine_not_solid_sprite
+    clc ; TODO: absolutely have to fix the bizarre "clear carry long before the adc" style (generally, not just here)
 endif
     jmp move_sprite
 
