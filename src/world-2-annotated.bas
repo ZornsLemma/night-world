@@ -175,6 +175,7 @@ constant FIXED_PALETTE3=7
   628ENDPROC
 
   630DEFPROCcollect_fleece:*FX13,5
+  633REM I'm slightly surprised the next line doesn't cause problems with the solid sprites, as we remove the fleece before we remove the player. I think it works because the collision is detected while the player is only overlapping black areas of the fleece sprite. If this proves to not be the case, we just need to do PROCremove_lee_sprite before we remove SLOT_MISC's sprite, not after.
   635Y%=S_OP_REMOVE:W%=SLOT_SUN_MOON:CALLS%:W%=SLOT_MISC:CALLS%:RESTORE1450:PROCset8(R_TABLE_SCORE,100):PROCset8(R_TABLE_SUN_MOON_DISABLED,1):PROCremove_lee_sprite:FORn%=10TO100STEP5:FORnm%=110TO200STEPn%:READok%
   637IF?TWEAK_STROBE=0:VDU19,1,ok%;0;19,2,ok%;0;19,3,ok%;0;
   638IFok%=0:RESTORE1450
