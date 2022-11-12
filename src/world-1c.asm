@@ -526,7 +526,6 @@ endif
     equb &b1, &20,   0,   0, &ff, &ff, &ec, &e4, &a0, &80,   0,   0
 ; Statue
 .sprite_22
-if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb   5,   9, &19, &0d, &0e, &0f, &0f, &0f,   5,   4, &4c, &0d
     equb &0b,   7, &0f, &0f,   0,   8,   8,   8,   8,   8,   8,   8
     equb &0f, &0f, &3c, &1c, &1c, &18, &14, &30, &0f, &0f, &e1, &41
@@ -543,10 +542,8 @@ if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTIN
     equb &0d, &0e, &0f, &0f, &0a,   9, &89, &0b,   7, &0f, &0f, &0f
     equb   1,   1,   1,   1,   1,   1,   0,   0, &0f, &0f, &78, &28
     equb &28, &20, &28, &70, &0f, &0f, &c3, &83, &83, &81, &82, &c0
-endif
 ; Sun
 .sprite_23
-if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb &10, &30, &21, &70, &70, &b4, &f0, &b4, &c0, &e0, &e0, &f0
     equb &f0, &f0, &f0, &f0,   0,   0,   0,   0,   0, &80, &80, &80
     equb &b4, &f0, &d2, &52, &52, &30, &30, &10, &f0, &f0, &f0, &f0
@@ -563,10 +560,8 @@ if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTIN
     equb &f0, &f0, &f0, &f0, &80, &c0, &c0, &e0, &e0, &b4, &f0, &d2
     equb &10, &10, &10,   0,   0,   0,   0,   0, &f0, &f0, &f0, &f0
     equb &f0, &61, &70, &30, &d2, &f0, &b4, &a4, &68, &c0, &c0, &80
-endif
 ; Moon
 .sprite_24
-if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb   0, &11, &33, &77, &77, &dd, &ff, &ff,   0, &cc, &ee, &77
     equb &77, &ff, &dd, &dd,   0,   0,   0,   0,   0, &88, &88, &88
     equb &dd, &dd, &ff, &77, &77, &33, &11,   0, &ff, &ff, &77, &77
@@ -583,7 +578,6 @@ if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTIN
     equb &ee, &ff, &ff, &ff,   0, &88, &cc, &ee, &ee, &ff, &bb, &ff
     equb &11, &11, &11,   0,   0,   0,   0,   0, &ee, &66, &ff, &ff
     equb &ff, &77, &33,   0, &ff, &ff, &bb, &aa, &ee, &cc, &88,   0
-endif
 ; Veil of More Ambiguity
 .sprite_25
     equb &ff, &df, &df, &ca, &ca, &ca, &ca, &ca, &6d, &65, &65, &65
