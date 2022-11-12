@@ -335,7 +335,7 @@ constant FIXED_PALETTE3=7
  2060FOR n%=1 TO ASC(key$)AND&9F:READ phys_room%,C%,D%:NEXT
  2070REM Logical room 14 (Ed's room N) has some tricky behaviour; to get it right, we pretend we're passing through the warp from logical room 10 as in real gameplay.
  2200IF phys_room%<>14:PROCchange_room2 ELSE PROCset8(R_TABLE_LOGICAL_ROOM,10):PROCset8(R_TABLE_ROOM_TYPE,4-(FNget8(R_TABLE_SCORE)>70)):C%=1152:D%=484:PROCcheck_warps
- 2205W%=SLOT_LEE:W%=SLOT_LEE:Y%=S_OP_SHOW:CALLS%:REM show player sprite
+ 2205W%=SLOT_LEE:Y%=S_OP_SHOW:CALLS%:REM show player sprite
  2218VDU5:Y%=S_OP_MOVE:IF FNget8(R_TABLE_SUN_MOON_DISABLED)=0:W%=SLOT_SUN_MOON
  2220ENDPROC
  2221REM FWIW lower part of room A would be 1142,316
