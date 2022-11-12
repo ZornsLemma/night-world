@@ -1149,12 +1149,14 @@ endif
 ; TODO: I suspect there are some subtleties around sprites not currently shown
 ; or off-screen and some of those may be interesting in practice, so need to
 ; investigate these aspects.
+; TODO: Although it's worth bearing in mind that not all rooms have an enemy (I think), there might be some flicker reduction potential in always (rather than trying to be smart and do it if there's a collision only) doing both the enemy and player unplot/plot in here and *not* doing the player move in the regular game loop. This *might* slightly tweak how/when the player position is updated, but it might not or it might not matter if it does. worth thinking about.
 osrdch = &ffe0 ; TODO TEMP
 .^s_subroutine
     lda ri_w:beq r_subroutine_rts
     cmp #max_sprite_num+1:bcs r_subroutine_rts
     sec:sbc #1
     ldx ri_y:cpx #2:beq clc_remove_sprite_from_screen
+.HANGTEST99    bcs HANGTEST99
 if MAKE_IMAGE
     ; TODO: THE BUG WITH MOVING SPRITES AND CORRUPTION WHEN THEY OVERLAP IS BECAUSE I AM NOT USING THE *OLD* SPRITE POSITION (WHICH THE EOR-BASED MOVE DOES) FOR THE UNPLOT - JUST NEED TO DECIDE HOW TO WIRE THIS CHANGE IN MOSTLY NEATLY - NO, WE DO SEEM TO DO THAT IN REMOVE_SPRITE_FROM_SCREEN - IS THE ISSUE THAT WE ARE NOT USING THE SOLID REMOVE CODE THERE AND JUST DOING EOR!? - NO, I DON'T THINK THAT'S IT EITHER
     cpx #S_OP_MOVE:bne not_solid_sprite_move
@@ -1168,7 +1170,7 @@ if MAKE_IMAGE
     ; We're moving the enemy sprite, so *if we're overlapping it*, remove the player sprite and reinstate it after.
     lda #SLOT_LEE:sta ri_w
     lda #SLOT_ENEMY:sta ri_y
-    ; SFTODO TCO JUST IN CASE IT MAKES A DIFFERENCE jsr q_subroutine - IT DOESN'T, BUT LET'S KEEPT IT COMMENTED OUT FOW NOW
+    ; SFTODO TCO JUST IN CASE IT MAKES A DIFFERENCE jsr q_subroutine - IT DOESN'T, BUT LET'S KEEP IT COMMENTED OUT FOW NOW
     lda ri_x:lda #SLOT_ENEMY:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 ; SFTODO TEMP LDA# - REVERT THIS AND PUT THE JSR Q_SUBROUTINE BACK TOO LATER ON
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
