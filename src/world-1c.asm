@@ -415,8 +415,9 @@ endif
     equb   0, &11,   0,   0,   0,   0,   0,   0, &2e, &ff, &a5, &ff
     equb &25, &77,   0,   0, &3f, &ff, &a4, &ee, &84, &cc,   0,   0
 ; Fleece/MacGuffin/unused/prism
+; TODO: We could put something in the space for the unused sprite, although of
+; course it's a bit fiddly - depends how desperate we are.
 .sprite_16
-if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb   0,   0,   0,   0,   0,   0, &11, &22,   0,   0,   0,   0
     equb   0,   0, &44, &22,   0,   0,   0,   0,   0,   0,   0,   0
     equb &22, &33, &23, &23, &23, &33, &11, &11, &aa, &ee, &ae, &ae
@@ -433,7 +434,6 @@ if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTIN
     equb   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0
     equb   0,   0,   0,   0,   0,   0,   0, &11, &11, &33, &23, &76
     equb &47, &fc, &8f, &ff,   0, &88, &88, &cc, &4c, &e6, &2e, &ff
-endif
 ; Health pickup
 .sprite_17
     equb   0,   0, &11, &36, &35, &3c, &2c, &2c,   0,   0, &c4, &eb
@@ -586,7 +586,6 @@ if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTIN
 endif
 ; Veil of More Ambiguity
 .sprite_25
-if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTING
     equb &ff, &df, &df, &ca, &ca, &ca, &ca, &ca, &6d, &65, &65, &65
     equb &65, &65, &65, &65,   0,   0,   0,   0,   0,   0,   0,   0
     equb &ca, &ca, &ca, &ca, &ca, &df, &df, &ff, &65, &65, &65, &65
@@ -603,29 +602,33 @@ if not(MAKE_IMAGE) ; TODO MASSIVE HACK TO GET MORE CODE SPACE WHILE EXPERIMENTIN
     equb &65, &65, &65, &65, &77, &67, &67, &65, &65, &65, &65, &65
     equb   0,   0,   0,   0,   0, &11, &11, &11, &65, &65, &65, &65
     equb &67, &67, &77, &7f, &65, &65, &65, &65, &65, &ef, &ef, &ff
-endif
 
 if MAKE_IMAGE
 ; TODO: WIP solid sprite stuff.
 ; TODO: Worth noting that if there's some free "low" memory, the sprite mask and sprite backing data can easily be placed there - it doesn't need to be initialised at load time.
+; TODO: For the moment I've just shoved the sprite masks and backing into low memory without much thought.
 .enemy_sprite_mask_valid
     equb 0
+enemy_sprite_mask = &900 ; 48*4 bytes
+enemy_sprite_backing = &900 + 48*4 ; 48 bytes
+player_sprite_mask = &a00 ; 48*4 bytes
+player_sprite_backing = &a00 + 48*4 ; 48 bytes
+if FALSE ; TODO HACK
 .enemy_sprite_mask
     skip 48*4
-if FALSE ; TODO HACK
 .enemy_sprite_backing
     skip 48
-endif
 enemy_sprite_backing = &5800+4*20
+endif
 .player_sprite_mask_valid
     equb 0
+if FALSE ; TODO HACK
 .player_sprite_mask
     skip 48*4
-if FALSE ; TODO HACK
 .player_sprite_backing
     skip 48
-endif
 player_sprite_backing = &5800+8*20
+endif
 endif
 
 if not(MAKE_IMAGE)
@@ -1193,6 +1196,7 @@ if MAKE_IMAGE
 .HANGTEST bne HANGTEST ; TODO TEMP
     rts
 .SFTODO
+    rts
     pha:lda #30:jsr oswrch:pla:jsr oswrch
     jmp osrdch
 .clc_remove_sprite_from_screen_indirect ; TODO JUST TEMP, DEBUGGING CODE HAS MADE BRANCH OUT OF RANGE
