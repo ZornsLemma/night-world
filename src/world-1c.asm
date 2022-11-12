@@ -1191,8 +1191,7 @@ if MAKE_IMAGE
     dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
     dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
     ; SFTODO: SHOULLD WORK BUT EXPERIMENTING lda ri_x:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 - IF REINSTATE THIS NEED TO DO PLA:STA
-    ; TODO: HACKY LDA # IN NEXT LINE FOR DEBUGGING
-    ldx ri_x:pla:sta ri_z:pla:sta ri_x:txa:lda #SLOT_ENEMY:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
+    ldx ri_x:pla:sta ri_z:pla:sta ri_x:txa:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
     lda #'a':jsr SFTODO
