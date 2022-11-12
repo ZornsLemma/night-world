@@ -2279,6 +2279,7 @@ endif
 .^play_330
     ; 330W%=SLOT_LEE:CALLS%
     lda #SLOT_LEE:sta ri_w
+    lda #S_OP_MOVE:sta ri_y ; TODO: not part of the original code but I am trying to tighten up the Y values on entry to s_subroutine - before it would happen to work
     jsr s_subroutine
 .play_335
     ; 335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0:GOTO270 ELSEIFgame_ended%=1:ENDPROC
