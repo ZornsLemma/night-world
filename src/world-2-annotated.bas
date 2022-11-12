@@ -201,6 +201,8 @@ constant FIXED_PALETTE3=7
   851REM TODO: Experimental anti-stick hack - if this works, we might want to tidy up the drawing process so the user can't see this being removed, though it's probably not a huge deal.
   852IFb1%=12:GCOL0,0:MOVE312,224:DRAW312,288:MOVE384,224:DRAW384,288:REM widen the base of the chimney towards left of room K so player can "climb" it
   860PROCset8(R_TABLE_DOOR_SLAM_COUNTER,0)
+  865REM For room 1 (Ed's room D), the winged created starts off overlapping the statue. We need to make sure we draw the statue first so the solid sprite logic is able to work correctly.
+    870IFFNget8(R_TABLE_LOGICAL_ROOM)=1:Y%=S_OP_SHOW:PROCshow_using_slot_misc(9,12,IMAGE_STATUE):IFFNitem_collected(1)=0:PROCshow_using_slot_misc(2,12,IMAGE_FLEECE_MACGUFFIN_PRISM)
   880IFFNget8(R_TABLE_ROOM_TYPE)=2:I%=608:J%=672:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:GOTO900
   890PROCset8(R_TABLE_DB,6):IFFNget8(R_TABLE_ROOM_TYPE)>0:I%=291:J%=480:W%=SLOT_ENEMY:Y%=S_OP_MOVE:CALLS%:IFFNget8(R_TABLE_ROOM_TYPE)=1:X%=IMAGE_HARPY_RIGHT:CALLU%
   900IFFNget8(R_TABLE_LOGICAL_ROOM)=2ANDFNget8(R_TABLE_SCORE)=80:PROCset8(R_TABLE_ROOM_TYPE,3):X%=IMAGE_VEIL2:CALLU%:GOTO960
@@ -214,7 +216,6 @@ constant FIXED_PALETTE3=7
   980IFFNget8(R_TABLE_LOGICAL_ROOM)=10ANDFNget8(R_TABLE_SCORE)>70:PRINTTAB(10,26)"  "
   990IFFNget8(R_TABLE_LOGICAL_ROOM)=5ANDFNget8(R_TABLE_SCORE)>80:PRINTTAB(9,14)"  "
  1000IFFNget8(R_TABLE_LOGICAL_ROOM)=13:PROCroom_13_tweaks
- 1010IFFNget8(R_TABLE_LOGICAL_ROOM)=1:PROCshow_using_slot_misc(9,12,IMAGE_STATUE):IFFNitem_collected(1)=0:PROCshow_using_slot_misc(2,12,IMAGE_FLEECE_MACGUFFIN_PRISM)
  1020IFFNget8(R_TABLE_LOGICAL_ROOM)=7:PROCshow_using_slot_misc(6,21,IMAGE_STATUE):IFFNitem_collected(2)=0:PROCshow_using_slot_misc(2,11,IMAGE_FLEECE_MACGUFFIN_PRISM)
  1030IFFNget8(R_TABLE_LOGICAL_ROOM)=2:PROCshow_using_slot_misc(1,23,IMAGE_WALL_ENEMY_LEFT)
  1040IFFNget8(R_TABLE_LOGICAL_ROOM)=8:PROCshow_using_slot_misc(11,23,IMAGE_STATUE):PROCshow_using_slot_misc(9,21,IMAGE_STATUE):PROCshow_using_slot_misc(13,24,IMAGE_STATUE)
