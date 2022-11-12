@@ -1168,11 +1168,14 @@ if MAKE_IMAGE
 .HANGTEST99    bcs HANGTEST99
     ; TODO: THE BUG WITH MOVING SPRITES AND CORRUPTION WHEN THEY OVERLAP IS BECAUSE I AM NOT USING THE *OLD* SPRITE POSITION (WHICH THE EOR-BASED MOVE DOES) FOR THE UNPLOT - JUST NEED TO DECIDE HOW TO WIRE THIS CHANGE IN MOSTLY NEATLY - NO, WE DO SEEM TO DO THAT IN REMOVE_SPRITE_FROM_SCREEN - IS THE ISSUE THAT WE ARE NOT USING THE SOLID REMOVE CODE THERE AND JUST DOING EOR!? - NO, I DON'T THINK THAT'S IT EITHER
     cpx #S_OP_MOVE:bne not_solid_sprite_move_indirect
+    ; If we're moving the player or enemy sprite, which are "solid", we need to
+    ; turn a move operation into separate remove and plot operations to get the
+    ; desired solid effect.
     ldx #0:stx need_extra_player_plot
     cmp #SLOT_LEE-1:beq no_extra_player_unplot
     cmp #SLOT_ENEMY-1:bne not_solid_sprite_move_indirect
-    ; We know we're moving a sprite which is already on the screen; if it's a
-    ; solid sprite, turn this into explicit remove and plot operations.
+    ; We're moving the enemy sprite, so we may need to temporarily hide the player sprite. We mustn't do this unless the player sprite is visible!
+    lda slot_addr_table+screen_addr_hi+(SLOT_LEE-1)*4:beq no_extra_player_unplot
     ; TODO: We need to take care of enemy and player sprites overlapping and unplot the player sprite temporarily when moving enemies, but let's not worry about that just yet. A first attempt at this could just *always* unplot the player sprite, but it would probably be nicer to do a collision detection just between those two sprites and only unplot if they are overlapping.
     ; TODO: It might be faster to *just* check for a collision between the two sprite slots of interest, but this is easier for now.
     ; We're moving the enemy sprite, so *if we're overlapping it*, remove the player sprite and reinstate it after.
@@ -1188,7 +1191,8 @@ if MAKE_IMAGE
     dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
     dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
     ; SFTODO: SHOULLD WORK BUT EXPERIMENTING lda ri_x:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 - IF REINSTATE THIS NEED TO DO PLA:STA
-    ldx ri_x:pla:sta ri_z:pla:sta ri_x:txa:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
+    ; TODO: HACKY LDA # IN NEXT LINE FOR DEBUGGING
+    ldx ri_x:pla:sta ri_z:pla:sta ri_x:txa:lda #SLOT_ENEMY:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
     lda #'a':jsr SFTODO
