@@ -435,6 +435,10 @@ endif
     equb   0,   0,   0,   0,   0,   0,   0, &11, &11, &33, &23, &76
     equb &47, &fc, &8f, &ff,   0, &88, &88, &cc, &4c, &e6, &2e, &ff
 ; Health pickup
+; TODO: I think only one of the four sub-pixel versions of this is ever actually
+; displayed, so we could re-use the space for three of them. (If the one used is
+; not the first or last, we could offset the sprite_17 label to avoid breaking up
+; the space into two chunks.)
 .sprite_17
     equb   0,   0, &11, &36, &35, &3c, &2c, &2c,   0,   0, &c4, &eb
     equb &e5, &e9, &a1, &a1,   0,   0,   0,   0,   0,   8,   8,   8
