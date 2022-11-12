@@ -1136,7 +1136,6 @@ endif
     clc
     jmp remove_sprite_from_screen
 
-; TODO: WARPING INTO ROOM N, LETTING THE EYE GET ON TOP OF YOU AND THEN MOVING AWAY TO RIGHT CAN LEAVE CORRUPTION BEHIND - THIS MIGHT BE FIXED, NOT SURE
 ; Sprite display subroutine.
 ;
 ; On entry:
