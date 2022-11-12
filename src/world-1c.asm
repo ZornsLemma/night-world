@@ -948,6 +948,7 @@ sprite_height_pixels = 16
 .test_abs_x_difference
     ; TODO: "Logically" this should be cmp #sprite_width_pixels+1, shouldn't it?
     ; See comment on test_abs_y_difference below.
+.^SFTODOPATCH1
     cmp #sprite_width_pixels:bcs next_candidate
     ; abs(W%'s X coord, candidate's X coord) <= sprite_width_pixels, so the two
     ; overlap in the X dimension. Check for Y overlap now.
@@ -962,7 +963,11 @@ sprite_height_pixels = 16
     ; TODO: "Logically" this should be cmp #sprite_height_pixels+1, shouldn't
     ; it? In practice as noted elsewhere the code works and it's probably best
     ; to take its behaviour as correct by definition unless a glaring flaw turns
-    ; up.
+    ; up. [Actually this feels right as written now I look at it again, but maybe
+    ; I'm confused. If the sprite is 1 pixel wide, the coordinates have to exactly
+    ; match for there to be overlap, so if the difference is >=1 there's no overlap,
+    ; which is what we have here.]
+.^SFTODOPATCH2
     cmp #sprite_height_pixels:bcs next_candidate
     ; abs(W%'s Y coord, candidate's Y coord) <= ~sprite_height_pixels, so the
     ; two overlap in both dimensions and we've found a collision.
@@ -1148,6 +1153,10 @@ endif
 ; investigate these aspects.
 ; TODO: Although it's worth bearing in mind that not all rooms have an enemy (I think), there might be some flicker reduction potential in always (rather than trying to be smart and do it if there's a collision only) doing both the enemy and player unplot/plot in here and *not* doing the player move in the regular game loop. This *might* slightly tweak how/when the player position is updated, but it might not or it might not matter if it does. worth thinking about.
 osrdch = &ffe0 ; TODO TEMP
+if MAKE_IMAGE
+.not_solid_sprite_move_indirect
+    jmp not_solid_sprite_move ; TODO HACK
+endif
 .^s_subroutine
     lda ri_w:beq r_subroutine_rts
     cmp #max_sprite_num+1:bcs r_subroutine_rts
@@ -1156,10 +1165,10 @@ osrdch = &ffe0 ; TODO TEMP
 if MAKE_IMAGE
 .HANGTEST99    bcs HANGTEST99
     ; TODO: THE BUG WITH MOVING SPRITES AND CORRUPTION WHEN THEY OVERLAP IS BECAUSE I AM NOT USING THE *OLD* SPRITE POSITION (WHICH THE EOR-BASED MOVE DOES) FOR THE UNPLOT - JUST NEED TO DECIDE HOW TO WIRE THIS CHANGE IN MOSTLY NEATLY - NO, WE DO SEEM TO DO THAT IN REMOVE_SPRITE_FROM_SCREEN - IS THE ISSUE THAT WE ARE NOT USING THE SOLID REMOVE CODE THERE AND JUST DOING EOR!? - NO, I DON'T THINK THAT'S IT EITHER
-    cpx #S_OP_MOVE:bne not_solid_sprite_move
+    cpx #S_OP_MOVE:bne not_solid_sprite_move_indirect
     ldx #0:stx need_extra_player_plot
     cmp #SLOT_LEE-1:beq no_extra_player_unplot
-    cmp #SLOT_ENEMY-1:bne not_solid_sprite_move
+    cmp #SLOT_ENEMY-1:bne not_solid_sprite_move_indirect
     ; We know we're moving a sprite which is already on the screen; if it's a
     ; solid sprite, turn this into explicit remove and plot operations.
     ; TODO: We need to take care of enemy and player sprites overlapping and unplot the player sprite temporarily when moving enemies, but let's not worry about that just yet. A first attempt at this could just *always* unplot the player sprite, but it would probably be nicer to do a collision detection just between those two sprites and only unplot if they are overlapping.
@@ -1167,8 +1176,16 @@ if MAKE_IMAGE
     ; We're moving the enemy sprite, so *if we're overlapping it*, remove the player sprite and reinstate it after.
     lda #SLOT_LEE:sta ri_w
     lda #SLOT_ENEMY:sta ri_y
+    ; TODO: The inc/dec here add an extra pixel of overlap to the collision detection in q_subroutine. This is a bit of a hack. I currently think q_subroutine is correct as written, *but* since the sprites are moving here, we actually should do this test against both the current and new positions. In order to hackily approximate this, we just widen the collision detection window by one pixel. TODO EVEN MORE HACKILY MAKING IT TWO, AS I HAD CORRUPTION WITH JUST ONE (*PROBABLY* A SIDE EFFECT OF PLAYER MOVING LEFT WHILE ENEMY MOVING - THEORETICALLY ONLY THE ENEMY IS MOVING HERE, BUT AS NOTED ELSEWHERE THIS SOLID MOVE LOGIC HAS THE NEW SIDE EFFECT OF PICKING UP UPDATED SPRITE POSITION ON THE PLAYER "EARLY") - OK, I STILL SAW CORRUPTION WITH TWO, SO HACKED IT UP TO THREE - WOULD BE GOOD TO UNDERSTAND WHAT'S GOING ON, OF COURSE!
+    inc SFTODOPATCH1+1:inc SFTODOPATCH2+1
+    inc SFTODOPATCH1+1:inc SFTODOPATCH2+1
+    inc SFTODOPATCH1+1:inc SFTODOPATCH2+1
     jsr q_subroutine
-    lda ri_x:cmp #SLOT_ENEMY:bne no_extra_player_unplot2
+    dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
+    dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
+    dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
+    ; SFTODO: SHOULLD WORK BUT EXPERIMENTING lda ri_x:cmp #SLOT_ENEMY:bne no_extra_player_unplot2
+    lda ri_x:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
     lda #'a':jsr SFTODO
