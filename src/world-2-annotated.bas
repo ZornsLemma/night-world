@@ -241,7 +241,9 @@ constant FIXED_PALETTE3=7
  1150PROCdraw_current_room:ENDPROC
 
  1181IFFNget8(R_TABLE_THIS_ITEM)<5:PROCshow_prisms
- 1182W%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:REM remove the collected object from the room
+ 1182PROCremove_lee_sprite:REM so the removal of the collected object doesn't break solid sprites
+ 1185W%=SLOT_MISC:Y%=S_OP_REMOVE:CALLS%:REM remove the collected object from the room
+ 1186W%=SLOT_LEE:Y%=S_OP_SHOW:CALLS%:REM restore player sprite
  1190PROCstop_sound:PROCdelay(100):SOUND1,6,20,4
  1191IF?TWEAK_STROBE=0:VDU19,0,7;0;
  1192PROCset8(R_TABLE_SCORE,FNget8(R_TABLE_SCORE)+20):PROCset8(R_TABLE_ENERGY_MINOR,50):PROCdelay(150):VDU19,0,0;0;
