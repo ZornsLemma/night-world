@@ -603,10 +603,10 @@ if MAKE_IMAGE
 ; TODO: For the moment I've just shoved the sprite masks and backing into low memory without much thought.
 .enemy_sprite_mask_valid
     equb 0
-enemy_sprite_mask = &900 ; 48*4 bytes
-enemy_sprite_backing = &900 + 48*4 ; 48 bytes
-player_sprite_mask = &a00 ; 48*4 bytes
-player_sprite_backing = &a00 + 48*4 ; 48 bytes
+enemy_sprite_mask = &a00 ; 48*4 bytes
+enemy_sprite_backing = &a00 + 48*4 ; 48 bytes
+player_sprite_mask = &b10 ; 48*4 bytes
+player_sprite_backing = &b10 + 48*4 ; 48 bytes
 if FALSE ; TODO HACK
 .enemy_sprite_mask
     skip 48*4
@@ -1136,7 +1136,6 @@ endif
     clc
     jmp remove_sprite_from_screen
 
-; TODO: COLLECTING PRISM IN ROOM D CAUSES CORRUPTION
 ; TODO: WARPING INTO ROOM N, LETTING THE EYE GET ON TOP OF YOU AND THEN MOVING AWAY TO RIGHT CAN LEAVE CORRUPTION BEHIND - THIS MIGHT BE FIXED, NOT SURE
 ; Sprite display subroutine.
 ;
