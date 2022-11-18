@@ -1178,6 +1178,8 @@ if MAKE_IMAGE
     cmp #SLOT_ENEMY-1:bne not_solid_sprite_move_indirect
     ; We're moving the enemy sprite, so we may need to temporarily hide the player sprite. We mustn't do this unless the player sprite is visible!
     lda slot_addr_table+screen_addr_hi+(SLOT_LEE-1)*4:beq no_extra_player_unplot
+    ; We now do the main player sprite update here for rooms with enemies. If the player has moved, we want to do an unplot/plot for them even if they aren't overlapping the enemy.
+    lda player_moved:bne extra_player_unplot
     ; TODO: We need to take care of enemy and player sprites overlapping and unplot the player sprite temporarily when moving enemies, but let's not worry about that just yet. A first attempt at this could just *always* unplot the player sprite, but it would probably be nicer to do a collision detection just between those two sprites and only unplot if they are overlapping.
     ; TODO: It might be faster to *just* check for a collision between the two sprite slots of interest, but this is easier for now.
     ; We're moving the enemy sprite, so *if we're overlapping it*, remove the player sprite and reinstate it after.
@@ -1196,6 +1198,8 @@ if MAKE_IMAGE
     dec SFTODOPATCH1+1:dec SFTODOPATCH2+1
     ; SFTODO: SHOULLD WORK BUT EXPERIMENTING lda ri_x:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 - IF REINSTATE THIS NEED TO DO PLA:STA
     ldx ri_x:pla:sta ri_z:pla:sta ri_x:txa:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
+.extra_player_unplot
+    lda #SLOT_LEE:sta ri_w
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
     lda #'a':jsr SFTODO
@@ -2145,6 +2149,8 @@ if MAKE_IMAGE
     equb 0
 .^door_slam_counter
     equb 0
+.^player_moved
+    equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
 ; performance should still be vastly better than BASIC, and by avoiding being
@@ -2158,6 +2164,7 @@ if MAKE_IMAGE
     lda #S_OP_MOVE:sta ri_y
     lda #SLOT_LEE:sta ri_w ; TODO: probably redundant
 .^play_280
+    lda #0:sta player_moved
     ; Handle slamming the door in room L if necessary.
     lda door_slam_counter:beq no_door_slam_needed
     dec door_slam_counter:bne no_door_slam_needed
@@ -2238,6 +2245,7 @@ endif
     lda ri_c+1:adc #0:sta osword_read_pixel_block_x+1
     jsr point
     lda osword_read_pixel_block_result:bne not_black_below
+    inc player_moved
     lda falling_delta_x:bmi falling_delta_x_negative
     clc:adc ri_c:sta ri_c
     lda ri_c+1:adc #0:sta ri_c+1
@@ -2261,6 +2269,7 @@ endif
     lda player_x_safe+1:sta ri_c+1
     lda player_y_safe:sta ri_d
     lda player_y_safe+1:sta ri_d+1
+    inc player_moved
     jmp done_move_left_right ; don't confuse matters by also allowing the user to move this cycle
 .not_teleport
     ldx #-98 and &ff:jsr inkey:bne not_move_left:jsr move_left:jmp done_move_left_right
@@ -2270,6 +2279,7 @@ endif
     ; 310falling_time%=0:IFINKEY-1jumping%=1:jump_time%=0:jump_delta_y%=8:falling_delta_x%=delta_x%:SOUND1,11,D%,12 ELSEIFINKEY-56PROCpause
     lda #0:sta falling_time
     ldx #-1 and &ff:jsr inkey:bne not_jump
+    inc player_moved
     lda #1:sta jumping
     lda #0:sta jump_time
     lda #8:sta jump_delta_y
@@ -2306,6 +2316,12 @@ endif
     ; 330W%=SLOT_LEE:CALLS%
     lda #SLOT_LEE:sta ri_w
     lda #S_OP_MOVE:sta ri_y ; TODO: not part of the original code but I am trying to tighten up the Y values on entry to s_subroutine - before it would happen to work
+    ; TODO: Experimental - if room_type>0, there is an enemy in the room and we handle player and enemy movement together to reduce flicker.
+    ; TODO: Experimental - if the player didn't move, don't update their sprite to reduce flicker. The exception is if they are currently not visible, in which case we must do this to show the player sprite initially.
+    lda slot_addr_table+screen_addr_hi+(SLOT_LEE-1)*4:beq player_not_visible_yet
+    lda room_type:beq play_335
+    lda player_moved:beq play_335
+.player_not_visible_yet
     jsr s_subroutine
 .play_335
     ; 335IFC%<24ORC%>1194ORD%>730ORD%<228PROCchange_room:PROCreset_note_count:IFgame_ended%=0:GOTO270 ELSEIFgame_ended%=1:ENDPROC
@@ -2608,6 +2624,7 @@ endif
     lda #-8 and &ff:sta delta_x
     sec:lda ri_c:sbc #8:sta ri_c
     lda ri_c+1:sbc #0:sta ri_c+1
+    inc player_moved
 .move_left_rts
     rts
 
@@ -2624,6 +2641,7 @@ endif
     lda #8:sta delta_x
     clc:lda ri_c:adc #8:sta ri_c
     lda ri_c+1:adc #0:sta ri_c+1
+    inc player_moved
 .move_right_rts
     rts
 
@@ -2645,6 +2663,7 @@ endif
     jmp stop_sound
 .dont_stop_jumping
     ; 490jump_time%=jump_time%+2:D%=D%+jump_delta_y%:C%=C%+delta_x%
+    inc player_moved
     clc:lda jump_time:adc #2:sta jump_time ; TODO: need to worry about wrapping?
     ldx #0:lda jump_delta_y:bpl jump_delta_y_positive:dex:.jump_delta_y_positive
     clc:adc ri_d:sta ri_d

@@ -18,7 +18,7 @@ if [ "$USE_WORLD_2_ANNOTATED" == "0" ]; then
     basictool -t src/world-2.bas tmp/world-2.tok
     cmp orig/world-2.tok tmp/world-2.tok || (echo world-2.tok not rebuilt correctly > /dev/stderr; exit 1)
 else
-    python preprocess.py src/world-2-annotated.bas > tmp/world-2-annotated.bas
+    python2 preprocess.py src/world-2-annotated.bas > tmp/world-2-annotated.bas
     # TODO: Do we need --pack-singles-n?
     basictool -tp --pack-singles-n tmp/world-2-annotated.bas tmp/world-2.tok
 fi
@@ -37,7 +37,7 @@ basictool -t src/nightwo.bas tmp/nightwo.tok
 
 basictool -2t src/world-1b.bas tmp/world-1b.tok
 
-python pack-rooms.py src/rooms.asm src/rooms-packed.asm
+python2 pack-rooms.py src/rooms.asm src/rooms-packed.asm
 
 beebasm -do tmp/int1.ssd -title "Night World" -opt 3 -i src/disc.asm
 #beebasm -do tmp/int2.ssd -di tmp/int1.ssd -D MAKE_IMAGE -i src/world-1c-wrapper.asm
