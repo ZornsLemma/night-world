@@ -3,6 +3,18 @@
 
 MAKE_IMAGE =? FALSE
 
+if MAKE_IMAGE
+    ; Commenting out/uncommenting the body of these macros uses palette changes
+    ; to show where the raster is.
+    macro debug_set_background_non_black_using_a
+        ; lda #0:sta &fe21
+    endmacro
+
+    macro debug_set_background_black_using_a
+        ; lda #7:sta &fe21
+    endmacro
+endif
+
 max_sprite_num = 48 ; 1-based
 bytes_per_screen_row = 40*8 ; 40 (6845) characters, eight bytes each
 
@@ -1202,7 +1214,7 @@ if MAKE_IMAGE
     ldx ri_x:pla:sta ri_z:pla:sta ri_x:txa:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
 .extra_player_unplot
     lda #19:sta wait_for_vsync_done:jsr osbyte ; TEMP
-    lda #0:sta &fe21 ; TEMP
+    debug_set_background_non_black_using_a
     lda #SLOT_LEE:sta ri_w
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
@@ -1212,7 +1224,7 @@ if MAKE_IMAGE
 .no_extra_player_unplot
     lda wait_for_vsync_done:bne skip_wait_for_vsync
     lda #19:jsr osbyte ; TEMP
-    lda #0:sta &fe21 ; TEMP
+    debug_set_background_non_black_using_a
 .skip_wait_for_vsync
     lda #2:sta ri_y:jsr s_subroutine ; remove
     lda #'b':jsr SFTODO
@@ -1227,7 +1239,7 @@ if MAKE_IMAGE
 .no_extra_player_plot
     dec ri_y ; restore original 0 value
 .HANGTEST bne HANGTEST ; TODO TEMP
-    lda #7:sta &fe21 ; TEMP
+    debug_set_background_black_using_a
     rts
 .SFTODO
     rts
@@ -2358,7 +2370,7 @@ endif
 .play_340
     ; 340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
     lda #SLOT_ENEMY:sta ri_w
-    ldx room_type:beq room_type_0
+    ldx room_type:beq room_type_0 ; TODO: is room type 0 possible? a few places in code allow for it which may not be necessary, but not sure
     dex:beq jsr_room_type_1
     dex:beq jsr_room_type_2
     dex:beq jsr_room_type_3
