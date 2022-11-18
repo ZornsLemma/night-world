@@ -1160,6 +1160,8 @@ osrdch = &ffe0 ; TODO TEMP
 if MAKE_IMAGE
 .not_solid_sprite_move_indirect
     jmp not_solid_sprite_move ; TODO HACK
+.no_extra_player_unplot_indirect
+    jmp no_extra_player_unplot ; TODO HACK
 endif
 .^s_subroutine
     lda ri_w:beq r_subroutine_rts
@@ -1173,8 +1175,8 @@ if MAKE_IMAGE
     ; If we're moving the player or enemy sprite, which are "solid", we need to
     ; turn a move operation into separate remove and plot operations to get the
     ; desired solid effect.
-    ldx #0:stx need_extra_player_plot
-    cmp #SLOT_LEE-1:beq no_extra_player_unplot
+    ldx #0:stx need_extra_player_plot:stx wait_for_vsync_done
+    cmp #SLOT_LEE-1:beq no_extra_player_unplot_indirect
     cmp #SLOT_ENEMY-1:bne not_solid_sprite_move_indirect
     ; We're moving the enemy sprite, so we may need to temporarily hide the player sprite. We mustn't do this unless the player sprite is visible!
     lda slot_addr_table+screen_addr_hi+(SLOT_LEE-1)*4:beq no_extra_player_unplot
@@ -1199,6 +1201,8 @@ if MAKE_IMAGE
     ; SFTODO: SHOULLD WORK BUT EXPERIMENTING lda ri_x:cmp #SLOT_ENEMY:bne no_extra_player_unplot2 - IF REINSTATE THIS NEED TO DO PLA:STA
     ldx ri_x:pla:sta ri_z:pla:sta ri_x:txa:beq no_extra_player_unplot2 ; TODO: slightly shorter and "safer" as if the player is colliding with something *else* (which I don't think they can be, but not 100% sure) and that gets reported instead, we will *assume* the player is colliding with the enemy, which is the safe if slow/flickery option.
 .extra_player_unplot
+    lda #19:sta wait_for_vsync_done:jsr osbyte ; TEMP
+    lda #0:sta &fe21 ; TEMP
     lda #SLOT_LEE:sta ri_w
     inc need_extra_player_plot
     lda #2:sta ri_y:jsr s_subroutine ; remove
@@ -1206,6 +1210,10 @@ if MAKE_IMAGE
 .no_extra_player_unplot2 ; TODO CRAP LABEL
     lda #SLOT_ENEMY:sta ri_w
 .no_extra_player_unplot
+    lda wait_for_vsync_done:bne skip_wait_for_vsync
+    lda #19:jsr osbyte ; TEMP
+    lda #0:sta &fe21 ; TEMP
+.skip_wait_for_vsync
     lda #2:sta ri_y:jsr s_subroutine ; remove
     lda #'b':jsr SFTODO
     dec ri_y:jsr s_subroutine ; show
@@ -1219,6 +1227,7 @@ if MAKE_IMAGE
 .no_extra_player_plot
     dec ri_y ; restore original 0 value
 .HANGTEST bne HANGTEST ; TODO TEMP
+    lda #7:sta &fe21 ; TEMP
     rts
 .SFTODO
     rts
@@ -2150,6 +2159,8 @@ if MAKE_IMAGE
 .^door_slam_counter
     equb 0
 .^player_moved
+    equb 0
+.^wait_for_vsync_done ; TODO TEMP?
     equb 0
 
 ; I am trying to translate this code in a fairly literal fashion; the
