@@ -2342,7 +2342,7 @@ endif
     ; TODO: Experimental - if room_type>0, there is an enemy in the room and we handle player and enemy movement together to reduce flicker.
     ; TODO: Experimental - if the player didn't move, don't update their sprite to reduce flicker. The exception is if they are currently not visible, in which case we must do this to show the player sprite initially.
     lda slot_addr_table+screen_addr_hi+(SLOT_LEE-1)*4:beq player_not_visible_yet
-    lda room_type:beq play_335
+    lda room_type:bne play_335
     lda player_moved:beq play_335
 .player_not_visible_yet
     jsr s_subroutine
@@ -2370,7 +2370,7 @@ endif
 .play_340
     ; 340W%=SLOT_ENEMY:IFroom_type%=1:PROCroom_type1 ELSEIFroom_type%=2:PROCroom_type2 ELSEIFroom_type%=3:PROCroom_type3 ELSEIFroom_type%=4:PROCroom_type4 ELSEIFroom_type%=5:PROCroom_type5
     lda #SLOT_ENEMY:sta ri_w
-    ldx room_type:beq room_type_0 ; TODO: is room type 0 possible? a few places in code allow for it which may not be necessary, but not sure
+    ldx room_type:beq room_type_0
     dex:beq jsr_room_type_1
     dex:beq jsr_room_type_2
     dex:beq jsr_room_type_3
